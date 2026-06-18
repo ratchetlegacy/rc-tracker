@@ -61,7 +61,7 @@
     .header-top{display:flex;align-items:center;gap:14px;margin-bottom:18px}
     .logo-img{width:52px;height:52px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 20px rgba(123,79,212,.4);position:relative}
     .logo-img img{width:100%;height:100%;object-fit:cover}
-    .logo-img .logo-fallback{display:none;width:100%;height:100%;background:linear-gradient(135deg,var(--purple),var(--orange));align-items:center;justify-content:center;font-size:22px}
+    .logo-img .logo-fallback{display:none;width:100%;height:100%;background:linear-gradient(135deg,var(--purple),var(--orange));align-items:center;justify-content:center;font-size:22px;position:absolute;top:0;left:0}
     .logo-icon{width:46px;height:46px;background:linear-gradient(135deg,var(--purple),var(--orange));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 20px rgba(123,79,212,.4)}
     .header-titles h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.3rem;letter-spacing:.04em;background:linear-gradient(90deg,#fff 40%,var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
     .header-titles span{font-size:.72rem;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase}
@@ -929,7 +929,9 @@ function render(){
       const STATUS_LABELS={owned:'Possédé',wishlist:'Souhaité',missing:'Manquant'};
       const showPrices=item.buy_price!=null||item.cur_value!=null;
       card.innerHTML=`
-        ${item.img_url?`<div class="card-cover"><img src="${escHtml(item.img_url)}" alt="${escHtml(item.name)}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.parentElement.innerHTML='<span class=no-img>${getIcon(item.type)}</span>'"/></div>`:''}
+        <div class="card-cover">${item.img_url?`<img src="${escHtml(item.img_url)}" alt="${escHtml(item.name)}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:contain" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>`:''}
+          <span class="no-img" style="${item.img_url?'display:none':''}">${getIcon(item.type)}</span>
+        </div>`
         <div class="card-body" onclick="openDetail('${item.id}')" style="cursor:pointer">
           <div class="card-top">
             <span class="card-emoji">${getIcon(item.type)}</span>
