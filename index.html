@@ -923,52 +923,83 @@ function render(){
     const grid=sec.querySelector('.items-grid');
     catItems.forEach(item=>{
       const card=document.createElement('div');
-      card.className=`item-card ${item.status}`;
+      card.className='item-card '+item.status;
       const condCls=COND_CLASSES[item.condition||'occasion']||'cond-used';
       const condLabel=COND_LABELS[item.condition||'occasion']||'Occasion';
       const STATUS_LABELS={owned:'Possédé',wishlist:'Souhaité',missing:'Manquant'};
       const showPrices=item.buy_price!=null||item.cur_value!=null;
-      card.innerHTML=`
-        <div class="card-cover">${item.img_url?('<img src="'+escHtml(item.img_url)+'" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:contain" onerror=\'this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'\'/>'):''}
-          <span class="no-img" style="${item.img_url?'display:none':''}">${getIcon(item.type)}</span>
-        </div>`
-        <div class="card-body" onclick="openDetail('${item.id}')" style="cursor:pointer">
-          <div class="card-top">
-            <span class="card-emoji">${getIcon(item.type)}</span>
-            <div class="card-badges">
-              <span class="badge ${item.status}">${STATUS_LABELS[item.status]||item.status}</span>
-              ${item.condition&&item.condition!=='non_concerne'?`<span class="badge ${condCls}">${condLabel}</span>`:''}
-              ${item.region?`<span class="badge region">${item.region}</span>`:''}
-            </div>
-          </div>
-          <div class="card-name">${escHtml(item.name)}</div>
-          <div class="card-meta">
-            ${item.edition?`<span>📌 ${escHtml(item.edition)}</span>`:''}
-            ${item.platform?`<span>🖥 ${escHtml(item.platform)}</span>`:''}
-            ${item.manufacturer?`<span>🏭 ${escHtml(item.manufacturer)}</span>`:''}
-          </div>
-          ${item.rating?`<div class="card-stars">${'⭐'.repeat(item.rating)}<span class="rating-label">${item.rating}/5</span></div>`:''}
-          ${renderCompleteness(item)}
-          ${showPrices?`
-            <div class="card-prices">
-              <div class="price-chip"><div class="plabel">Achat</div>${item.buy_price!=null?`<div class="pval">${fmtEur(item.buy_price)}</div>`:'<div class="pval no-price">—</div>'}</div>
-              <div class="price-chip"><div class="plabel">Valeur</div>${item.cur_value!=null?`<div class="pval">${fmtEur(item.cur_value)}</div>`:'<div class="pval no-price">—</div>'}</div>
-            </div>
-            ${renderDelta(item.buy_price,item.cur_value)}
-          `:''}
-          ${item.notes?`<div class="card-note">📝 ${escHtml(item.notes)}</div>`:''}
-          ${item.comment?`<div class="card-note">💬 ${escHtml(item.comment)}</div>`:''}
-          ${item.wish_url&&item.status==='wishlist'?`<a href="${item.wish_url}" target="_blank" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:6px;padding:6px;background:rgba(255,212,71,.1);border:1px solid rgba(255,212,71,.3);border-radius:8px;color:var(--wishlist);font-size:.72rem;font-weight:600;text-decoration:none;">🛒 Voir l'annonce</a>`:''}
-          <div class="card-actions" onclick="event.stopPropagation()">
-            <button class="action-btn set-owned" onclick="setStatus('${item.id}','owned')">✅</button>
-            <button class="action-btn set-wish" onclick="setStatus('${item.id}','wishlist')">🎯</button>
 
-            <button class="action-btn edit-btn" onclick="openModal('${item.id}')">✏️</button>
-            <button class="action-btn del-btn" onclick="deleteItem('${item.id}')">🗑</button>
-          </div>
-        </div>`;
+      // Build card HTML using string concatenation to avoid backtick issues
+      let html = '';
+
+      // Cover image
+      html += '<div class="card-cover">';
+      if(item.img_url){
+        html += '<img src="'+escHtml(item.img_url)+'" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:contain" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;"/>';
+        html += '<span class="no-img" style="display:none">'+getIcon(item.type)+'</span>';
+      } else {
+        html += '<span class="no-img">'+getIcon(item.type)+'</span>';
+      }
+      html += '</div>';
+
+      // Card body
+      html += "<div class=\"card-body\" data-id=\""+item.id+"\" onclick=\"openDetail(this.dataset.id)\" style=\"cursor:pointer\">";
+      html += '<div class="card-top">';
+      html += '<span class="card-emoji">'+getIcon(item.type)+'</span>';
+      html += '<div class="card-badges">';
+      html += '<span class="badge '+item.status+'">'+(STATUS_LABELS[item.status]||item.status)+'</span>';
+      if(item.condition&&item.condition!=='non_concerne') html += '<span class="badge '+condCls+'">'+condLabel+'</span>';
+      if(item.region) html += '<span class="badge region">'+escHtml(item.region)+'</span>';
+      html += '</div></div>';
+
+      // Name + meta
+      html += '<div class="card-name">'+escHtml(item.name)+'</div>';
+      html += '<div class="card-meta">';
+      if(item.edition) html += '<span>📌 '+escHtml(item.edition)+'</span>';
+      if(item.platform) html += '<span>🖥 '+escHtml(item.platform)+'</span>';
+      if(item.manufacturer) html += '<span>🏭 '+escHtml(item.manufacturer)+'</span>';
+      html += '</div>';
+
+      // Stars
+      if(item.rating) html += '<div class="card-stars">'+'⭐'.repeat(item.rating)+'<span class="rating-label">'+item.rating+'/5</span></div>';
+
+      // Completeness
+      html += renderCompleteness(item);
+
+      // Prices
+      if(showPrices){
+        html += '<div class="card-prices">';
+        html += '<div class="price-chip"><div class="plabel">Achat</div>';
+        html += item.buy_price!=null?'<div class="pval">'+fmtEur(item.buy_price)+'</div>':'<div class="pval no-price">—</div>';
+        html += '</div>';
+        html += '<div class="price-chip"><div class="plabel">Valeur</div>';
+        html += item.cur_value!=null?'<div class="pval">'+fmtEur(item.cur_value)+'</div>':'<div class="pval no-price">—</div>';
+        html += '</div></div>';
+        html += renderDelta(item.buy_price,item.cur_value);
+      }
+
+      // Notes
+      if(item.notes) html += '<div class="card-note">📝 '+escHtml(item.notes)+'</div>';
+      if(item.comment) html += '<div class="card-note">💬 '+escHtml(item.comment)+'</div>';
+
+      // Wish link
+      if(item.wish_url&&item.status==='wishlist'){
+        html += '<a href="'+escHtml(item.wish_url)+'" target="_blank" onclick="event.stopPropagation()" style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:6px;padding:6px;background:rgba(255,212,71,.1);border:1px solid rgba(255,212,71,.3);border-radius:8px;color:var(--wishlist);font-size:.72rem;font-weight:600;text-decoration:none;">&#x1F6D2; Voir annonce</a>';
+      }
+
+      // Actions
+      html += "<div class=\"card-actions\" onclick=\"event.stopPropagation()\">";
+      html += "<button class=\"action-btn set-owned\" data-id=\""+item.id+"\" data-status=\"owned\" onclick=\"setStatus(this.dataset.id,this.dataset.status)\">✅</button>";
+      html += "<button class=\"action-btn set-wish\" data-id=\""+item.id+"\" data-status=\"wishlist\" onclick=\"setStatus(this.dataset.id,this.dataset.status)\">🎯</button>";
+      html += "<button class=\"action-btn edit-btn\" data-id=\""+item.id+"\" onclick=\"openModal(this.dataset.id)\">✏️</button>";
+      html += "<button class=\"action-btn del-btn\" data-id=\""+item.id+"\" onclick=\"deleteItem(this.dataset.id)\">🗑</button>";
+      html += '</div>';
+
+      html += '</div>'; // card-body
+
+      card.innerHTML = html;
       grid.appendChild(card);
-    });
+        });
   });
   if(!anyItem) container.innerHTML=`<div class="empty-state"><div class="icon">🔧</div>Aucun objet trouvé.</div>`;
 }
