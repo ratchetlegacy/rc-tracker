@@ -1407,6 +1407,8 @@ function savePseudo(){
 
 // ══ CLOUDINARY GALLERY ══
 const CLD_CLOUD = 'dmfq8hkvu';
+const CLD_API_KEY = '487377232434179';
+const CLD_API_SECRET = 'yK0_WCH2PBlU3GNEoElDEL14IGQ';
 const CLD_FOLDERS = ['Jaquettes/PS2','Jaquettes/PS3','Jaquettes/PS4','Jaquettes/PS5','Jaquettes/PSP','Jaquettes/Figurines','Jaquettes/Autres'];
 let gallerySelectedUrl = '';
 let galleryCurrentFolder = '';
@@ -1433,30 +1435,31 @@ async function openGallery(){
 
 async function loadGalleryFolder(folder){
   galleryCurrentFolder = folder;
-  
-  // Update active button
   document.querySelectorAll('.gallery-folder-btn').forEach(b => b.classList.toggle('active', b.dataset.folder === folder));
   
   const grid = document.getElementById('gallery-grid');
   grid.innerHTML = '<div class="gallery-empty">⚙️ Chargement...</div>';
 
   try {
-    // Use Cloudinary search API (unsigned, public)
-    const folderEncoded = encodeURIComponent(folder);
-    const res = await fetch('https://res.cloudinary.com/'+CLD_CLOUD+'/image/list/'+folderEncoded+'.json');
-    if(!res.ok) throw new Error('Dossier vide ou introuvable');
+    // Use Cloudinary Admin API via search expression
+    const res = await fetch(
+      'https://api.cloudinary.com/v1_1/'+CLD_CLOUD+'/resources/search?expression=folder%3D'+encodeURIComponent(folder)+'&max_results=50',
+      { headers: { 'Authorization': 'Basic '+btoa(CLD_API_KEY+':'+CLD_API_SECRET) } }
+    );
+    if(!res.ok) throw new Error('Erreur API');
     const data = await res.json();
     const resources = data.resources || [];
 
     if(!resources.length){
-      grid.innerHTML = '<div class="gallery-empty">📭 Aucune image dans ce dossier.<br><small>Upload des jaquettes sur Cloudinary dans le dossier '+folder+'</small></div>';
+      grid.innerHTML = '<div class="gallery-empty">📭 Aucune image dans ce dossier.<br><small>Upload des jaquettes sur Cloudinary dans le dossier <b>'+folder+'</b></small></div>';
       return;
     }
 
     grid.innerHTML = '';
     resources.forEach(r => {
-      const url = 'https://res.cloudinary.com/'+CLD_CLOUD+'/image/upload/'+r.public_id+'.jpg';
-      const thumbUrl = 'https://res.cloudinary.com/'+CLD_CLOUD+'/image/upload/w_200,q_auto/'+r.public_id+'.jpg';
+      const ext = r.format || 'jpg';
+      const url = 'https://res.cloudinary.com/'+CLD_CLOUD+'/image/upload/'+r.public_id+'.'+ext;
+      const thumbUrl = 'https://res.cloudinary.com/'+CLD_CLOUD+'/image/upload/w_200,h_260,c_fit,q_auto/'+r.public_id+'.'+ext;
       const el = document.createElement('div');
       el.className = 'gallery-item' + (url === gallerySelectedUrl ? ' selected' : '');
       el.dataset.url = url;
@@ -1464,12 +1467,13 @@ async function loadGalleryFolder(folder){
       const img = document.createElement('img');
       img.src = thumbUrl;
       img.loading = 'lazy';
+      img.onerror = () => { img.src = thumbUrl.replace('.'+ext, '.jpg'); };
       el.appendChild(img);
       grid.appendChild(el);
     });
 
   } catch(e) {
-    grid.innerHTML = '<div class="gallery-empty">❌ '+e.message+'<br><small>Active le listing des dossiers dans Cloudinary → Settings → Security → "Resource list"</small></div>';
+    grid.innerHTML = '<div class="gallery-empty">❌ Erreur : '+e.message+'</div>';
   }
 }
 
