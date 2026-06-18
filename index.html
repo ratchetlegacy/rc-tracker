@@ -783,16 +783,23 @@ async function deleteItem(id){
 // ══ RENDER ══
 // RANKS
 const RANKS=[
-  {min:0,   max:4,   name:'Bronze I',   cls:'rank-bronze', icon:'🥉', color:'#CD7F32'},
-  {min:5,   max:9,   name:'Bronze II',  cls:'rank-bronze', icon:'🥉', color:'#CD7F32'},
-  {min:10,  max:19,  name:'Argent I',   cls:'rank-argent', icon:'🥈', color:'#C0C0C0'},
-  {min:20,  max:29,  name:'Argent II',  cls:'rank-argent', icon:'🥈', color:'#C0C0C0'},
-  {min:30,  max:49,  name:'Or I',       cls:'rank-or',     icon:'🥇', color:'#FFD700'},
-  {min:50,  max:74,  name:'Or II',      cls:'rank-or',     icon:'🥇', color:'#FFD700'},
-  {min:75,  max:99,  name:'Platine I',  cls:'rank-platine',icon:'💿', color:'#E5E4E2'},
-  {min:100, max:149, name:'Platine II', cls:'rank-platine',icon:'💿', color:'#E5E4E2'},
-  {min:150, max:199, name:'Diamant I',  cls:'rank-diamant',icon:'💎', color:'#B9F2FF'},
-  {min:200, max:9999,name:'Diamant II', cls:'rank-diamant',icon:'💎', color:'#B9F2FF'},
+  {min:0,    max:49,   name:'Recrue Galactic Ranger',    icon:'🌱', color:'#7EC8A0'},
+  {min:50,   max:99,   name:'Apprenti Gadgetron',        icon:'🔧', color:'#CD7F32'},
+  {min:100,  max:149,  name:'Technicien Gadgetron',      icon:'⚙️', color:'#A0A0A0'},
+  {min:150,  max:249,  name:'Star Explorer',             icon:'🚀', color:'#6AB4FF'},
+  {min:250,  max:349,  name:'Gardien de Polaris',        icon:'🌌', color:'#9B6FF4'},
+  {min:350,  max:499,  name:'Agent Megacorp',            icon:'⚡', color:'#FFD447'},
+  {min:500,  max:649,  name:'Héritier Lombax',           icon:'🔮', color:'#C084FC'},
+  {min:650,  max:799,  name:'Ranger de Fastoon',         icon:'🛡️', color:'#60A5FA'},
+  {min:800,  max:999,  name:'Rival de Nefarious',        icon:'🤖', color:'#F87171'},
+  {min:1000, max:1199, name:'Capitaine Qwark',           icon:'👑', color:'#FBBF24'},
+  {min:1200, max:1399, name:'Gardien de la Grande Horloge', icon:'🕰️', color:'#34D399'},
+  {min:1400, max:1599, name:'Maître du Dimensionateur',  icon:'🌀', color:'#818CF8'},
+  {min:1600, max:1799, name:'Héros de Solana',           icon:'⭐', color:'#FDE68A'},
+  {min:1800, max:1999, name:'Protecteur de Polaris',     icon:'🌠', color:'#A78BFA'},
+  {min:2000, max:2249, name:'Dernier Lombax',            icon:'🚀', color:'#FF6B1A'},
+  {min:2250, max:2499, name:'Légende Insomniac',         icon:'🏆', color:'#FFD700'},
+  {min:2500, max:99999,name:'Ratchet Legacy',            icon:'✨', color:'#B9F2FF'},
 ];
 function getRank(n){
   return RANKS.find(r=>n>=r.min&&n<=r.max)||RANKS[0];
@@ -803,13 +810,12 @@ function renderRank(owned){
   const progress=nextRank?Math.round(((owned-rank.min)/(nextRank.min-rank.min))*100):100;
   const el=document.getElementById('rank-section');
   if(!el) return;
-  el.innerHTML=`
-    <span class="rank-icon">${rank.icon}</span>
-    <div class="rank-info">
-      <div class="rank-name ${rank.cls}">${rank.name}</div>
-      <div class="rank-next">${nextRank?`Prochain rang : ${nextRank.name} (${nextRank.min - owned} objets restants)`:'Rang maximum atteint ! 🎉'}</div>
-      <div class="rank-bar-bg"><div class="rank-bar-fill" style="width:${progress}%;background:${rank.color}"></div></div>
-    </div>`;
+  el.innerHTML='<span class="rank-icon">'+rank.icon+'</span>'
+    +'<div class="rank-info">'
+    +'<div class="rank-name" style="color:'+rank.color+'">'+rank.name+'</div>'
+    +'<div class="rank-next">'+(nextRank?'Prochain rang : '+nextRank.name+' ('+( nextRank.min - owned)+' objets restants)':'✨ Rang maximum atteint !')+'</div>'
+    +'<div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+progress+'%;background:'+rank.color+'"></div></div>'
+    +'</div>';
 }
 function fmtEur(v){ if(v==null) return '—'; return parseFloat(v).toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:2}); }
 function renderDelta(buy,cur){
