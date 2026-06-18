@@ -253,6 +253,59 @@
     .detail-btn.edit:hover{background:rgba(123,79,212,.15)}
     .detail-btn.wish-link{border-color:var(--wishlist);color:var(--wishlist)}
     .detail-btn.wish-link:hover{background:rgba(255,212,71,.1)}
+    /* PROFILE */
+    .profile-btn{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--orange));border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;transition:transform .2s,border-color .2s;flex-shrink:0}
+    .profile-btn:hover{transform:scale(1.08);border-color:rgba(255,255,255,.4)}
+    .profile-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:200;overflow-y:auto}
+    .profile-screen.open{display:block}
+    .profile-header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 60%,#0D1520 100%);padding:32px;position:relative;border-bottom:1px solid rgba(123,79,212,.3)}
+    .profile-back{position:absolute;top:20px;left:20px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:7px 14px;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+    .profile-back:hover{background:rgba(255,255,255,.15);color:var(--text)}
+    .profile-hero{display:flex;align-items:center;gap:24px;margin-top:16px}
+    .profile-avatar-big{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--orange));border:3px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2.5rem;cursor:pointer;transition:transform .2s;flex-shrink:0}
+    .profile-avatar-big:hover{transform:scale(1.05)}
+    .profile-hero-info{}
+    .profile-pseudo{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;background:linear-gradient(90deg,#fff 40%,var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .profile-email-small{font-size:.75rem;color:var(--text-dim);margin-top:2px}
+    .profile-rank-display{display:flex;align-items:center;gap:10px;margin-top:10px;background:rgba(255,255,255,.05);border-radius:10px;padding:10px 16px;width:fit-content}
+    .profile-rank-icon{font-size:1.8rem}
+    .profile-rank-name{font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:700}
+    .profile-rank-progress{font-size:.68rem;color:var(--text-dim);margin-top:2px}
+    .profile-rank-bar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:5px;width:180px}
+    .profile-rank-fill{height:100%;border-radius:3px;transition:width .8s}
+    .profile-body{padding:28px 32px}
+    .profile-section{margin-bottom:28px}
+    .profile-section-title{font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .profile-section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(123,79,212,.3),transparent)}
+    /* PSEUDO EDIT */
+    .pseudo-edit{display:flex;gap:8px;align-items:center}
+    .pseudo-input{flex:1;background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Orbitron',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s}
+    .pseudo-input:focus{border-color:var(--purple)}
+    .pseudo-save{padding:10px 18px;background:linear-gradient(135deg,var(--purple),var(--orange));border:none;border-radius:10px;color:#fff;font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap}
+    /* AVATAR PICKER */
+    .avatar-grid{display:flex;gap:10px;flex-wrap:wrap}
+    .avatar-opt{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;transition:all .2s}
+    .avatar-opt:hover{border-color:var(--purple);transform:scale(1.1)}
+    .avatar-opt.selected{border-color:var(--orange);background:rgba(255,107,26,.15)}
+    /* STATS GRID */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+    .stat-card{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px;text-align:center}
+    .stat-card .sicon{font-size:1.8rem;margin-bottom:6px}
+    .stat-card .svalue{font-family:'Orbitron',sans-serif;font-size:1.2rem;font-weight:700;color:var(--text)}
+    .stat-card .slabel{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-top:3px}
+    /* TOP ITEMS */
+    .top-items{display:flex;flex-direction:column;gap:8px}
+    .top-item{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:10px 14px}
+    .top-item .ti-rank{font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;color:var(--text-dim);width:24px;flex-shrink:0}
+    .top-item .ti-name{flex:1;font-size:.82rem;font-weight:600}
+    .top-item .ti-val{font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;color:var(--purple-light)}
+    /* TYPE BREAKDOWN */
+    .type-bars{display:flex;flex-direction:column;gap:8px}
+    .type-bar-row{display:flex;align-items:center;gap:10px}
+    .type-bar-label{font-size:.75rem;color:var(--text-dim);width:160px;flex-shrink:0}
+    .type-bar-bg{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+    .type-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--purple),var(--orange));transition:width .6s}
+    .type-bar-count{font-size:.72rem;color:var(--text);font-weight:600;width:30px;text-align:right;flex-shrink:0}
     .toast{position:fixed;bottom:24px;right:24px;z-index:200;background:var(--bg3);border:1px solid rgba(123,79,212,.3);border-radius:10px;padding:12px 18px;font-size:.82rem;color:var(--text);max-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(60px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none}
     .toast.show{transform:translateY(0);opacity:1}
     .toast.success{border-color:rgba(61,214,140,.4)}
@@ -360,7 +413,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="logo-img"><img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" alt="R&C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="logo-fallback">🔧</div></div>
       <div class="header-titles"><h1>Ratchet &amp; Clank Collection</h1><span>Tracker made by Ratchet Legacy</span></div>
       <div class="header-user">
-        <span class="user-email" id="user-email-display"></span>
+        <div class="profile-btn" id="header-avatar" onclick="openProfile()" title="Mon profil">🦊</div>
+        <span style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);cursor:pointer;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="header-pseudo" onclick="openProfile()">Collectionneur</span>
         <button class="signout-btn" onclick="doSignOut()">Déconnexion</button>
       </div>
     </div>
@@ -592,6 +646,51 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal()">Annuler</button>
       <button class="btn-save" onclick="saveItem()">SAUVEGARDER</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div class="profile-screen" id="profile-screen">
+  <div class="profile-header">
+    <button class="profile-back" onclick="closeProfile()">← Retour</button>
+    <div class="profile-hero">
+      <div class="profile-avatar-big" id="profile-avatar-big" onclick="document.getElementById('avatar-picker-section').scrollIntoView({behavior:'smooth'})">🦊</div>
+      <div class="profile-hero-info">
+        <div class="profile-pseudo" id="profile-pseudo-display">Collectionneur</div>
+        <div class="profile-email-small" id="profile-email-small"></div>
+        <div class="profile-rank-display" id="profile-rank-display"></div>
+      </div>
+    </div>
+  </div>
+  <div class="profile-body">
+    <!-- Pseudo -->
+    <div class="profile-section">
+      <div class="profile-section-title">✏️ Pseudo</div>
+      <div class="pseudo-edit">
+        <input type="text" class="pseudo-input" id="pseudo-input" placeholder="Ton pseudo..."/>
+        <button class="pseudo-save" onclick="savePseudo()">SAUVEGARDER</button>
+      </div>
+    </div>
+    <!-- Avatar -->
+    <div class="profile-section" id="avatar-picker-section">
+      <div class="profile-section-title">🎭 Avatar</div>
+      <div class="avatar-grid" id="avatar-grid"></div>
+    </div>
+    <!-- Stats -->
+    <div class="profile-section">
+      <div class="profile-section-title">📊 Statistiques</div>
+      <div class="stats-grid" id="profile-stats-grid"></div>
+    </div>
+    <!-- Top objets -->
+    <div class="profile-section">
+      <div class="profile-section-title">💎 Top 5 objets les plus précieux</div>
+      <div class="top-items" id="profile-top-items"></div>
+    </div>
+    <!-- Par type -->
+    <div class="profile-section">
+      <div class="profile-section-title">📂 Collection par type</div>
+      <div class="type-bars" id="profile-type-bars"></div>
     </div>
   </div>
 </div>
@@ -1115,10 +1214,10 @@ function show(id){
 }
 
 async function launchApp(){
-  document.getElementById('user-email-display').textContent=currentUser.email;
+  document.getElementById('user-email-display') && (document.getElementById('user-email-display').textContent=currentUser.email);
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>Chargement...</div>';
-  await fetchItems(); render();
+  await fetchItems(); render(); loadProfile();
 }
 
 // ══ FILTER LISTENERS ══
@@ -1139,6 +1238,119 @@ document.getElementById('modal-overlay').addEventListener('click',e=>{ if(e.targ
 document.getElementById('detail-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeDetail(); });
 
 // ══ BOOT ══
+// ══ PROFILE ══
+const AVATARS = ['🦊','🤖','🔧','🚀','💎','⚡','🎮','🏆','🌌','👑','🛡️','🔮','🌀','⭐','🌠','✨','🐾','🎯','🔩','💫'];
+
+function loadProfile(){
+  const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id) || '';
+  const avatar = localStorage.getItem('rc_avatar_'+currentUser.id) || '🦊';
+  // header
+  document.getElementById('header-pseudo').textContent = pseudo || 'Mon Profil';
+  document.getElementById('header-avatar').textContent = avatar;
+}
+
+function openProfile(){
+  const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id) || '';
+  const avatar = localStorage.getItem('rc_avatar_'+currentUser.id) || '🦊';
+
+  document.getElementById('profile-pseudo-display').textContent = pseudo || 'Collectionneur';
+  document.getElementById('profile-email-small').textContent = currentUser.email;
+  document.getElementById('profile-avatar-big').textContent = avatar;
+  document.getElementById('pseudo-input').value = pseudo;
+
+  // Avatar grid
+  const grid = document.getElementById('avatar-grid');
+  grid.innerHTML = '';
+  AVATARS.forEach(a => {
+    const el = document.createElement('div');
+    el.className = 'avatar-opt' + (a === avatar ? ' selected' : '');
+    el.textContent = a;
+    el.onclick = () => {
+      localStorage.setItem('rc_avatar_'+currentUser.id, a);
+      document.getElementById('profile-avatar-big').textContent = a;
+      document.getElementById('header-avatar').textContent = a;
+      grid.querySelectorAll('.avatar-opt').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      showToast('Avatar mis à jour !', 'success');
+    };
+    grid.appendChild(el);
+  });
+
+  // Rank
+  const owned = items.filter(i=>i.status==='owned').length;
+  const rank = getRank(owned);
+  const nextRank = RANKS[RANKS.indexOf(rank)+1];
+  const progress = nextRank ? Math.round(((owned-rank.min)/(nextRank.min-rank.min))*100) : 100;
+  document.getElementById('profile-rank-display').innerHTML =
+    '<div class="profile-rank-icon">'+rank.icon+'</div>'
+    +'<div><div class="profile-rank-name" style="color:'+rank.color+'">'+rank.name+'</div>'
+    +'<div class="profile-rank-progress">'+(nextRank ? nextRank.min-owned+' objets avant '+nextRank.name : '✨ Rang max !') +'</div>'
+    +'<div class="profile-rank-bar"><div class="profile-rank-fill" style="width:'+progress+'%;background:'+rank.color+'"></div></div>'
+    +'</div>';
+
+  // Stats
+  const wish = items.filter(i=>i.status==='wishlist').length;
+  const total = items.length;
+  const totalInvested = items.filter(i=>i.status==='owned'&&i.buy_price!=null).reduce((s,i)=>s+parseFloat(i.buy_price),0);
+  const totalValue = items.filter(i=>i.status==='owned'&&i.cur_value!=null).reduce((s,i)=>s+parseFloat(i.cur_value),0);
+  const delta = totalValue - totalInvested;
+  const pct = total ? Math.round(owned/total*100) : 0;
+
+  document.getElementById('profile-stats-grid').innerHTML =
+    '<div class="stat-card"><div class="sicon">✅</div><div class="svalue">'+owned+'</div><div class="slabel">Possédés</div></div>'
+    +'<div class="stat-card"><div class="sicon">🎯</div><div class="svalue">'+wish+'</div><div class="slabel">Souhaités</div></div>'
+    +'<div class="stat-card"><div class="sicon">📦</div><div class="svalue">'+total+'</div><div class="slabel">Total</div></div>'
+    +'<div class="stat-card"><div class="sicon">📈</div><div class="svalue">'+pct+'%</div><div class="slabel">Complétude</div></div>'
+    +'<div class="stat-card"><div class="sicon">💸</div><div class="svalue">'+fmtEur(totalInvested)+'</div><div class="slabel">Investi</div></div>'
+    +'<div class="stat-card"><div class="sicon">💰</div><div class="svalue" style="color:var(--purple-light)">'+fmtEur(totalValue)+'</div><div class="slabel">Valeur marché</div></div>'
+    +'<div class="stat-card"><div class="sicon">'+(delta>=0?'📈':'📉')+'</div><div class="svalue" style="color:'+(delta>=0?'var(--profit)':'var(--loss)')+'">'+( delta>=0?'+':'')+fmtEur(delta)+'</div><div class="slabel">Plus-value</div></div>';
+
+  // Top 5 most valuable
+  const topItems = [...items].filter(i=>i.cur_value!=null).sort((a,b)=>parseFloat(b.cur_value)-parseFloat(a.cur_value)).slice(0,5);
+  const topEl = document.getElementById('profile-top-items');
+  if(topItems.length){
+    topEl.innerHTML = topItems.map((item,i)=>
+      '<div class="top-item">'
+      +'<div class="ti-rank">#'+(i+1)+'</div>'
+      +'<div style="font-size:1.1rem">'+getIcon(item.type)+'</div>'
+      +'<div class="ti-name">'+escHtml(item.name)+'</div>'
+      +'<div class="ti-val">'+fmtEur(parseFloat(item.cur_value))+'</div>'
+      +'</div>'
+    ).join('');
+  } else {
+    topEl.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem">Aucun objet avec valeur renseignée.</div>';
+  }
+
+  // Type breakdown
+  const types = [...new Set(items.map(i=>i.type).filter(Boolean))];
+  const maxCount = Math.max(...types.map(t=>items.filter(i=>i.type===t&&i.status==='owned').length), 1);
+  document.getElementById('profile-type-bars').innerHTML = types.map(t=>{
+    const count = items.filter(i=>i.type===t&&i.status==='owned').length;
+    const total = items.filter(i=>i.type===t).length;
+    const w = Math.round((count/maxCount)*100);
+    return '<div class="type-bar-row">'
+      +'<div class="type-bar-label">'+getIcon(t)+' '+t+'</div>'
+      +'<div class="type-bar-bg"><div class="type-bar-fill" style="width:'+w+'%"></div></div>'
+      +'<div class="type-bar-count">'+count+'/'+total+'</div>'
+      +'</div>';
+  }).join('');
+
+  document.getElementById('profile-screen').classList.add('open');
+}
+
+function closeProfile(){
+  document.getElementById('profile-screen').classList.remove('open');
+}
+
+function savePseudo(){
+  const pseudo = document.getElementById('pseudo-input').value.trim();
+  if(!pseudo){ showToast('Entre un pseudo !','error'); return; }
+  localStorage.setItem('rc_pseudo_'+currentUser.id, pseudo);
+  document.getElementById('profile-pseudo-display').textContent = pseudo;
+  document.getElementById('header-pseudo').textContent = pseudo;
+  showToast('Pseudo sauvegardé !','success');
+}
+
 async function boot(){
   const config=PRESET_CONFIG;
   initSupabase(config.url,config.key);
