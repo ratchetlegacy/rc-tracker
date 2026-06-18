@@ -441,17 +441,22 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
   </header>
 
-  <div class="controls">
-    <div class="filter-group" id="type-filters">
-      <button class="filter-btn active" data-type="all">Tout</button>
+  <div class="controls" style="flex-direction:column;align-items:stretch;gap:10px">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span class="filter-label">Type</span>
+      <div class="filter-group" id="type-filters">
+        <button class="filter-btn active" data-type="all">Tout</button>
+      </div>
     </div>
-    <div class="filter-group" id="status-filters">
-      <button class="filter-btn s-owned" data-status="owned">✅ Possédé</button>
-      <button class="filter-btn s-wish" data-status="wishlist">🎯 Souhaité</button>
-
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <span class="filter-label">Statut</span>
+      <div class="filter-group" id="status-filters">
+        <button class="filter-btn s-owned" data-status="owned">✅ Possédé</button>
+        <button class="filter-btn s-wish" data-status="wishlist">🎯 Souhaité</button>
+      </div>
+      <div class="spacer"></div>
+      <button class="add-btn" onclick="openModal()">+ AJOUTER</button>
     </div>
-    <div class="spacer"></div>
-    <button class="add-btn" onclick="openModal()">+ AJOUTER</button>
   </div>
 
   <div class="grid-container" id="grid-container">
