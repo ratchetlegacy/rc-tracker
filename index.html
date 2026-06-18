@@ -805,10 +805,10 @@ function render(){
         <span class="cat-count">${ownedCat}/${totalCat}</span>
         <div class="cat-divider"></div>
       </div>
-      <div class="items-grid" id="grid-t-${encodeURIComponent(type)}"></div>`;
+      <div class="items-grid"></div>`;
     container.appendChild(sec);
 
-    const grid=sec.querySelector(`#grid-t-${encodeURIComponent(type)}`);
+    const grid=sec.querySelector('.items-grid');
     catItems.forEach(item=>{
       const card=document.createElement('div');
       card.className=`item-card ${item.status}`;
