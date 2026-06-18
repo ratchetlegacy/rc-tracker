@@ -59,6 +59,9 @@
     header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 50%,#0D1520 100%);border-bottom:1px solid rgba(123,79,212,.3);padding:20px 32px;position:relative;overflow:hidden}
     header::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(123,79,212,.15) 0%,transparent 70%);pointer-events:none}
     .header-top{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+    .logo-img{width:52px;height:52px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 20px rgba(123,79,212,.4);position:relative}
+    .logo-img img{width:100%;height:100%;object-fit:cover}
+    .logo-img .logo-fallback{display:none;width:100%;height:100%;background:linear-gradient(135deg,var(--purple),var(--orange));align-items:center;justify-content:center;font-size:22px}
     .logo-icon{width:46px;height:46px;background:linear-gradient(135deg,var(--purple),var(--orange));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 20px rgba(123,79,212,.4)}
     .header-titles h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.3rem;letter-spacing:.04em;background:linear-gradient(90deg,#fff 40%,var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
     .header-titles span{font-size:.72rem;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase}
@@ -77,6 +80,18 @@
     .energy-bar-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--purple),var(--orange));transition:width .6s cubic-bezier(.4,0,.2,1);position:relative}
     .energy-bar-fill::after{content:'';position:absolute;top:0;right:0;bottom:0;width:20px;background:rgba(255,255,255,.3);border-radius:0 5px 5px 0;filter:blur(3px)}
     .energy-counts{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+    .rank-section{display:flex;align-items:center;gap:12px;margin-top:10px;padding:8px 12px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.07)}
+    .rank-icon{font-size:1.6rem;line-height:1}
+    .rank-info{}
+    .rank-name{font-family:'Orbitron',sans-serif;font-size:.82rem;font-weight:700}
+    .rank-bronze{color:#CD7F32}
+    .rank-argent{color:#C0C0C0}
+    .rank-or{color:#FFD700}
+    .rank-platine{color:#E5E4E2}
+    .rank-diamant{color:#B9F2FF}
+    .rank-next{font-size:.65rem;color:var(--text-dim);margin-top:2px}
+    .rank-bar-bg{height:5px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:4px;width:140px}
+    .rank-bar-fill{height:100%;border-radius:3px;transition:width .6s}
     .ecount{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--text-dim)}
     .ecount .dot{width:7px;height:7px;border-radius:50%}
     .ecount .num{font-weight:600;color:var(--text)}
@@ -267,6 +282,7 @@ CREATE TABLE items (
   img_url TEXT DEFAULT '',
   rating INTEGER DEFAULT NULL,
   notes TEXT DEFAULT '',
+  wish_url TEXT DEFAULT '',
   comment TEXT DEFAULT '',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -305,8 +321,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div id="app-screen">
   <header>
     <div class="header-top">
-      <div class="logo-icon">🔧</div>
-      <div class="header-titles"><h1>R&amp;C COLLECTION</h1><span>Ratchet &amp; Clank · Tracker</span></div>
+      <div class="logo-img"><img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet_Legacy.jpg" alt="R&C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="logo-fallback">🔧</div></div>
+      <div class="header-titles"><h1>Ratchet &amp; Clank Collection</h1><span>Tracker made by Ratchet Legacy</span></div>
       <div class="header-user">
         <span class="user-email" id="user-email-display"></span>
         <button class="signout-btn" onclick="doSignOut()">Déconnexion</button>
@@ -325,6 +341,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
           <div class="ecount"><div class="dot" style="background:var(--missing)"></div><span class="num" id="cnt-miss">0</span>&nbsp;manquants</div>
           <div class="ecount"><div class="dot" style="background:var(--chrome)"></div><span class="num" id="cnt-total">0</span>&nbsp;total</div>
         </div>
+        <div class="rank-section" id="rank-section"></div>
       </div>
       <div class="finance-stats">
         <div class="fstat"><div class="flabel">Investi</div><div class="fvalue invested" id="stat-invested">—</div></div>
@@ -341,7 +358,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="filter-group" id="status-filters">
       <button class="filter-btn s-owned" data-status="owned">✅ Possédé</button>
       <button class="filter-btn s-wish" data-status="wishlist">🎯 Souhaité</button>
-      <button class="filter-btn s-miss" data-status="missing">❌ Manquant</button>
+
     </div>
     <div class="spacer"></div>
     <button class="add-btn" onclick="openModal()">+ AJOUTER</button>
@@ -453,10 +470,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         </div>
         <div class="form-group">
           <label>Statut</label>
-          <select id="inp-status">
+          <select id="inp-status" onchange="toggleWishUrl(this.value)">
             <option value="owned">✅ Possédé</option>
             <option value="wishlist">🎯 Souhaité</option>
-            <option value="missing">❌ Manquant</option>
+
           </select>
         </div>
       </div>
@@ -470,8 +487,6 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <select id="inp-condition" onchange="toggleCondition()">
           <option value="occasion">📦 Occasion</option>
           <option value="neuf_blister">🆕 Neuf sous blister</option>
-          <option value="neuf">✨ Neuf</option>
-          <option value="non_concerne">— Non concerné</option>
         </select>
       </div>
       <div id="completeness-section">
@@ -522,6 +537,11 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <label>Image (URL)</label>
         <input type="url" id="inp-img" placeholder="https://... lien vers une image"/>
         <div class="price-hint">Clic droit sur une image Google → "Copier l'adresse de l'image"</div>
+      </div>
+      <div class="form-group" id="wish-url-group" style="display:none">
+        <label>🛒 Lien d'achat (eBay, Vinted...)</label>
+        <input type="url" id="inp-wish-url" placeholder="https://www.ebay.fr/..."/>
+        <div class="price-hint">Lien vers l'objet sur eBay, Vinted, leboncoin...</div>
       </div>
       <div class="form-group">
         <label>Notes</label>
@@ -625,6 +645,8 @@ function openModal(id){
   document.getElementById('inp-platform').value=item?(item.platform||''):'';
   document.getElementById('inp-region').value=item?(item.region||'PAL'):'PAL';
   document.getElementById('inp-status').value=item?(item.status||'owned'):'owned';
+  document.getElementById('inp-wish-url').value=item?(item.wish_url||''):'';
+  toggleWishUrl(item?(item.status||'owned'):'owned');
   document.getElementById('inp-condition').value=item?(item.condition||'occasion'):'occasion';
   document.getElementById('inp-box').checked=item?!!item.has_box:false;
   document.getElementById('inp-manual').checked=item?!!item.has_manual:false;
@@ -642,6 +664,9 @@ function openModal(id){
   setTimeout(()=>document.getElementById('inp-name').focus(),100);
 }
 function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); editingId=null; }
+function toggleWishUrl(status){
+  document.getElementById('wish-url-group').style.display=(status==='wishlist')?'block':'none';
+}
 function toggleCondition(){
   const c=document.getElementById('inp-condition').value;
   document.getElementById('completeness-section').style.display=c==='non_concerne'?'none':'block';
@@ -672,6 +697,7 @@ async function saveItem(){
     cur_value:val!==''?parseFloat(val):null,
     img_url:document.getElementById('inp-img').value.trim(),
     rating:currentRating||null,
+    wish_url:document.getElementById('inp-wish-url').value.trim(),
     notes:document.getElementById('inp-notes').value.trim(),
     comment:document.getElementById('inp-comment').value.trim(),
   };
@@ -700,6 +726,36 @@ async function deleteItem(id){
 }
 
 // ══ RENDER ══
+// RANKS
+const RANKS=[
+  {min:0,   max:4,   name:'Bronze I',   cls:'rank-bronze', icon:'🥉', color:'#CD7F32'},
+  {min:5,   max:9,   name:'Bronze II',  cls:'rank-bronze', icon:'🥉', color:'#CD7F32'},
+  {min:10,  max:19,  name:'Argent I',   cls:'rank-argent', icon:'🥈', color:'#C0C0C0'},
+  {min:20,  max:29,  name:'Argent II',  cls:'rank-argent', icon:'🥈', color:'#C0C0C0'},
+  {min:30,  max:49,  name:'Or I',       cls:'rank-or',     icon:'🥇', color:'#FFD700'},
+  {min:50,  max:74,  name:'Or II',      cls:'rank-or',     icon:'🥇', color:'#FFD700'},
+  {min:75,  max:99,  name:'Platine I',  cls:'rank-platine',icon:'💿', color:'#E5E4E2'},
+  {min:100, max:149, name:'Platine II', cls:'rank-platine',icon:'💿', color:'#E5E4E2'},
+  {min:150, max:199, name:'Diamant I',  cls:'rank-diamant',icon:'💎', color:'#B9F2FF'},
+  {min:200, max:9999,name:'Diamant II', cls:'rank-diamant',icon:'💎', color:'#B9F2FF'},
+];
+function getRank(n){
+  return RANKS.find(r=>n>=r.min&&n<=r.max)||RANKS[0];
+}
+function renderRank(owned){
+  const rank=getRank(owned);
+  const nextRank=RANKS[RANKS.indexOf(rank)+1];
+  const progress=nextRank?Math.round(((owned-rank.min)/(nextRank.min-rank.min))*100):100;
+  const el=document.getElementById('rank-section');
+  if(!el) return;
+  el.innerHTML=`
+    <span class="rank-icon">${rank.icon}</span>
+    <div class="rank-info">
+      <div class="rank-name ${rank.cls}">${rank.name}</div>
+      <div class="rank-next">${nextRank?`Prochain rang : ${nextRank.name} (${nextRank.min - owned} objets restants)`:'Rang maximum atteint ! 🎉'}</div>
+      <div class="rank-bar-bg"><div class="rank-bar-fill" style="width:${progress}%;background:${rank.color}"></div></div>
+    </div>`;
+}
 function fmtEur(v){ if(v==null) return '—'; return parseFloat(v).toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:2}); }
 function renderDelta(buy,cur){
   if(buy==null||cur==null) return '';
@@ -768,6 +824,7 @@ function render(){
   document.getElementById('cnt-total').textContent=total;
   document.getElementById('pct-display').textContent=pct+'%';
   document.getElementById('energy-bar').style.width=pct+'%';
+  renderRank(owned);
 
   buildTypeFilters();
 
@@ -844,10 +901,11 @@ function render(){
           `:''}
           ${item.notes?`<div class="card-note">📝 ${escHtml(item.notes)}</div>`:''}
           ${item.comment?`<div class="card-note">💬 ${escHtml(item.comment)}</div>`:''}
+          ${item.wish_url&&item.status==='wishlist'?`<a href="${item.wish_url}" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:6px;padding:6px;background:rgba(255,212,71,.1);border:1px solid rgba(255,212,71,.3);border-radius:8px;color:var(--wishlist);font-size:.72rem;font-weight:600;text-decoration:none;">🛒 Voir l'annonce</a>`:''}
           <div class="card-actions">
             <button class="action-btn set-owned" onclick="setStatus('${item.id}','owned')">✅</button>
             <button class="action-btn set-wish" onclick="setStatus('${item.id}','wishlist')">🎯</button>
-            <button class="action-btn set-miss" onclick="setStatus('${item.id}','missing')">❌</button>
+
             <button class="action-btn edit-btn" onclick="openModal('${item.id}')">✏️</button>
             <button class="action-btn del-btn" onclick="deleteItem('${item.id}')">🗑</button>
           </div>
