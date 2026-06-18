@@ -6,6 +6,7 @@
   <title>R&C Collection Tracker</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://media-library.cloudinary.com/global/all.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -725,28 +726,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
-<!-- CLOUDINARY GALLERY -->
-<div class="gallery-overlay" id="gallery-overlay">
-  <div class="gallery-modal">
-    <div class="gallery-header">
-      <h3>🖼️ Galerie de jaquettes</h3>
-      <button class="gallery-close" onclick="closeGallery()">✕</button>
-    </div>
-    <div class="gallery-folders" id="gallery-folders"></div>
-    <div class="gallery-grid" id="gallery-grid">
-      <div class="gallery-empty">Sélectionne un dossier pour voir les images</div>
-    </div>
-    <div class="gallery-footer">
-      <div class="gallery-selected-preview" id="gallery-preview">
-        <span>Aucune image sélectionnée</span>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button class="gallery-cancel" onclick="closeGallery()">Annuler</button>
-        <button class="gallery-confirm" onclick="confirmGallery()">CHOISIR</button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Cloudinary Media Library Widget (no overlay needed) -->
 
 <div class="toast" id="toast"></div>
 
@@ -1289,7 +1269,7 @@ document.getElementById('status-filters').addEventListener('click',e=>{
 });
 document.getElementById('modal-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
 document.getElementById('detail-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeDetail(); });
-document.getElementById('gallery-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeGallery(); });
+
 
 // ══ BOOT ══
 // ══ PROFILE ══
@@ -1413,96 +1393,35 @@ const CLD_FOLDERS = ['Jaquettes/PS2','Jaquettes/PS3','Jaquettes/PS4','Jaquettes/
 let gallerySelectedUrl = '';
 let galleryCurrentFolder = '';
 
-async function openGallery(){
-  gallerySelectedUrl = document.getElementById('inp-img').value || '';
-  
-  // Build folder buttons
-  const foldersEl = document.getElementById('gallery-folders');
-  foldersEl.innerHTML = '';
-  CLD_FOLDERS.forEach(f => {
-    const btn = document.createElement('button');
-    btn.className = 'gallery-folder-btn';
-    btn.dataset.folder = f;
-    btn.textContent = f.split('/')[1];
-    btn.onclick = () => loadGalleryFolder(f);
-    foldersEl.appendChild(btn);
-  });
-
-  document.getElementById('gallery-grid').innerHTML = '<div class="gallery-empty">Sélectionne un dossier 👆</div>';
-  updateGalleryPreview();
-  document.getElementById('gallery-overlay').classList.add('open');
-}
-
-async function loadGalleryFolder(folder){
-  galleryCurrentFolder = folder;
-  document.querySelectorAll('.gallery-folder-btn').forEach(b => b.classList.toggle('active', b.dataset.folder === folder));
-  
-  const grid = document.getElementById('gallery-grid');
-  grid.innerHTML = '<div class="gallery-empty">⚙️ Chargement...</div>';
-
-  try {
-    // Use Cloudinary Admin API via search expression
-    const res = await fetch(
-      'https://api.cloudinary.com/v1_1/'+CLD_CLOUD+'/resources/search?expression=folder%3D'+encodeURIComponent(folder)+'&max_results=50',
-      { headers: { 'Authorization': 'Basic '+btoa(CLD_API_KEY+':'+CLD_API_SECRET) } }
-    );
-    if(!res.ok) throw new Error('Erreur API');
-    const data = await res.json();
-    const resources = data.resources || [];
-
-    if(!resources.length){
-      grid.innerHTML = '<div class="gallery-empty">📭 Aucune image dans ce dossier.<br><small>Upload des jaquettes sur Cloudinary dans le dossier <b>'+folder+'</b></small></div>';
-      return;
+function openGallery(){
+  if(typeof cloudinary === 'undefined'){
+    showToast('Widget Cloudinary non chargé', 'error'); return;
+  }
+  const widget = cloudinary.createMediaLibrary(
+    {
+      cloud_name: CLD_CLOUD,
+      api_key: CLD_API_KEY,
+      remove_header: false,
+      max_files: 1,
+      insert_caption: 'Choisir cette image',
+      default_transformations: [[{quality:'auto',fetch_format:'auto'}]],
+      folder: { path: 'Jaquettes', resource_type: 'image' },
+    },
+    {
+      insertHandler: function(data){
+        if(data.assets && data.assets.length > 0){
+          const asset = data.assets[0];
+          const url = asset.secure_url || asset.url;
+          document.getElementById('inp-img').value = url;
+          showToast('Image sélectionnée !', 'success');
+        }
+      }
     }
-
-    grid.innerHTML = '';
-    resources.forEach(r => {
-      const ext = r.format || 'jpg';
-      const url = 'https://res.cloudinary.com/'+CLD_CLOUD+'/image/upload/'+r.public_id+'.'+ext;
-      const thumbUrl = 'https://res.cloudinary.com/'+CLD_CLOUD+'/image/upload/w_200,h_260,c_fit,q_auto/'+r.public_id+'.'+ext;
-      const el = document.createElement('div');
-      el.className = 'gallery-item' + (url === gallerySelectedUrl ? ' selected' : '');
-      el.dataset.url = url;
-      el.onclick = () => selectGalleryImg(url);
-      const img = document.createElement('img');
-      img.src = thumbUrl;
-      img.loading = 'lazy';
-      img.onerror = () => { img.src = thumbUrl.replace('.'+ext, '.jpg'); };
-      el.appendChild(img);
-      grid.appendChild(el);
-    });
-
-  } catch(e) {
-    grid.innerHTML = '<div class="gallery-empty">❌ Erreur : '+e.message+'</div>';
-  }
+  );
+  widget.show();
 }
 
-function selectGalleryImg(url){
-  gallerySelectedUrl = url;
-  document.querySelectorAll('.gallery-item').forEach(el => el.classList.toggle('selected', el.dataset.url === url));
-  updateGalleryPreview();
-}
-
-function updateGalleryPreview(){
-  const el = document.getElementById('gallery-preview');
-  if(gallerySelectedUrl){
-    el.innerHTML = '<img src="'+gallerySelectedUrl+'"/><span>Image sélectionnée</span>';
-  } else {
-    el.innerHTML = '<span>Aucune image sélectionnée</span>';
-  }
-}
-
-function confirmGallery(){
-  if(gallerySelectedUrl){
-    document.getElementById('inp-img').value = gallerySelectedUrl;
-    showToast('Image sélectionnée !', 'success');
-  }
-  closeGallery();
-}
-
-function closeGallery(){
-  document.getElementById('gallery-overlay').classList.remove('open');
-}
+function closeGallery(){ /* unused */ }
 
 async function boot(){
   const config=PRESET_CONFIG;
