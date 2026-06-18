@@ -929,7 +929,7 @@ function render(){
       const STATUS_LABELS={owned:'Possédé',wishlist:'Souhaité',missing:'Manquant'};
       const showPrices=item.buy_price!=null||item.cur_value!=null;
       card.innerHTML=`
-        <div class="card-cover">${item.img_url?`<img src="${escHtml(item.img_url)}" alt="${escHtml(item.name)}" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:contain" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>`:''}
+        <div class="card-cover">${item.img_url?('<img src="'+escHtml(item.img_url)+'" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:contain" onerror=\'this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'\'/>'):''}
           <span class="no-img" style="${item.img_url?'display:none':''}">${getIcon(item.type)}</span>
         </div>`
         <div class="card-body" onclick="openDetail('${item.id}')" style="cursor:pointer">
