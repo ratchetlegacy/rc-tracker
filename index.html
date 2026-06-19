@@ -336,6 +336,39 @@
     .gallery-selected-preview img{width:32px;height:40px;object-fit:contain;border-radius:4px;border:1px solid rgba(255,255,255,.1)}
     .gallery-confirm{padding:8px 18px;background:linear-gradient(135deg,var(--purple),var(--orange));border:none;border-radius:8px;color:#fff;font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700;cursor:pointer}
     .gallery-cancel{padding:8px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:.78rem;cursor:pointer}
+    /* ADMIN PANEL */
+    .admin-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto}
+    .admin-screen.open{display:block}
+    .admin-header{background:linear-gradient(135deg,#0D0F1A,#1A1035);border-bottom:1px solid rgba(255,107,26,.3);padding:20px 32px;display:flex;align-items:center;gap:14px}
+    .admin-header h1{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;color:var(--orange);flex:1}
+    .admin-back{padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:'Inter',sans-serif}
+    .admin-body{padding:28px 32px;max-width:900px;margin:0 auto}
+    .admin-section{margin-bottom:32px}
+    .admin-section-title{font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;color:var(--orange);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+    .admin-section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,107,26,.3),transparent)}
+    .admin-form{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px}
+    .admin-form .form-row{display:flex;gap:10px;flex-wrap:wrap}
+    .admin-form .form-group{flex:1;min-width:160px;margin-bottom:10px}
+    .admin-submit{padding:10px 20px;background:linear-gradient(135deg,var(--orange),var(--purple));border:none;border-radius:8px;color:#fff;font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;margin-top:8px}
+    /* IMAGES TABLE */
+    .admin-images-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:16px}
+    .admin-img-card{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;position:relative}
+    .admin-img-card img{width:100%;height:120px;object-fit:contain;background:var(--bg3)}
+    .admin-img-info{padding:8px}
+    .admin-img-name{font-size:.72rem;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .admin-img-meta{font-size:.62rem;color:var(--text-dim);margin-top:2px}
+    .admin-img-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(255,77,106,.8);border:none;color:#fff;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    /* SUBMISSIONS TABLE */
+    .admin-sub-list{display:flex;flex-direction:column;gap:10px}
+    .admin-sub-card{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px;display:flex;gap:14px;align-items:flex-start}
+    .admin-sub-img{width:60px;height:80px;object-fit:contain;border-radius:6px;background:var(--bg3);flex-shrink:0}
+    .admin-sub-info{flex:1}
+    .admin-sub-name{font-weight:600;font-size:.85rem;margin-bottom:4px}
+    .admin-sub-meta{font-size:.72rem;color:var(--text-dim);margin-bottom:8px}
+    .admin-sub-actions{display:flex;gap:6px}
+    .admin-sub-btn{padding:5px 12px;border-radius:6px;border:none;font-size:.7rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+    .admin-sub-btn.approve{background:rgba(61,214,140,.2);color:var(--owned);border:1px solid rgba(61,214,140,.3)}
+    .admin-sub-btn.reject{background:rgba(255,77,106,.15);color:var(--missing);border:1px solid rgba(255,77,106,.3)}
     .toast{position:fixed;bottom:24px;right:24px;z-index:200;background:var(--bg3);border:1px solid rgba(123,79,212,.3);border-radius:10px;padding:12px 18px;font-size:.82rem;color:var(--text);max-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(60px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none}
     .toast.show{transform:translateY(0);opacity:1}
     .toast.success{border-color:rgba(61,214,140,.4)}
@@ -445,6 +478,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="header-user">
         <div class="profile-btn" id="header-avatar" onclick="openProfile()" title="Mon profil">🦊</div>
         <span style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);cursor:pointer;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="header-pseudo" onclick="openProfile()">Collectionneur</span>
+        <button id="admin-btn" onclick="openAdmin()" style="display:none;padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,26,.4);background:rgba(255,107,26,.1);color:var(--orange);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🛠️ Admin</button>
         <button class="signout-btn" onclick="doSignOut()">Déconnexion</button>
       </div>
     </div>
@@ -819,6 +853,88 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <button class="btn-cancel" onclick="closeSubmitPhoto()">Annuler</button>
       <button class="btn-save" onclick="submitPhoto()">ENVOYER</button>
     </div>
+  </div>
+</div>
+
+<!-- ADMIN SCREEN -->
+<div class="admin-screen" id="admin-screen">
+  <div class="admin-header">
+    <div class="logo-img" style="width:40px;height:40px">
+      <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
+    </div>
+    <h1>🛠️ PANNEAU ADMIN</h1>
+    <button class="admin-back" onclick="closeAdmin()">← Retour</button>
+  </div>
+  <div class="admin-body">
+
+    <!-- ADD IMAGE -->
+    <div class="admin-section">
+      <div class="admin-section-title">🖼️ Ajouter une image à la banque</div>
+      <div class="admin-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:5px;font-weight:600;display:block">Nom *</label>
+            <input type="text" id="admin-img-name" placeholder="ex: Ratchet & Clank PS2 PAL" style="width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 10px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none"/>
+          </div>
+          <div class="form-group">
+            <label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:5px;font-weight:600;display:block">Dossier</label>
+            <select id="admin-img-folder" style="width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 10px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none">
+              <option value="PS2">PS2</option>
+              <option value="PS3">PS3</option>
+              <option value="PS4">PS4</option>
+              <option value="PS5">PS5</option>
+              <option value="PSP">PSP</option>
+              <option value="Figurines">Figurines</option>
+              <option value="Autres">Autres</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:5px;font-weight:600;display:block">Plateforme</label>
+            <input type="text" id="admin-img-platform" placeholder="ex: Playstation 2" style="width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 10px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none"/>
+          </div>
+          <div class="form-group">
+            <label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:5px;font-weight:600;display:block">Région</label>
+            <select id="admin-img-region" style="width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 10px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none">
+              <option value="PAL">PAL</option>
+              <option value="NTSC-U">NTSC-U</option>
+              <option value="NTSC-J">NTSC-J</option>
+              <option value="Mondial">Mondial</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:5px;font-weight:600;display:block">Édition</label>
+            <input type="text" id="admin-img-edition" placeholder="ex: Classique, Platinum..." style="width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 10px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-bottom:5px;font-weight:600;display:block">URL de l'image (Cloudinary) *</label>
+          <div style="display:flex;gap:8px">
+            <input type="url" id="admin-img-url" placeholder="https://res.cloudinary.com/dmfq8hkvu/image/upload/..." style="flex:1;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 10px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none"/>
+            <button onclick="openCloudinaryPicker()" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">☁️ Cloudinary</button>
+          </div>
+        </div>
+        <button class="admin-submit" onclick="adminAddImage()">+ AJOUTER À LA BANQUE</button>
+      </div>
+    </div>
+
+    <!-- EXISTING IMAGES -->
+    <div class="admin-section">
+      <div class="admin-section-title">📚 Images dans la banque (<span id="admin-img-count">0</span>)</div>
+      <input type="text" id="admin-img-search" placeholder="🔍 Rechercher..." oninput="filterAdminImages()"
+        style="width:100%;background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none;margin-bottom:12px"/>
+      <div class="admin-images-grid" id="admin-images-grid">
+        <div style="color:var(--text-dim);font-size:.82rem;grid-column:1/-1">Chargement...</div>
+      </div>
+    </div>
+
+    <!-- PHOTO SUBMISSIONS -->
+    <div class="admin-section">
+      <div class="admin-section-title">📸 Photos soumises par les utilisateurs (<span id="admin-sub-count">0</span>)</div>
+      <div class="admin-sub-list" id="admin-sub-list">
+        <div style="color:var(--text-dim);font-size:.82rem">Chargement...</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1370,6 +1486,7 @@ async function launchApp(){
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>Chargement...</div>';
   await fetchItems(); render(); loadProfile();
+  if(isAdmin()) document.getElementById('admin-btn').style.display='block';
 }
 
 // ══ FILTER LISTENERS ══
@@ -1642,6 +1759,135 @@ async function addImageToBank(name, url, folder, platform, region, edition){
     added_by: currentUser.email
   }]);
   if(error) throw error;
+}
+
+// ══ ADMIN PANEL ══
+let adminImages = [];
+
+async function openAdmin(){
+  if(!isAdmin()){ showToast('Accès refusé', 'error'); return; }
+  document.getElementById('admin-screen').classList.add('open');
+  await loadAdminImages();
+  await loadAdminSubmissions();
+}
+function closeAdmin(){ document.getElementById('admin-screen').classList.remove('open'); }
+
+async function loadAdminImages(){
+  const { data, error } = await sbClient.from('images').select('*').order('created_at', {ascending:false});
+  if(error){ showToast('Erreur : '+error.message,'error'); return; }
+  adminImages = data || [];
+  renderAdminImages(adminImages);
+  document.getElementById('admin-img-count').textContent = adminImages.length;
+}
+
+function filterAdminImages(){
+  const q = document.getElementById('admin-img-search').value.toLowerCase();
+  renderAdminImages(adminImages.filter(i => i.name.toLowerCase().includes(q) || (i.folder||'').toLowerCase().includes(q)));
+}
+
+function renderAdminImages(imgs){
+  const grid = document.getElementById('admin-images-grid');
+  if(!imgs.length){ grid.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;grid-column:1/-1">Aucune image.</div>'; return; }
+  grid.innerHTML = '';
+  imgs.forEach(img => {
+    const card = document.createElement('div');
+    card.className = 'admin-img-card';
+    const thumb = img.thumb_url || img.url;
+    card.innerHTML = '<img src="'+thumb+'" loading="lazy"/>'
+      +'<div class="admin-img-info">'
+      +'<div class="admin-img-name">'+escHtml(img.name)+'</div>'
+      +'<div class="admin-img-meta">'+escHtml(img.folder||'')+(img.region?' · '+img.region:'')+'</div>'
+      +'</div>'
+      +'<button class="admin-img-del" data-id="'+img.id+'" onclick="adminDeleteImage(this.dataset.id)">✕</button>';
+    grid.appendChild(card);
+  });
+}
+
+async function adminAddImage(){
+  const name = document.getElementById('admin-img-name').value.trim();
+  const url = document.getElementById('admin-img-url').value.trim();
+  const folder = document.getElementById('admin-img-folder').value;
+  const platform = document.getElementById('admin-img-platform').value.trim();
+  const region = document.getElementById('admin-img-region').value;
+  const edition = document.getElementById('admin-img-edition').value.trim();
+  if(!name||!url){ showToast('Nom et URL requis', 'error'); return; }
+  try {
+    const thumbUrl = url.includes('/upload/') ? url.replace('/upload/', '/upload/w_200,h_260,c_fit,q_auto/') : url;
+    const { error } = await sbClient.from('images').insert([{
+      name, url, thumb_url: thumbUrl, folder, platform, region, edition, added_by: currentUser.email
+    }]);
+    if(error) throw error;
+    showToast('Image ajoutée !', 'success');
+    document.getElementById('admin-img-name').value = '';
+    document.getElementById('admin-img-url').value = '';
+    document.getElementById('admin-img-platform').value = '';
+    document.getElementById('admin-img-edition').value = '';
+    await loadAdminImages();
+  } catch(e){ showToast('Erreur : '+e.message, 'error'); }
+}
+
+async function adminDeleteImage(id){
+  if(!confirm('Supprimer cette image de la banque ?')) return;
+  const { error } = await sbClient.from('images').delete().eq('id', id);
+  if(error){ showToast('Erreur : '+error.message,'error'); return; }
+  showToast('Image supprimée.', 'success');
+  await loadAdminImages();
+}
+
+async function loadAdminSubmissions(){
+  const { data, error } = await sbClient.from('photo_submissions').select('*').eq('status','pending').order('created_at',{ascending:false});
+  if(error) return;
+  const subs = data || [];
+  document.getElementById('admin-sub-count').textContent = subs.length;
+  const list = document.getElementById('admin-sub-list');
+  if(!subs.length){ list.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem">Aucune soumission en attente.</div>'; return; }
+  list.innerHTML = '';
+  subs.forEach(sub => {
+    const card = document.createElement('div');
+    card.className = 'admin-sub-card';
+    card.innerHTML = '<img class="admin-sub-img" src="'+escHtml(sub.img_url)+'" onerror="this.style.display=&quot;none&quot;"/>'
+      +'<div class="admin-sub-info">'
+      +'<div class="admin-sub-name">'+escHtml(sub.item_name)+'</div>'
+      +'<div class="admin-sub-meta">'+escHtml(sub.item_type||'')+' · Soumis par '+escHtml(sub.user_email||'')+'</div>'
+      +(sub.comment?'<div class="admin-sub-meta" style="font-style:italic">'+escHtml(sub.comment)+'</div>':'')
+      +'<div class="admin-sub-actions">'
+      +'<button class="admin-sub-btn approve" data-id="'+sub.id+'" data-name="'+escHtml(sub.item_name)+'" data-url="'+escHtml(sub.img_url)+'" data-type="'+escHtml(sub.item_type||'')+'" onclick="approveSubmission(this.dataset.id,this.dataset.name,this.dataset.url,this.dataset.type)">✅ Approuver</button>'
+      +'<button class="admin-sub-btn reject" data-id="'+sub.id+'" onclick="rejectSubmission(this.dataset.id)">❌ Refuser</button>'
+      +'</div></div>';
+    list.appendChild(card);
+  });
+}
+
+async function approveSubmission(id, name, imgUrl, type){
+  try {
+    const thumbUrl = imgUrl.includes('/upload/') ? imgUrl.replace('/upload/', '/upload/w_200,h_260,c_fit,q_auto/') : imgUrl;
+    await sbClient.from('images').insert([{ name, url: imgUrl, thumb_url: thumbUrl, folder: type||'Autres', added_by: 'user_submission' }]);
+    await sbClient.from('photo_submissions').update({status:'approved'}).eq('id',id);
+    showToast('Photo approuvée et ajoutée !', 'success');
+    await loadAdminSubmissions();
+    await loadAdminImages();
+  } catch(e){ showToast('Erreur : '+e.message,'error'); }
+}
+
+async function rejectSubmission(id){
+  await sbClient.from('photo_submissions').update({status:'rejected'}).eq('id',id);
+  showToast('Soumission refusée.', 'success');
+  await loadAdminSubmissions();
+}
+
+function openCloudinaryPicker(){
+  if(typeof cloudinary === 'undefined'){ showToast('Widget Cloudinary non disponible','error'); return; }
+  const widget = cloudinary.createMediaLibrary(
+    { cloud_name: CLD_CLOUD, api_key: CLD_API_KEY, max_files: 1 },
+    { insertHandler: function(data){
+        if(data.assets&&data.assets.length>0){
+          document.getElementById('admin-img-url').value = data.assets[0].secure_url||data.assets[0].url;
+          const name = data.assets[0].public_id.split('/').pop();
+          if(!document.getElementById('admin-img-name').value) document.getElementById('admin-img-name').value = name;
+        }
+    }}
+  );
+  widget.show();
 }
 
 async function boot(){
