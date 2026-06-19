@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ratchet Legacy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    :root{
+      --bg0:#06080F;--bg1:#0A0E1A;
+      --cyan:#00E5FF;--cyan2:#00B8D4;
+      --gold:#FFD700;--silver:#C8D4E0;
+      --white:#F0FAFF;--dim:#3A5060;
+    }
+    html,body{width:100%;height:100%;background:var(--bg0);overflow:hidden;font-family:'Inter',sans-serif;}
+    canvas{position:fixed;inset:0;pointer-events:none;}
+    #bg-canvas{z-index:0;}
+    #bolt-canvas{z-index:2;}
+    .scanlines{
+      position:fixed;inset:0;z-index:1;pointer-events:none;
+      background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.03) 3px,rgba(0,0,0,.03) 4px);
+    }
+    .stage{
+      position:relative;z-index:3;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      height:100vh;
+    }
+    .logo-wrap{
+      position:relative;width:160px;height:160px;margin-bottom:32px;
+      opacity:0;transform:scale(.5) rotate(-15deg);
+      animation:popIn .8s cubic-bezier(.34,1.56,.64,1) .2s forwards;
+    }
+    @keyframes popIn{to{opacity:1;transform:scale(1) rotate(0deg);}}
+    .ring{position:absolute;border-radius:50%;animation:spin linear infinite;}
+    .ring-1{
+      inset:-8px;border:2.5px solid transparent;
+      background:linear-gradient(var(--bg0),var(--bg0)) padding-box,
+                 conic-gradient(var(--gold),var(--silver),var(--gold),var(--silver),var(--gold)) border-box;
+      animation-duration:4s;
+      filter:drop-shadow(0 0 7px var(--gold));
+    }
+    .ring-2{
+      inset:-17px;border:1px solid transparent;
+      background:linear-gradient(var(--bg0),var(--bg0)) padding-box,
+                 conic-gradient(transparent 50%,var(--silver) 75%,transparent 100%) border-box;
+      animation-duration:7s;animation-direction:reverse;
+      filter:drop-shadow(0 0 4px var(--silver));
+    }
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .logo-img{
+      position:absolute;inset:4px;border-radius:50%;overflow:hidden;background:var(--bg1);
+    }
+    .logo-img img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .title-block{
+      text-align:center;opacity:0;transform:translateY(24px);
+      animation:slideUp .6s ease .7s forwards;
+    }
+    @keyframes slideUp{to{opacity:1;transform:translateY(0);}}
+    .eyebrow{
+      font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:.4em;
+      color:var(--cyan2);text-transform:uppercase;margin-bottom:8px;
+    }
+    h1{
+      font-family:'Orbitron',sans-serif;
+      font-size:clamp(1.9rem,6vw,3.2rem);
+      font-weight:900;line-height:1;letter-spacing:.06em;color:var(--white);
+      text-shadow:0 0 20px rgba(0,229,255,.4);
+    }
+    h1 .accent{
+      background:linear-gradient(90deg,var(--gold),var(--silver),var(--gold));
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+      filter:drop-shadow(0 0 8px rgba(255,215,0,.5));
+    }
+    .tagline{
+      margin-top:12px;font-size:.9rem;font-weight:400;
+      color:#8BBCCC;letter-spacing:.18em;
+      text-shadow:0 0 12px rgba(0,229,255,.35);
+    }
+    .energy-wrap{
+      margin-top:32px;width:260px;
+      opacity:0;animation:fadeIn .4s ease 1.2s forwards;
+    }
+    @keyframes fadeIn{to{opacity:1;}}
+    .energy-header{display:flex;justify-content:space-between;margin-bottom:6px;}
+    .energy-label{font-family:'Orbitron',sans-serif;font-size:.5rem;letter-spacing:.2em;color:var(--cyan2);}
+    .energy-pct{font-family:'Orbitron',sans-serif;font-size:.5rem;color:var(--gold);}
+    .energy-track{width:100%;height:4px;background:rgba(255,215,0,.1);border-radius:4px;}
+    .energy-fill{
+      height:100%;width:0%;border-radius:4px;
+      background:linear-gradient(90deg,var(--cyan2),var(--gold),var(--silver));
+      box-shadow:0 0 12px var(--gold),0 0 24px rgba(255,215,0,.3);
+      animation:charge 2.5s cubic-bezier(.4,0,.2,1) 1.3s forwards;
+      position:relative;
+    }
+    .energy-fill::after{
+      content:'';position:absolute;right:-1px;top:-3px;
+      width:4px;height:10px;background:white;border-radius:2px;
+      box-shadow:0 0 8px var(--gold);
+    }
+    @keyframes charge{to{width:100%;}}
+    .skip-hint{
+      position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      font-size:.65rem;color:rgba(200,212,224,.4);letter-spacing:.2em;
+      text-transform:uppercase;
+      opacity:0;animation:fadeIn .4s ease 2s forwards;
+    }
+    body.done{animation:fadeOut .7s ease forwards;}
+    @keyframes fadeOut{to{opacity:0;pointer-events:none;}}
+  </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div class="scanlines"></div>
+<canvas id="bolt-canvas"></canvas>
+
+<div class="stage">
+  <div class="logo-wrap">
+    <div class="ring ring-2"></div>
+    <div class="ring ring-1"></div>
+    <div class="logo-img">
+      <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg"
+           alt="Ratchet Legacy"
+           onerror="this.style.display='none'"/>
+    </div>
+  </div>
+
+  <div class="title-block">
+    <div class="eyebrow">Collection Tracker</div>
+    <h1>RATCHET <span class="accent">&amp;</span> CLANK</h1>
+    <div class="tagline">TRACKER MADE BY RATCHET LEGACY</div>
+  </div>
+
+  <div class="energy-wrap">
+    <div class="energy-header">
+      <span class="energy-label">CHARGEMENT</span>
+      <span class="energy-pct" id="pct-label">0%</span>
+    </div>
+    <div class="energy-track">
+      <div class="energy-fill" id="energy-fill"></div>
+    </div>
+  </div>
+</div>
+
+<div class="skip-hint">Appuyez pour ignorer</div>
+
+<script>
+  // ── STARS BACKGROUND ──
+  const bgCanvas = document.getElementById('bg-canvas');
+  const bgCtx = bgCanvas.getContext('2d');
+  function resizeCanvas(){
+    bgCanvas.width = window.innerWidth;
+    bgCanvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  const stars = Array.from({length:120}, () => ({
+    x: Math.random() * bgCanvas.width,
+    y: Math.random() * bgCanvas.height,
+    r: Math.random() * 1.5 + 0.3,
+    a: Math.random(),
+    da: (Math.random() - 0.5) * 0.01
+  }));
+
+  function drawStars(){
+    bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+    stars.forEach(s => {
+      s.a = Math.max(0.1, Math.min(1, s.a + s.da));
+      if (s.a <= 0.1 || s.a >= 1) s.da = -s.da;
+      bgCtx.beginPath();
+      bgCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      bgCtx.fillStyle = `rgba(200,220,255,${s.a})`;
+      bgCtx.fill();
+    });
+    requestAnimationFrame(drawStars);
+  }
+  drawStars();
+
+  // ── PERCENTAGE COUNTER ──
+  let pct = 0;
+  const pctLabel = document.getElementById('pct-label');
+  const fill = document.getElementById('energy-fill');
+  const interval = setInterval(() => {
+    pct = Math.min(100, pct + 1);
+    pctLabel.textContent = pct + '%';
+    if (pct >= 100) {
+      clearInterval(interval);
+      setTimeout(redirect, 400);
+    }
+  }, 25);
+
+  // ── REDIRECT ──
+  function redirect(){
+    document.body.classList.add('done');
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 700);
+  }
+
+  // ── SKIP ON CLICK/TOUCH ──
+  document.addEventListener('click', redirect);
+  document.addEventListener('touchstart', redirect);
+</script>
+</body>
+</html>
