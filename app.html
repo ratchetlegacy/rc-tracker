@@ -47,23 +47,23 @@
       --r:12px;
     }
     [data-theme="plasma"]{
-      --bg:#040D1A;--bg2:#071428;--bg3:#0A1E3A;
-      --purple:#00B8D4;--purple-light:#00E5FF;
-      --orange:#FFD700;--orange-light:#FFE44D;
-      --chrome:#B2EBF2;
-      --owned:#00E676;--wishlist:#FFD700;--missing:#FF1744;
-      --profit:#00E676;--loss:#FF1744;--neutral:#4DD0E1;
-      --text:#E0F7FA;--text-dim:#4DD0E1;
+      --bg:#000D1F;--bg2:#001A3A;--bg3:#002855;
+      --purple:#00E5FF;--purple-light:#80FFFF;
+      --orange:#FFD700;--orange-light:#FFE566;
+      --chrome:#80F0FF;
+      --owned:#00FF88;--wishlist:#FFD700;--missing:#FF2050;
+      --profit:#00FF88;--loss:#FF2050;--neutral:#00B8D4;
+      --text:#E0FFFF;--text-dim:#00B8D4;
       --r:12px;
     }
     [data-theme="nova"]{
-      --bg:#0F0A0A;--bg2:#1A0F0F;--bg3:#291515;
-      --purple:#FF1744;--purple-light:#FF6B6B;
-      --orange:#C0C0C0;--orange-light:#E0E0E0;
-      --chrome:#CFD8DC;
-      --owned:#69F0AE;--wishlist:#FFD740;--missing:#FF6D00;
-      --profit:#69F0AE;--loss:#FF6D00;--neutral:#B0BEC5;
-      --text:#FAFAFA;--text-dim:#B0BEC5;
+      --bg:#120000;--bg2:#1F0000;--bg3:#330000;
+      --purple:#FF0033;--purple-light:#FF6688;
+      --orange:#E8E8E8;--orange-light:#FFFFFF;
+      --chrome:#FFB3C0;
+      --owned:#00FF99;--wishlist:#FFD700;--missing:#FF6600;
+      --profit:#00FF99;--loss:#FF6600;--neutral:#FF9999;
+      --text:#FFF5F5;--text-dim:#FF9999;
       --r:12px;
     }
     @media(max-width:480px){
@@ -531,6 +531,30 @@
     .exchange-input{width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none}
     .exchange-submit{width:100%;padding:11px;background:linear-gradient(135deg,var(--owned),#00B89C);border:none;border-radius:8px;color:#fff;font-family:Orbitron,sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;margin-top:8px}
     .exchange-cancel{width:100%;padding:8px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text-dim);font-family:Inter,sans-serif;font-size:.75rem;cursor:pointer;margin-top:8px}
+    /* FIXED FOOTER */
+    .fixed-footer{
+      position:fixed;bottom:0;left:0;right:0;z-index:50;
+      background:linear-gradient(transparent,rgba(13,15,26,.95));
+      padding:8px 16px 10px;
+      display:flex;align-items:center;justify-content:center;gap:16px;
+      pointer-events:none;
+    }
+    .fixed-footer a, .fixed-footer button{pointer-events:all}
+    .footer-kofi{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 14px;
+      background:linear-gradient(135deg,#FF5E5B,#FF8C42);
+      border-radius:20px;color:#fff;text-decoration:none;
+      font-family:Orbitron,sans-serif;font-size:.62rem;font-weight:700;
+      letter-spacing:.05em;box-shadow:0 2px 10px rgba(255,94,91,.4);
+      border:none;cursor:pointer;
+    }
+    .footer-legal{
+      font-size:.58rem;color:var(--text-dim);text-decoration:none;
+    }
+    .footer-legal:hover{color:var(--text)}
+    /* Add bottom padding to all screens */
+    .app-content,.stats-body,.admin-body,.market-body,.public-body{padding-bottom:50px}
     /* PRICE NOTIF */
     .price-notif{background:rgba(255,212,71,.08);border:1px solid rgba(255,212,71,.25);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
     .price-notif-icon{font-size:1.4rem;flex-shrink:0}
@@ -1153,15 +1177,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
 </div>
 
-  <!-- FOOTER -->
-  <div style="text-align:center;padding:24px 20px;font-size:.62rem;color:var(--text-dim);border-top:1px solid rgba(255,255,255,.05);margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:10px">
-    <a href="https://ko-fi.com/ratchetlegacy" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#FF5E5B,#FF8C42);border-radius:20px;color:#fff;text-decoration:none;font-family:Orbitron,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.05em;box-shadow:0 4px 15px rgba(255,94,91,.3)">
-      ☕ SOUTENIR LE PROJET
-    </a>
-    <div style="font-size:.6rem;color:var(--text-dim)">Ce tracker est gratuit — un café aide à le maintenir ! 🙏</div>
-    <a href="legal.html" style="color:var(--text-dim);text-decoration:none">CGU & Mentions légales</a>
-    <div style="color:var(--text-dim)">Made with ❤️ by Ratchet Legacy</div>
-  </div>
+
 </div>
 
 <!-- PROFILE SCREEN -->
@@ -2008,6 +2024,11 @@ async function launchApp(){
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>Chargement...</div>';
   await fetchItems(); render(); loadProfile(); loadTheme(); loadRcTotal(); loadLang();
+  document.getElementById('fixed-footer').style.display = 'flex';
+  if(localStorage.getItem('kofi_dismissed')==='1'){
+    const banner = document.getElementById('kofi-banner');
+    if(banner) banner.style.display='none';
+  }
   if(isAdmin()) document.getElementById('admin-btn').style.display='block';
 }
 
@@ -3352,5 +3373,14 @@ async function boot(){
 }
 boot();
 </script>
+<!-- FIXED FOOTER -->
+<div class="fixed-footer" id="fixed-footer" style="display:none">
+  <a href="https://ko-fi.com/ratchetlegacy" target="_blank" rel="noopener" class="footer-kofi">
+    ☕ SOUTENIR
+  </a>
+  <a href="legal.html" class="footer-legal">CGU & Mentions légales</a>
+  <span style="font-size:.55rem;color:var(--text-dim)">Made with ❤️ by Ratchet Legacy</span>
+</div>
+
 </body>
 </html>
