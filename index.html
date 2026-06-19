@@ -821,6 +821,42 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
+<!-- GALLERY MODAL -->
+<div class="gallery-overlay" id="gallery-overlay">
+  <div class="gallery-modal">
+    <div class="gallery-header">
+      <h3>🖼️ Banque d'images</h3>
+      <button class="gallery-close" onclick="closeGallery()">✕</button>
+    </div>
+    <div style="padding:10px 22px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="text" id="gallery-search" placeholder="🔍 Rechercher..." oninput="renderGalleryGrid(galleryImages)"
+        style="flex:1;min-width:150px;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none"/>
+      <div id="gallery-folders" style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="gallery-folder-btn active" onclick="loadGalleryImages('');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Tout</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS2');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS2</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS3');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS3</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS4');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS4</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS5');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS5</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('PSP');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PSP</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('Figurines');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Figurines</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('Autres');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Autres</button>
+      </div>
+    </div>
+    <div class="gallery-grid" id="gallery-grid">
+      <div class="gallery-empty">⚙️ Chargement...</div>
+    </div>
+    <div class="gallery-footer">
+      <div class="gallery-selected-preview" id="gallery-preview">
+        <span>Aucune image sélectionnée</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="gallery-cancel" onclick="closeGallery()">Annuler</button>
+        <button class="gallery-confirm" onclick="confirmGallery()">CHOISIR</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- SUBMIT PHOTO MODAL -->
 <div class="modal-overlay" id="submit-photo-overlay">
   <div class="modal" style="max-width:440px">
@@ -1237,11 +1273,7 @@ async function saveItem(){
     region:document.getElementById('inp-region').value,
     status:document.getElementById('inp-status').value,
     condition:document.getElementById('inp-condition').value,
-    has_box:document.getElementById('inp-box').checked,
-    has_manual:document.getElementById('inp-manual').checked,
-    has_disc:document.getElementById('inp-disc').checked,
-    has_sleeve:document.getElementById('inp-sleeve').checked,
-    has_docs:document.getElementById('inp-docs').checked,
+
     buy_price:buy!==''?parseFloat(buy):null,
     cur_value:val!==''?parseFloat(val):null,
     img_url:document.getElementById('inp-img').value.trim(),
@@ -2143,9 +2175,9 @@ function renderStats(){
   html += kpi('✅','Possédés','owned',owned.length);
   html += kpi('🎯','Souhaités','wish',wish.length);
   html += kpi('📈','Complétude','pct',total?Math.round(owned.length/total*100)+'%':'0%');
-  if(hasBuy) html += kpi('💸','Investi','inv',fmtEurS(invested));
-  if(hasCur) html += kpi('💰','Valeur','val',fmtEurS(market));
-  if(hasBuy&&hasCur) html += kpi(delta>=0?'📈':'📉','Plus-value','delta',(delta>=0?'+':'')+fmtEurS(delta),delta>=0?'var(--profit)':'var(--loss)');
+  html += kpi('💸','Investi','inv',hasBuy?fmtEurS(invested):'—');
+  html += kpi('💰','Valeur marché','val',hasCur?fmtEurS(market):'—');
+  html += kpi(delta>=0?'📈':'📉','Plus-value','delta',(hasBuy&&hasCur)?((delta>=0?'+':'')+fmtEurS(delta)):'—',hasBuy&&hasCur?(delta>=0?'var(--profit)':'var(--loss)'):'');
   html += kpi('🆕','Neuf/Blister','neuf',nNeuf);
   html += kpi('📦','Occasion','occ',nOcc);
   html += '</div>';
