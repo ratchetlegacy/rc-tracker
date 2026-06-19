@@ -630,8 +630,9 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="header-user">
         <div class="profile-btn" id="header-avatar" onclick="openProfile()" title="Mon profil">🦊</div>
         <span style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);cursor:pointer;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="header-pseudo" onclick="openProfile()">Collectionneur</span>
-        <button onclick="openStats()" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(123,79,212,.4);background:rgba(123,79,212,.1);color:var(--purple-light);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">📊 Stats</button>
+        <button onclick="openStats()" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(123,79,212,.4);background:rgba(123,79,212,.1);color:var(--purple-light);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer" data-i18n="btn_stats">📊 Stats</button>
         <button onclick="cycleTheme()" id="theme-btn" title="Changer le thème" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.82rem;cursor:pointer">🌌</button>
+        <button onclick="cycleLang()" id="lang-btn" title="Changer la langue" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.72rem;font-family:Orbitron,sans-serif;cursor:pointer">🇫🇷</button>
         <button id="admin-btn" onclick="openAdmin()" style="display:none;padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,26,.4);background:rgba(255,107,26,.1);color:var(--orange);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🛠️ Admin</button>
         <button class="signout-btn" onclick="doSignOut()">Déconnexion</button>
       </div>
@@ -685,7 +686,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <button class="filter-btn s-wish" data-status="wishlist">🎯 Souhaité</button>
       </div>
       <div class="spacer"></div>
-      <button class="add-btn" onclick="openModal()">+ AJOUTER</button>
+      <button class="add-btn" onclick="openModal()" data-i18n="btn_add">+ AJOUTER</button>
     </div>
   </div>
 
@@ -1860,7 +1861,7 @@ async function launchApp(){
   // email display handled by profile
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>Chargement...</div>';
-  await fetchItems(); render(); loadProfile(); loadTheme(); loadRcTotal();
+  await fetchItems(); render(); loadProfile(); loadTheme(); loadRcTotal(); loadLang();
   if(isAdmin()) document.getElementById('admin-btn').style.display='block';
 }
 
@@ -2817,6 +2818,168 @@ function updateRcProgressBar(total){
   if(bar) bar.style.width = pct + '%';
   if(label) label.textContent = pct + '%';
   if(totalLabel) totalLabel.textContent = total;
+}
+
+// ══ TRANSLATIONS ══
+const LANGS = ['fr', 'en'];
+let currentLang = 'fr';
+
+const T = {
+  fr: {
+    // Header
+    'app_title': 'Ratchet & Clank Collection',
+    'btn_add': '+ AJOUTER',
+    'btn_stats': '📊 Stats',
+    'btn_admin': '🛠️ Admin',
+    // Filters
+    'filter_all': 'Tout',
+    'filter_owned': 'Possédés',
+    'filter_wishlist': 'Souhaités',
+    'filter_search': '🔍 Rechercher...',
+    'filter_type': 'Tous types',
+    'filter_sort': 'Récents',
+    'filter_sort_name': 'Nom A→Z',
+    'filter_sort_value': 'Valeur ↓',
+    'filter_sort_rating': 'Note ↓',
+    // Modal
+    'modal_new': 'NOUVEL OBJET',
+    'modal_edit': "MODIFIER L'OBJET",
+    'modal_general': '📋 Informations générales',
+    'modal_name': 'Nom *',
+    'modal_type': 'Type',
+    'modal_edition': 'Édition',
+    'modal_manufacturer': 'Fabricant',
+    'modal_platform': 'Support / Plateforme',
+    'modal_region': 'Région',
+    'modal_lang': 'Langue',
+    'modal_status': 'Statut',
+    'modal_condition': '📦 État & Complétude',
+    'modal_state': 'État',
+    'modal_quality': 'Qualité',
+    'modal_completeness': 'Complétude',
+    'modal_finance': '💰 Valeur financière',
+    'modal_buy_price': "Prix d'achat (€)",
+    'modal_cur_value': 'Valeur actuelle (€)',
+    'modal_extras': '✨ Extras',
+    'modal_rating': 'Note personnelle',
+    'modal_image': 'Image',
+    'modal_notes': 'Notes',
+    'modal_comment': 'Commentaire',
+    'modal_cancel': 'Annuler',
+    'modal_save': 'SAUVEGARDER',
+    // Status
+    'owned': '✅ Possédé',
+    'wishlist': '🎯 Souhaité',
+    'neuf_blister': '🆕 Neuf sous blister',
+    'occasion': '📦 Occasion',
+    // Progress
+    'rank_next': 'objets avant',
+    'rank_max': '✨ Rang maximum !',
+    'collection_rc': 'Collection R&C',
+    'objects_known': 'objets connus',
+    // Empty state
+    'empty_collection': 'Aucun objet dans ta collection',
+    'empty_add': 'Clique sur + AJOUTER pour commencer !',
+    'empty_wishlist': 'Ta liste de souhaits est vide',
+    // Toast
+    'saved': 'Objet sauvegardé !',
+    'updated': 'Objet mis à jour !',
+    'deleted': 'Objet supprimé.',
+    'copied': 'Lien copié !',
+  },
+  en: {
+    // Header
+    'app_title': 'Ratchet & Clank Collection',
+    'btn_add': '+ ADD',
+    'btn_stats': '📊 Stats',
+    'btn_admin': '🛠️ Admin',
+    // Filters
+    'filter_all': 'All',
+    'filter_owned': 'Owned',
+    'filter_wishlist': 'Wishlist',
+    'filter_search': '🔍 Search...',
+    'filter_type': 'All types',
+    'filter_sort': 'Recent',
+    'filter_sort_name': 'Name A→Z',
+    'filter_sort_value': 'Value ↓',
+    'filter_sort_rating': 'Rating ↓',
+    // Modal
+    'modal_new': 'NEW ITEM',
+    'modal_edit': 'EDIT ITEM',
+    'modal_general': '📋 General information',
+    'modal_name': 'Name *',
+    'modal_type': 'Type',
+    'modal_edition': 'Edition',
+    'modal_manufacturer': 'Manufacturer',
+    'modal_platform': 'Platform / Support',
+    'modal_region': 'Region',
+    'modal_lang': 'Language',
+    'modal_status': 'Status',
+    'modal_condition': '📦 Condition & Completeness',
+    'modal_state': 'Condition',
+    'modal_quality': 'Quality',
+    'modal_completeness': 'Completeness',
+    'modal_finance': '💰 Financial value',
+    'modal_buy_price': 'Purchase price (€)',
+    'modal_cur_value': 'Current value (€)',
+    'modal_extras': '✨ Extras',
+    'modal_rating': 'Personal rating',
+    'modal_image': 'Image',
+    'modal_notes': 'Notes',
+    'modal_comment': 'Comment',
+    'modal_cancel': 'Cancel',
+    'modal_save': 'SAVE',
+    // Status
+    'owned': '✅ Owned',
+    'wishlist': '🎯 Wishlist',
+    'neuf_blister': '🆕 Brand new',
+    'occasion': '📦 Second hand',
+    // Progress
+    'rank_next': 'items before',
+    'rank_max': '✨ Maximum rank!',
+    'collection_rc': 'R&C Collection',
+    'objects_known': 'known items',
+    // Empty state
+    'empty_collection': 'No items in your collection',
+    'empty_add': 'Click + ADD to get started!',
+    'empty_wishlist': 'Your wishlist is empty',
+    // Toast
+    'saved': 'Item saved!',
+    'updated': 'Item updated!',
+    'deleted': 'Item deleted.',
+    'copied': 'Link copied!',
+  }
+};
+
+function t(key){ return (T[currentLang] && T[currentLang][key]) || (T['fr'][key]) || key; }
+
+function cycleLang(){
+  currentLang = currentLang === 'fr' ? 'en' : 'fr';
+  localStorage.setItem('rc_lang', currentLang);
+  document.getElementById('lang-btn').textContent = currentLang === 'fr' ? '🇫🇷' : '🇬🇧';
+  applyTranslations();
+  showToast(currentLang === 'fr' ? 'Français 🇫🇷' : 'English 🇬🇧', 'success');
+}
+
+function loadLang(){
+  const saved = localStorage.getItem('rc_lang');
+  if(saved) currentLang = saved;
+  const btn = document.getElementById('lang-btn');
+  if(btn) btn.textContent = currentLang === 'fr' ? '🇫🇷' : '🇬🇧';
+}
+
+function applyTranslations(){
+  // Apply to elements with data-i18n attribute
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'){
+      el.placeholder = t(key);
+    } else {
+      el.textContent = t(key);
+    }
+  });
+  // Re-render to apply translations
+  render();
 }
 
 async function boot(){
