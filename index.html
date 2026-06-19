@@ -976,29 +976,68 @@ async function dbDelete(id){ const {error}=await sbClient.from('items').delete()
 function openModal(id){
   editingId=id||null;
   const item=id?items.find(i=>i.id===id):null;
-  document.getElementById('modal-title').textContent=item?'MODIFIER L\'OBJET':'NOUVEL OBJET';
+  document.getElementById('modal-title').textContent=item?"MODIFIER L'OBJET":'NOUVEL OBJET';
   document.getElementById('inp-name').value=item?item.name:'';
-  document.getElementById('inp-type').value=item?(item.type||''):'';
-  document.getElementById('inp-edition').value=item?(item.edition||''):'';
-  document.getElementById('inp-manufacturer').value=item?(item.manufacturer||''):'';
-  document.getElementById('inp-platform').value=item?(item.platform||''):'';
+
+  // Type
+  const typeSelect=document.getElementById('inp-type');
+  const typeCustom=document.getElementById('inp-type-custom');
+  const typeVal=item?(item.type||''):'';
+  let typeFound=false;
+  for(let o of typeSelect.options){ if(o.value===typeVal){ typeFound=true; break; } }
+  if(typeFound||typeVal===''){ typeSelect.value=typeVal; if(typeCustom) typeCustom.style.display='none'; }
+  else { typeSelect.value=''; if(typeCustom){ typeCustom.style.display='block'; typeCustom.value=typeVal; } }
+
+  // Edition
+  const edSel=document.getElementById('inp-edition');
+  const edVal=item?(item.edition||''):'';
+  let edFound=false;
+  for(let o of edSel.options){ if(o.value===edVal){ edFound=true; break; } }
+  if(edFound||edVal===''){ edSel.value=edVal; document.getElementById('inp-edition-custom').style.display='none'; }
+  else { edSel.value='__custom__'; document.getElementById('inp-edition-custom').style.display='block'; document.getElementById('inp-edition-custom').value=edVal; }
+
+  // Manufacturer
+  const mfSel=document.getElementById('inp-manufacturer');
+  const mfVal=item?(item.manufacturer||''):'';
+  let mfFound=false;
+  for(let o of mfSel.options){ if(o.value===mfVal){ mfFound=true; break; } }
+  if(mfFound||mfVal===''){ mfSel.value=mfVal; document.getElementById('inp-manufacturer-custom').style.display='none'; }
+  else { mfSel.value='__custom__'; document.getElementById('inp-manufacturer-custom').style.display='block'; document.getElementById('inp-manufacturer-custom').value=mfVal; }
+
+  // Platform
+  const pfSel=document.getElementById('inp-platform');
+  const pfVal=item?(item.platform||''):'';
+  let pfFound=false;
+  for(let o of pfSel.options){ if(o.value===pfVal){ pfFound=true; break; } }
+  if(pfFound||pfVal===''){ pfSel.value=pfVal; document.getElementById('inp-platform-custom').style.display='none'; }
+  else { pfSel.value='__custom__'; document.getElementById('inp-platform-custom').style.display='block'; document.getElementById('inp-platform-custom').value=pfVal; }
+
   document.getElementById('inp-region').value=item?(item.region||'PAL'):'PAL';
+  document.getElementById('inp-lang').value=item?(item.lang||'FR'):'FR';
   document.getElementById('inp-status').value=item?(item.status||'owned'):'owned';
-  document.getElementById('inp-wish-url').value=item?(item.wish_url||''):'';
-  toggleWishUrl(item?(item.status||'owned'):'owned');
-  document.getElementById('inp-condition').value=item?(item.condition||'occasion'):'occasion';
-  document.getElementById('inp-box').checked=item?!!item.has_box:false;
-  document.getElementById('inp-manual').checked=item?!!item.has_manual:false;
-  document.getElementById('inp-disc').checked=item?!!item.has_disc:false;
-  document.getElementById('inp-sleeve').checked=item?!!item.has_sleeve:false;
-  document.getElementById('inp-docs').checked=item?!!item.has_docs:false;
+  document.getElementById('inp-condition').value=item?(item.condition||'neuf_blister'):'neuf_blister';
+  document.getElementById('inp-grade').value=item?(item.grade||'excellent'):'excellent';
   document.getElementById('inp-buy').value=item&&item.buy_price!=null?item.buy_price:'';
   document.getElementById('inp-val').value=item&&item.cur_value!=null?item.cur_value:'';
   document.getElementById('inp-img').value=item?(item.img_url||''):'';
+  document.getElementById('inp-wish-url').value=item?(item.wish_url||''):'';
   document.getElementById('inp-notes').value=item?(item.notes||''):'';
   document.getElementById('inp-comment').value=item?(item.comment||''):'';
+  if(document.getElementById('inp-bonus')) document.getElementById('inp-bonus').value=item?(item.bonus||''):'';
   resetRating(item?item.rating:0);
+  updateCompleteness();
   toggleCondition();
+  toggleWishUrl(item?(item.status||'owned'):'owned');
+  // Restore completeness values
+  if(item){
+    setTimeout(()=>{
+      const fields=COMPLETENESS_CONFIG[item.type||'']||[];
+      fields.forEach(f=>{
+        const sel=document.getElementById('comp_'+f.k);
+        if(sel) sel.value=item['comp_'+f.k]||'na';
+      });
+    },50);
+  }
   document.getElementById('modal-overlay').classList.add('open');
   setTimeout(()=>document.getElementById('inp-name').focus(),100);
 }
