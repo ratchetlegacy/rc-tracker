@@ -1,12 +1,12 @@
 {
   "name": "Ratchet & Clank Collection",
   "short_name": "R&C Tracker",
-  "description": "Tracker de collection Ratchet & Clank — made by Ratchet Legacy",
-  "start_url": "/rc-tracker/",
+  "description": "Tracker de collection Ratchet & Clank \u2014 made by Ratchet Legacy",
+  "start_url": "/rc-tracker/splash.html",
   "scope": "/rc-tracker/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0D0F1A",
+  "background_color": "#06080F",
   "theme_color": "#7B4FD4",
   "icons": [
     {
