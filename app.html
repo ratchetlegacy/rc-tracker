@@ -2811,12 +2811,12 @@ async function loadRcTotal(){
 function updateRcProgressBar(total){
   const owned = items.filter(i=>i.status==='owned').length;
   const pct = total > 0 ? Math.round((owned/total)*100) : 0;
-  const bar = document.getElementById('rc-progress-fill');
-  const label = document.getElementById('rc-progress-pct');
-  const totalLabel = document.getElementById('rc-progress-total');
+  const bar = document.getElementById('collection-bar');
+  const label = document.getElementById('collection-pct');
+  const totalLabel = document.getElementById('collection-total-display');
   if(bar) bar.style.width = pct + '%';
   if(label) label.textContent = pct + '%';
-  if(totalLabel) totalLabel.textContent = '(' + owned + '/' + total + ' objets connus)';
+  if(totalLabel) totalLabel.textContent = total;
 }
 
 async function boot(){
