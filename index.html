@@ -450,18 +450,30 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
     <div class="header-bottom">
       <div class="energy-section">
+        <!-- RANG -->
+        <div class="rank-section" id="rank-section" style="margin-bottom:10px"></div>
+        <!-- BARRE RANG -->
         <div class="energy-label">
-          <span class="elabel">Progression de la collection</span>
+          <span class="elabel">Progression vers le prochain rang</span>
           <span class="pct" id="pct-display">0%</span>
         </div>
         <div class="energy-bar-bg"><div class="energy-bar-fill" id="energy-bar" style="width:0%"></div></div>
-        <div class="energy-counts">
+        <!-- BARRE COLLECTION -->
+        <div class="energy-label" style="margin-top:10px">
+          <span class="elabel">Collection R&amp;C</span>
+          <span style="display:flex;align-items:center;gap:6px">
+            <span class="pct" id="collection-pct" style="font-size:.85rem;color:var(--orange-light)">0%</span>
+            <span onclick="editCollectionTotal()" style="font-size:.62rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">?</span> objets connus)</span>
+          </span>
+        </div>
+        <div class="energy-bar-bg">
+          <div id="collection-bar" style="height:100%;border-radius:5px;background:linear-gradient(90deg,var(--orange),#FFD447);width:0%;transition:width .6s"></div>
+        </div>
+        <div class="energy-counts" style="margin-top:8px">
           <div class="ecount"><div class="dot" style="background:var(--owned)"></div><span class="num" id="cnt-owned">0</span>&nbsp;possédés</div>
           <div class="ecount"><div class="dot" style="background:var(--wishlist)"></div><span class="num" id="cnt-wish">0</span>&nbsp;souhaités</div>
-          <div class="ecount"><div class="dot" style="background:var(--missing)"></div><span class="num" id="cnt-miss">0</span>&nbsp;manquants</div>
           <div class="ecount"><div class="dot" style="background:var(--chrome)"></div><span class="num" id="cnt-total">0</span>&nbsp;total</div>
         </div>
-        <div class="rank-section" id="rank-section"></div>
       </div>
       <div class="finance-stats">
         <div class="fstat"><div class="flabel">Investi</div><div class="fvalue invested" id="stat-invested">—</div></div>
@@ -1354,7 +1366,7 @@ function show(id){
 }
 
 async function launchApp(){
-  document.getElementById('user-email-display') && (document.getElementById('user-email-display').textContent=currentUser.email);
+  // email display handled by profile
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>Chargement...</div>';
   await fetchItems(); render(); loadProfile();
