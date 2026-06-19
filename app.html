@@ -422,6 +422,24 @@
     .comp-alert{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,77,106,.07);border:1px solid rgba(255,77,106,.15);border-radius:8px;font-size:.75rem}
     .comp-alert-name{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .comp-alert-missing{color:var(--missing);font-size:.68rem}
+    /* PROFILE SCREEN */
+    .profile-rank-icon{font-size:2rem;flex-shrink:0}
+    .profile-rank-name{font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:700}
+    .profile-rank-progress{font-size:.7rem;color:var(--text-dim);margin-top:3px}
+    .profile-rank-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:8px;width:200px}
+    .profile-rank-fill{height:100%;border-radius:3px;transition:width .8s}
+    .type-bar-row{display:flex;align-items:center;gap:8px}
+    .type-bar-label{font-size:.72rem;color:var(--text-dim);width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
+    .type-bar-bg{flex:1;height:18px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+    .type-bar-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--orange));border-radius:4px}
+    .type-bar-count{font-size:.72rem;font-weight:600;color:var(--text);width:40px;text-align:right;flex-shrink:0}
+    .top-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg3);border-radius:8px;margin-bottom:6px}
+    .ti-rank{font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--text-dim);width:24px;text-align:center;flex-shrink:0}
+    .ti-name{flex:1;font-size:.82rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .ti-val{font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--purple-light);flex-shrink:0}
+    .avatar-opt{width:44px;height:44px;border-radius:50%;background:var(--bg3);border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;transition:all .2s}
+    .avatar-opt.selected{border-color:var(--purple);background:rgba(123,79,212,.2)}
+    .avatar-opt:hover{border-color:rgba(123,79,212,.5)}
     /* PRICE NOTIF */
     .price-notif{background:rgba(255,212,71,.08);border:1px solid rgba(255,212,71,.25);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
     .price-notif-icon{font-size:1.4rem;flex-shrink:0}
@@ -1021,6 +1039,82 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
   <div class="stats-body" id="stats-body">
     <div style="text-align:center;padding:60px;color:var(--text-dim)"><span style="font-size:2rem;display:block;margin-bottom:10px;animation:spin 1s linear infinite">⚙️</span>Calcul des statistiques...</div>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div class="admin-screen" id="profile-screen">
+  <div class="admin-header">
+    <div id="profile-avatar-big" style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--orange));border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0">🦊</div>
+    <div style="flex:1">
+      <div id="profile-pseudo-display" style="font-family:'Orbitron',sans-serif;font-size:.95rem;font-weight:900;color:var(--text)">Collectionneur</div>
+      <div id="profile-email-small" style="font-size:.7rem;color:var(--text-dim);margin-top:2px"></div>
+    </div>
+    <button class="admin-back" onclick="document.getElementById('profile-screen').classList.remove('open')">← Retour</button>
+  </div>
+  <div class="admin-body">
+
+    <!-- RANK -->
+    <div class="admin-section">
+      <div class="admin-section-title">🏆 Rang</div>
+      <div class="stat-widget" id="profile-rank-display" style="background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px"></div>
+    </div>
+
+    <!-- STATS -->
+    <div class="admin-section">
+      <div class="admin-section-title">📊 Statistiques</div>
+      <div class="kpi-grid" id="profile-stats-grid"></div>
+    </div>
+
+    <!-- TOP 5 -->
+    <div class="admin-section">
+      <div class="admin-section-title">💎 Top 5 objets les plus précieux</div>
+      <div class="top-list" id="profile-top-items"></div>
+    </div>
+
+    <!-- TYPE BARS -->
+    <div class="admin-section">
+      <div class="admin-section-title">📦 Collection par type</div>
+      <div id="profile-type-bars" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <!-- AVATAR -->
+    <div class="profile-section" style="margin-bottom:20px">
+      <div class="profile-section-title" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase;margin-bottom:12px">🎭 Avatar</div>
+      <div id="avatar-grid" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+
+    <!-- PSEUDO -->
+    <div class="profile-section" style="margin-bottom:20px">
+      <div class="profile-section-title" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase;margin-bottom:12px">✏️ Pseudo</div>
+      <div class="pseudo-edit">
+        <input type="text" class="pseudo-input" id="pseudo-input" placeholder="Ton pseudo..."/>
+        <button class="pseudo-save" onclick="savePseudo()">SAUVEGARDER</button>
+      </div>
+    </div>
+
+    <!-- PUBLIC PROFILE -->
+    <div class="profile-section" style="margin-bottom:20px">
+      <div class="profile-section-title" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase;margin-bottom:12px">🌐 Profil public</div>
+      <div style="background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px">
+        <div class="toggle-wrap">
+          <label class="toggle-switch">
+            <input type="checkbox" id="public-toggle" onchange="togglePublicProfile()"/>
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">Rendre mon profil public</span>
+        </div>
+        <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:12px">Partage ta collection. Les prix ne sont jamais visibles.</p>
+        <div id="public-link-section" style="display:none">
+          <div style="font-size:.72rem;color:var(--text-dim);margin-bottom:6px;font-weight:600">🔗 Ton lien public :</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="text" id="public-link-input" readonly style="flex:1;background:var(--bg3);border:1px solid rgba(123,79,212,.3);border-radius:8px;padding:8px 10px;color:var(--purple-light);font-family:Inter,sans-serif;font-size:.75rem;outline:none"/>
+            <button onclick="copyPublicLink()" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">📋 Copier</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
