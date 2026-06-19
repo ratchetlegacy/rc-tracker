@@ -996,6 +996,20 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
   <div class="admin-body">
 
+    <!-- RC TOTAL SETTING -->
+    <div class="admin-section">
+      <div class="admin-section-title">🎮 Total objets R&C connus</div>
+      <div class="admin-form">
+        <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:12px">Définit le total utilisé pour la barre de progression "Collection R&C" de tous les utilisateurs.</p>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input type="number" id="admin-rc-total" min="1" placeholder="ex: 250"
+            style="width:150px;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.9rem;outline:none"/>
+          <button class="admin-submit" onclick="saveRcTotal()">💾 SAUVEGARDER</button>
+          <span id="admin-rc-total-current" style="font-size:.75rem;color:var(--text-dim)"></span>
+        </div>
+      </div>
+    </div>
+
     <!-- ADD IMAGE -->
     <div class="admin-section">
       <div class="admin-section-title">🖼️ Ajouter une image à la banque</div>
@@ -1846,7 +1860,7 @@ async function launchApp(){
   // email display handled by profile
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>Chargement...</div>';
-  await fetchItems(); render(); loadProfile(); loadTheme();
+  await fetchItems(); render(); loadProfile(); loadTheme(); loadRcTotal();
   if(isAdmin()) document.getElementById('admin-btn').style.display='block';
 }
 
@@ -2131,6 +2145,7 @@ async function openAdmin(){
   document.getElementById('admin-screen').classList.add('open');
   await loadAdminImages();
   await loadAdminSubmissions();
+  await loadRcTotal();
 }
 function closeAdmin(){ document.getElementById('admin-screen').classList.remove('open'); }
 
@@ -2766,6 +2781,42 @@ function showMainMenu(){
   document.querySelectorAll('.admin-screen.open, .stats-screen.open, .public-screen.open').forEach(s => s.classList.remove('open'));
   document.getElementById('profile-screen').classList.remove('open');
   show('app-screen');
+}
+
+async function saveRcTotal(){
+  const val = parseInt(document.getElementById('admin-rc-total').value);
+  if(!val || val < 1){ showToast('Entrez un nombre valide', 'error'); return; }
+  try {
+    const { error } = await sbClient.from('app_settings').upsert([{key:'rc_total', value: val.toString()}], {onConflict:'key'});
+    if(error) throw error;
+    showToast('Total mis à jour : ' + val + ' objets !', 'success');
+    document.getElementById('admin-rc-total-current').textContent = 'Actuel : ' + val;
+    updateRcProgressBar(val);
+  } catch(e){ showToast('Erreur : ' + e.message, 'error'); }
+}
+
+async function loadRcTotal(){
+  try {
+    const { data } = await sbClient.from('app_settings').select('value').eq('key','rc_total').single();
+    const total = data ? parseInt(data.value) : 0;
+    if(total > 0) updateRcProgressBar(total);
+    // Update admin field if open
+    const field = document.getElementById('admin-rc-total');
+    const current = document.getElementById('admin-rc-total-current');
+    if(field && total > 0) field.value = total;
+    if(current && total > 0) current.textContent = 'Actuel : ' + total;
+  } catch(e){ console.log('RC total not set yet'); }
+}
+
+function updateRcProgressBar(total){
+  const owned = items.filter(i=>i.status==='owned').length;
+  const pct = total > 0 ? Math.round((owned/total)*100) : 0;
+  const bar = document.getElementById('rc-progress-fill');
+  const label = document.getElementById('rc-progress-pct');
+  const totalLabel = document.getElementById('rc-progress-total');
+  if(bar) bar.style.width = pct + '%';
+  if(label) label.textContent = pct + '%';
+  if(totalLabel) totalLabel.textContent = '(' + owned + '/' + total + ' objets connus)';
 }
 
 async function boot(){
