@@ -325,11 +325,11 @@
     .gallery-folder-btn{padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.74rem;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s}
     .gallery-folder-btn:hover{border-color:var(--purple);color:var(--text)}
     .gallery-folder-btn.active{background:var(--purple);border-color:var(--purple);color:#fff}
-    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;padding:16px 22px;overflow-y:auto;flex:1}
-    .gallery-item{border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;aspect-ratio:3/4;background:var(--bg3);display:flex;align-items:center;justify-content:center}
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;padding:12px 16px;overflow-y:auto;flex:1;max-height:400px}
+    .gallery-item{border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;background:var(--bg3);display:flex;flex-direction:column;align-items:center}
     .gallery-item:hover{border-color:var(--purple);transform:scale(1.03)}
     .gallery-item.selected{border-color:var(--orange);box-shadow:0 0 12px rgba(255,107,26,.4)}
-    .gallery-item img{width:100%;height:100%;object-fit:contain}
+    .gallery-item img{width:100%;height:120px;object-fit:contain;flex-shrink:0}
     .gallery-empty{text-align:center;padding:40px;color:var(--text-dim);font-size:.82rem;grid-column:1/-1}
     .gallery-footer{padding:14px 22px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:center;gap:10px}
     .gallery-selected-preview{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--text-dim)}
@@ -430,6 +430,39 @@
     .price-notif-sub{font-size:.72rem;color:var(--text-dim)}
     .price-notif-btn{padding:6px 14px;background:rgba(255,212,71,.15);border:1px solid rgba(255,212,71,.3);border-radius:8px;color:var(--wishlist);font-size:.72rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap;flex-shrink:0}
     .price-notif-btn:hover{background:rgba(255,212,71,.25)}
+    /* PUBLIC PROFILE */
+    .public-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;overflow-y:auto}
+    .public-screen.open{display:block}
+    .public-header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 50%,#0D1520 100%);border-bottom:1px solid rgba(123,79,212,.3);padding:32px;text-align:center;position:relative}
+    .public-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--orange));border:3px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin:0 auto 12px}
+    .public-pseudo{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;background:linear-gradient(90deg,#fff 40%,var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+    .public-rank{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:rgba(255,255,255,.06);border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px}
+    .public-stats-row{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
+    .public-stat{text-align:center}
+    .public-stat-val{font-family:'Orbitron',sans-serif;font-size:1.2rem;font-weight:700;color:var(--text)}
+    .public-stat-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-top:2px}
+    .public-body{padding:24px 32px;max-width:900px;margin:0 auto}
+    .public-section-title{font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .public-section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(123,79,212,.3),transparent)}
+    .public-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:28px}
+    .public-card{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden}
+    .public-card.owned{border-left:3px solid var(--owned)}
+    .public-card.wishlist{border-left:3px solid var(--wishlist)}
+    .public-card-img{width:100%;height:110px;object-fit:contain;background:var(--bg3)}
+    .public-card-body{padding:10px}
+    .public-card-name{font-size:.8rem;font-weight:600;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .public-card-meta{font-size:.65rem;color:var(--text-dim)}
+    .public-card-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+    .public-footer{text-align:center;padding:24px;font-size:.72rem;color:var(--text-dim);border-top:1px solid rgba(255,255,255,.05)}
+    /* TOGGLE SWITCH */
+    .toggle-wrap{display:flex;align-items:center;gap:12px;margin:12px 0}
+    .toggle-label{font-size:.82rem;color:var(--text);font-weight:500}
+    .toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
+    .toggle-switch input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.1);border-radius:12px;transition:.3s}
+    .toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+    .toggle-switch input:checked+.toggle-slider{background:var(--owned)}
+    .toggle-switch input:checked+.toggle-slider::before{transform:translateX(20px)}
     .toast{position:fixed;bottom:24px;right:24px;z-index:200;background:var(--bg3);border:1px solid rgba(123,79,212,.3);border-radius:10px;padding:12px 18px;font-size:.82rem;color:var(--text);max-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(60px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none}
     .toast.show{transform:translateY(0);opacity:1}
     .toast.success{border-color:rgba(61,214,140,.4)}
@@ -988,6 +1021,17 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
   <div class="stats-body" id="stats-body">
     <div style="text-align:center;padding:60px;color:var(--text-dim)"><span style="font-size:2rem;display:block;margin-bottom:10px;animation:spin 1s linear infinite">⚙️</span>Calcul des statistiques...</div>
+  </div>
+</div>
+
+<!-- PUBLIC PROFILE SCREEN -->
+<div class="public-screen" id="public-screen">
+  <div id="public-content">
+    <div style="text-align:center;padding:60px;color:var(--text-dim)"><span style="font-size:2rem;display:block;margin-bottom:10px">⚙️</span>Chargement...</div>
+  </div>
+  <div class="public-footer">
+    <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:32px;height:32px;border-radius:8px;vertical-align:middle;margin-right:8px"/>
+    Ratchet Legacy Tracker — <a href="https://ratchetlegacy.github.io/rc-tracker" style="color:var(--purple-light)">Créer ma collection</a>
   </div>
 </div>
 
@@ -1709,6 +1753,7 @@ function openProfile(){
   document.getElementById('profile-email-small').textContent = currentUser.email;
   document.getElementById('profile-avatar-big').textContent = avatar;
   document.getElementById('pseudo-input').value = pseudo;
+  loadPublicToggle();
 
   // Avatar grid
   const grid = document.getElementById('avatar-grid');
@@ -2392,9 +2437,174 @@ function buildPie(data, total){
   return '<svg width="120" height="120" viewBox="0 0 120 120">'+paths+'</svg>';
 }
 
+// ══ PUBLIC PROFILE ══
+function getPublicToken(){
+  let token = localStorage.getItem('rc_public_token_'+currentUser.id);
+  if(!token){
+    token = Math.random().toString(36).substr(2,12)+Math.random().toString(36).substr(2,12);
+    localStorage.setItem('rc_public_token_'+currentUser.id, token);
+  }
+  return token;
+}
+
+function getPublicLink(){
+  const token = getPublicToken();
+  return window.location.origin + window.location.pathname + '?profil=' + token;
+}
+
+function togglePublicProfile(){
+  const isOn = document.getElementById('public-toggle').checked;
+  const section = document.getElementById('public-link-section');
+  if(isOn){
+    // Save public profile data to Supabase
+    savePublicProfile();
+    section.style.display = 'block';
+    document.getElementById('public-link-input').value = getPublicLink();
+  } else {
+    // Remove public profile
+    removePublicProfile();
+    section.style.display = 'none';
+  }
+  localStorage.setItem('rc_public_enabled_'+currentUser.id, isOn?'1':'0');
+}
+
+async function savePublicProfile(){
+  const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collectionneur';
+  const avatar = localStorage.getItem('rc_avatar_'+currentUser.id)||'🦊';
+  const token = getPublicToken();
+  const rank = getRank(items.filter(i=>i.status==='owned').length);
+  try {
+    await sbClient.from('public_profiles').upsert([{
+      user_id: currentUser.id,
+      token,
+      pseudo,
+      avatar,
+      rank_name: rank.name,
+      rank_icon: rank.icon,
+      is_active: true,
+      updated_at: new Date().toISOString()
+    }], {onConflict:'user_id'});
+  } catch(e){ console.log('Public profile save error:', e.message); }
+}
+
+async function removePublicProfile(){
+  try {
+    await sbClient.from('public_profiles').update({is_active:false}).eq('user_id', currentUser.id);
+  } catch(e){ console.log('Public profile remove error:', e.message); }
+}
+
+function copyPublicLink(){
+  const link = document.getElementById('public-link-input').value;
+  navigator.clipboard.writeText(link).then(()=>showToast('Lien copié !','success'));
+}
+
+function loadPublicToggle(){
+  const isOn = localStorage.getItem('rc_public_enabled_'+currentUser.id)==='1';
+  const toggle = document.getElementById('public-toggle');
+  const section = document.getElementById('public-link-section');
+  if(toggle){ toggle.checked = isOn; }
+  if(section){
+    section.style.display = isOn ? 'block' : 'none';
+    if(isOn) document.getElementById('public-link-input').value = getPublicLink();
+  }
+}
+
+// Check if viewing a public profile from URL
+async function checkPublicProfile(){
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('profil');
+  if(!token) return false;
+
+  // Show public profile
+  document.getElementById('public-screen').classList.add('open');
+  try {
+    // Get profile data
+    const {data:profile, error} = await sbClient.from('public_profiles').select('*').eq('token',token).eq('is_active',true).single();
+    if(error||!profile){ document.getElementById('public-content').innerHTML='<div style="text-align:center;padding:60px;color:var(--text-dim)">😔 Ce profil est introuvable ou désactivé.</div>'; return true; }
+
+    // Get items (without prices)
+    const {data:publicItems} = await sbClient.from('items').select('id,name,type,status,condition,lang,region,img_url,rating,has_box,has_manual,has_disc,has_sleeve,has_docs,edition,platform,manufacturer').eq('user_id',profile.user_id).order('created_at');
+    const pItems = publicItems||[];
+    const owned = pItems.filter(i=>i.status==='owned');
+    const wish = pItems.filter(i=>i.status==='wishlist');
+    const rank = getRank(owned.length);
+    const nextRank = RANKS[RANKS.indexOf(rank)+1];
+    const rankPct = nextRank?Math.round(((owned.length-rank.min)/(nextRank.min-rank.min))*100):100;
+
+    // By type stats
+    const typeMap = {};
+    pItems.forEach(i=>{ if(i.type) typeMap[i.type]=(typeMap[i.type]||0)+1; });
+    const typeSorted = Object.entries(typeMap).sort((a,b)=>b[1]-a[1]);
+    const maxType = Math.max(...typeSorted.map(e=>e[1]),1);
+
+    let html = '<div class="public-header">';
+    html += '<div class="public-avatar">'+escHtml(profile.avatar||'🦊')+'</div>';
+    html += '<div class="public-pseudo">'+escHtml(profile.pseudo||'Collectionneur')+'</div>';
+    html += '<div class="public-rank" style="color:'+rank.color+'">'+rank.icon+' '+rank.name+'</div>';
+    // Rank bar
+    html += '<div style="max-width:300px;margin:0 auto 16px"><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+rankPct+'%;background:'+rank.color+';border-radius:3px;transition:width .8s"></div></div><div style="font-size:.65rem;color:var(--text-dim);margin-top:4px">'+(nextRank?nextRank.min-owned.length+' objets avant '+nextRank.name:'✨ Rang maximum !')+'</div></div>';
+    html += '<div class="public-stats-row">';
+    html += '<div class="public-stat"><div class="public-stat-val">'+owned.length+'</div><div class="public-stat-label">Possédés</div></div>';
+    html += '<div class="public-stat"><div class="public-stat-val">'+wish.length+'</div><div class="public-stat-label">Souhaités</div></div>';
+    html += '<div class="public-stat"><div class="public-stat-val">'+pItems.length+'</div><div class="public-stat-label">Total</div></div>';
+    html += '</div></div>';
+
+    html += '<div class="public-body">';
+
+    // Stats by type
+    html += '<div class="public-section-title">📊 Collection par type</div>';
+    html += '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px">';
+    typeSorted.slice(0,8).forEach(([type,count],i)=>{
+      const w = Math.round(count/maxType*100);
+      html += '<div style="display:flex;align-items:center;gap:8px"><div style="font-size:.72rem;color:var(--text-dim);width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+getIcon(type)+' '+escHtml(type)+'</div><div style="flex:1;height:18px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+w+'%;background:'+CHART_COLORS[i%CHART_COLORS.length]+';border-radius:4px;display:flex;align-items:center;padding-left:6px"><span style="font-size:.62rem;font-weight:600;color:rgba(255,255,255,.9)">'+count+'</span></div></div></div>';
+    });
+    html += '</div>';
+
+    // Collection grid - owned items
+    if(owned.length){
+      html += '<div class="public-section-title">✅ Collection possédée ('+owned.length+')</div>';
+      html += '<div class="public-grid">';
+      owned.forEach(item=>{
+        html += '<div class="public-card owned">';
+        if(item.img_url) html += '<img class="public-card-img" src="'+escHtml(item.img_url)+'" referrerpolicy="no-referrer" onerror="this.style.display=&quot;none&quot;"/>'
+        html += '<div class="public-card-body"><div class="public-card-name">'+escHtml(item.name)+'</div>';
+        html += '<div class="public-card-meta">'+(item.platform?escHtml(item.platform):'')+(item.region?' · '+item.region:'')+'</div>';
+        html += '<div class="public-card-badges"><span class="badge owned" style="font-size:.58rem;padding:2px 6px;border-radius:4px;background:rgba(61,214,140,.15);color:var(--owned)">Possédé</span>'+(item.edition?'<span class="badge platform" style="font-size:.58rem;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,.07);color:var(--chrome)">'+escHtml(item.edition)+'</span>':'')+'</div>';
+        if(item.rating) html += '<div style="font-size:.8rem;margin-top:4px">'+'⭐'.repeat(item.rating)+'</div>';
+        html += '</div></div>';
+      });
+      html += '</div>';
+    }
+
+    // Wishlist
+    if(wish.length){
+      html += '<div class="public-section-title">🎯 Liste de souhaits ('+wish.length+')</div>';
+      html += '<div class="public-grid">';
+      wish.forEach(item=>{
+        html += '<div class="public-card wishlist">';
+        if(item.img_url) html += '<img class="public-card-img" src="'+escHtml(item.img_url)+'" referrerpolicy="no-referrer" onerror="this.style.display=&quot;none&quot;"/>'
+        html += '<div class="public-card-body"><div class="public-card-name">'+escHtml(item.name)+'</div>';
+        html += '<div class="public-card-meta">'+(item.platform?escHtml(item.platform):'')+'</div>';
+        html += '<div class="public-card-badges"><span style="font-size:.58rem;padding:2px 6px;border-radius:4px;background:rgba(255,212,71,.15);color:var(--wishlist)">Souhaité</span></div>';
+        html += '</div></div>';
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+    document.getElementById('public-content').innerHTML = html;
+  } catch(e){
+    document.getElementById('public-content').innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-dim)">❌ Erreur : '+e.message+'</div>';
+  }
+  return true;
+}
+
 async function boot(){
   const config=PRESET_CONFIG;
   initSupabase(config.url,config.key);
+  // Check if viewing a public profile
+  const isPublic = await checkPublicProfile();
+  if(isPublic) return;
   try {
     const {data:{session}}=await sbClient.auth.getSession();
     if(session){ currentUser=session.user; launchApp(); }
