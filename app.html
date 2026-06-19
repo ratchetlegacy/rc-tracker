@@ -494,6 +494,37 @@
     .scanner-hint{font-size:.72rem;color:var(--text-dim);margin-top:12px;text-align:center}
     .scanner-close{margin-top:20px;padding:10px 24px;background:rgba(255,77,106,.2);border:1px solid rgba(255,77,106,.4);border-radius:8px;color:var(--missing);font-family:Orbitron,sans-serif;font-size:.7rem;font-weight:700;cursor:pointer}
     .scanner-result{margin-top:12px;padding:10px 16px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:8px;font-size:.75rem;color:var(--owned);text-align:center;display:none}
+    /* MARKETPLACE */
+    .market-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto}
+    .market-screen.open{display:block}
+    .market-header{background:linear-gradient(135deg,#0D0F1A,#1A1035);border-bottom:1px solid rgba(61,214,140,.3);padding:20px 32px;display:flex;align-items:center;gap:14px}
+    .market-header h1{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;color:var(--owned);flex:1}
+    .market-body{padding:24px 32px;max-width:1000px;margin:0 auto}
+    .market-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}
+    .market-card{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden;transition:transform .2s,border-color .2s}
+    .market-card:hover{transform:translateY(-2px);border-color:rgba(61,214,140,.3)}
+    .market-card-img{width:100%;height:140px;object-fit:contain;background:var(--bg3)}
+    .market-card-body{padding:12px}
+    .market-card-name{font-size:.85rem;font-weight:700;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .market-card-meta{font-size:.68rem;color:var(--text-dim);margin-bottom:8px}
+    .market-card-type{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.62rem;font-weight:700;margin-bottom:8px}
+    .market-card-type.exchange{background:rgba(123,79,212,.2);color:var(--purple-light);border:1px solid rgba(123,79,212,.3)}
+    .market-card-type.sale{background:rgba(255,212,71,.15);color:var(--wishlist);border:1px solid rgba(255,212,71,.3)}
+    .market-card-type.gift{background:rgba(61,214,140,.15);color:var(--owned);border:1px solid rgba(61,214,140,.3)}
+    .market-card-looking{font-size:.72rem;color:var(--text-dim);margin-bottom:10px;font-style:italic}
+    .market-card-owner{font-size:.7rem;color:var(--chrome);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+    .market-contact-btn{width:100%;padding:8px;background:linear-gradient(135deg,var(--owned),#00B89C);border:none;border-radius:8px;color:#fff;font-family:Orbitron,sans-serif;font-size:.65rem;font-weight:700;cursor:pointer;letter-spacing:.05em}
+    /* EXCHANGE MODAL */
+    .exchange-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;align-items:center;justify-content:center}
+    .exchange-modal.open{display:flex}
+    .exchange-box{background:var(--bg2);border:1px solid rgba(61,214,140,.3);border-radius:16px;padding:28px;max-width:480px;width:90%;max-height:90vh;overflow-y:auto}
+    .exchange-box h3{font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:700;color:var(--owned);margin-bottom:16px}
+    .exchange-consent{background:rgba(255,212,71,.08);border:1px solid rgba(255,212,71,.2);border-radius:10px;padding:12px;font-size:.75rem;color:var(--text-dim);margin-bottom:16px;line-height:1.5}
+    .exchange-form-group{margin-bottom:14px}
+    .exchange-form-group label{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);font-weight:600;display:block;margin-bottom:5px}
+    .exchange-input{width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none}
+    .exchange-submit{width:100%;padding:11px;background:linear-gradient(135deg,var(--owned),#00B89C);border:none;border-radius:8px;color:#fff;font-family:Orbitron,sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;margin-top:8px}
+    .exchange-cancel{width:100%;padding:8px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text-dim);font-family:Inter,sans-serif;font-size:.75rem;cursor:pointer;margin-top:8px}
     /* PRICE NOTIF */
     .price-notif{background:rgba(255,212,71,.08);border:1px solid rgba(255,212,71,.25);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
     .price-notif-icon{font-size:1.4rem;flex-shrink:0}
@@ -647,6 +678,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <button onclick="openStats()" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(123,79,212,.4);background:rgba(123,79,212,.1);color:var(--purple-light);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer" data-i18n="btn_stats">📊 Stats</button>
         <button onclick="cycleTheme()" id="theme-btn" title="Changer le thème" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.82rem;cursor:pointer">🌌</button>
         <button onclick="cycleLang()" id="lang-btn" title="Changer la langue" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.72rem;font-family:Orbitron,sans-serif;cursor:pointer">🇫🇷</button>
+        <button onclick="openMarketplace()" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(61,214,140,.4);background:rgba(61,214,140,.1);color:var(--owned);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🤝 Échanges</button>
         <button id="admin-btn" onclick="openAdmin()" style="display:none;padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,26,.4);background:rgba(255,107,26,.1);color:var(--orange);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🛠️ Admin</button>
         <button class="signout-btn" onclick="doSignOut()">Déconnexion</button>
       </div>
@@ -1222,6 +1254,69 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="scanner-hint">Pointez la caméra vers le code-barres</div>
   <div class="scanner-result" id="scanner-result">✅ Code détecté !</div>
   <button class="scanner-close" onclick="closeScanner()">✕ FERMER</button>
+</div>
+
+<!-- MARKETPLACE SCREEN -->
+<div class="market-screen" id="market-screen">
+  <div class="market-header">
+    <div style="font-size:1.5rem">🤝</div>
+    <h1>MARKETPLACE ÉCHANGES</h1>
+    <button class="admin-back" onclick="closeMarketplace()">← Retour</button>
+  </div>
+  <div class="market-body">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+      <select id="market-filter-type" onchange="renderMarketplace()" style="background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none">
+        <option value="">Tous types</option>
+        <option value="exchange">🔄 Échanges</option>
+        <option value="sale">💰 Ventes</option>
+        <option value="gift">🎁 Dons</option>
+      </select>
+      <input type="text" id="market-search" placeholder="🔍 Rechercher..." oninput="renderMarketplace()"
+        style="flex:1;min-width:180px;background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none"/>
+    </div>
+    <div id="market-grid" class="market-grid">
+      <div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px">Chargement...</div>
+    </div>
+  </div>
+</div>
+
+<!-- EXCHANGE PROPOSE MODAL -->
+<div class="exchange-modal" id="exchange-modal">
+  <div class="exchange-box">
+    <h3>🤝 Proposer cet objet</h3>
+    <input type="hidden" id="exchange-item-id"/>
+    <div class="exchange-consent">
+      ⚠️ En proposant cet objet, vous acceptez de rendre visible votre <strong>pseudo</strong> et vos <strong>coordonnées de contact</strong> aux autres utilisateurs de la plateforme.
+    </div>
+    <div class="exchange-form-group">
+      <label>Type de proposition *</label>
+      <select id="exchange-type" class="exchange-input">
+        <option value="exchange">🔄 Échange (contre un autre objet)</option>
+        <option value="sale">💰 Vente</option>
+        <option value="gift">🎁 Don gratuit</option>
+      </select>
+    </div>
+    <div class="exchange-form-group">
+      <label>Ce que vous recherchez / Prix demandé</label>
+      <input type="text" id="exchange-looking" class="exchange-input" placeholder="ex: Cherche R&C PS3 PAL / 15€ / Gratuit..."/>
+    </div>
+    <div class="exchange-form-group">
+      <label>Lien de vente (optionnel)</label>
+      <input type="url" id="exchange-link" class="exchange-input" placeholder="https://ebay.fr/... ou vinted.fr/..."/>
+    </div>
+    <div class="exchange-form-group">
+      <label>Contact *</label>
+      <input type="text" id="exchange-contact" class="exchange-input" placeholder="Discord: User#1234 / email@exemple.com"/>
+    </div>
+    <div style="margin-top:8px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.75rem;color:var(--text-dim)">
+        <input type="checkbox" id="exchange-consent-check" style="width:16px;height:16px"/>
+        J'accepte que mon pseudo et contact soient visibles publiquement
+      </label>
+    </div>
+    <button class="exchange-submit" onclick="submitExchange()">✅ PROPOSER</button>
+    <button class="exchange-cancel" onclick="closeExchangeModal()">Annuler</button>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -3124,6 +3219,111 @@ async function lookupBarcode(code){
   } catch(e){
     showToast('Erreur de recherche. Remplissez manuellement.', 'error');
   }
+}
+
+// ══ MARKETPLACE ══
+let marketItems = [];
+
+async function openMarketplace(){
+  document.getElementById('market-screen').classList.add('open');
+  await loadMarketplace();
+}
+function closeMarketplace(){ document.getElementById('market-screen').classList.remove('open'); }
+
+async function loadMarketplace(){
+  try {
+    const { data, error } = await sbClient.from('exchanges').select('*').eq('is_active', true).order('created_at', {ascending:false});
+    if(error) throw error;
+    marketItems = data || [];
+    renderMarketplace();
+  } catch(e){ 
+    document.getElementById('market-grid').innerHTML = '<div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px">Aucune proposition pour le moment.</div>';
+  }
+}
+
+function renderMarketplace(){
+  const typeFilter = document.getElementById('market-filter-type').value;
+  const search = (document.getElementById('market-search').value||'').toLowerCase();
+  const grid = document.getElementById('market-grid');
+  let filtered = marketItems;
+  if(typeFilter) filtered = filtered.filter(i=>i.transaction_type===typeFilter);
+  if(search) filtered = filtered.filter(i=>(i.item_name||'').toLowerCase().includes(search)||(i.looking_for||'').toLowerCase().includes(search));
+  if(!filtered.length){
+    grid.innerHTML = '<div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px">Aucune proposition trouvée.</div>';
+    return;
+  }
+  grid.innerHTML = '';
+  filtered.forEach(item => {
+    const typeLabels = {exchange:'🔄 Échange', sale:'💰 Vente', gift:'🎁 Don'};
+    const card = document.createElement('div');
+    card.className = 'market-card';
+    const imgHtml = item.img_url ? '<img class=\'market-card-img\' src=\''+escHtml(item.img_url)+'\'/>' : '<div class=\'market-card-img\' style=\'display:flex;align-items:center;justify-content:center;font-size:2rem\'>📦</div>';
+    card.innerHTML = imgHtml
+      +'<div class="market-card-body">'
+      +'<div class="market-card-name">'+escHtml(item.item_name||'')+'</div>'
+      +'<div class="market-card-meta">'+(item.item_type||'')+' · '+(item.item_platform||'')+'</div>'
+      +'<span class="market-card-type '+(item.transaction_type||'exchange')+'">'+(typeLabels[item.transaction_type]||'🔄 Échange')+'</span>'
+      +(item.looking_for?'<div class="market-card-looking">🔍 '+escHtml(item.looking_for)+'</div>':'')
+      +'<div class="market-card-owner">👤 '+escHtml(item.owner_pseudo||'Collectionneur')+'</div>'
+      +(item.sale_link?'<a href="'+escHtml(item.sale_link)+'" target="_blank" rel="noopener" class="market-contact-btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:6px">🔗 VOIR ANNONCE</a>':'')
+      +'<button class="market-contact-btn" data-contact="'+escHtml(item.contact||'')+'" onclick="contactOwner(this.dataset.contact)">📩 CONTACTER</button>'
+      +'</div>';
+    grid.appendChild(card);
+  });
+}
+
+function contactOwner(contact){
+  if(!contact){ showToast('Pas de contact renseigné', 'error'); return; }
+  if(contact.includes('@')){
+    window.location.href = 'mailto:'+contact;
+  } else if(contact.startsWith('http')){
+    window.open(contact, '_blank');
+  } else {
+    navigator.clipboard.writeText(contact).then(()=>showToast('Contact copié : '+contact, 'success'));
+  }
+}
+
+let exchangeItemData = null;
+function openExchangeModal(itemId){
+  const item = items.find(i=>i.id===itemId);
+  if(!item){ showToast('Objet introuvable', 'error'); return; }
+  exchangeItemData = item;
+  document.getElementById('exchange-item-id').value = itemId;
+  document.getElementById('exchange-looking').value = '';
+  document.getElementById('exchange-link').value = '';
+  document.getElementById('exchange-contact').value = '';
+  document.getElementById('exchange-consent-check').checked = false;
+  document.getElementById('exchange-modal').classList.add('open');
+}
+function closeExchangeModal(){ document.getElementById('exchange-modal').classList.remove('open'); }
+
+async function submitExchange(){
+  if(!document.getElementById('exchange-consent-check').checked){
+    showToast('Vous devez accepter les conditions', 'error'); return;
+  }
+  const contact = document.getElementById('exchange-contact').value.trim();
+  if(!contact){ showToast('Contact requis', 'error'); return; }
+  const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collectionneur';
+  const item = exchangeItemData;
+  try {
+    const { error } = await sbClient.from('exchanges').insert([{
+      item_id: item.id,
+      item_name: item.name,
+      item_type: item.type||'',
+      item_platform: item.platform||'',
+      img_url: item.img_url||'',
+      transaction_type: document.getElementById('exchange-type').value,
+      looking_for: document.getElementById('exchange-looking').value.trim(),
+      sale_link: document.getElementById('exchange-link').value.trim(),
+      contact: contact,
+      owner_pseudo: pseudo,
+      owner_id: currentUser.id,
+      is_active: true
+    }]);
+    if(error) throw error;
+    closeExchangeModal();
+    showToast('Proposition publiée !', 'success');
+  } catch(e){ showToast('Erreur : '+e.message, 'error'); }
 }
 
 async function boot(){
