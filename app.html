@@ -2963,9 +2963,16 @@ function cycleLang(){
 
 function loadLang(){
   const saved = localStorage.getItem('rc_lang');
-  if(saved) currentLang = saved;
+  if(saved){
+    currentLang = saved;
+  } else {
+    // Auto-detect browser/phone language
+    const browserLang = navigator.language || navigator.userLanguage || 'fr';
+    currentLang = browserLang.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+  }
   const btn = document.getElementById('lang-btn');
   if(btn) btn.textContent = currentLang === 'fr' ? '🇫🇷' : '🇬🇧';
+  applyTranslations();
 }
 
 function applyTranslations(){
