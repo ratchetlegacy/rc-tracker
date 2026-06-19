@@ -919,7 +919,9 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- EXISTING IMAGES -->
     <div class="admin-section">
-      <div class="admin-section-title">📚 Images dans la banque (<span id="admin-img-count">0</span>)</div>
+      <div class="admin-section-title">📚 Images dans la banque (<span id="admin-img-count">0</span>)
+        <button onclick="importFromCloudinary()" style="margin-left:auto;padding:6px 14px;background:linear-gradient(135deg,var(--orange),var(--purple));border:none;border-radius:8px;color:#fff;font-family:Orbitron,sans-serif;font-size:.65rem;font-weight:700;cursor:pointer" id="import-btn">☁️ IMPORTER DEPUIS CLOUDINARY</button>
+      </div>
       <input type="text" id="admin-img-search" placeholder="🔍 Rechercher..." oninput="filterAdminImages()"
         style="width:100%;background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none;margin-bottom:12px"/>
       <div class="admin-images-grid" id="admin-images-grid">
@@ -1888,6 +1890,37 @@ function openCloudinaryPicker(){
     }}
   );
   widget.show();
+}
+
+async function importFromCloudinary(){
+  const btn = document.getElementById('import-btn');
+  btn.textContent = '⏳ Import en cours...';
+  btn.disabled = true;
+  try {
+    const { data: { session } } = await sbClient.auth.getSession();
+    const res = await fetch(
+      'https://ihucxnmqnhevfvlamgwc.supabase.co/functions/v1/cloudinary-import',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + session.access_token
+        }
+      }
+    );
+    const result = await res.json();
+    if(result.success){
+      showToast('✅ ' + result.added + ' nouvelles images importées sur ' + result.total + ' trouvées !', 'success');
+      await loadAdminImages();
+    } else {
+      throw new Error(result.error || 'Erreur inconnue');
+    }
+  } catch(e){
+    showToast('Erreur import : ' + e.message, 'error');
+  } finally {
+    btn.textContent = '☁️ IMPORTER DEPUIS CLOUDINARY';
+    btn.disabled = false;
+  }
 }
 
 async function boot(){
