@@ -384,9 +384,9 @@
     /* KPI CARDS */
     .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:24px}
     .kpi-card{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px;text-align:center}
-    .kpi-icon{font-size:1.6rem;margin-bottom:6px}
-    .kpi-value{font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:700;color:var(--text)}
-    .kpi-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-top:4px}
+    .kpi-card .kpi-icon{font-size:1.4rem;margin-bottom:4px}
+    .kpi-card .kpi-value{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:700;color:var(--text);line-height:1.2}
+    .kpi-card .kpi-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);margin-top:4px}
     /* PIE CHART */
     .pie-container{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
     .pie-legend{display:flex;flex-direction:column;gap:8px;flex:1}
@@ -422,6 +422,14 @@
     .comp-alert{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,77,106,.07);border:1px solid rgba(255,77,106,.15);border-radius:8px;font-size:.75rem}
     .comp-alert-name{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .comp-alert-missing{color:var(--missing);font-size:.68rem}
+    /* PRICE NOTIF */
+    .price-notif{background:rgba(255,212,71,.08);border:1px solid rgba(255,212,71,.25);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+    .price-notif-icon{font-size:1.4rem;flex-shrink:0}
+    .price-notif-text{flex:1}
+    .price-notif-title{font-size:.82rem;font-weight:600;color:var(--wishlist);margin-bottom:2px}
+    .price-notif-sub{font-size:.72rem;color:var(--text-dim)}
+    .price-notif-btn{padding:6px 14px;background:rgba(255,212,71,.15);border:1px solid rgba(255,212,71,.3);border-radius:8px;color:var(--wishlist);font-size:.72rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap;flex-shrink:0}
+    .price-notif-btn:hover{background:rgba(255,212,71,.25)}
     .toast{position:fixed;bottom:24px;right:24px;z-index:200;background:var(--bg3);border:1px solid rgba(123,79,212,.3);border-radius:10px;padding:12px 18px;font-size:.82rem;color:var(--text);max-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(60px);opacity:0;transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none}
     .toast.show{transform:translateY(0);opacity:1}
     .toast.success{border-color:rgba(61,214,140,.4)}
@@ -2258,12 +2266,70 @@ function renderStats(){
 
   html += '</div>';
 
-  body.innerHTML = html;
+  // Price update notification
+  const THIRTY_DAYS = 30*24*60*60*1000;
+  const now = Date.now();
+  const outdated = owned.filter(i=>{
+    if(i.cur_value==null) return false; // no value set, skip
+    const lastUpdate = localStorage.getItem('price_updated_'+i.id);
+    if(!lastUpdate) return true; // never updated
+    return (now - parseInt(lastUpdate)) > THIRTY_DAYS;
+  });
+  const noValue = owned.filter(i=>i.cur_value==null);
+
+  let notifHtml = '';
+  if(outdated.length>0){
+    notifHtml += '<div class="price-notif"><div class="price-notif-icon">⏰</div><div class="price-notif-text"><div class="price-notif-title">'+outdated.length+' objet'+(outdated.length>1?'s':'')+' à mettre à jour</div><div class="price-notif-sub">La valeur marché de ces objets n\'a pas été mise à jour depuis plus de 30 jours.</div></div><button class="price-notif-btn" onclick="showOutdatedPrices()">Voir la liste</button></div>';
+  }
+  if(noValue.length>0){
+    notifHtml += '<div class="price-notif" style="border-color:rgba(123,79,212,.25);background:rgba(123,79,212,.06)"><div class="price-notif-icon">💰</div><div class="price-notif-text"><div class="price-notif-title" style="color:var(--purple-light)">'+noValue.length+' objet'+(noValue.length>1?'s':'')+' sans valeur marché</div><div class="price-notif-sub">Ajoute une valeur actuelle pour suivre l\'évolution de ta collection.</div></div><button class="price-notif-btn" style="border-color:rgba(123,79,212,.3);color:var(--purple-light);background:rgba(123,79,212,.1)" onclick="showNoValueItems()">Voir la liste</button></div>';
+  }
+
+  if(notifHtml) body.innerHTML = notifHtml + html;
+  else body.innerHTML = html;
+
+  // Store current items as "seen" for outdated check
+  window._statsOutdated = outdated;
+  window._statsNoValue = noValue;
 
   // Animate bars
   setTimeout(()=>{
     body.querySelectorAll('.bar-fill').forEach(b=>{ const w=b.style.width; b.style.width='0'; setTimeout(()=>b.style.width=w,50); });
   },100);
+}
+
+function showOutdatedPrices(){
+  const items = window._statsOutdated||[];
+  if(!items.length) return;
+  let html = '<div style="margin-bottom:16px"><strong style="color:var(--wishlist)">⏰ Objets à mettre à jour (valeur > 30 jours) :</strong></div>';
+  html += '<div class="top-list">';
+  items.forEach(item=>{
+    const lastUpdate = localStorage.getItem('price_updated_'+item.id);
+    const days = lastUpdate ? Math.floor((Date.now()-parseInt(lastUpdate))/(24*60*60*1000)) : '?';
+    html += '<div class="top-list-item" style="cursor:pointer" data-id="'+item.id+'" onclick="closeStats();openModal(this.dataset.id)">'
+      +'<div class="top-list-icon">'+getIcon(item.type)+'</div>'
+      +'<div class="top-list-name">'+escHtml(item.name)+'</div>'
+      +'<div class="top-list-val" style="color:var(--wishlist);font-size:.7rem">'+days+'j</div>'
+      +'</div>';
+  });
+  html += '</div>';
+  document.getElementById('stats-body').innerHTML = '<button onclick="renderStats()" style="margin-bottom:16px;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:Inter,sans-serif">← Retour aux stats</button>' + html;
+}
+
+function showNoValueItems(){
+  const items = window._statsNoValue||[];
+  if(!items.length) return;
+  let html = '<div style="margin-bottom:16px"><strong style="color:var(--purple-light)">💰 Objets sans valeur marché :</strong></div>';
+  html += '<div class="top-list">';
+  items.forEach(item=>{
+    html += '<div class="top-list-item" style="cursor:pointer" data-id="'+item.id+'" onclick="closeStats();openModal(this.dataset.id)">'
+      +'<div class="top-list-icon">'+getIcon(item.type)+'</div>'
+      +'<div class="top-list-name">'+escHtml(item.name)+'</div>'
+      +'<div class="top-list-val" style="color:var(--purple-light);font-size:.7rem">Ajouter</div>'
+      +'</div>';
+  });
+  html += '</div>';
+  document.getElementById('stats-body').innerHTML = '<button onclick="renderStats()" style="margin-bottom:16px;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:Inter,sans-serif">← Retour aux stats</button>' + html;
 }
 
 function kpi(icon, label, id, value, color=''){
