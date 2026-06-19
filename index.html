@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>R&C Collection Tracker</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="R&amp;C Tracker"/>
+  <meta name="theme-color" content="#7B4FD4"/>
+  <link rel="apple-touch-icon" href="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://media-library.cloudinary.com/global/all.js"></script>
   <style>
@@ -724,6 +731,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="type-bars" id="profile-type-bars"></div>
     </div>
   </div>
+</div>
+
+<div style="text-align:center;padding:16px;border-top:1px solid rgba(255,255,255,.05);margin-top:20px">
+  <a href="legal.html" style="font-size:.7rem;color:var(--text-dim);text-decoration:none;" target="_blank">📋 Mentions légales · CGU · Confidentialité</a>
 </div>
 
 <!-- Cloudinary Media Library Widget (no overlay needed) -->
