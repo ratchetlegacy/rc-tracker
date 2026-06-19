@@ -585,12 +585,13 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div id="app-screen">
   <header>
     <div class="header-top">
-      <div class="logo-img"><img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" alt="R&C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="logo-fallback">🔧</div></div>
+      <div class="logo-img" onclick="showMainMenu()" style="cursor:pointer" title="Menu principal"><img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" alt="R&C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="logo-fallback">🔧</div></div>
       <div class="header-titles"><h1>Ratchet &amp; Clank Collection</h1><span>Tracker made by Ratchet Legacy</span></div>
       <div class="header-user">
         <div class="profile-btn" id="header-avatar" onclick="openProfile()" title="Mon profil">🦊</div>
         <span style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);cursor:pointer;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="header-pseudo" onclick="openProfile()">Collectionneur</span>
         <button onclick="openStats()" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(123,79,212,.4);background:rgba(123,79,212,.1);color:var(--purple-light);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">📊 Stats</button>
+        <button onclick="cycleTheme()" id="theme-btn" title="Changer le thème" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.82rem;cursor:pointer">🌌</button>
         <button id="admin-btn" onclick="openAdmin()" style="display:none;padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,26,.4);background:rgba(255,107,26,.1);color:var(--orange);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🛠️ Admin</button>
         <button class="signout-btn" onclick="doSignOut()">Déconnexion</button>
       </div>
@@ -1805,7 +1806,7 @@ async function launchApp(){
   // email display handled by profile
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>Chargement...</div>';
-  await fetchItems(); render(); loadProfile();
+  await fetchItems(); render(); loadProfile(); loadTheme();
   if(isAdmin()) document.getElementById('admin-btn').style.display='block';
 }
 
@@ -2691,6 +2692,41 @@ async function checkPublicProfile(){
     document.getElementById('public-content').innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-dim)">❌ Erreur : '+e.message+'</div>';
   }
   return true;
+}
+
+// ══ THEMES ══
+const THEMES = [
+  {id:'', icon:'🌌', name:'Nebula'},
+  {id:'plasma', icon:'⚡', name:'Plasma'},
+  {id:'nova', icon:'🔴', name:'Nova'},
+];
+let currentThemeIdx = 0;
+
+function cycleTheme(){
+  currentThemeIdx = (currentThemeIdx + 1) % THEMES.length;
+  const theme = THEMES[currentThemeIdx];
+  document.documentElement.setAttribute('data-theme', theme.id);
+  document.getElementById('theme-btn').textContent = theme.icon;
+  localStorage.setItem('rc_theme', currentThemeIdx);
+  showToast('Thème ' + theme.name + ' !', 'success');
+}
+
+function loadTheme(){
+  const saved = localStorage.getItem('rc_theme');
+  if(saved !== null){
+    currentThemeIdx = parseInt(saved) || 0;
+    const theme = THEMES[currentThemeIdx];
+    document.documentElement.setAttribute('data-theme', theme.id);
+    const btn = document.getElementById('theme-btn');
+    if(btn) btn.textContent = theme.icon;
+  }
+}
+
+function showMainMenu(){
+  // Close all screens and go to main collection view
+  document.querySelectorAll('.admin-screen.open, .stats-screen.open, .public-screen.open').forEach(s => s.classList.remove('open'));
+  document.getElementById('profile-screen').classList.remove('open');
+  show('app-screen');
 }
 
 async function boot(){
