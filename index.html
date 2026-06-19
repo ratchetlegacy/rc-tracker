@@ -665,6 +665,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
           <button type="button" onclick="openGallery()" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Galerie</button>
         </div>
         <div class="price-hint">Colle un lien direct ou choisis depuis ta galerie Cloudinary</div>
+        <button type="button" onclick="openSubmitPhoto()" style="margin-top:8px;padding:6px 12px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">📸 Soumettre une photo manquante</button>
       </div>
       <div class="form-group" id="wish-url-group" style="display:none">
         <label>🛒 Lien d'achat (eBay, Vinted...)</label>
@@ -738,6 +739,42 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 </div>
 
 <!-- Cloudinary Media Library Widget (no overlay needed) -->
+
+<!-- SUBMIT PHOTO MODAL -->
+<div class="modal-overlay" id="submit-photo-overlay">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" onclick="closeSubmitPhoto()">✕</button>
+    <h2>📸 Soumettre une photo</h2>
+    <p style="font-size:.78rem;color:var(--text-dim);margin-bottom:16px">Tu as une photo d'un objet absent de la banque d'images ? Soumets-la ici, elle sera examinée avant d'être ajoutée.</p>
+    <div class="form-group">
+      <label>Nom de l'objet concerné</label>
+      <input type="text" id="submit-item-name" placeholder="ex: Ratchet & Clank PS2 PAL"/>
+    </div>
+    <div class="form-group">
+      <label>Type / Catégorie</label>
+      <select id="submit-item-type">
+        <option value="Jeux physique">🎮 Jeux physique</option>
+        <option value="Figurine">🤖 Figurine</option>
+        <option value="Peluche">🧸 Peluche</option>
+        <option value="Manga">📚 Manga / Livre</option>
+        <option value="Autre">📦 Autre</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>URL de l'image à soumettre</label>
+      <input type="url" id="submit-img-url" placeholder="https://... (lien direct vers l'image)"/>
+      <div class="price-hint">L'image doit être accessible publiquement</div>
+    </div>
+    <div class="form-group">
+      <label>Commentaire (optionnel)</label>
+      <textarea id="submit-comment" placeholder="Précisions sur la variante, région, édition..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeSubmitPhoto()">Annuler</button>
+      <button class="btn-save" onclick="submitPhoto()">ENVOYER</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -946,6 +983,18 @@ const RANKS=[
   {min:2250, max:2499, name:'Légende Insomniac',         icon:'🏆', color:'#FFD700'},
   {min:2500, max:99999,name:'Ratchet Legacy',            icon:'✨', color:'#B9F2FF'},
 ];
+// Collection total (configurable)
+function getCollectionTotal(){
+  return parseInt(localStorage.getItem('rc_collection_total') || '0');
+}
+function editCollectionTotal(){
+  const current = getCollectionTotal();
+  const val = prompt('Nombre total d\'objets R&C connus dans ta collection (ex: 500):', current || '');
+  if(val !== null && !isNaN(parseInt(val)) && parseInt(val) > 0){
+    localStorage.setItem('rc_collection_total', parseInt(val));
+    render();
+  }
+}
 function getRank(n){
   return RANKS.find(r=>n>=r.min&&n<=r.max)||RANKS[0];
 }
@@ -1026,10 +1075,23 @@ function render(){
   const pct=total?Math.round(owned/total*100):0;
   document.getElementById('cnt-owned').textContent=owned;
   document.getElementById('cnt-wish').textContent=wish;
-  document.getElementById('cnt-miss').textContent=miss;
   document.getElementById('cnt-total').textContent=total;
-  document.getElementById('pct-display').textContent=pct+'%';
-  document.getElementById('energy-bar').style.width=pct+'%';
+
+  // Rank progress bar
+  const rankObj = getRank(owned);
+  const nextRankObj = RANKS[RANKS.indexOf(rankObj)+1];
+  const rankPct = nextRankObj ? Math.round(((owned-rankObj.min)/(nextRankObj.min-rankObj.min))*100) : 100;
+  document.getElementById('pct-display').textContent=rankPct+'%';
+  document.getElementById('energy-bar').style.width=rankPct+'%';
+  document.getElementById('energy-bar').style.background='linear-gradient(90deg,'+rankObj.color+','+( nextRankObj?nextRankObj.color:rankObj.color)+')';
+
+  // Collection % bar
+  const collectionTotal = getCollectionTotal();
+  const collectionPct = collectionTotal > 0 ? Math.min(100, Math.round((owned/collectionTotal)*100)) : 0;
+  document.getElementById('collection-pct').textContent=collectionPct+'%';
+  document.getElementById('collection-bar').style.width=collectionPct+'%';
+  document.getElementById('collection-total-display').textContent=collectionTotal||'?';
+
   renderRank(owned);
 
   buildTypeFilters();
@@ -1433,6 +1495,45 @@ function openGallery(){
 }
 
 function closeGallery(){ /* unused */ }
+
+// ══ SUBMIT PHOTO ══
+function openSubmitPhoto(){
+  // Pre-fill name if modal is open
+  const name = document.getElementById('inp-name') ? document.getElementById('inp-name').value : '';
+  const type = document.getElementById('inp-type') ? document.getElementById('inp-type').value : '';
+  if(name) document.getElementById('submit-item-name').value = name;
+  if(type) document.getElementById('submit-item-type').value = type;
+  document.getElementById('submit-photo-overlay').classList.add('open');
+}
+function closeSubmitPhoto(){
+  document.getElementById('submit-photo-overlay').classList.remove('open');
+}
+async function submitPhoto(){
+  const name = document.getElementById('submit-item-name').value.trim();
+  const type = document.getElementById('submit-item-type').value;
+  const imgUrl = document.getElementById('submit-img-url').value.trim();
+  const comment = document.getElementById('submit-comment').value.trim();
+  if(!name || !imgUrl){ showToast('Remplis le nom et l\'URL de l\'image', 'error'); return; }
+  try {
+    const { error } = await sbClient.from('photo_submissions').insert([{
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      item_name: name,
+      item_type: type,
+      img_url: imgUrl,
+      comment: comment,
+      status: 'pending'
+    }]);
+    if(error) throw error;
+    showToast('Photo soumise ! Elle sera examinée prochainement.', 'success');
+    closeSubmitPhoto();
+    document.getElementById('submit-item-name').value = '';
+    document.getElementById('submit-img-url').value = '';
+    document.getElementById('submit-comment').value = '';
+  } catch(e){
+    showToast('Erreur : '+e.message, 'error');
+  }
+}
 
 async function boot(){
   const config=PRESET_CONFIG;
