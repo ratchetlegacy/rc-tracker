@@ -66,6 +66,12 @@
       --text:#FAFAFA;--text-dim:#B0BEC5;
       --r:12px;
     }
+    @media(max-width:480px){
+      .header-titles h1{font-size:.75rem}
+      .header-titles span{display:none}
+      .header-user{gap:4px}
+      .header-user button{font-size:.62rem;padding:4px 8px}
+    }
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
     /* AUTH */
@@ -111,7 +117,7 @@
     .logo-img img{width:100%;height:100%;object-fit:cover}
     .logo-img .logo-fallback{display:none;width:100%;height:100%;background:linear-gradient(135deg,var(--purple),var(--orange));align-items:center;justify-content:center;font-size:22px;position:absolute;top:0;left:0}
     .logo-icon{width:46px;height:46px;background:linear-gradient(135deg,var(--purple),var(--orange));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 20px rgba(123,79,212,.4)}
-    .header-titles h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.3rem;letter-spacing:.04em;background:linear-gradient(90deg,#fff 40%,var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
+    .header-titles h1{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1rem;letter-spacing:.04em;background:linear-gradient(90deg,#fff 40%,var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
     .header-titles span{font-size:.72rem;color:var(--text-dim);letter-spacing:.12em;text-transform:uppercase}
     .header-user{margin-left:auto;display:flex;align-items:center;gap:10px}
     .user-email{font-size:.72rem;color:var(--text-dim);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1144,8 +1150,11 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
   <div class="stats-body" id="stats-body">
     <div style="text-align:center;padding:60px;color:var(--text-dim)"><span style="font-size:2rem;display:block;margin-bottom:10px;animation:spin 1s linear infinite">⚙️</span>Calcul des statistiques...</div>
-    <!-- FOOTER -->
-  <div style="text-align:center;padding:20px;font-size:.62rem;color:var(--text-dim);border-top:1px solid rgba(255,255,255,.05);margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:10px">
+
+</div>
+
+  <!-- FOOTER -->
+  <div style="text-align:center;padding:24px 20px;font-size:.62rem;color:var(--text-dim);border-top:1px solid rgba(255,255,255,.05);margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:10px">
     <a href="https://ko-fi.com/ratchetlegacy" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#FF5E5B,#FF8C42);border-radius:20px;color:#fff;text-decoration:none;font-family:Orbitron,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.05em;box-shadow:0 4px 15px rgba(255,94,91,.3)">
       ☕ SOUTENIR LE PROJET
     </a>
@@ -1153,7 +1162,6 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <a href="legal.html" style="color:var(--text-dim);text-decoration:none">CGU & Mentions légales</a>
     <div style="color:var(--text-dim)">Made with ❤️ by Ratchet Legacy</div>
   </div>
-</div>
 </div>
 
 <!-- PROFILE SCREEN -->
