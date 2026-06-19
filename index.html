@@ -621,7 +621,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
           <select id="inp-type" onchange="updateCompleteness();toggleCustomField('inp-type','inp-type-custom')">
             <option value="">— Sélectionner —</option>
             <option>Jeux physique</option><option>Pack Console</option><option>Pack Manette</option>
-            <option>Console seule</option><option>Accessoire</option><option>Goodie</option>
+            <option>Accessoire</option><option>Goodie</option>
             <option>Figurine</option><option>Statuette</option><option>Peluche</option>
             <option>Vêtement</option><option>Guide</option><option>Livre</option>
             <option>Manga</option><option>Comics</option><option>Art Book</option>
@@ -1180,7 +1180,7 @@ function updateCompleteness(){
   const typeRaw = document.getElementById('inp-type').value;
   const type = typeRaw==='__custom__' ? (document.getElementById('inp-type-custom')||{value:''}).value : typeRaw;
   const customInput = document.getElementById('inp-type-custom');
-  if(customInput) customInput.style.display = type==='' ? 'block' : 'none';
+  if(customInput) customInput.style.display = document.getElementById('inp-type').value==='__custom__' ? 'block' : 'none';
 
   const fields = COMPLETENESS_CONFIG[type] || [];
   const container = document.getElementById('completeness-checks');
