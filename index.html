@@ -556,7 +556,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="form-row">
         <div class="form-group">
           <label>Type</label>
-          <select id="inp-type" onchange="updateCompleteness()">
+          <select id="inp-type" onchange="updateCompleteness();toggleCustomField('inp-type','inp-type-custom')">
             <option value="">— Sélectionner —</option>
             <option>Jeux physique</option><option>Pack Console</option><option>Pack Manette</option>
             <option>Console seule</option><option>Accessoire</option><option>Goodie</option>
@@ -565,8 +565,9 @@ CREATE POLICY "Users see own items" ON items FOR ALL
             <option>Manga</option><option>Comics</option><option>Art Book</option>
             <option>Film</option><option>Bande-son</option><option>Impression</option>
             <option>Cross-over</option><option>Press Kit</option><option>Divers</option>
+            <option value="__custom__">✏️ Autre (saisie libre)</option>
           </select>
-          <input type="text" id="inp-type-custom" placeholder="Ou saisir manuellement..." style="margin-top:5px;display:none"/>
+          <input type="text" id="inp-type-custom" placeholder="Saisir le type..." style="margin-top:5px;display:none"/>
         </div>
         <div class="form-group">
           <label>Édition</label>
@@ -1059,7 +1060,7 @@ function toggleCustomField(selectId, inputId){
 const COMPLETENESS_CONFIG = {
   'Jeux physique':    [{k:'has_box',l:'Boîte',i:'📦'},{k:'has_manual',l:'Notice',i:'📄'},{k:'has_disc',l:'Disque',i:'💿'},{k:'has_sleeve',l:'Fourreau',i:'🗂'},{k:'has_docs',l:'Documents',i:'📋'}],
   'Pack Console':     [{k:'has_box',l:'Carton',i:'📦'},{k:'has_sleeve',l:'Fourreau pack',i:'🗂'},{k:'has_docs',l:'Cales internes',i:'📋'},{k:'has_disc',l:'Console',i:'🎮'},{k:'has_cables',l:'Câbles',i:'🔌'},{k:'has_controllers',l:'Manettes',i:'🕹'},{k:'has_manual',l:'Documentation',i:'📄'}],
-  'Pack Manette':     [{k:'has_box',l:'Boîte',i:'📦'},{k:'has_manual',l:'Documentation',i:'📄'},{k:'has_cables',l:'Câbles',i:'🔌'},{k:'has_controllers',l:'Manettes',i:'🕹'}],
+  'Pack Manette':     [{k:'has_box',l:'Boîte',i:'📦'},{k:'has_docs',l:'Documents',i:'📋'},{k:'has_cables',l:'Câbles',i:'🔌'},{k:'has_controllers',l:'Manettes',i:'🕹'},{k:'has_disc',l:'Jeu / Code jeu',i:'🎮'}],
   'Figurine':         [{k:'has_box',l:'Boîte',i:'📦'},{k:'has_docs',l:'Certificat',i:'📋'},{k:'has_sleeve',l:'Emballage origine',i:'🗂'}],
   'Statuette':        [{k:'has_box',l:'Boîte',i:'📦'},{k:'has_docs',l:'Certificat',i:'📋'},{k:'has_sleeve',l:'Emballage origine',i:'🗂'}],
   'Peluche':          [{k:'has_sleeve',l:'Emballage origine',i:'🗂'},{k:'has_docs',l:'Étiquette',i:'🏷'}],
@@ -1100,7 +1101,8 @@ function toggleCondition(){
 }
 
 function updateCompleteness(){
-  const type = document.getElementById('inp-type').value;
+  const typeRaw = document.getElementById('inp-type').value;
+  const type = typeRaw==='__custom__' ? (document.getElementById('inp-type-custom')||{value:''}).value : typeRaw;
   const customInput = document.getElementById('inp-type-custom');
   if(customInput) customInput.style.display = type==='' ? 'block' : 'none';
 
