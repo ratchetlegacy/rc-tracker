@@ -2482,10 +2482,9 @@ function renderStats(){
   const THIRTY_DAYS = 30*24*60*60*1000;
   const now = Date.now();
   const outdated = owned.filter(i=>{
-    if(i.cur_value==null) return false; // no value set, skip
-    const lastUpdate = localStorage.getItem('price_updated_'+i.id);
-    if(!lastUpdate) return true; // never updated
-    return (now - parseInt(lastUpdate)) > THIRTY_DAYS;
+    if(i.cur_value==null) return false;
+    if(!i.price_updated_at) return true;
+    return (now - new Date(i.price_updated_at).getTime()) > THIRTY_DAYS;
   });
   const noValue = owned.filter(i=>i.cur_value==null);
 
