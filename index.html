@@ -738,7 +738,41 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <a href="legal.html" style="font-size:.7rem;color:var(--text-dim);text-decoration:none;" target="_blank">📋 Mentions légales · CGU · Confidentialité</a>
 </div>
 
-<!-- Cloudinary Media Library Widget (no overlay needed) -->
+<!-- GALLERY MODAL -->
+<div class="gallery-overlay" id="gallery-overlay">
+  <div class="gallery-modal">
+    <div class="gallery-header">
+      <h3>🖼️ Banque d'images</h3>
+      <button class="gallery-close" onclick="closeGallery()">✕</button>
+    </div>
+    <div style="padding:10px 22px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:8px;align-items:center">
+      <input type="text" id="gallery-search" placeholder="🔍 Rechercher une image..." oninput="renderGalleryGrid(galleryImages)"
+        style="flex:1;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none"/>
+      <div class="gallery-folders" id="gallery-folders" style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="gallery-folder-btn active" onclick="loadGalleryImages('');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Tout</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS2');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS2</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS3');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS3</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS4');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS4</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS5');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS5</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('PSP');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PSP</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('Figurines');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Figurines</button>
+        <button class="gallery-folder-btn" onclick="loadGalleryImages('Autres');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Autres</button>
+      </div>
+    </div>
+    <div class="gallery-grid" id="gallery-grid">
+      <div class="gallery-empty">⚙️ Chargement...</div>
+    </div>
+    <div class="gallery-footer">
+      <div class="gallery-selected-preview" id="gallery-preview">
+        <span>Aucune image sélectionnée</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="gallery-cancel" onclick="closeGallery()">Annuler</button>
+        <button class="gallery-confirm" onclick="confirmGallery()">CHOISIR</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- SUBMIT PHOTO MODAL -->
 <div class="modal-overlay" id="submit-photo-overlay">
@@ -1462,36 +1496,82 @@ function savePseudo(){
 const CLD_CLOUD = 'dmfq8hkvu';
 const CLD_API_KEY = '487377232434179';
 const CLD_API_SECRET = 'yK0_WCH2PBlU3GNEoElDEL14IGQ';
-const CLD_FOLDERS = ['Jaquettes/PS2','Jaquettes/PS3','Jaquettes/PS4','Jaquettes/PS5','Jaquettes/PSP','Jaquettes/Figurines','Jaquettes/Autres'];
-let gallerySelectedUrl = '';
-let galleryCurrentFolder = '';
+const CLD_FOLDERS = [];
 
-function openGallery(){
-  if(typeof cloudinary === 'undefined'){
-    showToast('Widget Cloudinary non chargé', 'error'); return;
+// ══ SUPABASE GALLERY ══
+let galleryImages = [];
+let galleryFiltered = [];
+let gallerySelectedUrl = '';
+
+async function openGallery(){
+  gallerySelectedUrl = document.getElementById('inp-img').value || '';
+  document.getElementById('gallery-overlay').classList.add('open');
+  await loadGalleryImages();
+}
+
+async function loadGalleryImages(folder=''){
+  const grid = document.getElementById('gallery-grid');
+  grid.innerHTML = '<div class="gallery-empty">⚙️ Chargement...</div>';
+  try {
+    let query = sbClient.from('images').select('*').order('name');
+    if(folder) query = query.eq('folder', folder);
+    const { data, error } = await query;
+    if(error) throw error;
+    galleryImages = data || [];
+    renderGalleryGrid(galleryImages);
+  } catch(e) {
+    grid.innerHTML = '<div class="gallery-empty">❌ Erreur : '+e.message+'</div>';
   }
-  const widget = cloudinary.createMediaLibrary(
-    {
-      cloud_name: CLD_CLOUD,
-      api_key: CLD_API_KEY,
-      remove_header: false,
-      max_files: 1,
-      insert_caption: 'Choisir cette image',
-      default_transformations: [[{quality:'auto',fetch_format:'auto'}]],
-      folder: { path: 'Jaquettes', resource_type: 'image' },
-    },
-    {
-      insertHandler: function(data){
-        if(data.assets && data.assets.length > 0){
-          const asset = data.assets[0];
-          const url = asset.secure_url || asset.url;
-          document.getElementById('inp-img').value = url;
-          showToast('Image sélectionnée !', 'success');
-        }
-      }
-    }
-  );
-  widget.show();
+}
+
+function renderGalleryGrid(images){
+  const grid = document.getElementById('gallery-grid');
+  const search = document.getElementById('gallery-search') ? document.getElementById('gallery-search').value.toLowerCase() : '';
+  const filtered = images.filter(img => !search || img.name.toLowerCase().includes(search) || (img.platform||'').toLowerCase().includes(search));
+  
+  if(!filtered.length){
+    grid.innerHTML = '<div class="gallery-empty">📭 Aucune image trouvée.<br><small>Les images sont ajout&eacute;es par l&apos;admin.</small></div>';
+    return;
+  }
+  grid.innerHTML = '';
+  filtered.forEach(img => {
+    const url = img.url;
+    const thumb = img.thumb_url || img.url;
+    const el = document.createElement('div');
+    el.className = 'gallery-item' + (url === gallerySelectedUrl ? ' selected' : '');
+    el.dataset.url = url;
+    el.title = img.name + (img.platform ? ' — '+img.platform : '') + (img.region ? ' ('+img.region+')' : '');
+    el.onclick = () => selectGalleryImg(url);
+    const imgEl = document.createElement('img');
+    imgEl.src = thumb;
+    imgEl.loading = 'lazy';
+    imgEl.alt = img.name;
+    const label = document.createElement('div');
+    label.style.cssText = 'font-size:.58rem;color:var(--text-dim);text-align:center;padding:3px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%';
+    label.textContent = img.name;
+    el.appendChild(imgEl);
+    el.appendChild(label);
+    grid.appendChild(el);
+  });
+}
+
+function selectGalleryImg(url){
+  gallerySelectedUrl = url;
+  document.querySelectorAll('.gallery-item').forEach(el => el.classList.toggle('selected', el.dataset.url === url));
+  const preview = document.getElementById('gallery-preview');
+  if(preview) preview.innerHTML = '<img src="'+url+'" style="width:32px;height:40px;object-fit:contain;border-radius:4px;border:1px solid rgba(255,255,255,.1)"/><span>Image sélectionnée</span>';
+}
+
+function confirmGallery(){
+  if(gallerySelectedUrl){
+    document.getElementById('inp-img').value = gallerySelectedUrl;
+    showToast('Image sélectionnée !', 'success');
+  }
+  closeGallery();
+}
+
+function closeGallery(){
+  document.getElementById('gallery-overlay').classList.remove('open');
 }
 
 function closeGallery(){ /* unused */ }
@@ -1533,6 +1613,20 @@ async function submitPhoto(){
   } catch(e){
     showToast('Erreur : '+e.message, 'error');
   }
+}
+
+// ══ ADMIN: ADD IMAGE TO BANK ══
+const ADMIN_EMAIL = 'ratchetlegacy@gmail.com';
+function isAdmin(){ return currentUser && currentUser.email === ADMIN_EMAIL; }
+
+async function addImageToBank(name, url, folder, platform, region, edition){
+  const thumbUrl = url.replace('/upload/', '/upload/w_200,h_260,c_fit,q_auto/');
+  const { error } = await sbClient.from('images').insert([{
+    name, url, thumb_url: thumbUrl, folder: folder||'',
+    platform: platform||'', region: region||'', edition: edition||'',
+    added_by: currentUser.email
+  }]);
+  if(error) throw error;
 }
 
 async function boot(){
