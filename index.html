@@ -551,25 +551,26 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="form-section-title">📋 Informations générales</div>
       <div class="form-group">
         <label>Nom *</label>
-        <input type="text" id="inp-name" placeholder="ex: Ratchet & Clank"/>
+        <input type="text" id="inp-name" placeholder="ex: Ratchet &amp; Clank"/>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>Type</label>
-          <select id="inp-type">
+          <select id="inp-type" onchange="updateCompleteness()">
             <option value="">— Sélectionner —</option>
-            <option>Jeux physique</option><option>Pack Console</option><option>Console seule</option>
-            <option>Accessoire</option><option>Goodie</option><option>Figurine</option>
-            <option>Statuette</option><option>Peluche</option><option>Vêtement</option>
-            <option>Guide</option><option>Livre</option><option>Manga</option>
-            <option>Comics</option><option>Film</option><option>Bande-son</option>
-            <option>Impression</option><option>Cross-over</option><option>Divers</option>
-            <option>Pack Manette</option><option>Press Kit</option>
+            <option>Jeux physique</option><option>Pack Console</option><option>Pack Manette</option>
+            <option>Console seule</option><option>Accessoire</option><option>Goodie</option>
+            <option>Figurine</option><option>Statuette</option><option>Peluche</option>
+            <option>Vêtement</option><option>Guide</option><option>Livre</option>
+            <option>Manga</option><option>Comics</option><option>Art Book</option>
+            <option>Film</option><option>Bande-son</option><option>Impression</option>
+            <option>Cross-over</option><option>Press Kit</option><option>Divers</option>
           </select>
+          <input type="text" id="inp-type-custom" placeholder="Ou saisir manuellement..." style="margin-top:5px;display:none"/>
         </div>
         <div class="form-group">
           <label>Édition</label>
-          <select id="inp-edition">
+          <select id="inp-edition" onchange="toggleCustomField('inp-edition','inp-edition-custom')">
             <option value="">— Sélectionner —</option>
             <option>Classique</option><option>Platinum</option><option>Essential</option>
             <option>Collector</option><option>Limitée</option><option>Steelbook</option>
@@ -578,36 +579,37 @@ CREATE POLICY "Users see own items" ON items FOR ALL
             <option>BlinkBag</option><option>Employés Only</option><option>Démo Only</option>
             <option>Promo Only</option><option>Press Only</option><option>Non Commercialisé</option>
             <option>Serie 1</option><option>Serie 2</option><option>Impression Exclusive</option>
-            <option>Divers</option>
+            <option value="__custom__">✏️ Autre (saisie libre)</option>
           </select>
+          <input type="text" id="inp-edition-custom" placeholder="Saisir l'édition..." style="margin-top:5px;display:none"/>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>Fabricant</label>
-          <select id="inp-manufacturer">
+          <select id="inp-manufacturer" onchange="toggleCustomField('inp-manufacturer','inp-manufacturer-custom')">
             <option value="">— Sélectionner —</option>
             <option>Insomniac Games</option><option>Sony Interactive Entertainment</option>
             <option>PlayStation</option><option>Sony Computer Entertainment</option>
             <option>PlayStation Gear</option><option>Funko</option><option>Youtooz</option>
             <option>Youtooz Plush</option><option>NECA</option><option>Gaming Heads</option>
             <option>Stubbins</option><option>Numskull</option><option>Pixel Pals</option>
-            <option>PDP</option><option>Media Molecule</option><option>LittleBigPlanet</option>
-            <option>Jinx</option><option>Clipster</option><option>Hackto</option>
-            <option>Bam Box</option><option>Mark Englert</option><option>Dave Perillo</option>
-            <option>Sony Music</option><option>Tokyopop</option><option>Dark Horse Books</option>
-            <option>Penguin Random House</option><option>WildStorm</option><option>DC Comics</option>
-            <option>Toys "R" Us</option><option>Kellogg's</option><option>Fait maison</option>
-            <option>DC Unlimited</option><option>Sanzaru Game</option><option>High Impact Games</option>
+            <option>PDP</option><option>Jinx</option><option>Bam Box</option>
+            <option>Mark Englert</option><option>Dave Perillo</option><option>Sony Music</option>
+            <option>Tokyopop</option><option>Dark Horse Books</option><option>Penguin Random House</option>
+            <option>WildStorm</option><option>DC Comics</option><option>Toys "R" Us</option>
+            <option>Kellogg's</option><option>Fait maison</option><option>DC Unlimited</option>
             <option>Primas Guide</option><option>Brady Games</option><option>Shougakukan</option>
             <option>Milan</option><option>Iam8Bit</option><option>Mezco Toys</option>
             <option>ECS Toys</option><option>Neamedia</option><option>Creature Box</option>
             <option>Nkok</option><option>Scholastic Inc</option>
+            <option value="__custom__">✏️ Autre (saisie libre)</option>
           </select>
+          <input type="text" id="inp-manufacturer-custom" placeholder="Saisir le fabricant..." style="margin-top:5px;display:none"/>
         </div>
         <div class="form-group">
           <label>Support / Plateforme</label>
-          <select id="inp-platform">
+          <select id="inp-platform" onchange="toggleCustomField('inp-platform','inp-platform-custom')">
             <option value="">— Sélectionner —</option>
             <option>Playstation 2</option><option>Playstation 3</option><option>Playstation 4</option>
             <option>Playstation 5</option><option>PSP</option><option>PSP Go</option>
@@ -617,16 +619,17 @@ CREATE POLICY "Users see own items" ON items FOR ALL
             <option>Blue-Ray 3D</option><option>CD Audio</option><option>Affiches</option>
             <option>PLV Publicitaire</option><option>Peluche</option><option>Porte-clé peluche</option>
             <option>Peluche sonore</option><option>Peluche collector</option>
-            <option>Peluche promotionnelle</option><option>Badge</option><option>Porte-clé</option>
-            <option>Pin's</option><option>Autocollant</option><option>Sac / Tote bag</option>
-            <option>Mug</option><option>Stylo</option><option>Casquette</option>
-            <option>Carte collector</option><option>Objet mystère</option><option>Goodie divers</option>
+            <option>Badge</option><option>Porte-clé</option><option>Pin's</option>
+            <option>Autocollant</option><option>Sac / Tote bag</option><option>Mug</option>
+            <option>Stylo</option><option>Casquette</option><option>Carte collector</option>
+            <option>Objet mystère</option><option>Goodie divers</option>
             <option>T-shirt / Polo</option><option>Sweat / Veste</option><option>Costume</option>
-            <option>Accessoires</option><option>Vêtement promotionnel</option>
             <option>Figurine PVC</option><option>Figurine Résine</option><option>Figurine Vinyle</option>
-            <option>Figurine Custom</option><option>Figurine 3D Print</option><option>Jouets</option>
-            <option>Vinyles</option><option>Roman</option><option>Mini Figurine</option>
+            <option>Figurine Custom</option><option>Figurine 3D Print</option>
+            <option>Jouets</option><option>Vinyles</option><option>Roman</option>
+            <option value="__custom__">✏️ Autre (saisie libre)</option>
           </select>
+          <input type="text" id="inp-platform-custom" placeholder="Saisir le support..." style="margin-top:5px;display:none"/>
         </div>
       </div>
       <div class="form-row">
@@ -634,9 +637,23 @@ CREATE POLICY "Users see own items" ON items FOR ALL
           <label>Région</label>
           <select id="inp-region">
             <option value="PAL">🌍 PAL</option>
-            <option value="NTSC-J">🇯🇵 NTSC-J</option>
             <option value="NTSC-U">🇺🇸 NTSC-U</option>
+            <option value="NTSC-J">🇯🇵 NTSC-J</option>
             <option value="Mondial">🌐 Mondial</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Langue</label>
+          <select id="inp-lang">
+            <option value="FR">🇫🇷 Français</option>
+            <option value="EN">🇬🇧 Anglais</option>
+            <option value="JP">🇯🇵 Japonais</option>
+            <option value="DE">🇩🇪 Allemand</option>
+            <option value="ES">🇪🇸 Espagnol</option>
+            <option value="IT">🇮🇹 Italien</option>
+            <option value="PT">🇵🇹 Portugais</option>
+            <option value="NL">🇳🇱 Néerlandais</option>
+            <option value="Multi">🌐 Multilingue</option>
           </select>
         </div>
         <div class="form-group">
@@ -644,7 +661,6 @@ CREATE POLICY "Users see own items" ON items FOR ALL
           <select id="inp-status" onchange="toggleWishUrl(this.value)">
             <option value="owned">✅ Possédé</option>
             <option value="wishlist">🎯 Souhaité</option>
-
           </select>
         </div>
       </div>
@@ -652,24 +668,32 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- État & Complétude -->
     <div class="form-section">
-      <div class="form-section-title">📦 État & Complétude</div>
-      <div class="form-group">
-        <label>État</label>
-        <select id="inp-condition" onchange="toggleCondition()">
-          <option value="occasion">📦 Occasion</option>
-          <option value="neuf_blister">🆕 Neuf sous blister</option>
-        </select>
+      <div class="form-section-title">📦 État &amp; Complétude</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>État</label>
+          <select id="inp-condition" onchange="toggleCondition()">
+            <option value="neuf_blister">🆕 Neuf sous blister</option>
+            <option value="occasion">📦 Occasion</option>
+          </select>
+        </div>
+        <div class="form-group" id="occasion-grade-group" style="display:none">
+          <label>Qualité</label>
+          <select id="inp-grade">
+            <option value="excellent">⭐⭐⭐⭐⭐ Excellent</option>
+            <option value="tres_bon">⭐⭐⭐⭐ Très bon</option>
+            <option value="bon">⭐⭐⭐ Bon</option>
+            <option value="correct">⭐⭐ Correct</option>
+            <option value="mauvais">⭐ Mauvais</option>
+          </select>
+        </div>
       </div>
       <div id="completeness-section">
-        <div class="form-group">
-          <label>Complétude</label>
-          <div class="completeness-checks">
-            <label class="check-item"><input type="checkbox" id="inp-box"/><div class="check-box">📦</div><span class="check-label">Boîte</span></label>
-            <label class="check-item"><input type="checkbox" id="inp-manual"/><div class="check-box">📄</div><span class="check-label">Notice</span></label>
-            <label class="check-item"><input type="checkbox" id="inp-disc"/><div class="check-box">💿</div><span class="check-label">Disque</span></label>
-            <label class="check-item"><input type="checkbox" id="inp-sleeve"/><div class="check-box">🗂</div><span class="check-label">Fourreau</span></label>
-            <label class="check-item"><input type="checkbox" id="inp-docs"/><div class="check-box">📋</div><span class="check-label">Documents</span></label>
-          </div>
+        <label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);font-weight:600;display:block;margin-bottom:8px">Complétude</label>
+        <div id="completeness-checks" class="completeness-checks"></div>
+        <div class="form-group" id="bonus-field" style="display:none;margin-top:8px">
+          <label>Bonus inclus (optionnel)</label>
+          <input type="text" id="inp-bonus" placeholder="ex: DVD, planche de stickers, affiche..."/>
         </div>
       </div>
     </div>
@@ -710,112 +734,26 @@ CREATE POLICY "Users see own items" ON items FOR ALL
           <input type="url" id="inp-img" placeholder="URL ou choisir depuis la galerie..." style="flex:1"/>
           <button type="button" onclick="openGallery()" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Galerie</button>
         </div>
-        <div class="price-hint">Colle un lien direct ou choisis depuis ta galerie Cloudinary</div>
+        <div class="price-hint">Colle un lien direct ou choisis depuis ta galerie</div>
         <button type="button" onclick="openSubmitPhoto()" style="margin-top:8px;padding:6px 12px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">📸 Soumettre une photo manquante</button>
       </div>
       <div class="form-group" id="wish-url-group" style="display:none">
         <label>🛒 Lien d'achat (eBay, Vinted...)</label>
         <input type="url" id="inp-wish-url" placeholder="https://www.ebay.fr/..."/>
-        <div class="price-hint">Lien vers l'objet sur eBay, Vinted, leboncoin...</div>
       </div>
       <div class="form-group">
         <label>Notes</label>
-        <textarea id="inp-notes" placeholder="Stickers inclus, DVD, infos spéciales..."></textarea>
+        <textarea id="inp-notes" placeholder="Infos spéciales..."></textarea>
       </div>
       <div class="form-group">
         <label>Commentaire</label>
-        <textarea id="inp-comment" placeholder="Cadeau d'enfance, histoire personnelle..."></textarea>
+        <textarea id="inp-comment" placeholder="Histoire personnelle, cadeau..."></textarea>
       </div>
     </div>
 
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal()">Annuler</button>
       <button class="btn-save" onclick="saveItem()">SAUVEGARDER</button>
-    </div>
-  </div>
-</div>
-
-<!-- PROFILE SCREEN -->
-<div class="profile-screen" id="profile-screen">
-  <div class="profile-header">
-    <button class="profile-back" onclick="closeProfile()">← Retour</button>
-    <div class="profile-hero">
-      <div class="profile-avatar-big" id="profile-avatar-big" onclick="document.getElementById('avatar-picker-section').scrollIntoView({behavior:'smooth'})">🦊</div>
-      <div class="profile-hero-info">
-        <div class="profile-pseudo" id="profile-pseudo-display">Collectionneur</div>
-        <div class="profile-email-small" id="profile-email-small"></div>
-        <div class="profile-rank-display" id="profile-rank-display"></div>
-      </div>
-    </div>
-  </div>
-  <div class="profile-body">
-    <!-- Pseudo -->
-    <div class="profile-section">
-      <div class="profile-section-title">✏️ Pseudo</div>
-      <div class="pseudo-edit">
-        <input type="text" class="pseudo-input" id="pseudo-input" placeholder="Ton pseudo..."/>
-        <button class="pseudo-save" onclick="savePseudo()">SAUVEGARDER</button>
-      </div>
-    </div>
-    <!-- Avatar -->
-    <div class="profile-section" id="avatar-picker-section">
-      <div class="profile-section-title">🎭 Avatar</div>
-      <div class="avatar-grid" id="avatar-grid"></div>
-    </div>
-    <!-- Stats -->
-    <div class="profile-section">
-      <div class="profile-section-title">📊 Statistiques</div>
-      <div class="stats-grid" id="profile-stats-grid"></div>
-    </div>
-    <!-- Top objets -->
-    <div class="profile-section">
-      <div class="profile-section-title">💎 Top 5 objets les plus précieux</div>
-      <div class="top-items" id="profile-top-items"></div>
-    </div>
-    <!-- Par type -->
-    <div class="profile-section">
-      <div class="profile-section-title">📂 Collection par type</div>
-      <div class="type-bars" id="profile-type-bars"></div>
-    </div>
-  </div>
-</div>
-
-<div style="text-align:center;padding:16px;border-top:1px solid rgba(255,255,255,.05);margin-top:20px">
-  <a href="legal.html" style="font-size:.7rem;color:var(--text-dim);text-decoration:none;" target="_blank">📋 Mentions légales · CGU · Confidentialité</a>
-</div>
-
-<!-- GALLERY MODAL -->
-<div class="gallery-overlay" id="gallery-overlay">
-  <div class="gallery-modal">
-    <div class="gallery-header">
-      <h3>🖼️ Banque d'images</h3>
-      <button class="gallery-close" onclick="closeGallery()">✕</button>
-    </div>
-    <div style="padding:10px 22px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:8px;align-items:center">
-      <input type="text" id="gallery-search" placeholder="🔍 Rechercher une image..." oninput="renderGalleryGrid(galleryImages)"
-        style="flex:1;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none"/>
-      <div class="gallery-folders" id="gallery-folders" style="display:flex;gap:5px;flex-wrap:wrap">
-        <button class="gallery-folder-btn active" onclick="loadGalleryImages('');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Tout</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS2');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS2</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS3');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS3</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS4');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS4</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS5');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS5</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('PSP');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PSP</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('Figurines');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Figurines</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('Autres');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Autres</button>
-      </div>
-    </div>
-    <div class="gallery-grid" id="gallery-grid">
-      <div class="gallery-empty">⚙️ Chargement...</div>
-    </div>
-    <div class="gallery-footer">
-      <div class="gallery-selected-preview" id="gallery-preview">
-        <span>Aucune image sélectionnée</span>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button class="gallery-cancel" onclick="closeGallery()">Annuler</button>
-        <button class="gallery-confirm" onclick="confirmGallery()">CHOISIR</button>
-      </div>
     </div>
   </div>
 </div>
@@ -1066,11 +1004,104 @@ function openModal(id){
 }
 function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); editingId=null; }
 function toggleWishUrl(status){
-  document.getElementById('wish-url-group').style.display=(status==='wishlist')?'block':'none';
+  const el = document.getElementById('wish-url-group');
+  if(el) el.style.display=(status==='wishlist')?'block':'none';
 }
+
+function toggleCustomField(selectId, inputId){
+  const sel = document.getElementById(selectId);
+  const inp = document.getElementById(inputId);
+  if(!sel||!inp) return;
+  inp.style.display = sel.value==='__custom__' ? 'block' : 'none';
+  if(sel.value==='__custom__') inp.focus();
+}
+
+// Completeness fields per type
+const COMPLETENESS_CONFIG = {
+  'Jeux physique':    [{k:'has_box',l:'Boîte',i:'📦'},{k:'has_manual',l:'Notice',i:'📄'},{k:'has_disc',l:'Disque',i:'💿'},{k:'has_sleeve',l:'Fourreau',i:'🗂'},{k:'has_docs',l:'Documents',i:'📋'}],
+  'Pack Console':     [{k:'has_box',l:'Carton',i:'📦'},{k:'has_sleeve',l:'Fourreau pack',i:'🗂'},{k:'has_docs',l:'Cales internes',i:'📋'},{k:'has_disc',l:'Console',i:'🎮'},{k:'has_cables',l:'Câbles',i:'🔌'},{k:'has_controllers',l:'Manettes',i:'🕹'},{k:'has_manual',l:'Documentation',i:'📄'}],
+  'Pack Manette':     [{k:'has_box',l:'Boîte',i:'📦'},{k:'has_manual',l:'Documentation',i:'📄'},{k:'has_cables',l:'Câbles',i:'🔌'},{k:'has_controllers',l:'Manettes',i:'🕹'}],
+  'Figurine':         [{k:'has_box',l:'Boîte',i:'📦'},{k:'has_docs',l:'Certificat',i:'📋'},{k:'has_sleeve',l:'Emballage origine',i:'🗂'}],
+  'Statuette':        [{k:'has_box',l:'Boîte',i:'📦'},{k:'has_docs',l:'Certificat',i:'📋'},{k:'has_sleeve',l:'Emballage origine',i:'🗂'}],
+  'Peluche':          [{k:'has_sleeve',l:'Emballage origine',i:'🗂'},{k:'has_docs',l:'Étiquette',i:'🏷'}],
+  'Goodie':           [{k:'has_sleeve',l:'Emballage origine',i:'🗂'},{k:'has_docs',l:'Étiquette',i:'🏷'}],
+  'Vêtement':         [{k:'has_sleeve',l:'Emballage origine',i:'🗂'},{k:'has_docs',l:'Étiquette',i:'🏷'}],
+  'Guide':            [{k:'has_box',l:'Jaquette',i:'📦'},{k:'has_disc',l:'DVD inclus',i:'💿'}],
+  'Livre':            [],
+  'Manga':            [],
+  'Comics':           [],
+  'Art Book':         [],
+  'Film':             [{k:'has_box',l:'Boîte',i:'📦'},{k:'has_disc',l:'Disque',i:'💿'},{k:'has_manual',l:'Notice',i:'📄'}],
+};
+
+const GRADE_LABELS = {
+  'excellent':'⭐⭐⭐⭐⭐ Excellent',
+  'tres_bon':'⭐⭐⭐⭐ Très bon',
+  'bon':'⭐⭐⭐ Bon',
+  'correct':'⭐⭐ Correct',
+  'mauvais':'⭐ Mauvais'
+};
+
 function toggleCondition(){
-  const c=document.getElementById('inp-condition').value;
-  document.getElementById('completeness-section').style.display=c==='non_concerne'?'none':'block';
+  const c = document.getElementById('inp-condition').value;
+  const gradeGroup = document.getElementById('occasion-grade-group');
+  const completenessSection = document.getElementById('completeness-section');
+  if(gradeGroup) gradeGroup.style.display = c==='occasion' ? 'block' : 'none';
+  if(completenessSection){
+    if(c==='neuf_blister'){
+      // Auto-check all
+      completenessSection.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.checked=true; });
+      completenessSection.style.opacity='0.5';
+      completenessSection.style.pointerEvents='none';
+    } else {
+      completenessSection.style.opacity='1';
+      completenessSection.style.pointerEvents='auto';
+    }
+  }
+}
+
+function updateCompleteness(){
+  const type = document.getElementById('inp-type').value;
+  const customInput = document.getElementById('inp-type-custom');
+  if(customInput) customInput.style.display = type==='' ? 'block' : 'none';
+
+  const fields = COMPLETENESS_CONFIG[type] || [];
+  const container = document.getElementById('completeness-checks');
+  const bonusField = document.getElementById('bonus-field');
+  if(!container) return;
+
+  // Show bonus field for books/manga etc
+  const hasBonus = ['Livre','Manga','Comics','Art Book','Guide','Bande-son','Film'].includes(type);
+  if(bonusField) bonusField.style.display = hasBonus ? 'block' : 'none';
+
+  container.innerHTML = '';
+  if(!fields.length && !hasBonus){
+    container.innerHTML = '<span style="font-size:.75rem;color:var(--text-dim)">Aucun élément de complétude pour ce type.</span>';
+    return;
+  }
+
+  fields.forEach(f => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:6px;flex:1;min-width:130px';
+
+    const label = document.createElement('label');
+    label.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:pointer;flex:1';
+
+    // Tri-state: present / absent / na
+    const sel = document.createElement('select');
+    sel.id = 'comp_'+f.k;
+    sel.style.cssText = 'background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 6px;color:var(--text);font-family:Inter,sans-serif;font-size:.75rem;outline:none';
+    sel.innerHTML = '<option value="present">✅ Présent</option><option value="absent">❌ Absent</option><option value="na">— N/A</option>';
+
+    const span = document.createElement('span');
+    span.style.cssText = 'font-size:.75rem;color:var(--text-dim);font-weight:500';
+    span.textContent = f.i+' '+f.l;
+
+    label.appendChild(sel);
+    label.appendChild(span);
+    wrap.appendChild(label);
+    container.appendChild(wrap);
+  });
 }
 function setRating(v){ currentRating=v; document.querySelectorAll('#rating-stars .star').forEach(s=>s.classList.toggle('on',parseInt(s.dataset.v)<=v)); }
 function resetRating(v){ currentRating=v||0; document.querySelectorAll('#rating-stars .star').forEach(s=>s.classList.toggle('on',parseInt(s.dataset.v)<=currentRating)); }
