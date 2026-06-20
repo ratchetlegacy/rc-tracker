@@ -2636,15 +2636,15 @@ function renderStats(){
 
   // KPI CARDS
   html += '<div class="kpi-grid">';
-  html += kpi('📦','Total','total',total);
-  html += kpi('✅','Possédés','owned',owned.length);
-  html += kpi('🎯','Souhaités','wish',wish.length);
-  html += kpi('📈','Complétude','pct',total?Math.round(owned.length/total*100)+'%':'0%');
-  html += kpi('💸','Investi','inv',hasBuy?fmtEurS(invested):'—');
-  html += kpi('💰','Valeur marché','val',hasCur?fmtEurS(market):'—');
-  html += kpi(delta>=0?'📈':'📉','Plus-value','delta',(hasBuy&&hasCur)?((delta>=0?'+':'')+fmtEurS(delta)):'—',hasBuy&&hasCur?(delta>=0?'var(--profit)':'var(--loss)'):'');
-  html += kpi('🆕','Neuf/Blister','neuf',nNeuf);
-  html += kpi('📦','Occasion','occ',nOcc);
+  html += kpi('📦',t('kpi_total'),'total',total);
+  html += kpi('✅',t('kpi_owned'),'owned',owned.length);
+  html += kpi('🎯',t('kpi_wishlist'),'wish',wish.length);
+  html += kpi('📈',t('kpi_completeness'),'pct',total?Math.round(owned.length/total*100)+'%':'0%');
+  html += kpi('💸',t('kpi_invested'),'inv',hasBuy?fmtEurS(invested):'—');
+  html += kpi('💰',t('kpi_value'),'val',hasCur?fmtEurS(market):'—');
+  html += kpi(delta>=0?'📈':'📉',t('kpi_delta'),'delta',(hasBuy&&hasCur)?((delta>=0?'+':'')+fmtEurS(delta)):'—',hasBuy&&hasCur?(delta>=0?'var(--profit)':'var(--loss)'):'');
+  html += kpi('🆕',t('kpi_neuf'),'neuf',nNeuf);
+  html += kpi('📦',t('kpi_occasion'),'occ',nOcc);
   html += '</div>';
 
   // ROW 1: Type pie + Type bars
@@ -3223,6 +3223,58 @@ const T = {
     'price_no_value_sub':'Ajoute une valeur actuelle pour suivre ta collection.',
     'btn_see_list':'Voir la liste',
     'btn_back_stats':'← Retour aux stats',
+    // Stats page
+    'stat_title':'📊 STATISTIQUES',
+    'stat_by_type':t('stat_by_type'),
+    'stat_owned_by_type':t('stat_owned_by_type'),
+    'stat_value_by_type':t('stat_value_by_type'),
+    'stat_condition':t('stat_condition'),
+    'stat_top10':'💎 Top objets les plus précieux',
+    'stat_by_region':t('stat_by_region'),
+    'stat_ratings':t('stat_ratings'),
+    'stat_completeness':t('stat_completeness'),
+    'stat_complete':'Complets','stat_incomplete':'Incomplets','stat_rate':'Taux',
+    'stat_missing_items':t('stat_missing_items'),
+    'stat_no_comp':t('stat_no_comp'),
+    // KPI labels
+    'kpi_total':'Total','kpi_owned':'Possédés','kpi_wishlist':'Souhaités',
+    'kpi_completeness':'Complétude','kpi_invested':'Investi',
+    'kpi_value':'Valeur','kpi_delta':'Plus-value',
+    'kpi_neuf':'Neuf/Blister','kpi_occasion':'Occasion',
+    // Empty state
+    'empty_state':'Aucun objet trouvé.',
+    // Detail labels
+    'detail_completeness':'Complétude',
+    'detail_finance':'VALEUR FINANCIÈRE',
+    'detail_buy':'PRIX D\'ACHAT','detail_market':'VALEUR ACTUELLE',
+    // Header stat labels  
+    'hdr_invested':'INVESTI','hdr_value':'VALEUR MARCHÉ','hdr_delta':'PLUS-VALUE',
+    // Admin labels
+    'admin_name_lbl':'Nom *','admin_folder_lbl':'Dossier',
+    'admin_platform_lbl':'Plateforme','admin_region_lbl':'Région',
+    'admin_edition_lbl':'Édition','admin_url_lbl':'URL de l\'image (Cloudinary) *',
+    'admin_search':'🔍 Rechercher...','admin_loading':'Chargement...',
+    'admin_no_sub':'Aucune soumission en attente.',
+    'admin_approve':'✅ Approuver','admin_reject':'❌ Refuser',
+    'admin_save_total':'💾 SAUVEGARDER',
+    'admin_add_btn':'+ AJOUTER À LA BANQUE',
+    // Profile screen
+    'profile_rank':'🏆 Rang','profile_stats':'📊 Statistiques',
+    'profile_top5':'💎 Top 5 objets les plus précieux',
+    'profile_by_type':'📦 Collection par type',
+    'profile_avatar_title':'🎭 Avatar','profile_pseudo_title':'✏️ Pseudo',
+    'profile_save_pseudo':'SAUVEGARDER',
+    // Submit photo
+    'submit_title':'📸 Soumettre une photo',
+    'submit_item_name':'Nom de l\'objet concerné',
+    'submit_type':'Type / Catégorie',
+    'submit_url':'URL de l\'image à soumettre',
+    'submit_comment':'Commentaire (optionnel)',
+    'submit_btn':'📸 SOUMETTRE',
+    'submit_hint':'L\'image doit être accessible publiquement',
+    // Legal
+    'legal_title':'CGU & Mentions légales',
+    'cgu_footer':'CGU & Mentions légales',
   },
   en: {
     // Header
@@ -3349,6 +3401,58 @@ const T = {
     'price_no_value_sub':'Add a current value to track your collection evolution.',
     'btn_see_list':'See list',
     'btn_back_stats':'← Back to stats',
+    // Stats page
+    'stat_title':'📊 STATISTICS',
+    'stat_by_type':'🥧 Distribution by type',
+    'stat_owned_by_type':'📊 Owned by type',
+    'stat_value_by_type':'💰 Market value by type',
+    'stat_condition':'📦 Item condition',
+    'stat_top10':'💎 Top most valuable items',
+    'stat_by_region':'🌍 Distribution by region',
+    'stat_ratings':'⭐ Personal ratings',
+    'stat_completeness':'✅ Item completeness',
+    'stat_complete':'Complete','stat_incomplete':'Incomplete','stat_rate':'Rate',
+    'stat_missing_items':'🚨 Items with missing elements:',
+    'stat_no_comp':'Fill in completeness to see stats.',
+    // KPI labels
+    'kpi_total':'Total','kpi_owned':'Owned','kpi_wishlist':'Wishlist',
+    'kpi_completeness':'Completeness','kpi_invested':'Invested',
+    'kpi_value':'Value','kpi_delta':'Profit/Loss',
+    'kpi_neuf':'New/Sealed','kpi_occasion':'Second hand',
+    // Empty state
+    'empty_state':'No items found.',
+    // Detail labels
+    'detail_completeness':'Completeness',
+    'detail_finance':'FINANCIAL VALUE',
+    'detail_buy':'PURCHASE PRICE','detail_market':'CURRENT VALUE',
+    // Header stat labels
+    'hdr_invested':'INVESTED','hdr_value':'MARKET VALUE','hdr_delta':'PROFIT/LOSS',
+    // Admin labels
+    'admin_name_lbl':'Name *','admin_folder_lbl':'Folder',
+    'admin_platform_lbl':'Platform','admin_region_lbl':'Region',
+    'admin_edition_lbl':'Edition','admin_url_lbl':'Image URL (Cloudinary) *',
+    'admin_search':'🔍 Search...','admin_loading':'Loading...',
+    'admin_no_sub':'No pending submissions.',
+    'admin_approve':'✅ Approve','admin_reject':'❌ Reject',
+    'admin_save_total':'💾 SAVE',
+    'admin_add_btn':'+ ADD TO BANK',
+    // Profile screen
+    'profile_rank':'🏆 Rank','profile_stats':'📊 Statistics',
+    'profile_top5':'💎 Top 5 most valuable items',
+    'profile_by_type':'📦 Collection by type',
+    'profile_avatar_title':'🎭 Avatar','profile_pseudo_title':'✏️ Username',
+    'profile_save_pseudo':'SAVE',
+    // Submit photo
+    'submit_title':'📸 Submit a photo',
+    'submit_item_name':'Item name',
+    'submit_type':'Type / Category',
+    'submit_url':'Image URL to submit',
+    'submit_comment':'Comment (optional)',
+    'submit_btn':'📸 SUBMIT',
+    'submit_hint':'The image must be publicly accessible',
+    // Legal
+    'legal_title':'Terms & Privacy',
+    'cgu_footer':'Terms & Privacy',
   }
 };
 
@@ -3436,6 +3540,51 @@ function applyTranslations(){
   if(exchangeSubmit) exchangeSubmit.textContent = t('btn_propose');
   const exchangeCancel = document.querySelector('.exchange-cancel');
   if(exchangeCancel) exchangeCancel.textContent = t('btn_cancel');
+  // Update header stat labels
+  document.querySelectorAll('.stat-label').forEach(el=>{
+    const txt = el.textContent.trim();
+    if(txt==='INVESTI'||txt==='INVESTED') el.textContent=t('hdr_invested');
+    else if(txt.includes('MARCH')||txt.includes('VALUE')) el.textContent=t('hdr_value');
+    else if(txt.includes('PLUS')||txt.includes('PROFIT')) el.textContent=t('hdr_delta');
+  });
+  // Update empty state
+  document.querySelectorAll('.empty-state p, .empty-state span').forEach(el=>{
+    if(el.textContent.includes('Aucun objet')||el.textContent.includes('No items')) el.textContent=t('empty_state');
+  });
+  // Update CGU footer link
+  document.querySelectorAll('a[href="legal.html"]').forEach(el=>{
+    el.textContent=t('cgu_footer');
+  });
+  // Update gallery title
+  const galleryTitle = document.querySelector('.gallery-header h3');
+  if(galleryTitle) galleryTitle.textContent = t('gallery_title');
+  // Update scanner elements
+  const scanTitle = document.querySelector('.scanner-title');
+  if(scanTitle) scanTitle.textContent = t('scan_title');
+  // Update profile section titles
+  document.querySelectorAll('.profile-section-title, .admin-section-title').forEach(el=>{
+    const txt = el.textContent.trim();
+    if(txt.includes('Pseudo')||txt.includes('Username')) el.textContent=t('profile_pseudo_title');
+    else if(txt.includes('Avatar')) el.textContent=t('profile_avatar_title');
+    else if(txt.includes('public')||txt.includes('Public')) el.textContent=t('profile_public');
+    else if(txt.includes('Rang')||txt.includes('Rank')) el.textContent=t('profile_rank');
+    else if(txt.includes('Statistiques')||txt.includes('Statistics')) el.textContent=t('profile_stats');
+    else if(txt.includes('Top 5')) el.textContent=t('profile_top5');
+    else if(txt.includes('type')) el.textContent=t('profile_by_type');
+  });
+  // Update admin section titles
+  document.querySelectorAll('.admin-section-title').forEach(el=>{
+    const txt = el.textContent.trim();
+    if(txt.includes('Total')) el.textContent=t('admin_rc_total');
+    else if(txt.includes('Ajouter')||txt.includes('Add image')) el.textContent=t('admin_images');
+    else if(txt.includes('banque')||txt.includes('bank')) el.textContent=t('admin_bank');
+    else if(txt.includes('soumises')||txt.includes('Submitted')) el.textContent=t('admin_submissions');
+  });
+  // Update stats page elements dynamically
+  if(typeof renderStats === 'function') {
+    const statsBody = document.getElementById('stats-body');
+    if(statsBody && statsBody.innerHTML.length > 100) renderStats();
+  }
   // Apply to key elements directly
   const map = {
     'add-btn': 'btn_add',
