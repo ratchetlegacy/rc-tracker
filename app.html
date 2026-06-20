@@ -566,11 +566,14 @@
     .mobile-menu-panel .menu-item:hover{background:rgba(123,79,212,.2);border-color:rgba(123,79,212,.3)}
     .mobile-menu-close{align-self:flex-end;background:transparent;border:none;color:var(--text-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px}
     @media(max-width:600px){
-      .mobile-menu-btn{display:block}
-      .header-user .header-user-btns{display:none}
-      .header-titles h1{font-size:.8rem}
-      .header-titles span{font-size:.58rem}
+      .mobile-menu-btn{display:block !important}
+      .header-user .header-user-btns{display:none !important}
+      .header-user .signout-btn{display:none !important}
+      .header-titles h1{font-size:.75rem !important}
+      .header-titles span{font-size:.55rem !important;display:none}
       .card-grid{grid-template-columns:repeat(2,1fr) !important}
+      .header-user{gap:6px !important}
+      #header-pseudo{max-width:70px !important;font-size:.65rem !important}
     }
     /* PRICE NOTIF */
     .price-notif{background:rgba(255,212,71,.08);border:1px solid rgba(255,212,71,.25);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
