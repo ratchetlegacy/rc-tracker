@@ -1621,16 +1621,42 @@ async function saveItem(){
   if(!name){ document.getElementById('inp-name').focus(); return; }
   const buy=document.getElementById('inp-buy').value;
   const val=document.getElementById('inp-val').value;
+  // Get type - handle custom
+  const typeSelVal = document.getElementById('inp-type').value;
+  const typeCustomVal = document.getElementById('inp-type-custom');
+  const typeVal = typeSelVal==='__custom__'&&typeCustomVal ? typeCustomVal.value.trim() : typeSelVal;
+  // Get edition
+  const edSelVal = document.getElementById('inp-edition').value;
+  const edVal = edSelVal==='__custom__' ? document.getElementById('inp-edition-custom').value.trim() : edSelVal;
+  // Get manufacturer
+  const mfSelVal = document.getElementById('inp-manufacturer').value;
+  const mfVal = mfSelVal==='__custom__' ? document.getElementById('inp-manufacturer-custom').value.trim() : mfSelVal;
+  // Get platform
+  const pfSelVal = document.getElementById('inp-platform').value;
+  const pfVal = pfSelVal==='__custom__' ? document.getElementById('inp-platform-custom').value.trim() : pfSelVal;
+  // Get completeness from selects
+  const compFields = COMPLETENESS_CONFIG[typeVal]||[];
+  const compPayload = {};
+  compFields.forEach(f=>{
+    const sel = document.getElementById('comp_'+f.k);
+    if(sel) compPayload['comp_'+f.k] = sel.value;
+  });
+  // Get grade and bonus
+  const gradeEl = document.getElementById('inp-grade');
+  const bonusEl = document.getElementById('inp-bonus');
+  const langEl = document.getElementById('inp-lang');
   const payload={
     user_id:currentUser.id, name,
-    type:document.getElementById('inp-type').value,
-    edition:document.getElementById('inp-edition').value,
-    manufacturer:document.getElementById('inp-manufacturer').value,
-    platform:document.getElementById('inp-platform').value,
+    type:typeVal,
+    edition:edVal,
+    manufacturer:mfVal,
+    platform:pfVal,
     region:document.getElementById('inp-region').value,
+    lang:langEl?langEl.value:'FR',
     status:document.getElementById('inp-status').value,
     condition:document.getElementById('inp-condition').value,
-
+    grade:gradeEl?gradeEl.value:'excellent',
+    bonus:bonusEl?bonusEl.value.trim():'',
     buy_price:buy!==''?parseFloat(buy):null,
     cur_value:val!==''?parseFloat(val):null,
     img_url:document.getElementById('inp-img').value.trim(),
@@ -1638,6 +1664,8 @@ async function saveItem(){
     wish_url:document.getElementById('inp-wish-url').value.trim(),
     notes:document.getElementById('inp-notes').value.trim(),
     comment:document.getElementById('inp-comment').value.trim(),
+    price_updated_at:(val||buy)?new Date().toISOString():undefined,
+    ...compPayload,
   };
   try{
     if(editingId){
