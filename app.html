@@ -2125,7 +2125,7 @@ async function launchApp(){
   // email display handled by profile
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>Chargement...</div>';
-  await fetchItems(); render(); loadProfile(); loadTheme(); loadRcTotal(); loadLang();
+  await fetchItems(); render(); loadProfile(); loadTheme(); loadRcTotal(); loadLang(); setTimeout(applyTranslations, 300);
   document.getElementById('fixed-footer').style.display = 'flex';
   if(localStorage.getItem('kofi_dismissed')==='1'){
     const banner = document.getElementById('kofi-banner');
@@ -3479,8 +3479,10 @@ function loadLang(){
   }
   const btn = document.getElementById('lang-btn');
   if(btn) btn.textContent = currentLang === 'fr' ? '🇫🇷' : '🇬🇧';
-  // Apply translations with slight delay to ensure DOM is ready
-  setTimeout(applyTranslations, 100);
+  // Apply translations after items are loaded
+  if(typeof items !== 'undefined' && items.length >= 0) {
+    setTimeout(applyTranslations, 200);
+  }
 }
 
 function applyTranslations(){
@@ -3581,10 +3583,10 @@ function applyTranslations(){
     else if(txt.includes('banque')||txt.includes('bank')) el.textContent=t('admin_bank');
     else if(txt.includes('soumises')||txt.includes('Submitted')) el.textContent=t('admin_submissions');
   });
-  // Update stats page elements dynamically
-  if(typeof renderStats === 'function') {
-    const statsBody = document.getElementById('stats-body');
-    if(statsBody && statsBody.innerHTML.length > 100) renderStats();
+  // Update stats page elements dynamically - only if stats screen is open
+  const statsScreen = document.getElementById('stats-screen');
+  if(statsScreen && statsScreen.classList.contains('open') && typeof renderStats === 'function') {
+    renderStats();
   }
   // Apply to key elements directly
   const map = {
