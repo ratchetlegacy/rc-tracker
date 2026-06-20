@@ -1972,13 +1972,14 @@ function openDetail(id){
 
   // completeness
   const compItems=COMPLETENESS_CONFIG[item.type]||[];
-  if(item.condition!=='non_concerne'){
+  if(compItems.length>0){
+    const compHtml = compItems.map(c=>{
+      const val=item['comp_'+c.k]||(item[c.k]===true?'present':item[c.k]===false?'absent':'na');
+      const cls = val==='present'?'present':val==='absent'?'absent':'na';
+      return `<div class="comp-chip ${cls}">${c.i} ${c.l}</div>`;
+    }).join('');
     gridHTML+=`<div class="detail-block full"><div class="dblabel">Complétude</div>
-      <div class="detail-completeness">${compItems.map(c=>{
-        const val=item['comp_'+c.k]||(item[c.k]===true?'present':item[c.k]===false?'absent':'na');
-        if(val==='na') return '';
-        return `<div class="comp-chip ${val}">${c.i} ${c.l}</div>`;
-      }).join('')}</div></div>`;
+      <div class="detail-completeness">${compHtml||'<span style="color:var(--text-dim);font-size:.75rem">Non renseignée — cliquez sur Modifier</span>'}</div></div>`;
   }
 
   // prices
@@ -2008,7 +2009,9 @@ function openDetail(id){
   // actions
   let actHTML=`<button class="detail-btn edit" onclick="closeDetail();openModal('${item.id}')">✏️ Modifier</button>`;
   if(item.status==='wishlist'&&item.wish_url) actHTML+=`<a href="${escHtml(item.wish_url)}" target="_blank" class="detail-btn wish-link" style="text-decoration:none;display:flex;align-items:center;justify-content:center">🛒 Voir l'annonce</a>`;
-  actHTML+=`<button class="detail-btn" onclick="closeDetail();setStatus('${item.id}','owned')" style="border-color:var(--owned);color:var(--owned)">✅ Marquer possédé</button>`;
+  if(item.status==='wishlist'){
+    actHTML+=`<button class="detail-btn" onclick="closeDetail();setStatus('${item.id}','owned')" style="border-color:var(--owned);color:var(--owned)">✅ Marquer possédé</button>`;
+  }
   // Add exchange button for owned items
   if(item.status === 'owned'){
     actHTML += `<button class="detail-btn" onclick="closeDetail();openExchangeModal('${item.id}')" style="border-color:var(--owned);color:var(--owned)">🤝 Proposer en échange</button>`;
