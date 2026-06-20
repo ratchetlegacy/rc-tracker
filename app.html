@@ -1642,11 +1642,15 @@ async function saveItem(){
     if(editingId){
       await dbUpdate(editingId,payload);
       const idx=items.findIndex(i=>i.id===editingId);
-      if(idx!==-1) items[idx]={...items[idx],...payload};
+      // Reload full item from Supabase to get all fields
+      const {data:updatedItem} = await sbClient.from('items').select('*').eq('id',editingId).single();
+      if(updatedItem && idx!==-1) items[idx]=updatedItem;
+      else if(idx!==-1) items[idx]={...items[idx],...payload};
       showToast('Objet mis à jour !','success');
     }else{
       const newItem=await dbInsert(payload);
-      items.push(newItem);
+      const {data:fullItem} = await sbClient.from('items').select('*').eq('id',newItem.id).single();
+      items.push(fullItem||newItem);
       showToast('Objet ajouté !','success');
     }
     closeModal(); render();
@@ -1726,14 +1730,23 @@ const TYPE_ICONS={'Jeux physique':'🎮','Pack Console':'🕹','Console seule':'
 function getIcon(type){ return TYPE_ICONS[type]||'📦'; }
 
 function renderCompleteness(item){
-  if(item.condition==='non_concerne') return '';
-  const chips=[
-    {k:'has_box',l:'Boîte',i:'📦'},{k:'has_manual',l:'Notice',i:'📄'},
-    {k:'has_disc',l:'Disque',i:'💿'},{k:'has_sleeve',l:'Fourreau',i:'🗂'},
-    {k:'has_docs',l:'Docs',i:'📋'},
-  ].filter(c=>item[c.k]!==null&&item[c.k]!==undefined);
+  if(item.condition==='neuf_blister') return '<div class="card-completeness"><span style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);color:var(--owned);font-size:.65rem;font-weight:600;margin-bottom:6px">✅ Complet (blister)</span></div>';
+  if(!item.type) return '';
+  const fields = COMPLETENESS_CONFIG[item.type] || [];
+  if(!fields.length) return '';
+  const chips = fields.map(f => {
+    const val = item['comp_'+f.k] || (item[f.k]===true?'present':item[f.k]===false?'absent':'na');
+    return {label:f.l, icon:f.i, val};
+  }).filter(c => c.val !== 'na');
   if(!chips.length) return '';
-  return `<div class="card-completeness">${chips.map(c=>`<div class="comp-chip ${item[c.k]?'has':'no'}">${c.i} ${c.l}</div>`).join('')}</div>`;
+  const missing = chips.filter(c=>c.val==='absent');
+  const missingBadge = missing.length > 0
+    ? '<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;background:rgba(255,77,106,.15);border:1px solid rgba(255,77,106,.4);color:var(--missing);font-size:.65rem;font-weight:700;margin-bottom:6px;flex-wrap:wrap">❌ Manque : '+missing.map(c=>c.label).join(', ')+'</div>'
+    : '<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);color:var(--owned);font-size:.65rem;font-weight:600;margin-bottom:6px">✅ Complet</div>';
+  return '<div class="card-completeness">'
+    + missingBadge
+    + chips.map(c=>'<div class="comp-chip '+c.val+'">'+c.icon+' '+c.label+'</div>').join('')
+    + '</div>';
 }
 
 function getTypes(){ return [...new Set(items.map(i=>i.type).filter(Boolean))].sort(); }
@@ -1904,6 +1917,7 @@ function render(){
       html += "<div class=\"card-actions\" onclick=\"event.stopPropagation()\">";
       html += "<button class=\"action-btn set-owned\" data-id=\""+item.id+"\" data-status=\"owned\" onclick=\"setStatus(this.dataset.id,this.dataset.status)\">✅</button>";
       html += "<button class=\"action-btn set-wish\" data-id=\""+item.id+"\" data-status=\"wishlist\" onclick=\"setStatus(this.dataset.id,this.dataset.status)\">🎯</button>";
+      if(item.status==='owned') html += "<button class=\"action-btn exchange-btn\" data-id=\""+item.id+"\" onclick=\"openExchangeModal(this.dataset.id)\" title=\"Proposer en échange\">🤝</button>";
       html += "<button class=\"action-btn edit-btn\" data-id=\""+item.id+"\" onclick=\"openModal(this.dataset.id)\">✏️</button>";
       html += "<button class=\"action-btn del-btn\" data-id=\""+item.id+"\" onclick=\"deleteItem(this.dataset.id)\">🗑</button>";
       html += '</div>';
@@ -1994,6 +2008,10 @@ function openDetail(id){
   let actHTML=`<button class="detail-btn edit" onclick="closeDetail();openModal('${item.id}')">✏️ Modifier</button>`;
   if(item.status==='wishlist'&&item.wish_url) actHTML+=`<a href="${escHtml(item.wish_url)}" target="_blank" class="detail-btn wish-link" style="text-decoration:none;display:flex;align-items:center;justify-content:center">🛒 Voir l'annonce</a>`;
   actHTML+=`<button class="detail-btn" onclick="closeDetail();setStatus('${item.id}','owned')" style="border-color:var(--owned);color:var(--owned)">✅ Marquer possédé</button>`;
+  // Add exchange button for owned items
+  if(item.status === 'owned'){
+    actHTML += `<button class="detail-btn" onclick="closeDetail();openExchangeModal('${item.id}')" style="border-color:var(--owned);color:var(--owned)">🤝 Proposer en échange</button>`;
+  }
   document.getElementById('detail-actions').innerHTML=actHTML;
 
   document.getElementById('detail-overlay').classList.add('open');
