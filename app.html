@@ -967,12 +967,12 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <div class="form-group">
           <label>Prix d'achat (€)</label>
           <input type="number" id="inp-buy" placeholder="ex: 12.99" min="0" step="0.01"/>
-          <div class="price-hint">Ce que tu as payé</div>
+          <div class="price-hint"data-i18n="hint_buy_price">Ce que tu as payé</div>
         </div>
         <div class="form-group">
           <label>Valeur actuelle (€)</label>
           <input type="number" id="inp-val" placeholder="ex: 25.00" min="0" step="0.01"/>
-          <div class="price-hint">Prix du marché</div>
+          <div class="price-hint"data-i18n="hint_cur_value">Prix du marché</div>
         </div>
       </div>
     </div>
@@ -1270,9 +1270,9 @@ CREATE POLICY "Users see own items" ON items FOR ALL
             <input type="checkbox" id="public-toggle" onchange="togglePublicProfile()"/>
             <span class="toggle-slider"></span>
           </label>
-          <span class="toggle-label">Rendre mon profil public</span>
+          <span class="toggle-label"data-i18n="profile_toggle">Rendre mon profil public</span>
         </div>
-        <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:12px">Partage ta collection. Les prix ne sont jamais visibles.</p>
+        <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:12px"data-i18n="profile_public_desc">Partage ta collection. Les prix ne sont jamais visibles.</p>
         <div id="public-link-section" style="display:none">
           <div style="font-size:.72rem;color:var(--text-dim);margin-bottom:6px;font-weight:600">🔗 Ton lien public :</div>
           <div style="display:flex;gap:8px;align-items:center">
@@ -1305,7 +1305,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="scanner-line"></div>
     <div class="scanner-corners"></div>
   </div>
-  <div class="scanner-hint">Pointez la caméra vers le code-barres</div>
+  <div class="scanner-hint"data-i18n="scan_hint">Pointez la caméra vers le code-barres</div>
   <div class="scanner-result" id="scanner-result">✅ Code détecté !</div>
   <button class="scanner-close" onclick="closeScanner()">✕ FERMER</button>
 </div>
@@ -3388,6 +3388,54 @@ function applyTranslations(){
       el.textContent = t(key);
     }
   });
+  // Update modal labels dynamically
+  const labels = {
+    'inp-name': 'lbl_name', 'inp-type': 'lbl_type', 'inp-edition': 'lbl_edition',
+    'inp-manufacturer': 'lbl_manufacturer', 'inp-platform': 'lbl_platform',
+    'inp-region': 'lbl_region', 'inp-lang': 'lbl_lang', 'inp-status': 'lbl_status',
+    'inp-condition': 'lbl_condition', 'inp-grade': 'lbl_quality',
+    'inp-buy': 'lbl_buy_price', 'inp-val': 'lbl_cur_value',
+    'inp-img': 'lbl_image', 'inp-notes': 'lbl_notes', 'inp-comment': 'lbl_comment',
+    'inp-bonus': 'lbl_bonus', 'inp-wish-url': 'lbl_wish_url',
+    'gallery-search': 'gallery_search', 'search-input': 'filter_search',
+    'market-search': 'filter_search', 'admin-img-name': 'lbl_name',
+  };
+  Object.entries(labels).forEach(([id,key])=>{
+    const el = document.getElementById(id);
+    if(el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA')) el.placeholder = t(key);
+  });
+  // Update section titles in modal
+  document.querySelectorAll('.form-section-title').forEach(el=>{
+    const txt = el.textContent.trim();
+    if(txt.includes('Informations')) el.textContent = t('section_general');
+    else if(txt.includes('Complétude')||txt.includes('Condition')) el.textContent = t('section_condition');
+    else if(txt.includes('financière')||txt.includes('Financial')) el.textContent = t('section_finance');
+    else if(txt.includes('Extras')) el.textContent = t('section_extras');
+  });
+  // Update Ko-fi banner
+  const kofiBtn = document.querySelector('a[href*="ko-fi"]');
+  if(kofiBtn && kofiBtn.classList.contains('footer-kofi')) kofiBtn.textContent = '☕ '+t('kofi_support');
+  // Update signout button
+  document.querySelectorAll('.signout-btn').forEach(b=>b.textContent=t('btn_signout'));
+  // Update exchanges button
+  document.querySelectorAll('button[onclick*="openMarketplace"]').forEach(b=>b.textContent=t('btn_exchanges'));
+  // Update stats button
+  document.querySelectorAll('button[onclick*="openStats"]').forEach(b=>b.textContent=t('btn_stats'));
+  // Update add button
+  document.querySelectorAll('button[onclick*="openModal()"]').forEach(b=>b.textContent=t('btn_add'));
+  // Update modal cancel/save
+  document.querySelectorAll('.btn-cancel').forEach(b=>b.textContent=t('btn_cancel'));
+  document.querySelectorAll('.btn-save').forEach(b=>b.textContent=t('btn_save'));
+  // Update gallery
+  const galleryConfirm = document.querySelector('.gallery-confirm');
+  if(galleryConfirm) galleryConfirm.textContent = t('btn_choose');
+  const galleryCancel = document.querySelector('.gallery-cancel');
+  if(galleryCancel) galleryCancel.textContent = t('btn_cancel');
+  // Update exchange modal
+  const exchangeSubmit = document.querySelector('.exchange-submit');
+  if(exchangeSubmit) exchangeSubmit.textContent = t('btn_propose');
+  const exchangeCancel = document.querySelector('.exchange-cancel');
+  if(exchangeCancel) exchangeCancel.textContent = t('btn_cancel');
   // Apply to key elements directly
   const map = {
     'add-btn': 'btn_add',
@@ -3525,7 +3573,7 @@ async function loadMarketplace(){
     marketItems = data || [];
     renderMarketplace();
   } catch(e){ 
-    document.getElementById('market-grid').innerHTML = '<div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px">Aucune proposition pour le moment.</div>';
+    document.getElementById('market-grid').innerHTML = '<div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px"data-i18n="market_empty">Aucune proposition pour le moment.</div>';
   }
 }
 
@@ -3665,7 +3713,7 @@ boot();
     ☕ SOUTENIR
   </a>
   <a href="legal.html" class="footer-legal">CGU & Mentions légales</a>
-  <span style="font-size:.55rem;color:var(--text-dim)">Made with ❤️ by Ratchet Legacy</span>
+  <span style="font-size:.55rem;color:var(--text-dim)"data-i18n="footer_made">Made with ❤️ by Ratchet Legacy</span>
 </div>
 
 </body>
