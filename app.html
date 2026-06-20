@@ -620,7 +620,12 @@
 <div id="setup-screen" style="display:none">
   <div class="setup-box">
     <div class="auth-logo">
-      <div class="auth-logo-icon">🔧</div>
+      <div style="position:relative;width:56px;height:56px;flex-shrink:0">
+        <div style="position:absolute;inset:-6px;border-radius:50%;border:2px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,conic-gradient(#FFD700,#C8D4E0,#FFD700,#C8D4E0,#FFD700) border-box;animation:spin 4s linear infinite;filter:drop-shadow(0 0 6px #FFD700)"></div>
+        <div style="position:absolute;inset:0;border-radius:50%;overflow:hidden;background:var(--bg2)">
+          <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display='none'"/>
+        </div>
+      </div>
       <div><h1>R&amp;C TRACKER</h1><span>Configuration Supabase</span></div>
     </div>
     <h2>⚙️ Connexion à la base de données</h2>
@@ -680,7 +685,12 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div id="auth-screen" style="display:none">
   <div class="auth-box">
     <div class="auth-logo">
-      <div class="auth-logo-icon">🔧</div>
+      <div style="position:relative;width:56px;height:56px;flex-shrink:0">
+        <div style="position:absolute;inset:-6px;border-radius:50%;border:2px solid transparent;background:linear-gradient(var(--bg2),var(--bg2)) padding-box,conic-gradient(#FFD700,#C8D4E0,#FFD700,#C8D4E0,#FFD700) border-box;animation:spin 4s linear infinite;filter:drop-shadow(0 0 6px #FFD700)"></div>
+        <div style="position:absolute;inset:0;border-radius:50%;overflow:hidden;background:var(--bg2)">
+          <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display='none'"/>
+        </div>
+      </div>
       <div><h1>R&amp;C TRACKER</h1><span>Ratchet &amp; Clank · Collection</span></div>
     </div>
     <div class="auth-tabs">
