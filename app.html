@@ -1339,6 +1339,9 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         J'accepte que mon pseudo et contact soient visibles publiquement
       </label>
     </div>
+    <div style="background:rgba(255,212,71,.08);border:1px solid rgba(255,212,71,.2);border-radius:8px;padding:10px;font-size:.72rem;color:var(--wishlist);margin-top:10px">
+      ⚠️ Pensez à retirer votre annonce une fois l'objet vendu ou échangé !
+    </div>
     <button class="exchange-submit" onclick="submitExchange()">✅ PROPOSER</button>
     <button class="exchange-cancel" onclick="closeExchangeModal()">Annuler</button>
   </div>
@@ -2042,7 +2045,12 @@ function openDetail(id){
   }
   // Add exchange button for owned items
   if(item.status === 'owned'){
-    actHTML += `<button class="detail-btn" onclick="closeDetail();openExchangeModal('${item.id}')" style="border-color:var(--owned);color:var(--owned)">🤝 Proposer en échange</button>`;
+    const existingExchange = marketItems.find(e=>e.item_id===item.id && e.owner_id===currentUser.id);
+    if(existingExchange){
+      actHTML += `<button class="detail-btn" data-eid="${existingExchange.id}" onclick="deleteExchange(this.dataset.eid)" style="border-color:var(--missing);color:var(--missing)">🗑️ Retirer de l'échange</button>`;
+    } else {
+      actHTML += `<button class="detail-btn" onclick="closeDetail();openExchangeModal('${item.id}')" style="border-color:var(--owned);color:var(--owned)">🤝 Proposer en échange</button>`;
+    }
   }
   document.getElementById('detail-actions').innerHTML=actHTML;
 
@@ -3337,6 +3345,7 @@ function renderMarketplace(){
     const card = document.createElement('div');
     card.className = 'market-card';
     const imgHtml = item.img_url ? '<img class=\'market-card-img\' src=\''+escHtml(item.img_url)+'\'/>' : '<div class=\'market-card-img\' style=\'display:flex;align-items:center;justify-content:center;font-size:2rem\'>📦</div>';
+    const isOwner = currentUser && item.owner_id === currentUser.id;
     card.innerHTML = imgHtml
       +'<div class="market-card-body">'
       +'<div class="market-card-name">'+escHtml(item.item_name||'')+'</div>'
@@ -3345,7 +3354,8 @@ function renderMarketplace(){
       +(item.looking_for?'<div class="market-card-looking">🔍 '+escHtml(item.looking_for)+'</div>':'')
       +'<div class="market-card-owner">👤 '+escHtml(item.owner_pseudo||'Collectionneur')+'</div>'
       +(item.sale_link?'<a href="'+escHtml(item.sale_link)+'" target="_blank" rel="noopener" class="market-contact-btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:6px">🔗 VOIR ANNONCE</a>':'')
-      +'<button class="market-contact-btn" data-contact="'+escHtml(item.contact||'')+'" onclick="contactOwner(this.dataset.contact)">📩 CONTACTER</button>'
+      +(isOwner ? '' : '<button class="market-contact-btn" data-contact="'+escHtml(item.contact||'')+'" onclick="contactOwner(this.dataset.contact)">📩 CONTACTER</button>')
+      +(isOwner ? '<button class="market-contact-btn" data-id="'+item.id+'" onclick="deleteExchange(this.dataset.id)" style="background:rgba(255,77,106,.3);margin-top:6px">🗑️ RETIRER MON ANNONCE</button>' : '')
       +'</div>';
     grid.appendChild(card);
   });
@@ -3402,6 +3412,16 @@ async function submitExchange(){
     if(error) throw error;
     closeExchangeModal();
     showToast('Proposition publiée !', 'success');
+  } catch(e){ showToast('Erreur : '+e.message, 'error'); }
+}
+
+async function deleteExchange(id){
+  if(!confirm('Retirer cette annonce du marketplace ?')) return;
+  try {
+    const { error } = await sbClient.from('exchanges').update({is_active:false}).eq('id',id).eq('owner_id',currentUser.id);
+    if(error) throw error;
+    showToast('Annonce retirée !', 'success');
+    await loadMarketplace();
   } catch(e){ showToast('Erreur : '+e.message, 'error'); }
 }
 
