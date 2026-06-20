@@ -213,8 +213,9 @@
     /* COMPLETENESS */
     .card-completeness{display:flex;gap:4px;margin:6px 0;flex-wrap:wrap}
     .comp-chip{display:flex;align-items:center;gap:3px;font-size:.6rem;font-weight:600;padding:2px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.08)}
-    .comp-chip.has{background:rgba(61,214,140,.1);color:var(--owned);border-color:rgba(61,214,140,.2)}
-    .comp-chip.no{background:rgba(255,77,106,.07);color:rgba(255,77,106,.5);border-color:rgba(255,77,106,.12)}
+    .comp-chip.has,.comp-chip.present{background:rgba(61,214,140,.1);color:var(--owned);border-color:rgba(61,214,140,.3)}
+    .comp-chip.no,.comp-chip.absent{background:rgba(255,77,106,.15);color:var(--missing);border-color:rgba(255,77,106,.4);font-weight:700}
+    .comp-chip.na{background:rgba(255,255,255,.04);color:var(--text-dim);border-color:rgba(255,255,255,.08)}
     /* STARS */
     .card-stars{display:flex;gap:1px;margin:4px 0;align-items:center}
     .card-stars span{font-size:.8rem}
