@@ -755,7 +755,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <div class="energy-bar-bg"><div class="energy-bar-fill" id="energy-bar" style="width:0%"></div></div>
         <!-- BARRE COLLECTION -->
         <div class="energy-label" style="margin-top:10px">
-          <span class="elabel">Collection R&amp;C</span>
+          <span class="elabel" data-i18n="collection_rc">Collection R&amp;C</span>
           <span style="display:flex;align-items:center;gap:6px">
             <span class="pct" id="collection-pct" style="font-size:.85rem;color:var(--orange-light)">0%</span>
             <span onclick="editCollectionTotal()" style="font-size:.62rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">?</span> objets connus)</span>
@@ -1102,7 +1102,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
     </div>
     <h1>🛠️ PANNEAU ADMIN</h1>
-    <button class="admin-back" onclick="closeAdmin()">← Retour</button>
+    <button class="admin-back" onclick="closeAdmin()" data-i18n="btn_back">← Retour</button>
   </div>
   <div class="admin-body">
 
@@ -1199,8 +1199,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="logo-img" onclick="closeStats();showMainMenu()" style="cursor:pointer" title="Accueil"o-img" style="width:40px;height:40px">
       <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
     </div>
-    <h1>📊 STATISTIQUES</h1>
-    <button class="stats-back" onclick="closeStats()">← Retour</button>
+    <h1 data-i18n="stat_title">📊 STATISTIQUES</h1>
+    <button class="stats-back" onclick="closeStats()" data-i18n="btn_back">← Retour</button>
   </div>
   <div class="stats-body" id="stats-body">
     <div style="text-align:center;padding:60px;color:var(--text-dim)"><span style="font-size:2rem;display:block;margin-bottom:10px;animation:spin 1s linear infinite">⚙️</span>Calcul des statistiques...</div>
@@ -1218,7 +1218,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div id="profile-pseudo-display" style="font-family:'Orbitron',sans-serif;font-size:.95rem;font-weight:900;color:var(--text)">Collectionneur</div>
       <div id="profile-email-small" style="font-size:.7rem;color:var(--text-dim);margin-top:2px"></div>
     </div>
-    <button class="admin-back" onclick="document.getElementById('profile-screen').classList.remove('open')">← Retour</button>
+    <button class="admin-back" onclick="document.getElementById('profile-screen').classList.remove('open')" data-i18n="btn_back">← Retour</button>
   </div>
   <div class="admin-body">
 
@@ -1315,7 +1315,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="market-header">
     <div style="font-size:1.5rem">🤝</div>
     <h1>MARKETPLACE ÉCHANGES</h1>
-    <button class="admin-back" onclick="closeMarketplace()">← Retour</button>
+    <button class="admin-back" onclick="closeMarketplace()" data-i18n="btn_back">← Retour</button>
   </div>
   <div class="market-body">
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
@@ -2200,7 +2200,7 @@ function openProfile(){
   document.getElementById('profile-rank-display').innerHTML =
     '<div class="profile-rank-icon">'+rank.icon+'</div>'
     +'<div><div class="profile-rank-name" style="color:'+rank.color+'">'+rank.name+'</div>'
-    +'<div class="profile-rank-progress">'+(nextRank ? nextRank.min-owned+' objets avant '+nextRank.name : '✨ Rang max !') +'</div>'
+    +'<div class="profile-rank-progress">'+(nextRank ? nextRank.min-owned+' '+t('rank_next')+' '+nextRank.name : t('rank_max')) +'</div>'
     +'<div class="profile-rank-bar"><div class="profile-rank-fill" style="width:'+progress+'%;background:'+rank.color+'"></div></div>'
     +'</div>';
 
@@ -2615,10 +2615,10 @@ const T = {
     // Progress
     'rank_progression':'PROGRESSION VERS LE PROCHAIN RANG',
     'collection_rc':'Collection R&C','objects_known':'objets connus',
-    'rank_next':'objets avant','rank_max':'✨ Rang maximum !',
+    'rank_next':'objets avant','rank_max':t('rank_max'),
     'items_owned':'possédés','items_wishlist':'souhaités','items_total':'total',
     // Stats cards
-    'stat_invested':'INVESTI','stat_value':'VALEUR MARCHÉ','stat_delta':'PLUS-VALUE',
+    'stat_invested':t('hdr_invested'),'stat_value':t('hdr_value'),'stat_delta':t('hdr_delta'),
     // Detail view
     'lbl_completeness_detail':'Complétude','lbl_finance':'VALEUR FINANCIÈRE',
     'lbl_buy':"PRIX D'ACHAT",'lbl_market':'VALEUR ACTUELLE',
@@ -2697,33 +2697,35 @@ const T = {
     'price_no_value':'objets sans valeur marché',
     'price_no_value_sub':'Ajoute une valeur actuelle pour suivre ta collection.',
     'btn_see_list':'Voir la liste',
+    'no_value_items':t('profile_no_value'),
+    'btn_back':'← Retour',
     'btn_back_stats':'← Retour aux stats',
     // Stats page
     'stat_title':'📊 STATISTIQUES',
-    'stat_by_type':'🥧 Répartition par type',
-    'stat_owned_by_type':'📊 Possédés par type',
-    'stat_value_by_type':'💰 Valeur marché par type',
-    'stat_condition':'📦 État des objets',
+    'stat_by_type':t('stat_by_type'),
+    'stat_owned_by_type':t('stat_owned_by_type'),
+    'stat_value_by_type':t('stat_value_by_type'),
+    'stat_condition':t('stat_condition'),
     'stat_top10':'💎 Top objets les plus précieux',
-    'stat_by_region':'🌍 Répartition par région',
-    'stat_ratings':'⭐ Notes personnelles',
-    'stat_completeness':'✅ Complétude des objets',
+    'stat_by_region':t('stat_by_region'),
+    'stat_ratings':t('stat_ratings'),
+    'stat_completeness':t('stat_completeness'),
     'stat_complete':'Complets','stat_incomplete':'Incomplets','stat_rate':'Taux',
-    'stat_missing_items':'🚨 Objets avec éléments manquants :',
-    'stat_no_comp':'Renseignez la complétude de vos objets pour voir les stats.',
+    'stat_missing_items':t('stat_missing_items'),
+    'stat_no_comp':t('stat_no_comp'),
     // KPI labels
     'kpi_total':'Total','kpi_owned':'Possédés','kpi_wishlist':'Souhaités',
     'kpi_completeness':'Complétude','kpi_invested':'Investi',
     'kpi_value':'Valeur','kpi_delta':'Plus-value',
     'kpi_neuf':'Neuf/Blister','kpi_occasion':'Occasion',
     // Empty state
-    'empty_state':'Aucun objet trouvé.',
+    'empty_state':t('empty_state'),
     // Detail labels
     'detail_completeness':'Complétude',
     'detail_finance':'VALEUR FINANCIÈRE',
     'detail_buy':'PRIX D\'ACHAT','detail_market':'VALEUR ACTUELLE',
     // Header stat labels  
-    'hdr_invested':'INVESTI','hdr_value':'VALEUR MARCHÉ','hdr_delta':'PLUS-VALUE',
+    'hdr_invested':t('hdr_invested'),'hdr_value':t('hdr_value'),'hdr_delta':t('hdr_delta'),
     // Admin labels
     'admin_name_lbl':'Nom *','admin_folder_lbl':'Dossier',
     'admin_platform_lbl':'Plateforme','admin_region_lbl':'Région',
@@ -2750,6 +2752,8 @@ const T = {
     // Legal
     'legal_title':'CGU & Mentions légales',
     'cgu_footer':'CGU & Mentions légales',
+    'profile_no_value':'Aucun objet avec valeur renseignée.',
+    'profile_rank_next':'objets avant',
   },
   en: {
     // Header
@@ -2875,6 +2879,8 @@ const T = {
     'price_no_value':'items without market value',
     'price_no_value_sub':'Add a current value to track your collection evolution.',
     'btn_see_list':'See list',
+    'no_value_items':'No items with value set.',
+    'btn_back':'← Back',
     'btn_back_stats':'← Back to stats',
     // Stats page
     'stat_title':'📊 STATISTICS',
@@ -2928,6 +2934,8 @@ const T = {
     // Legal
     'legal_title':'Terms & Privacy',
     'cgu_footer':'Terms & Privacy',
+    'profile_no_value':'No items with value set.',
+    'profile_rank_next':'items before',
   }
 };
 
@@ -3335,7 +3343,7 @@ async function checkPublicProfile(){
     html += '<div class="public-pseudo">'+escHtml(profile.pseudo||'Collectionneur')+'</div>';
     html += '<div class="public-rank" style="color:'+rank.color+'">'+rank.icon+' '+rank.name+'</div>';
     // Rank bar
-    html += '<div style="max-width:300px;margin:0 auto 16px"><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+rankPct+'%;background:'+rank.color+';border-radius:3px;transition:width .8s"></div></div><div style="font-size:.65rem;color:var(--text-dim);margin-top:4px">'+(nextRank?nextRank.min-owned.length+' objets avant '+nextRank.name:'✨ Rang maximum !')+'</div></div>';
+    html += '<div style="max-width:300px;margin:0 auto 16px"><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+rankPct+'%;background:'+rank.color+';border-radius:3px;transition:width .8s"></div></div><div style="font-size:.65rem;color:var(--text-dim);margin-top:4px">'+(nextRank?nextRank.min-owned.length+' '+t('rank_next')+' '+nextRank.name:t('rank_max'))+'</div></div>';
     html += '<div class="public-stats-row">';
     html += '<div class="public-stat"><div class="public-stat-val">'+owned.length+'</div><div class="public-stat-label">Possédés</div></div>';
     html += '<div class="public-stat"><div class="public-stat-val">'+wish.length+'</div><div class="public-stat-label">Souhaités</div></div>';
@@ -3546,7 +3554,7 @@ function applyTranslations(){
   // Update header stat labels
   document.querySelectorAll('.stat-label').forEach(el=>{
     const txt = el.textContent.trim();
-    if(txt==='INVESTI'||txt==='INVESTED') el.textContent=t('hdr_invested');
+    if(txt===t('hdr_invested')||txt==='INVESTED') el.textContent=t('hdr_invested');
     else if(txt.includes('MARCH')||txt.includes('VALUE')) el.textContent=t('hdr_value');
     else if(txt.includes('PLUS')||txt.includes('PROFIT')) el.textContent=t('hdr_delta');
   });
@@ -3558,6 +3566,15 @@ function applyTranslations(){
   document.querySelectorAll('a[href="legal.html"]').forEach(el=>{
     el.textContent=t('cgu_footer');
   });
+  // Update Ko-fi support button text
+  document.querySelectorAll('.footer-kofi').forEach(el=>{
+    el.textContent='☕ '+t('kofi_support');
+  });
+  // Update mobile menu
+  const mobileTheme = document.getElementById('mobile-theme-btn');
+  if(mobileTheme) mobileTheme.querySelector('span') && (mobileTheme.textContent='🌌 '+(currentLang==='fr'?'Thème':'Theme'));
+  const mobileLang = document.getElementById('mobile-lang-btn');
+  if(mobileLang) mobileLang.textContent=(currentLang==='fr'?'🇫🇷 Langue':'🇬🇧 Language');
   // Update gallery title
   const galleryTitle = document.querySelector('.gallery-header h3');
   if(galleryTitle) galleryTitle.textContent = t('gallery_title');
@@ -3588,6 +3605,18 @@ function applyTranslations(){
   if(statsScreen && statsScreen.classList.contains('open') && typeof renderStats === 'function') {
     renderStats();
   }
+  // Update header stat labels
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(el.tagName==='INPUT'||el.tagName==='TEXTAREA') el.placeholder=t(key);
+    else el.textContent=t(key);
+  });
+  // Update back buttons
+  document.querySelectorAll('.admin-back, .stats-back').forEach(el=>{
+    if(el.textContent.includes('Retour')||el.textContent.includes('Back')) el.textContent=t('btn_back');
+  });
+  // Re-render collection to update rank text etc
+  if(typeof render === 'function' && typeof items !== 'undefined') render();
   // Apply to key elements directly
   const map = {
     'add-btn': 'btn_add',
