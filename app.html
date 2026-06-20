@@ -1971,14 +1971,14 @@ function openDetail(id){
   let gridHTML='';
 
   // completeness
-  const compItems=[
-    {k:'has_box',l:'Boîte',i:'📦'},{k:'has_manual',l:'Notice',i:'📄'},
-    {k:'has_disc',l:'Disque',i:'💿'},{k:'has_sleeve',l:'Fourreau',i:'🗂'},
-    {k:'has_docs',l:'Documents',i:'📋'},
-  ].filter(c=>c.k in item);
+  const compItems=COMPLETENESS_CONFIG[item.type]||[];
   if(item.condition!=='non_concerne'){
     gridHTML+=`<div class="detail-block full"><div class="dblabel">Complétude</div>
-      <div class="detail-completeness">${compItems.map(c=>`<div class="comp-chip ${item[c.k]?'has':'no'}">${c.i} ${c.l}</div>`).join('')}</div></div>`;
+      <div class="detail-completeness">${compItems.map(c=>{
+        const val=item['comp_'+c.k]||(item[c.k]===true?'present':item[c.k]===false?'absent':'na');
+        if(val==='na') return '';
+        return `<div class="comp-chip ${val}">${c.i} ${c.l}</div>`;
+      }).join('')}</div></div>`;
   }
 
   // prices
