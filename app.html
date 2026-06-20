@@ -2944,9 +2944,8 @@ function t(key){ return (T[currentLang] && T[currentLang][key]) || (T['fr'][key]
 function cycleLang(){
   currentLang = currentLang === 'fr' ? 'en' : 'fr';
   localStorage.setItem('rc_lang', currentLang);
-  document.getElementById('lang-btn').textContent = currentLang === 'fr' ? '🇫🇷' : '🇬🇧';
-  applyTranslations();
-  showToast(currentLang === 'fr' ? 'Français 🇫🇷' : 'English 🇬🇧', 'success');
+  // Reload page to apply all translations
+  location.reload();
 }
 
 
