@@ -3096,127 +3096,259 @@ let currentLang = 'fr';
 const T = {
   fr: {
     // Header
-    'app_title': 'Ratchet & Clank Collection',
-    'btn_add': '+ AJOUTER',
-    'btn_stats': '📊 Stats',
-    'btn_admin': '🛠️ Admin',
+    'app_title':'Ratchet & Clank Collection',
+    'app_subtitle':'TRACKER MADE BY RATCHET LEGACY',
+    'btn_add':'+ AJOUTER',
+    'btn_stats':'📊 Stats',
+    'btn_admin':'🛠️ Admin',
+    'btn_exchanges':'🤝 Échanges',
+    'btn_signout':'Déconnexion',
+    'btn_profile':'Mon profil',
     // Filters
-    'filter_all': 'Tout',
-    'filter_owned': 'Possédés',
-    'filter_wishlist': 'Souhaités',
-    'filter_search': '🔍 Rechercher...',
-    'filter_type': 'Tous types',
-    'filter_sort': 'Récents',
-    'filter_sort_name': 'Nom A→Z',
-    'filter_sort_value': 'Valeur ↓',
-    'filter_sort_rating': 'Note ↓',
+    'filter_all':'Tout','filter_owned':'Possédés','filter_wishlist':'Souhaités',
+    'filter_search':'🔍 Rechercher...','filter_type':'Tous types',
+    'filter_sort_recent':'Récents','filter_sort_name':'Nom A→Z',
+    'filter_sort_value':'Valeur ↓','filter_sort_rating':'Note ↓',
     // Modal
-    'modal_new': 'NOUVEL OBJET',
-    'modal_edit': "MODIFIER L'OBJET",
-    'modal_general': '📋 Informations générales',
-    'modal_name': 'Nom *',
-    'modal_type': 'Type',
-    'modal_edition': 'Édition',
-    'modal_manufacturer': 'Fabricant',
-    'modal_platform': 'Support / Plateforme',
-    'modal_region': 'Région',
-    'modal_lang': 'Langue',
-    'modal_status': 'Statut',
-    'modal_condition': '📦 État & Complétude',
-    'modal_state': 'État',
-    'modal_quality': 'Qualité',
-    'modal_completeness': 'Complétude',
-    'modal_finance': '💰 Valeur financière',
-    'modal_buy_price': "Prix d'achat (€)",
-    'modal_cur_value': 'Valeur actuelle (€)',
-    'modal_extras': '✨ Extras',
-    'modal_rating': 'Note personnelle',
-    'modal_image': 'Image',
-    'modal_notes': 'Notes',
-    'modal_comment': 'Commentaire',
-    'modal_cancel': 'Annuler',
-    'modal_save': 'SAUVEGARDER',
-    // Status
-    'owned': '✅ Possédé',
-    'wishlist': '🎯 Souhaité',
-    'neuf_blister': '🆕 Neuf sous blister',
-    'occasion': '📦 Occasion',
+    'modal_new':'NOUVEL OBJET','modal_edit':"MODIFIER L'OBJET",
+    'section_general':'📋 Informations générales',
+    'lbl_name':'Nom *','lbl_type':'Type','lbl_edition':'Édition',
+    'lbl_manufacturer':'Fabricant','lbl_platform':'Support / Plateforme',
+    'lbl_region':'Région','lbl_lang':'Langue','lbl_status':'Statut',
+    'section_condition':'📦 État & Complétude',
+    'lbl_condition':'État','lbl_quality':'Qualité','lbl_completeness':'Complétude',
+    'section_finance':'💰 Valeur financière',
+    'lbl_buy_price':"Prix d'achat (€)",'lbl_cur_value':'Valeur actuelle (€)',
+    'hint_buy_price':'Ce que tu as payé','hint_cur_value':'Prix du marché',
+    'section_extras':'✨ Extras',
+    'lbl_rating':'Note personnelle','lbl_image':'Image',
+    'lbl_notes':'Notes','lbl_comment':'Commentaire',
+    'lbl_wish_url':"🛒 Lien d'achat (eBay, Vinted...)",
+    'lbl_bonus':'Bonus inclus (optionnel)',
+    'btn_cancel':'Annuler','btn_save':'SAUVEGARDER',
+    'btn_gallery':'🖼️ Galerie','btn_scan':'📷 SCANNER LE CODE-BARRES',
+    'btn_submit_photo':'📸 Soumettre une photo manquante',
+    // Status/Condition
+    'status_owned':'✅ Possédé','status_wishlist':'🎯 Souhaité',
+    'cond_neuf':'🆕 Neuf sous blister','cond_occasion':'📦 Occasion',
+    'grade_excellent':'⭐⭐⭐⭐⭐ Excellent','grade_tres_bon':'⭐⭐⭐⭐ Très bon',
+    'grade_bon':'⭐⭐⭐ Bon','grade_correct':'⭐⭐ Correct','grade_mauvais':'⭐ Mauvais',
+    // Completeness
+    'comp_present':'✅ Présent','comp_absent':'❌ Absent','comp_na':'— N/A',
+    'comp_complete':'✅ Complet','comp_complete_blister':'✅ Complet (blister)',
+    'comp_missing':'❌ Manque : ','comp_not_set':'Non renseignée — cliquez sur Modifier',
     // Progress
-    'rank_next': 'objets avant',
-    'rank_max': '✨ Rang maximum !',
-    'collection_rc': 'Collection R&C',
-    'objects_known': 'objets connus',
-    // Empty state
-    'empty_collection': 'Aucun objet dans ta collection',
-    'empty_add': 'Clique sur + AJOUTER pour commencer !',
-    'empty_wishlist': 'Ta liste de souhaits est vide',
-    // Toast
-    'saved': 'Objet sauvegardé !',
-    'updated': 'Objet mis à jour !',
-    'deleted': 'Objet supprimé.',
-    'copied': 'Lien copié !',
+    'rank_progression':'PROGRESSION VERS LE PROCHAIN RANG',
+    'collection_rc':'Collection R&C','objects_known':'objets connus',
+    'rank_next':'objets avant','rank_max':'✨ Rang maximum !',
+    'items_owned':'possédés','items_wishlist':'souhaités','items_total':'total',
+    // Stats cards
+    'stat_invested':'INVESTI','stat_value':'VALEUR MARCHÉ','stat_delta':'PLUS-VALUE',
+    // Detail view
+    'lbl_completeness_detail':'Complétude','lbl_finance':'VALEUR FINANCIÈRE',
+    'lbl_buy':"PRIX D'ACHAT",'lbl_market':'VALEUR ACTUELLE',
+    'lbl_notes_detail':'Notes','lbl_rating_detail':'Note',
+    'btn_modify':'✏️ Modifier','btn_mark_owned':'✅ Marquer possédé',
+    'btn_exchange':'🤝 Proposer en échange','btn_remove_exchange':'🗑️ Retirer échange',
+    'btn_delete':'🗑️ Supprimer','btn_see_listing':'🛒 Voir annonce',
+    'btn_duplicate':'📋 Dupliquer',
+    // Empty states
+    'empty_collection':'Aucun objet dans ta collection',
+    'empty_add':'Clique sur + AJOUTER pour commencer !',
+    'empty_wishlist':'Ta liste de souhaits est vide',
+    'empty_search':'Aucun résultat pour cette recherche',
+    // Gallery
+    'gallery_title':"🖼️ Banque d'images",
+    'gallery_search':'🔍 Rechercher...','gallery_loading':'⚙️ Chargement...',
+    'gallery_empty':'Aucune image disponible','gallery_select':'Aucune image sélectionnée',
+    'btn_choose':'CHOISIR',
+    // Auth
+    'auth_login':'Connexion','auth_register':'Créer un compte',
+    'auth_email':'email@exemple.com','auth_password':'Mot de passe',
+    'auth_confirm_password':'Confirmer le mot de passe',
+    'btn_login':'SE CONNECTER','btn_register':'CRÉER UN COMPTE',
+    // Profile
+    'profile_pseudo':'✏️ Pseudo','profile_public':'🌐 Profil public',
+    'profile_public_desc':'Partage ta collection. Les prix ne sont jamais visibles.',
+    'profile_link':'🔗 Ton lien public :','btn_copy':'📋 Copier',
+    'profile_toggle':'Rendre mon profil public',
+    // Admin
+    'admin_title':'🛠️ PANNEAU ADMIN',
+    'admin_rc_total':'🎮 Total objets R&C connus',
+    'admin_images':'🖼️ Ajouter une image à la banque',
+    'admin_bank':'📚 Images dans la banque',
+    'admin_import':'☕ IMPORTER DEPUIS CLOUDINARY',
+    'admin_submissions':'📸 Photos soumises',
+    // Marketplace
+    'market_title':'MARKETPLACE ÉCHANGES',
+    'market_filter_all':'Tous types',
+    'market_exchange':'🔄 Échanges','market_sale':'💰 Ventes','market_gift':'🎁 Dons',
+    'market_empty':'Aucune proposition pour le moment.',
+    'market_contact':'📩 CONTACTER','market_remove':'🗑️ RETIRER MON ANNONCE',
+    'market_no_contact':'Pas de contact renseigné',
+    // Exchange modal
+    'exchange_title':'🤝 Proposer cet objet',
+    'exchange_consent':"⚠️ En proposant cet objet, vous acceptez de rendre visible votre pseudo et vos coordonnées de contact aux autres utilisateurs.",
+    'exchange_type':'Type de proposition *',
+    'exchange_looking':'Ce que vous recherchez / Prix demandé',
+    'exchange_link':'Lien de vente (optionnel)',
+    'exchange_contact':'Contact *',
+    'exchange_consent_check':"J'accepte que mon pseudo et contact soient visibles publiquement",
+    'exchange_reminder':'⚠️ Pensez à retirer votre annonce une fois vendu ou échangé !',
+    'btn_propose':'✅ PROPOSER',
+    // Toast messages
+    'toast_saved':'Objet ajouté !','toast_updated':'Objet mis à jour !',
+    'toast_deleted':'Objet supprimé.','toast_copied':'Lien copié !',
+    'toast_exchange_published':'Proposition publiée !',
+    'toast_exchange_removed':'Annonce retirée !',
+    'toast_image_added':'Image ajoutée !','toast_image_deleted':'Image supprimée.',
+    'toast_pseudo_saved':'Pseudo sauvegardé !',
+    'toast_import_success':'images importées !',
+    // Scanner
+    'scan_title':'📷 Scanner le code-barres',
+    'scan_hint':'Pointez la caméra vers le code-barres',
+    'scan_detected':'✅ Code détecté !',
+    'scan_searching':'🔍 Recherche en cours...',
+    'scan_not_found':'Non trouvé. Remplissez manuellement.',
+    'scan_not_supported':'Scan non supporté sur ce navigateur.',
+    // Ko-fi
+    'kofi_support':'SOUTENIR LE PROJET',
+    'kofi_desc':'Ce tracker est gratuit — un café aide à le maintenir !',
+    'footer_legal':'CGU & Mentions légales',
+    'footer_made':'Made with ❤️ by Ratchet Legacy',
+    // Notifications
+    'price_outdated_title':'objets à mettre à jour',
+    'price_outdated_sub':'Valeur marché non mise à jour depuis plus de 30 jours.',
+    'price_no_value':'objets sans valeur marché',
+    'price_no_value_sub':'Ajoute une valeur actuelle pour suivre ta collection.',
+    'btn_see_list':'Voir la liste',
+    'btn_back_stats':'← Retour aux stats',
   },
   en: {
     // Header
-    'app_title': 'Ratchet & Clank Collection',
-    'btn_add': '+ ADD',
-    'btn_stats': '📊 Stats',
-    'btn_admin': '🛠️ Admin',
+    'app_title':'Ratchet & Clank Collection',
+    'app_subtitle':'TRACKER MADE BY RATCHET LEGACY',
+    'btn_add':'+ ADD','btn_stats':'📊 Stats','btn_admin':'🛠️ Admin',
+    'btn_exchanges':'🤝 Trades','btn_signout':'Sign out','btn_profile':'My profile',
     // Filters
-    'filter_all': 'All',
-    'filter_owned': 'Owned',
-    'filter_wishlist': 'Wishlist',
-    'filter_search': '🔍 Search...',
-    'filter_type': 'All types',
-    'filter_sort': 'Recent',
-    'filter_sort_name': 'Name A→Z',
-    'filter_sort_value': 'Value ↓',
-    'filter_sort_rating': 'Rating ↓',
+    'filter_all':'All','filter_owned':'Owned','filter_wishlist':'Wishlist',
+    'filter_search':'🔍 Search...','filter_type':'All types',
+    'filter_sort_recent':'Recent','filter_sort_name':'Name A→Z',
+    'filter_sort_value':'Value ↓','filter_sort_rating':'Rating ↓',
     // Modal
-    'modal_new': 'NEW ITEM',
-    'modal_edit': 'EDIT ITEM',
-    'modal_general': '📋 General information',
-    'modal_name': 'Name *',
-    'modal_type': 'Type',
-    'modal_edition': 'Edition',
-    'modal_manufacturer': 'Manufacturer',
-    'modal_platform': 'Platform / Support',
-    'modal_region': 'Region',
-    'modal_lang': 'Language',
-    'modal_status': 'Status',
-    'modal_condition': '📦 Condition & Completeness',
-    'modal_state': 'Condition',
-    'modal_quality': 'Quality',
-    'modal_completeness': 'Completeness',
-    'modal_finance': '💰 Financial value',
-    'modal_buy_price': 'Purchase price (€)',
-    'modal_cur_value': 'Current value (€)',
-    'modal_extras': '✨ Extras',
-    'modal_rating': 'Personal rating',
-    'modal_image': 'Image',
-    'modal_notes': 'Notes',
-    'modal_comment': 'Comment',
-    'modal_cancel': 'Cancel',
-    'modal_save': 'SAVE',
-    // Status
-    'owned': '✅ Owned',
-    'wishlist': '🎯 Wishlist',
-    'neuf_blister': '🆕 Brand new',
-    'occasion': '📦 Second hand',
+    'modal_new':'NEW ITEM','modal_edit':'EDIT ITEM',
+    'section_general':'📋 General information',
+    'lbl_name':'Name *','lbl_type':'Type','lbl_edition':'Edition',
+    'lbl_manufacturer':'Manufacturer','lbl_platform':'Platform / Support',
+    'lbl_region':'Region','lbl_lang':'Language','lbl_status':'Status',
+    'section_condition':'📦 Condition & Completeness',
+    'lbl_condition':'Condition','lbl_quality':'Quality','lbl_completeness':'Completeness',
+    'section_finance':'💰 Financial value',
+    'lbl_buy_price':'Purchase price (€)','lbl_cur_value':'Current value (€)',
+    'hint_buy_price':'What you paid','hint_cur_value':'Market price',
+    'section_extras':'✨ Extras',
+    'lbl_rating':'Personal rating','lbl_image':'Image',
+    'lbl_notes':'Notes','lbl_comment':'Comment',
+    'lbl_wish_url':'🛒 Buy link (eBay, Vinted...)',
+    'lbl_bonus':'Bonus included (optional)',
+    'btn_cancel':'Cancel','btn_save':'SAVE',
+    'btn_gallery':'🖼️ Gallery','btn_scan':'📷 SCAN BARCODE',
+    'btn_submit_photo':'📸 Submit missing photo',
+    // Status/Condition
+    'status_owned':'✅ Owned','status_wishlist':'🎯 Wishlist',
+    'cond_neuf':'🆕 Brand new (sealed)','cond_occasion':'📦 Second hand',
+    'grade_excellent':'⭐⭐⭐⭐⭐ Excellent','grade_tres_bon':'⭐⭐⭐⭐ Very good',
+    'grade_bon':'⭐⭐⭐ Good','grade_correct':'⭐⭐ Fair','grade_mauvais':'⭐ Poor',
+    // Completeness
+    'comp_present':'✅ Present','comp_absent':'❌ Missing','comp_na':'— N/A',
+    'comp_complete':'✅ Complete','comp_complete_blister':'✅ Complete (sealed)',
+    'comp_missing':'❌ Missing: ','comp_not_set':'Not filled — click Edit',
     // Progress
-    'rank_next': 'items before',
-    'rank_max': '✨ Maximum rank!',
-    'collection_rc': 'R&C Collection',
-    'objects_known': 'known items',
-    // Empty state
-    'empty_collection': 'No items in your collection',
-    'empty_add': 'Click + ADD to get started!',
-    'empty_wishlist': 'Your wishlist is empty',
-    // Toast
-    'saved': 'Item saved!',
-    'updated': 'Item updated!',
-    'deleted': 'Item deleted.',
-    'copied': 'Link copied!',
+    'rank_progression':'PROGRESSION TO NEXT RANK',
+    'collection_rc':'R&C Collection','objects_known':'known items',
+    'rank_next':'items before','rank_max':'✨ Maximum rank!',
+    'items_owned':'owned','items_wishlist':'wishlist','items_total':'total',
+    // Stats cards
+    'stat_invested':'INVESTED','stat_value':'MARKET VALUE','stat_delta':'PROFIT/LOSS',
+    // Detail view
+    'lbl_completeness_detail':'Completeness','lbl_finance':'FINANCIAL VALUE',
+    'lbl_buy':'PURCHASE PRICE','lbl_market':'CURRENT VALUE',
+    'lbl_notes_detail':'Notes','lbl_rating_detail':'Rating',
+    'btn_modify':'✏️ Edit','btn_mark_owned':'✅ Mark as owned',
+    'btn_exchange':'🤝 Propose for trade','btn_remove_exchange':'🗑️ Remove from trades',
+    'btn_delete':'🗑️ Delete','btn_see_listing':'🛒 See listing',
+    'btn_duplicate':'📋 Duplicate',
+    // Empty states
+    'empty_collection':'No items in your collection',
+    'empty_add':'Click + ADD to get started!',
+    'empty_wishlist':'Your wishlist is empty',
+    'empty_search':'No results for this search',
+    // Gallery
+    'gallery_title':'🖼️ Image bank',
+    'gallery_search':'🔍 Search...','gallery_loading':'⚙️ Loading...',
+    'gallery_empty':'No images available','gallery_select':'No image selected',
+    'btn_choose':'CHOOSE',
+    // Auth
+    'auth_login':'Sign in','auth_register':'Create account',
+    'auth_email':'email@example.com','auth_password':'Password',
+    'auth_confirm_password':'Confirm password',
+    'btn_login':'SIGN IN','btn_register':'CREATE ACCOUNT',
+    // Profile
+    'profile_pseudo':'✏️ Username','profile_public':'🌐 Public profile',
+    'profile_public_desc':'Share your collection. Prices are never visible.',
+    'profile_link':'🔗 Your public link:','btn_copy':'📋 Copy',
+    'profile_toggle':'Make my profile public',
+    // Admin
+    'admin_title':'🛠️ ADMIN PANEL',
+    'admin_rc_total':'🎮 Total known R&C items',
+    'admin_images':'🖼️ Add image to bank',
+    'admin_bank':'📚 Images in bank',
+    'admin_import':'☕ IMPORT FROM CLOUDINARY',
+    'admin_submissions':'📸 Submitted photos',
+    // Marketplace
+    'market_title':'TRADE MARKETPLACE',
+    'market_filter_all':'All types',
+    'market_exchange':'🔄 Trades','market_sale':'💰 Sales','market_gift':'🎁 Gifts',
+    'market_empty':'No listings yet.',
+    'market_contact':'📩 CONTACT','market_remove':'🗑️ REMOVE MY LISTING',
+    'market_no_contact':'No contact provided',
+    // Exchange modal
+    'exchange_title':'🤝 List this item',
+    'exchange_consent':'⚠️ By listing this item, you agree to make your username and contact visible to other users.',
+    'exchange_type':'Listing type *',
+    'exchange_looking':'What you want in return / Asking price',
+    'exchange_link':'Sale link (optional)',
+    'exchange_contact':'Contact *',
+    'exchange_consent_check':'I agree that my username and contact will be publicly visible',
+    'exchange_reminder':'⚠️ Remember to remove your listing once the item is sold or traded!',
+    'btn_propose':'✅ LIST ITEM',
+    // Toast messages
+    'toast_saved':'Item added!','toast_updated':'Item updated!',
+    'toast_deleted':'Item deleted.','toast_copied':'Link copied!',
+    'toast_exchange_published':'Listing published!',
+    'toast_exchange_removed':'Listing removed!',
+    'toast_image_added':'Image added!','toast_image_deleted':'Image deleted.',
+    'toast_pseudo_saved':'Username saved!',
+    'toast_import_success':'images imported!',
+    // Scanner
+    'scan_title':'📷 Scan barcode',
+    'scan_hint':'Point the camera at the barcode',
+    'scan_detected':'✅ Code detected!',
+    'scan_searching':'🔍 Searching...',
+    'scan_not_found':'Not found. Please fill in manually.',
+    'scan_not_supported':'Scanning not supported on this browser.',
+    // Ko-fi
+    'kofi_support':'SUPPORT THE PROJECT',
+    'kofi_desc':'This tracker is free — a coffee helps maintain it!',
+    'footer_legal':'Terms & Privacy',
+    'footer_made':'Made with ❤️ by Ratchet Legacy',
+    // Notifications
+    'price_outdated_title':'items need updating',
+    'price_outdated_sub':'The market value of these items has not been updated in over 30 days.',
+    'price_no_value':'items without market value',
+    'price_no_value_sub':'Add a current value to track your collection evolution.',
+    'btn_see_list':'See list',
+    'btn_back_stats':'← Back to stats',
   }
 };
 
@@ -3256,8 +3388,31 @@ function applyTranslations(){
       el.textContent = t(key);
     }
   });
-  // Re-render to apply translations
-  render();
+  // Apply to key elements directly
+  const map = {
+    'add-btn': 'btn_add',
+    'header-pseudo': null, // don't translate pseudo
+  };
+  // Update add button
+  const addBtn = document.querySelector('button[onclick="openModal()"]');
+  if(addBtn) addBtn.textContent = t('btn_add');
+  // Update filter buttons
+  const filterBtns = document.querySelectorAll('.filter-btn[data-status="all"]');
+  filterBtns.forEach(b => b.textContent = t('filter_all'));
+  const filterOwned = document.querySelectorAll('.filter-btn[data-status="owned"]');
+  filterOwned.forEach(b => b.textContent = t('filter_owned'));
+  const filterWish = document.querySelectorAll('.filter-btn[data-status="wishlist"]');
+  filterWish.forEach(b => b.textContent = t('filter_wishlist'));
+  // Update search placeholder
+  const searchInput = document.getElementById('search-input');
+  if(searchInput) searchInput.placeholder = t('filter_search');
+  // Update modal labels
+  const modalTitle = document.getElementById('modal-title');
+  // Update footer
+  const kofiDesc = document.querySelector('.kofi-desc');
+  if(kofiDesc) kofiDesc.textContent = t('kofi_desc');
+  // Re-render collection
+  if(typeof render === 'function') render();
 }
 
 // ══ BARCODE SCANNER ══
