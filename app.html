@@ -3202,12 +3202,14 @@ function loadLang(){
     currentLang = saved;
   } else {
     // Auto-detect browser/phone language
-    const browserLang = navigator.language || navigator.userLanguage || 'fr';
-    currentLang = browserLang.toLowerCase().startsWith('fr') ? 'fr' : 'en';
+    const browserLang = (navigator.language || navigator.userLanguage || 'fr').toLowerCase();
+    // Only French phones get French, everything else gets English
+    currentLang = browserLang.startsWith('fr') ? 'fr' : 'en';
   }
   const btn = document.getElementById('lang-btn');
   if(btn) btn.textContent = currentLang === 'fr' ? '🇫🇷' : '🇬🇧';
-  applyTranslations();
+  // Apply translations with slight delay to ensure DOM is ready
+  setTimeout(applyTranslations, 100);
 }
 
 function applyTranslations(){
