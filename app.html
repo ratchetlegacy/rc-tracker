@@ -2568,6 +2568,380 @@ async function importFromCloudinary(){
   }
 }
 
+const T = {
+  fr: {
+    // Header
+    'app_title':'Ratchet & Clank Collection',
+    'app_subtitle':'TRACKER MADE BY RATCHET LEGACY',
+    'btn_add':'+ AJOUTER',
+    'btn_stats':'📊 Stats',
+    'btn_admin':'🛠️ Admin',
+    'btn_exchanges':'🤝 Échanges',
+    'btn_signout':'Déconnexion',
+    'btn_profile':'Mon profil',
+    // Filters
+    'filter_all':'Tout','filter_owned':'Possédés','filter_wishlist':'Souhaités',
+    'filter_search':'🔍 Rechercher...','filter_type':'Tous types',
+    'filter_sort_recent':'Récents','filter_sort_name':'Nom A→Z',
+    'filter_sort_value':'Valeur ↓','filter_sort_rating':'Note ↓',
+    // Modal
+    'modal_new':'NOUVEL OBJET','modal_edit':"MODIFIER L'OBJET",
+    'section_general':'📋 Informations générales',
+    'lbl_name':'Nom *','lbl_type':'Type','lbl_edition':'Édition',
+    'lbl_manufacturer':'Fabricant','lbl_platform':'Support / Plateforme',
+    'lbl_region':'Région','lbl_lang':'Langue','lbl_status':'Statut',
+    'section_condition':'📦 État & Complétude',
+    'lbl_condition':'État','lbl_quality':'Qualité','lbl_completeness':'Complétude',
+    'section_finance':'💰 Valeur financière',
+    'lbl_buy_price':"Prix d'achat (€)",'lbl_cur_value':'Valeur actuelle (€)',
+    'hint_buy_price':'Ce que tu as payé','hint_cur_value':'Prix du marché',
+    'section_extras':'✨ Extras',
+    'lbl_rating':'Note personnelle','lbl_image':'Image',
+    'lbl_notes':'Notes','lbl_comment':'Commentaire',
+    'lbl_wish_url':"🛒 Lien d'achat (eBay, Vinted...)",
+    'lbl_bonus':'Bonus inclus (optionnel)',
+    'btn_cancel':'Annuler','btn_save':'SAUVEGARDER',
+    'btn_gallery':'🖼️ Galerie','btn_scan':'📷 SCANNER LE CODE-BARRES',
+    'btn_submit_photo':'📸 Soumettre une photo manquante',
+    // Status/Condition
+    'status_owned':'✅ Possédé','status_wishlist':'🎯 Souhaité',
+    'cond_neuf':'🆕 Neuf sous blister','cond_occasion':'📦 Occasion',
+    'grade_excellent':'⭐⭐⭐⭐⭐ Excellent','grade_tres_bon':'⭐⭐⭐⭐ Très bon',
+    'grade_bon':'⭐⭐⭐ Bon','grade_correct':'⭐⭐ Correct','grade_mauvais':'⭐ Mauvais',
+    // Completeness
+    'comp_present':'✅ Présent','comp_absent':'❌ Absent','comp_na':'— N/A',
+    'comp_complete':'✅ Complet','comp_complete_blister':'✅ Complet (blister)',
+    'comp_missing':'❌ Manque : ','comp_not_set':'Non renseignée — cliquez sur Modifier',
+    // Progress
+    'rank_progression':'PROGRESSION VERS LE PROCHAIN RANG',
+    'collection_rc':'Collection R&C','objects_known':'objets connus',
+    'rank_next':'objets avant','rank_max':'✨ Rang maximum !',
+    'items_owned':'possédés','items_wishlist':'souhaités','items_total':'total',
+    // Stats cards
+    'stat_invested':'INVESTI','stat_value':'VALEUR MARCHÉ','stat_delta':'PLUS-VALUE',
+    // Detail view
+    'lbl_completeness_detail':'Complétude','lbl_finance':'VALEUR FINANCIÈRE',
+    'lbl_buy':"PRIX D'ACHAT",'lbl_market':'VALEUR ACTUELLE',
+    'lbl_notes_detail':'Notes','lbl_rating_detail':'Note',
+    'btn_modify':'✏️ Modifier','btn_mark_owned':'✅ Marquer possédé',
+    'btn_exchange':'🤝 Proposer en échange','btn_remove_exchange':'🗑️ Retirer échange',
+    'btn_delete':'🗑️ Supprimer','btn_see_listing':'🛒 Voir annonce',
+    'btn_duplicate':'📋 Dupliquer',
+    // Empty states
+    'empty_collection':'Aucun objet dans ta collection',
+    'empty_add':'Clique sur + AJOUTER pour commencer !',
+    'empty_wishlist':'Ta liste de souhaits est vide',
+    'empty_search':'Aucun résultat pour cette recherche',
+    // Gallery
+    'gallery_title':"🖼️ Banque d'images",
+    'gallery_search':'🔍 Rechercher...','gallery_loading':'⚙️ Chargement...',
+    'gallery_empty':'Aucune image disponible','gallery_select':'Aucune image sélectionnée',
+    'btn_choose':'CHOISIR',
+    // Auth
+    'auth_login':'Connexion','auth_register':'Créer un compte',
+    'auth_email':'email@exemple.com','auth_password':'Mot de passe',
+    'auth_confirm_password':'Confirmer le mot de passe',
+    'btn_login':'SE CONNECTER','btn_register':'CRÉER UN COMPTE',
+    // Profile
+    'profile_pseudo':'✏️ Pseudo','profile_public':'🌐 Profil public',
+    'profile_public_desc':'Partage ta collection. Les prix ne sont jamais visibles.',
+    'profile_link':'🔗 Ton lien public :','btn_copy':'📋 Copier',
+    'profile_toggle':'Rendre mon profil public',
+    // Admin
+    'admin_title':'🛠️ PANNEAU ADMIN',
+    'admin_rc_total':'🎮 Total objets R&C connus',
+    'admin_images':'🖼️ Ajouter une image à la banque',
+    'admin_bank':'📚 Images dans la banque',
+    'admin_import':'☕ IMPORTER DEPUIS CLOUDINARY',
+    'admin_submissions':'📸 Photos soumises',
+    // Marketplace
+    'market_title':'MARKETPLACE ÉCHANGES',
+    'market_filter_all':'Tous types',
+    'market_exchange':'🔄 Échanges','market_sale':'💰 Ventes','market_gift':'🎁 Dons',
+    'market_empty':'Aucune proposition pour le moment.',
+    'market_contact':'📩 CONTACTER','market_remove':'🗑️ RETIRER MON ANNONCE',
+    'market_no_contact':'Pas de contact renseigné',
+    // Exchange modal
+    'exchange_title':'🤝 Proposer cet objet',
+    'exchange_consent':"⚠️ En proposant cet objet, vous acceptez de rendre visible votre pseudo et vos coordonnées de contact aux autres utilisateurs.",
+    'exchange_type':'Type de proposition *',
+    'exchange_looking':'Ce que vous recherchez / Prix demandé',
+    'exchange_link':'Lien de vente (optionnel)',
+    'exchange_contact':'Contact *',
+    'exchange_consent_check':"J'accepte que mon pseudo et contact soient visibles publiquement",
+    'exchange_reminder':'⚠️ Pensez à retirer votre annonce une fois vendu ou échangé !',
+    'btn_propose':'✅ PROPOSER',
+    // Toast messages
+    'toast_saved':'Objet ajouté !','toast_updated':'Objet mis à jour !',
+    'toast_deleted':'Objet supprimé.','toast_copied':'Lien copié !',
+    'toast_exchange_published':'Proposition publiée !',
+    'toast_exchange_removed':'Annonce retirée !',
+    'toast_image_added':'Image ajoutée !','toast_image_deleted':'Image supprimée.',
+    'toast_pseudo_saved':'Pseudo sauvegardé !',
+    'toast_import_success':'images importées !',
+    // Scanner
+    'scan_title':'📷 Scanner le code-barres',
+    'scan_hint':'Pointez la caméra vers le code-barres',
+    'scan_detected':'✅ Code détecté !',
+    'scan_searching':'🔍 Recherche en cours...',
+    'scan_not_found':'Non trouvé. Remplissez manuellement.',
+    'scan_not_supported':'Scan non supporté sur ce navigateur.',
+    // Ko-fi
+    'kofi_support':'SOUTENIR LE PROJET',
+    'kofi_desc':'Ce tracker est gratuit — un café aide à le maintenir !',
+    'footer_legal':'CGU & Mentions légales',
+    'footer_made':'Made with ❤️ by Ratchet Legacy',
+    // Notifications
+    'price_outdated_title':'objets à mettre à jour',
+    'price_outdated_sub':'Valeur marché non mise à jour depuis plus de 30 jours.',
+    'price_no_value':'objets sans valeur marché',
+    'price_no_value_sub':'Ajoute une valeur actuelle pour suivre ta collection.',
+    'btn_see_list':'Voir la liste',
+    'btn_back_stats':'← Retour aux stats',
+    // Stats page
+    'stat_title':'📊 STATISTIQUES',
+    'stat_by_type':t('stat_by_type'),
+    'stat_owned_by_type':t('stat_owned_by_type'),
+    'stat_value_by_type':t('stat_value_by_type'),
+    'stat_condition':t('stat_condition'),
+    'stat_top10':'💎 Top objets les plus précieux',
+    'stat_by_region':t('stat_by_region'),
+    'stat_ratings':t('stat_ratings'),
+    'stat_completeness':t('stat_completeness'),
+    'stat_complete':'Complets','stat_incomplete':'Incomplets','stat_rate':'Taux',
+    'stat_missing_items':t('stat_missing_items'),
+    'stat_no_comp':t('stat_no_comp'),
+    // KPI labels
+    'kpi_total':'Total','kpi_owned':'Possédés','kpi_wishlist':'Souhaités',
+    'kpi_completeness':'Complétude','kpi_invested':'Investi',
+    'kpi_value':'Valeur','kpi_delta':'Plus-value',
+    'kpi_neuf':'Neuf/Blister','kpi_occasion':'Occasion',
+    // Empty state
+    'empty_state':'Aucun objet trouvé.',
+    // Detail labels
+    'detail_completeness':'Complétude',
+    'detail_finance':'VALEUR FINANCIÈRE',
+    'detail_buy':'PRIX D\'ACHAT','detail_market':'VALEUR ACTUELLE',
+    // Header stat labels  
+    'hdr_invested':'INVESTI','hdr_value':'VALEUR MARCHÉ','hdr_delta':'PLUS-VALUE',
+    // Admin labels
+    'admin_name_lbl':'Nom *','admin_folder_lbl':'Dossier',
+    'admin_platform_lbl':'Plateforme','admin_region_lbl':'Région',
+    'admin_edition_lbl':'Édition','admin_url_lbl':'URL de l\'image (Cloudinary) *',
+    'admin_search':'🔍 Rechercher...','admin_loading':'Chargement...',
+    'admin_no_sub':'Aucune soumission en attente.',
+    'admin_approve':'✅ Approuver','admin_reject':'❌ Refuser',
+    'admin_save_total':'💾 SAUVEGARDER',
+    'admin_add_btn':'+ AJOUTER À LA BANQUE',
+    // Profile screen
+    'profile_rank':'🏆 Rang','profile_stats':'📊 Statistiques',
+    'profile_top5':'💎 Top 5 objets les plus précieux',
+    'profile_by_type':'📦 Collection par type',
+    'profile_avatar_title':'🎭 Avatar','profile_pseudo_title':'✏️ Pseudo',
+    'profile_save_pseudo':'SAUVEGARDER',
+    // Submit photo
+    'submit_title':'📸 Soumettre une photo',
+    'submit_item_name':'Nom de l\'objet concerné',
+    'submit_type':'Type / Catégorie',
+    'submit_url':'URL de l\'image à soumettre',
+    'submit_comment':'Commentaire (optionnel)',
+    'submit_btn':'📸 SOUMETTRE',
+    'submit_hint':'L\'image doit être accessible publiquement',
+    // Legal
+    'legal_title':'CGU & Mentions légales',
+    'cgu_footer':'CGU & Mentions légales',
+  },
+  en: {
+    // Header
+    'app_title':'Ratchet & Clank Collection',
+    'app_subtitle':'TRACKER MADE BY RATCHET LEGACY',
+    'btn_add':'+ ADD','btn_stats':'📊 Stats','btn_admin':'🛠️ Admin',
+    'btn_exchanges':'🤝 Trades','btn_signout':'Sign out','btn_profile':'My profile',
+    // Filters
+    'filter_all':'All','filter_owned':'Owned','filter_wishlist':'Wishlist',
+    'filter_search':'🔍 Search...','filter_type':'All types',
+    'filter_sort_recent':'Recent','filter_sort_name':'Name A→Z',
+    'filter_sort_value':'Value ↓','filter_sort_rating':'Rating ↓',
+    // Modal
+    'modal_new':'NEW ITEM','modal_edit':'EDIT ITEM',
+    'section_general':'📋 General information',
+    'lbl_name':'Name *','lbl_type':'Type','lbl_edition':'Edition',
+    'lbl_manufacturer':'Manufacturer','lbl_platform':'Platform / Support',
+    'lbl_region':'Region','lbl_lang':'Language','lbl_status':'Status',
+    'section_condition':'📦 Condition & Completeness',
+    'lbl_condition':'Condition','lbl_quality':'Quality','lbl_completeness':'Completeness',
+    'section_finance':'💰 Financial value',
+    'lbl_buy_price':'Purchase price (€)','lbl_cur_value':'Current value (€)',
+    'hint_buy_price':'What you paid','hint_cur_value':'Market price',
+    'section_extras':'✨ Extras',
+    'lbl_rating':'Personal rating','lbl_image':'Image',
+    'lbl_notes':'Notes','lbl_comment':'Comment',
+    'lbl_wish_url':'🛒 Buy link (eBay, Vinted...)',
+    'lbl_bonus':'Bonus included (optional)',
+    'btn_cancel':'Cancel','btn_save':'SAVE',
+    'btn_gallery':'🖼️ Gallery','btn_scan':'📷 SCAN BARCODE',
+    'btn_submit_photo':'📸 Submit missing photo',
+    // Status/Condition
+    'status_owned':'✅ Owned','status_wishlist':'🎯 Wishlist',
+    'cond_neuf':'🆕 Brand new (sealed)','cond_occasion':'📦 Second hand',
+    'grade_excellent':'⭐⭐⭐⭐⭐ Excellent','grade_tres_bon':'⭐⭐⭐⭐ Very good',
+    'grade_bon':'⭐⭐⭐ Good','grade_correct':'⭐⭐ Fair','grade_mauvais':'⭐ Poor',
+    // Completeness
+    'comp_present':'✅ Present','comp_absent':'❌ Missing','comp_na':'— N/A',
+    'comp_complete':'✅ Complete','comp_complete_blister':'✅ Complete (sealed)',
+    'comp_missing':'❌ Missing: ','comp_not_set':'Not filled — click Edit',
+    // Progress
+    'rank_progression':'PROGRESSION TO NEXT RANK',
+    'collection_rc':'R&C Collection','objects_known':'known items',
+    'rank_next':'items before','rank_max':'✨ Maximum rank!',
+    'items_owned':'owned','items_wishlist':'wishlist','items_total':'total',
+    // Stats cards
+    'stat_invested':'INVESTED','stat_value':'MARKET VALUE','stat_delta':'PROFIT/LOSS',
+    // Detail view
+    'lbl_completeness_detail':'Completeness','lbl_finance':'FINANCIAL VALUE',
+    'lbl_buy':'PURCHASE PRICE','lbl_market':'CURRENT VALUE',
+    'lbl_notes_detail':'Notes','lbl_rating_detail':'Rating',
+    'btn_modify':'✏️ Edit','btn_mark_owned':'✅ Mark as owned',
+    'btn_exchange':'🤝 Propose for trade','btn_remove_exchange':'🗑️ Remove from trades',
+    'btn_delete':'🗑️ Delete','btn_see_listing':'🛒 See listing',
+    'btn_duplicate':'📋 Duplicate',
+    // Empty states
+    'empty_collection':'No items in your collection',
+    'empty_add':'Click + ADD to get started!',
+    'empty_wishlist':'Your wishlist is empty',
+    'empty_search':'No results for this search',
+    // Gallery
+    'gallery_title':'🖼️ Image bank',
+    'gallery_search':'🔍 Search...','gallery_loading':'⚙️ Loading...',
+    'gallery_empty':'No images available','gallery_select':'No image selected',
+    'btn_choose':'CHOOSE',
+    // Auth
+    'auth_login':'Sign in','auth_register':'Create account',
+    'auth_email':'email@example.com','auth_password':'Password',
+    'auth_confirm_password':'Confirm password',
+    'btn_login':'SIGN IN','btn_register':'CREATE ACCOUNT',
+    // Profile
+    'profile_pseudo':'✏️ Username','profile_public':'🌐 Public profile',
+    'profile_public_desc':'Share your collection. Prices are never visible.',
+    'profile_link':'🔗 Your public link:','btn_copy':'📋 Copy',
+    'profile_toggle':'Make my profile public',
+    // Admin
+    'admin_title':'🛠️ ADMIN PANEL',
+    'admin_rc_total':'🎮 Total known R&C items',
+    'admin_images':'🖼️ Add image to bank',
+    'admin_bank':'📚 Images in bank',
+    'admin_import':'☕ IMPORT FROM CLOUDINARY',
+    'admin_submissions':'📸 Submitted photos',
+    // Marketplace
+    'market_title':'TRADE MARKETPLACE',
+    'market_filter_all':'All types',
+    'market_exchange':'🔄 Trades','market_sale':'💰 Sales','market_gift':'🎁 Gifts',
+    'market_empty':'No listings yet.',
+    'market_contact':'📩 CONTACT','market_remove':'🗑️ REMOVE MY LISTING',
+    'market_no_contact':'No contact provided',
+    // Exchange modal
+    'exchange_title':'🤝 List this item',
+    'exchange_consent':'⚠️ By listing this item, you agree to make your username and contact visible to other users.',
+    'exchange_type':'Listing type *',
+    'exchange_looking':'What you want in return / Asking price',
+    'exchange_link':'Sale link (optional)',
+    'exchange_contact':'Contact *',
+    'exchange_consent_check':'I agree that my username and contact will be publicly visible',
+    'exchange_reminder':'⚠️ Remember to remove your listing once the item is sold or traded!',
+    'btn_propose':'✅ LIST ITEM',
+    // Toast messages
+    'toast_saved':'Item added!','toast_updated':'Item updated!',
+    'toast_deleted':'Item deleted.','toast_copied':'Link copied!',
+    'toast_exchange_published':'Listing published!',
+    'toast_exchange_removed':'Listing removed!',
+    'toast_image_added':'Image added!','toast_image_deleted':'Image deleted.',
+    'toast_pseudo_saved':'Username saved!',
+    'toast_import_success':'images imported!',
+    // Scanner
+    'scan_title':'📷 Scan barcode',
+    'scan_hint':'Point the camera at the barcode',
+    'scan_detected':'✅ Code detected!',
+    'scan_searching':'🔍 Searching...',
+    'scan_not_found':'Not found. Please fill in manually.',
+    'scan_not_supported':'Scanning not supported on this browser.',
+    // Ko-fi
+    'kofi_support':'SUPPORT THE PROJECT',
+    'kofi_desc':'This tracker is free — a coffee helps maintain it!',
+    'footer_legal':'Terms & Privacy',
+    'footer_made':'Made with ❤️ by Ratchet Legacy',
+    // Notifications
+    'price_outdated_title':'items need updating',
+    'price_outdated_sub':'The market value of these items has not been updated in over 30 days.',
+    'price_no_value':'items without market value',
+    'price_no_value_sub':'Add a current value to track your collection evolution.',
+    'btn_see_list':'See list',
+    'btn_back_stats':'← Back to stats',
+    // Stats page
+    'stat_title':'📊 STATISTICS',
+    'stat_by_type':'🥧 Distribution by type',
+    'stat_owned_by_type':'📊 Owned by type',
+    'stat_value_by_type':'💰 Market value by type',
+    'stat_condition':'📦 Item condition',
+    'stat_top10':'💎 Top most valuable items',
+    'stat_by_region':'🌍 Distribution by region',
+    'stat_ratings':'⭐ Personal ratings',
+    'stat_completeness':'✅ Item completeness',
+    'stat_complete':'Complete','stat_incomplete':'Incomplete','stat_rate':'Rate',
+    'stat_missing_items':'🚨 Items with missing elements:',
+    'stat_no_comp':'Fill in completeness to see stats.',
+    // KPI labels
+    'kpi_total':'Total','kpi_owned':'Owned','kpi_wishlist':'Wishlist',
+    'kpi_completeness':'Completeness','kpi_invested':'Invested',
+    'kpi_value':'Value','kpi_delta':'Profit/Loss',
+    'kpi_neuf':'New/Sealed','kpi_occasion':'Second hand',
+    // Empty state
+    'empty_state':'No items found.',
+    // Detail labels
+    'detail_completeness':'Completeness',
+    'detail_finance':'FINANCIAL VALUE',
+    'detail_buy':'PURCHASE PRICE','detail_market':'CURRENT VALUE',
+    // Header stat labels
+    'hdr_invested':'INVESTED','hdr_value':'MARKET VALUE','hdr_delta':'PROFIT/LOSS',
+    // Admin labels
+    'admin_name_lbl':'Name *','admin_folder_lbl':'Folder',
+    'admin_platform_lbl':'Platform','admin_region_lbl':'Region',
+    'admin_edition_lbl':'Edition','admin_url_lbl':'Image URL (Cloudinary) *',
+    'admin_search':'🔍 Search...','admin_loading':'Loading...',
+    'admin_no_sub':'No pending submissions.',
+    'admin_approve':'✅ Approve','admin_reject':'❌ Reject',
+    'admin_save_total':'💾 SAVE',
+    'admin_add_btn':'+ ADD TO BANK',
+    // Profile screen
+    'profile_rank':'🏆 Rank','profile_stats':'📊 Statistics',
+    'profile_top5':'💎 Top 5 most valuable items',
+    'profile_by_type':'📦 Collection by type',
+    'profile_avatar_title':'🎭 Avatar','profile_pseudo_title':'✏️ Username',
+    'profile_save_pseudo':'SAVE',
+    // Submit photo
+    'submit_title':'📸 Submit a photo',
+    'submit_item_name':'Item name',
+    'submit_type':'Type / Category',
+    'submit_url':'Image URL to submit',
+    'submit_comment':'Comment (optional)',
+    'submit_btn':'📸 SUBMIT',
+    'submit_hint':'The image must be publicly accessible',
+    // Legal
+    'legal_title':'Terms & Privacy',
+    'cgu_footer':'Terms & Privacy',
+  }
+};
+
+function t(key){ return (T[currentLang] && T[currentLang][key]) || (T['fr'][key]) || key; }
+
+function cycleLang(){
+  currentLang = currentLang === 'fr' ? 'en' : 'fr';
+  localStorage.setItem('rc_lang', currentLang);
+  document.getElementById('lang-btn').textContent = currentLang === 'fr' ? '🇫🇷' : '🇬🇧';
+  applyTranslations();
+  showToast(currentLang === 'fr' ? 'Français 🇫🇷' : 'English 🇬🇧', 'success');
+}
+
+
 // ══ STATS PAGE ══
 const CHART_COLORS = ['#7B4FD4','#FF6B1A','#3DD68C','#FFD447','#FF4D6A','#60A5FA','#F97316','#A78BFA','#34D399','#FB923C','#818CF8','#6EE7B7','#FCA5A5','#93C5FD'];
 
@@ -3092,379 +3466,6 @@ function updateRcProgressBar(total){
 // ══ TRANSLATIONS ══
 const LANGS = ['fr', 'en'];
 let currentLang = 'fr';
-
-const T = {
-  fr: {
-    // Header
-    'app_title':'Ratchet & Clank Collection',
-    'app_subtitle':'TRACKER MADE BY RATCHET LEGACY',
-    'btn_add':'+ AJOUTER',
-    'btn_stats':'📊 Stats',
-    'btn_admin':'🛠️ Admin',
-    'btn_exchanges':'🤝 Échanges',
-    'btn_signout':'Déconnexion',
-    'btn_profile':'Mon profil',
-    // Filters
-    'filter_all':'Tout','filter_owned':'Possédés','filter_wishlist':'Souhaités',
-    'filter_search':'🔍 Rechercher...','filter_type':'Tous types',
-    'filter_sort_recent':'Récents','filter_sort_name':'Nom A→Z',
-    'filter_sort_value':'Valeur ↓','filter_sort_rating':'Note ↓',
-    // Modal
-    'modal_new':'NOUVEL OBJET','modal_edit':"MODIFIER L'OBJET",
-    'section_general':'📋 Informations générales',
-    'lbl_name':'Nom *','lbl_type':'Type','lbl_edition':'Édition',
-    'lbl_manufacturer':'Fabricant','lbl_platform':'Support / Plateforme',
-    'lbl_region':'Région','lbl_lang':'Langue','lbl_status':'Statut',
-    'section_condition':'📦 État & Complétude',
-    'lbl_condition':'État','lbl_quality':'Qualité','lbl_completeness':'Complétude',
-    'section_finance':'💰 Valeur financière',
-    'lbl_buy_price':"Prix d'achat (€)",'lbl_cur_value':'Valeur actuelle (€)',
-    'hint_buy_price':'Ce que tu as payé','hint_cur_value':'Prix du marché',
-    'section_extras':'✨ Extras',
-    'lbl_rating':'Note personnelle','lbl_image':'Image',
-    'lbl_notes':'Notes','lbl_comment':'Commentaire',
-    'lbl_wish_url':"🛒 Lien d'achat (eBay, Vinted...)",
-    'lbl_bonus':'Bonus inclus (optionnel)',
-    'btn_cancel':'Annuler','btn_save':'SAUVEGARDER',
-    'btn_gallery':'🖼️ Galerie','btn_scan':'📷 SCANNER LE CODE-BARRES',
-    'btn_submit_photo':'📸 Soumettre une photo manquante',
-    // Status/Condition
-    'status_owned':'✅ Possédé','status_wishlist':'🎯 Souhaité',
-    'cond_neuf':'🆕 Neuf sous blister','cond_occasion':'📦 Occasion',
-    'grade_excellent':'⭐⭐⭐⭐⭐ Excellent','grade_tres_bon':'⭐⭐⭐⭐ Très bon',
-    'grade_bon':'⭐⭐⭐ Bon','grade_correct':'⭐⭐ Correct','grade_mauvais':'⭐ Mauvais',
-    // Completeness
-    'comp_present':'✅ Présent','comp_absent':'❌ Absent','comp_na':'— N/A',
-    'comp_complete':'✅ Complet','comp_complete_blister':'✅ Complet (blister)',
-    'comp_missing':'❌ Manque : ','comp_not_set':'Non renseignée — cliquez sur Modifier',
-    // Progress
-    'rank_progression':'PROGRESSION VERS LE PROCHAIN RANG',
-    'collection_rc':'Collection R&C','objects_known':'objets connus',
-    'rank_next':'objets avant','rank_max':'✨ Rang maximum !',
-    'items_owned':'possédés','items_wishlist':'souhaités','items_total':'total',
-    // Stats cards
-    'stat_invested':'INVESTI','stat_value':'VALEUR MARCHÉ','stat_delta':'PLUS-VALUE',
-    // Detail view
-    'lbl_completeness_detail':'Complétude','lbl_finance':'VALEUR FINANCIÈRE',
-    'lbl_buy':"PRIX D'ACHAT",'lbl_market':'VALEUR ACTUELLE',
-    'lbl_notes_detail':'Notes','lbl_rating_detail':'Note',
-    'btn_modify':'✏️ Modifier','btn_mark_owned':'✅ Marquer possédé',
-    'btn_exchange':'🤝 Proposer en échange','btn_remove_exchange':'🗑️ Retirer échange',
-    'btn_delete':'🗑️ Supprimer','btn_see_listing':'🛒 Voir annonce',
-    'btn_duplicate':'📋 Dupliquer',
-    // Empty states
-    'empty_collection':'Aucun objet dans ta collection',
-    'empty_add':'Clique sur + AJOUTER pour commencer !',
-    'empty_wishlist':'Ta liste de souhaits est vide',
-    'empty_search':'Aucun résultat pour cette recherche',
-    // Gallery
-    'gallery_title':"🖼️ Banque d'images",
-    'gallery_search':'🔍 Rechercher...','gallery_loading':'⚙️ Chargement...',
-    'gallery_empty':'Aucune image disponible','gallery_select':'Aucune image sélectionnée',
-    'btn_choose':'CHOISIR',
-    // Auth
-    'auth_login':'Connexion','auth_register':'Créer un compte',
-    'auth_email':'email@exemple.com','auth_password':'Mot de passe',
-    'auth_confirm_password':'Confirmer le mot de passe',
-    'btn_login':'SE CONNECTER','btn_register':'CRÉER UN COMPTE',
-    // Profile
-    'profile_pseudo':'✏️ Pseudo','profile_public':'🌐 Profil public',
-    'profile_public_desc':'Partage ta collection. Les prix ne sont jamais visibles.',
-    'profile_link':'🔗 Ton lien public :','btn_copy':'📋 Copier',
-    'profile_toggle':'Rendre mon profil public',
-    // Admin
-    'admin_title':'🛠️ PANNEAU ADMIN',
-    'admin_rc_total':'🎮 Total objets R&C connus',
-    'admin_images':'🖼️ Ajouter une image à la banque',
-    'admin_bank':'📚 Images dans la banque',
-    'admin_import':'☕ IMPORTER DEPUIS CLOUDINARY',
-    'admin_submissions':'📸 Photos soumises',
-    // Marketplace
-    'market_title':'MARKETPLACE ÉCHANGES',
-    'market_filter_all':'Tous types',
-    'market_exchange':'🔄 Échanges','market_sale':'💰 Ventes','market_gift':'🎁 Dons',
-    'market_empty':'Aucune proposition pour le moment.',
-    'market_contact':'📩 CONTACTER','market_remove':'🗑️ RETIRER MON ANNONCE',
-    'market_no_contact':'Pas de contact renseigné',
-    // Exchange modal
-    'exchange_title':'🤝 Proposer cet objet',
-    'exchange_consent':"⚠️ En proposant cet objet, vous acceptez de rendre visible votre pseudo et vos coordonnées de contact aux autres utilisateurs.",
-    'exchange_type':'Type de proposition *',
-    'exchange_looking':'Ce que vous recherchez / Prix demandé',
-    'exchange_link':'Lien de vente (optionnel)',
-    'exchange_contact':'Contact *',
-    'exchange_consent_check':"J'accepte que mon pseudo et contact soient visibles publiquement",
-    'exchange_reminder':'⚠️ Pensez à retirer votre annonce une fois vendu ou échangé !',
-    'btn_propose':'✅ PROPOSER',
-    // Toast messages
-    'toast_saved':'Objet ajouté !','toast_updated':'Objet mis à jour !',
-    'toast_deleted':'Objet supprimé.','toast_copied':'Lien copié !',
-    'toast_exchange_published':'Proposition publiée !',
-    'toast_exchange_removed':'Annonce retirée !',
-    'toast_image_added':'Image ajoutée !','toast_image_deleted':'Image supprimée.',
-    'toast_pseudo_saved':'Pseudo sauvegardé !',
-    'toast_import_success':'images importées !',
-    // Scanner
-    'scan_title':'📷 Scanner le code-barres',
-    'scan_hint':'Pointez la caméra vers le code-barres',
-    'scan_detected':'✅ Code détecté !',
-    'scan_searching':'🔍 Recherche en cours...',
-    'scan_not_found':'Non trouvé. Remplissez manuellement.',
-    'scan_not_supported':'Scan non supporté sur ce navigateur.',
-    // Ko-fi
-    'kofi_support':'SOUTENIR LE PROJET',
-    'kofi_desc':'Ce tracker est gratuit — un café aide à le maintenir !',
-    'footer_legal':'CGU & Mentions légales',
-    'footer_made':'Made with ❤️ by Ratchet Legacy',
-    // Notifications
-    'price_outdated_title':'objets à mettre à jour',
-    'price_outdated_sub':'Valeur marché non mise à jour depuis plus de 30 jours.',
-    'price_no_value':'objets sans valeur marché',
-    'price_no_value_sub':'Ajoute une valeur actuelle pour suivre ta collection.',
-    'btn_see_list':'Voir la liste',
-    'btn_back_stats':'← Retour aux stats',
-    // Stats page
-    'stat_title':'📊 STATISTIQUES',
-    'stat_by_type':t('stat_by_type'),
-    'stat_owned_by_type':t('stat_owned_by_type'),
-    'stat_value_by_type':t('stat_value_by_type'),
-    'stat_condition':t('stat_condition'),
-    'stat_top10':'💎 Top objets les plus précieux',
-    'stat_by_region':t('stat_by_region'),
-    'stat_ratings':t('stat_ratings'),
-    'stat_completeness':t('stat_completeness'),
-    'stat_complete':'Complets','stat_incomplete':'Incomplets','stat_rate':'Taux',
-    'stat_missing_items':t('stat_missing_items'),
-    'stat_no_comp':t('stat_no_comp'),
-    // KPI labels
-    'kpi_total':'Total','kpi_owned':'Possédés','kpi_wishlist':'Souhaités',
-    'kpi_completeness':'Complétude','kpi_invested':'Investi',
-    'kpi_value':'Valeur','kpi_delta':'Plus-value',
-    'kpi_neuf':'Neuf/Blister','kpi_occasion':'Occasion',
-    // Empty state
-    'empty_state':'Aucun objet trouvé.',
-    // Detail labels
-    'detail_completeness':'Complétude',
-    'detail_finance':'VALEUR FINANCIÈRE',
-    'detail_buy':'PRIX D\'ACHAT','detail_market':'VALEUR ACTUELLE',
-    // Header stat labels  
-    'hdr_invested':'INVESTI','hdr_value':'VALEUR MARCHÉ','hdr_delta':'PLUS-VALUE',
-    // Admin labels
-    'admin_name_lbl':'Nom *','admin_folder_lbl':'Dossier',
-    'admin_platform_lbl':'Plateforme','admin_region_lbl':'Région',
-    'admin_edition_lbl':'Édition','admin_url_lbl':'URL de l\'image (Cloudinary) *',
-    'admin_search':'🔍 Rechercher...','admin_loading':'Chargement...',
-    'admin_no_sub':'Aucune soumission en attente.',
-    'admin_approve':'✅ Approuver','admin_reject':'❌ Refuser',
-    'admin_save_total':'💾 SAUVEGARDER',
-    'admin_add_btn':'+ AJOUTER À LA BANQUE',
-    // Profile screen
-    'profile_rank':'🏆 Rang','profile_stats':'📊 Statistiques',
-    'profile_top5':'💎 Top 5 objets les plus précieux',
-    'profile_by_type':'📦 Collection par type',
-    'profile_avatar_title':'🎭 Avatar','profile_pseudo_title':'✏️ Pseudo',
-    'profile_save_pseudo':'SAUVEGARDER',
-    // Submit photo
-    'submit_title':'📸 Soumettre une photo',
-    'submit_item_name':'Nom de l\'objet concerné',
-    'submit_type':'Type / Catégorie',
-    'submit_url':'URL de l\'image à soumettre',
-    'submit_comment':'Commentaire (optionnel)',
-    'submit_btn':'📸 SOUMETTRE',
-    'submit_hint':'L\'image doit être accessible publiquement',
-    // Legal
-    'legal_title':'CGU & Mentions légales',
-    'cgu_footer':'CGU & Mentions légales',
-  },
-  en: {
-    // Header
-    'app_title':'Ratchet & Clank Collection',
-    'app_subtitle':'TRACKER MADE BY RATCHET LEGACY',
-    'btn_add':'+ ADD','btn_stats':'📊 Stats','btn_admin':'🛠️ Admin',
-    'btn_exchanges':'🤝 Trades','btn_signout':'Sign out','btn_profile':'My profile',
-    // Filters
-    'filter_all':'All','filter_owned':'Owned','filter_wishlist':'Wishlist',
-    'filter_search':'🔍 Search...','filter_type':'All types',
-    'filter_sort_recent':'Recent','filter_sort_name':'Name A→Z',
-    'filter_sort_value':'Value ↓','filter_sort_rating':'Rating ↓',
-    // Modal
-    'modal_new':'NEW ITEM','modal_edit':'EDIT ITEM',
-    'section_general':'📋 General information',
-    'lbl_name':'Name *','lbl_type':'Type','lbl_edition':'Edition',
-    'lbl_manufacturer':'Manufacturer','lbl_platform':'Platform / Support',
-    'lbl_region':'Region','lbl_lang':'Language','lbl_status':'Status',
-    'section_condition':'📦 Condition & Completeness',
-    'lbl_condition':'Condition','lbl_quality':'Quality','lbl_completeness':'Completeness',
-    'section_finance':'💰 Financial value',
-    'lbl_buy_price':'Purchase price (€)','lbl_cur_value':'Current value (€)',
-    'hint_buy_price':'What you paid','hint_cur_value':'Market price',
-    'section_extras':'✨ Extras',
-    'lbl_rating':'Personal rating','lbl_image':'Image',
-    'lbl_notes':'Notes','lbl_comment':'Comment',
-    'lbl_wish_url':'🛒 Buy link (eBay, Vinted...)',
-    'lbl_bonus':'Bonus included (optional)',
-    'btn_cancel':'Cancel','btn_save':'SAVE',
-    'btn_gallery':'🖼️ Gallery','btn_scan':'📷 SCAN BARCODE',
-    'btn_submit_photo':'📸 Submit missing photo',
-    // Status/Condition
-    'status_owned':'✅ Owned','status_wishlist':'🎯 Wishlist',
-    'cond_neuf':'🆕 Brand new (sealed)','cond_occasion':'📦 Second hand',
-    'grade_excellent':'⭐⭐⭐⭐⭐ Excellent','grade_tres_bon':'⭐⭐⭐⭐ Very good',
-    'grade_bon':'⭐⭐⭐ Good','grade_correct':'⭐⭐ Fair','grade_mauvais':'⭐ Poor',
-    // Completeness
-    'comp_present':'✅ Present','comp_absent':'❌ Missing','comp_na':'— N/A',
-    'comp_complete':'✅ Complete','comp_complete_blister':'✅ Complete (sealed)',
-    'comp_missing':'❌ Missing: ','comp_not_set':'Not filled — click Edit',
-    // Progress
-    'rank_progression':'PROGRESSION TO NEXT RANK',
-    'collection_rc':'R&C Collection','objects_known':'known items',
-    'rank_next':'items before','rank_max':'✨ Maximum rank!',
-    'items_owned':'owned','items_wishlist':'wishlist','items_total':'total',
-    // Stats cards
-    'stat_invested':'INVESTED','stat_value':'MARKET VALUE','stat_delta':'PROFIT/LOSS',
-    // Detail view
-    'lbl_completeness_detail':'Completeness','lbl_finance':'FINANCIAL VALUE',
-    'lbl_buy':'PURCHASE PRICE','lbl_market':'CURRENT VALUE',
-    'lbl_notes_detail':'Notes','lbl_rating_detail':'Rating',
-    'btn_modify':'✏️ Edit','btn_mark_owned':'✅ Mark as owned',
-    'btn_exchange':'🤝 Propose for trade','btn_remove_exchange':'🗑️ Remove from trades',
-    'btn_delete':'🗑️ Delete','btn_see_listing':'🛒 See listing',
-    'btn_duplicate':'📋 Duplicate',
-    // Empty states
-    'empty_collection':'No items in your collection',
-    'empty_add':'Click + ADD to get started!',
-    'empty_wishlist':'Your wishlist is empty',
-    'empty_search':'No results for this search',
-    // Gallery
-    'gallery_title':'🖼️ Image bank',
-    'gallery_search':'🔍 Search...','gallery_loading':'⚙️ Loading...',
-    'gallery_empty':'No images available','gallery_select':'No image selected',
-    'btn_choose':'CHOOSE',
-    // Auth
-    'auth_login':'Sign in','auth_register':'Create account',
-    'auth_email':'email@example.com','auth_password':'Password',
-    'auth_confirm_password':'Confirm password',
-    'btn_login':'SIGN IN','btn_register':'CREATE ACCOUNT',
-    // Profile
-    'profile_pseudo':'✏️ Username','profile_public':'🌐 Public profile',
-    'profile_public_desc':'Share your collection. Prices are never visible.',
-    'profile_link':'🔗 Your public link:','btn_copy':'📋 Copy',
-    'profile_toggle':'Make my profile public',
-    // Admin
-    'admin_title':'🛠️ ADMIN PANEL',
-    'admin_rc_total':'🎮 Total known R&C items',
-    'admin_images':'🖼️ Add image to bank',
-    'admin_bank':'📚 Images in bank',
-    'admin_import':'☕ IMPORT FROM CLOUDINARY',
-    'admin_submissions':'📸 Submitted photos',
-    // Marketplace
-    'market_title':'TRADE MARKETPLACE',
-    'market_filter_all':'All types',
-    'market_exchange':'🔄 Trades','market_sale':'💰 Sales','market_gift':'🎁 Gifts',
-    'market_empty':'No listings yet.',
-    'market_contact':'📩 CONTACT','market_remove':'🗑️ REMOVE MY LISTING',
-    'market_no_contact':'No contact provided',
-    // Exchange modal
-    'exchange_title':'🤝 List this item',
-    'exchange_consent':'⚠️ By listing this item, you agree to make your username and contact visible to other users.',
-    'exchange_type':'Listing type *',
-    'exchange_looking':'What you want in return / Asking price',
-    'exchange_link':'Sale link (optional)',
-    'exchange_contact':'Contact *',
-    'exchange_consent_check':'I agree that my username and contact will be publicly visible',
-    'exchange_reminder':'⚠️ Remember to remove your listing once the item is sold or traded!',
-    'btn_propose':'✅ LIST ITEM',
-    // Toast messages
-    'toast_saved':'Item added!','toast_updated':'Item updated!',
-    'toast_deleted':'Item deleted.','toast_copied':'Link copied!',
-    'toast_exchange_published':'Listing published!',
-    'toast_exchange_removed':'Listing removed!',
-    'toast_image_added':'Image added!','toast_image_deleted':'Image deleted.',
-    'toast_pseudo_saved':'Username saved!',
-    'toast_import_success':'images imported!',
-    // Scanner
-    'scan_title':'📷 Scan barcode',
-    'scan_hint':'Point the camera at the barcode',
-    'scan_detected':'✅ Code detected!',
-    'scan_searching':'🔍 Searching...',
-    'scan_not_found':'Not found. Please fill in manually.',
-    'scan_not_supported':'Scanning not supported on this browser.',
-    // Ko-fi
-    'kofi_support':'SUPPORT THE PROJECT',
-    'kofi_desc':'This tracker is free — a coffee helps maintain it!',
-    'footer_legal':'Terms & Privacy',
-    'footer_made':'Made with ❤️ by Ratchet Legacy',
-    // Notifications
-    'price_outdated_title':'items need updating',
-    'price_outdated_sub':'The market value of these items has not been updated in over 30 days.',
-    'price_no_value':'items without market value',
-    'price_no_value_sub':'Add a current value to track your collection evolution.',
-    'btn_see_list':'See list',
-    'btn_back_stats':'← Back to stats',
-    // Stats page
-    'stat_title':'📊 STATISTICS',
-    'stat_by_type':'🥧 Distribution by type',
-    'stat_owned_by_type':'📊 Owned by type',
-    'stat_value_by_type':'💰 Market value by type',
-    'stat_condition':'📦 Item condition',
-    'stat_top10':'💎 Top most valuable items',
-    'stat_by_region':'🌍 Distribution by region',
-    'stat_ratings':'⭐ Personal ratings',
-    'stat_completeness':'✅ Item completeness',
-    'stat_complete':'Complete','stat_incomplete':'Incomplete','stat_rate':'Rate',
-    'stat_missing_items':'🚨 Items with missing elements:',
-    'stat_no_comp':'Fill in completeness to see stats.',
-    // KPI labels
-    'kpi_total':'Total','kpi_owned':'Owned','kpi_wishlist':'Wishlist',
-    'kpi_completeness':'Completeness','kpi_invested':'Invested',
-    'kpi_value':'Value','kpi_delta':'Profit/Loss',
-    'kpi_neuf':'New/Sealed','kpi_occasion':'Second hand',
-    // Empty state
-    'empty_state':'No items found.',
-    // Detail labels
-    'detail_completeness':'Completeness',
-    'detail_finance':'FINANCIAL VALUE',
-    'detail_buy':'PURCHASE PRICE','detail_market':'CURRENT VALUE',
-    // Header stat labels
-    'hdr_invested':'INVESTED','hdr_value':'MARKET VALUE','hdr_delta':'PROFIT/LOSS',
-    // Admin labels
-    'admin_name_lbl':'Name *','admin_folder_lbl':'Folder',
-    'admin_platform_lbl':'Platform','admin_region_lbl':'Region',
-    'admin_edition_lbl':'Edition','admin_url_lbl':'Image URL (Cloudinary) *',
-    'admin_search':'🔍 Search...','admin_loading':'Loading...',
-    'admin_no_sub':'No pending submissions.',
-    'admin_approve':'✅ Approve','admin_reject':'❌ Reject',
-    'admin_save_total':'💾 SAVE',
-    'admin_add_btn':'+ ADD TO BANK',
-    // Profile screen
-    'profile_rank':'🏆 Rank','profile_stats':'📊 Statistics',
-    'profile_top5':'💎 Top 5 most valuable items',
-    'profile_by_type':'📦 Collection by type',
-    'profile_avatar_title':'🎭 Avatar','profile_pseudo_title':'✏️ Username',
-    'profile_save_pseudo':'SAVE',
-    // Submit photo
-    'submit_title':'📸 Submit a photo',
-    'submit_item_name':'Item name',
-    'submit_type':'Type / Category',
-    'submit_url':'Image URL to submit',
-    'submit_comment':'Comment (optional)',
-    'submit_btn':'📸 SUBMIT',
-    'submit_hint':'The image must be publicly accessible',
-    // Legal
-    'legal_title':'Terms & Privacy',
-    'cgu_footer':'Terms & Privacy',
-  }
-};
-
-function t(key){ return (T[currentLang] && T[currentLang][key]) || (T['fr'][key]) || key; }
-
-function cycleLang(){
-  currentLang = currentLang === 'fr' ? 'en' : 'fr';
-  localStorage.setItem('rc_lang', currentLang);
-  document.getElementById('lang-btn').textContent = currentLang === 'fr' ? '🇫🇷' : '🇬🇧';
-  applyTranslations();
-  showToast(currentLang === 'fr' ? 'Français 🇫🇷' : 'English 🇬🇧', 'success');
-}
 
 function loadLang(){
   const saved = localStorage.getItem('rc_lang');
