@@ -720,19 +720,21 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <!-- APP -->
 <div id="app-screen">
   <header>
-    <!-- ROW 1: Logo + Nav -->
-    <div class="header-row1">
-      <div class="logo-img" onclick="showMainMenu()" style="cursor:pointer;flex-shrink:0">
+    <!-- Decorative glow -->
+    <div class="header-top">
+      <!-- Logo -->
+      <div class="logo-img" onclick="showMainMenu()" style="cursor:pointer" title="Accueil">
         <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" alt="R&C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
         <div class="logo-fallback">🔧</div>
       </div>
+      <!-- Title -->
       <div class="header-titles">
         <h1>Ratchet &amp; Clank Collection</h1>
         <span>TRACKER MADE BY RATCHET LEGACY</span>
       </div>
-      <!-- Desktop nav -->
-      <div class="header-nav" id="header-nav-desktop">
-        <div class="profile-btn" id="header-avatar" onclick="openProfile()">🦊</div>
+      <!-- Desktop nav buttons -->
+      <div class="header-user" id="header-nav-desktop">
+        <div class="profile-btn" id="header-avatar" onclick="openProfile()" title="Mon profil">🦊</div>
         <span id="header-pseudo" onclick="openProfile()" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);cursor:pointer;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Collectionneur</span>
         <button onclick="openStats()" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(123,79,212,.4);background:rgba(123,79,212,.1);color:var(--purple-light);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">📊 Stats</button>
         <button onclick="cycleTheme()" id="theme-btn" style="padding:5px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.82rem;cursor:pointer">🌌</button>
@@ -741,46 +743,49 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <button id="admin-btn" onclick="openAdmin()" style="display:none;padding:5px 10px;border-radius:8px;border:1px solid rgba(255,107,26,.4);background:rgba(255,107,26,.1);color:var(--orange);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🛠️ Admin</button>
         <button class="signout-btn" onclick="doSignOut()">Déconnexion</button>
       </div>
-      <!-- Mobile nav -->
-      <div class="header-nav-mobile" id="header-nav-mobile">
-        <div class="profile-btn" id="header-avatar-mobile" onclick="openMobileMenu()" style="width:32px;height:32px;font-size:1rem">🦊</div>
-        <span id="header-pseudo-mobile" style="font-family:'Orbitron',sans-serif;font-size:.68rem;font-weight:700;color:var(--text);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">R&C</span>
-        <button class="mobile-menu-btn" onclick="openMobileMenu()">☰</button>
+      <!-- Mobile hamburger -->
+      <button class="mobile-menu-btn" id="mobile-hamburger" onclick="openMobileMenu()" style="display:none;margin-left:auto">☰</button>
+    </div>
+
+    <!-- Stat cards row -->
+    <div style="display:flex;border-top:1px solid rgba(255,255,255,.06);margin-top:4px">
+      <div class="stat-card" style="flex:1;border-right:1px solid rgba(255,255,255,.06)">
+        <div class="slabel" data-i18n="hdr_invested">INVESTI</div>
+        <div class="svalue fvalue" id="stat-invested">—</div>
+      </div>
+      <div class="stat-card" style="flex:1;border-right:1px solid rgba(255,255,255,.06)">
+        <div class="slabel" data-i18n="hdr_value">VALEUR MARCHÉ</div>
+        <div class="svalue fvalue" id="stat-current">—</div>
+      </div>
+      <div class="stat-card" style="flex:1">
+        <div class="slabel" data-i18n="hdr_delta">PLUS-VALUE</div>
+        <div class="svalue fvalue" id="stat-delta">—</div>
       </div>
     </div>
 
-    <!-- ROW 2: Stat cards -->
-    <div class="header-row2" id="header-stats-row">
-      <div class="stat-card"><div class="slabel" data-i18n="hdr_invested">INVESTI</div><div class="svalue fvalue" id="stat-invested">—</div></div>
-      <div class="stat-card"><div class="slabel" data-i18n="hdr_value">VALEUR MARCHÉ</div><div class="svalue fvalue" id="stat-current">—</div></div>
-      <div class="stat-card"><div class="slabel" data-i18n="hdr_delta">PLUS-VALUE</div><div class="svalue fvalue" id="stat-delta">—</div></div>
-    </div>
-
-    <!-- ROW 3: Rank + Progress -->
-    <div class="header-row3">
-      <div class="rank-row">
-        <span id="rank-icon" style="font-size:1.4rem">🌱</span>
-        <div style="flex:1">
+    <!-- Rank + Progress bars -->
+    <div style="margin-top:12px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span id="rank-icon" style="font-size:1.3rem">🌱</span>
+        <div>
           <div id="rank-name" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--orange)">Recrue Galactic Ranger</div>
-          <div id="rank-next-label" style="font-size:.62rem;color:var(--text-dim)"></div>
+          <div id="rank-next-label" style="font-size:.6rem;color:var(--text-dim)"></div>
         </div>
       </div>
-      <div class="progress-bars">
-        <div class="progress-row">
-          <span class="progress-label" data-i18n="rank_progression">PROGRESSION VERS LE PROCHAIN RANG</span>
-          <span id="pct-display" style="font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;color:var(--orange)">0%</span>
-        </div>
-        <div class="energy-bar-bg"><div class="energy-bar-fill" id="energy-bar" style="width:0%"></div></div>
-        <div class="progress-row" style="margin-top:6px">
-          <span class="progress-label" data-i18n="collection_rc">COLLECTION R&C</span>
-          <span style="font-size:.72rem;color:var(--orange)">
-            <span id="collection-pct" style="font-family:'Orbitron',sans-serif;font-weight:700">0%</span>
-            <span onclick="editCollectionTotal()" style="font-size:.6rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">?</span> <span data-i18n="objects_known">objets connus</span>)</span>
-          </span>
-        </div>
-        <div class="energy-bar-bg"><div class="energy-bar-fill" id="collection-bar" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--gold))"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)" data-i18n="rank_progression">PROGRESSION VERS LE PROCHAIN RANG</span>
+        <span id="pct-display" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--orange)">0%</span>
       </div>
-      <div class="count-row">
+      <div class="energy-bar-bg" style="margin-bottom:8px"><div class="energy-bar-fill" id="energy-bar" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)" data-i18n="collection_rc">COLLECTION R&C</span>
+        <span>
+          <span id="collection-pct" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--orange)">0%</span>
+          <span onclick="editCollectionTotal()" style="font-size:.6rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">?</span> <span data-i18n="objects_known">objets connus</span>)</span>
+        </span>
+      </div>
+      <div class="energy-bar-bg" style="margin-bottom:8px"><div class="energy-bar-fill" id="collection-bar" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--gold))"></div></div>
+      <div style="display:flex;gap:16px;font-size:.75rem;color:var(--text-dim)">
         <span>● <strong id="cnt-owned" style="color:var(--owned)">0</strong> <span data-i18n="items_owned">possédés</span></span>
         <span>● <strong id="cnt-wish" style="color:var(--wishlist)">0</strong> <span data-i18n="items_wishlist">souhaités</span></span>
         <span>● <strong id="cnt-total" style="color:var(--text-dim)">0</strong> <span data-i18n="items_total">total</span></span>
