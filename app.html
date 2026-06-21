@@ -565,15 +565,13 @@
     .mobile-menu-panel .menu-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg3);border:1px solid rgba(255,255,255,.07);color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;text-decoration:none;font-family:Inter,sans-serif}
     .mobile-menu-panel .menu-item:hover{background:rgba(123,79,212,.2);border-color:rgba(123,79,212,.3)}
     .mobile-menu-close{align-self:flex-end;background:transparent;border:none;color:var(--text-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px}
-    @media(max-width:600px){
-      .mobile-menu-btn{display:block !important}
-      #header-user-btns{display:none !important}
-      .signout-btn{display:none !important}
-      .header-titles h1{font-size:.75rem !important}
-      .header-titles span{font-size:.55rem !important;display:none !important}
+        .header-mobile{display:none;align-items:center;gap:8px;margin-left:auto}
+    .header-titles-desktop{display:flex;flex-direction:column}
+    @media(max-width:650px){
+      #header-user-btns-desktop{display:none !important}
+      .header-titles-desktop{display:none !important}
+      .header-mobile{display:flex !important}
       .card-grid{grid-template-columns:repeat(2,1fr) !important}
-      .header-user{gap:6px !important}
-      #header-pseudo{max-width:70px !important;font-size:.65rem !important}
     }
     /* PRICE NOTIF */
     .price-notif{background:rgba(255,212,71,.08);border:1px solid rgba(255,212,71,.25);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
@@ -730,50 +728,32 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div id="app-screen">
   <header>
     <div class="header-top">
-      <div class="logo-img" onclick="showMainMenu()" style="cursor:pointer" title="Menu principal"><img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" alt="R&C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="logo-fallback">🔧</div></div>
-      <div class="header-titles"><h1>Ratchet &amp; Clank Collection</h1><span>Tracker made by Ratchet Legacy</span></div>
-      <div class="header-user">
+      <!-- Logo -->
+      <div class="logo-img" onclick="showMainMenu()" style="cursor:pointer;flex-shrink:0" title="Accueil">
+        <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" alt="R&C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+        <div class="logo-fallback">🔧</div>
+      </div>
+      <!-- Title - hidden on mobile -->
+      <div class="header-titles header-titles-desktop">
+        <h1>Ratchet &amp; Clank Collection</h1>
+        <span>Tracker made by Ratchet Legacy</span>
+      </div>
+      <!-- Desktop buttons -->
+      <div class="header-user" id="header-user-btns-desktop">
         <div class="profile-btn" id="header-avatar" onclick="openProfile()" title="Mon profil">🦊</div>
-        <span style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);cursor:pointer;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="header-pseudo" onclick="openProfile()">Collectionneur</span>
-        <button onclick="openStats()" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(123,79,212,.4);background:rgba(123,79,212,.1);color:var(--purple-light);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer" data-i18n="btn_stats">📊 Stats</button>
-        <button onclick="cycleTheme()" id="theme-btn" title="Changer le thème" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.82rem;cursor:pointer">🌌</button>
-        <button onclick="cycleLang()" id="lang-btn" title="Changer la langue" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.72rem;font-family:Orbitron,sans-serif;cursor:pointer">🇫🇷</button>
+        <span style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);cursor:pointer;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="header-pseudo" onclick="openProfile()">Collectionneur</span>
+        <button onclick="openStats()" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(123,79,212,.4);background:rgba(123,79,212,.1);color:var(--purple-light);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">📊 Stats</button>
+        <button onclick="cycleTheme()" id="theme-btn" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.82rem;cursor:pointer">🌌</button>
+        <button onclick="cycleLang()" id="lang-btn" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.72rem;font-family:Orbitron,sans-serif;cursor:pointer">🇫🇷</button>
         <button onclick="openMarketplace()" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(61,214,140,.4);background:rgba(61,214,140,.1);color:var(--owned);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🤝 Échanges</button>
         <button id="admin-btn" onclick="openAdmin()" style="display:none;padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,26,.4);background:rgba(255,107,26,.1);color:var(--orange);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🛠️ Admin</button>
         <button class="signout-btn" onclick="doSignOut()">Déconnexion</button>
       </div>
-    </div>
-    <div class="header-bottom">
-      <div class="energy-section">
-        <!-- RANG -->
-        <div class="rank-section" id="rank-section" style="margin-bottom:10px"></div>
-        <!-- BARRE RANG -->
-        <div class="energy-label">
-          <span class="elabel">Progression vers le prochain rang</span>
-          <span class="pct" id="pct-display">0%</span>
-        </div>
-        <div class="energy-bar-bg"><div class="energy-bar-fill" id="energy-bar" style="width:0%"></div></div>
-        <!-- BARRE COLLECTION -->
-        <div class="energy-label" style="margin-top:10px">
-          <span class="elabel" data-i18n="collection_rc">Collection R&amp;C</span>
-          <span style="display:flex;align-items:center;gap:6px">
-            <span class="pct" id="collection-pct" style="font-size:.85rem;color:var(--orange-light)">0%</span>
-            <span onclick="editCollectionTotal()" style="font-size:.62rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">?</span> objets connus)</span>
-          </span>
-        </div>
-        <div class="energy-bar-bg">
-          <div id="collection-bar" style="height:100%;border-radius:5px;background:linear-gradient(90deg,var(--orange),#FFD447);width:0%;transition:width .6s"></div>
-        </div>
-        <div class="energy-counts" style="margin-top:8px">
-          <div class="ecount"><div class="dot" style="background:var(--owned)"></div><span class="num" id="cnt-owned">0</span>&nbsp;possédés</div>
-          <div class="ecount"><div class="dot" style="background:var(--wishlist)"></div><span class="num" id="cnt-wish">0</span>&nbsp;souhaités</div>
-          <div class="ecount"><div class="dot" style="background:var(--chrome)"></div><span class="num" id="cnt-total">0</span>&nbsp;total</div>
-        </div>
-      </div>
-      <div class="finance-stats">
-        <div class="fstat"><div class="flabel">Investi</div><div class="fvalue invested" id="stat-invested">—</div></div>
-        <div class="fstat"><div class="flabel">Valeur marché</div><div class="fvalue current-val" id="stat-current">—</div></div>
-        <div class="fstat"><div class="flabel">Plus-value</div><div class="fvalue profit-zero" id="stat-delta">—</div></div>
+      <!-- Mobile: avatar + pseudo + hamburger -->
+      <div class="header-mobile" id="header-mobile-btns">
+        <div class="profile-btn" style="width:32px;height:32px;font-size:1rem" id="header-avatar-mobile" onclick="openMobileMenu()">🦊</div>
+        <span style="font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700;color:var(--text);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="header-pseudo-mobile">R&C</span>
+        <button class="mobile-menu-btn" onclick="openMobileMenu()">☰</button>
       </div>
     </div>
   </header>
@@ -2127,16 +2107,16 @@ async function launchApp(){
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>Chargement...</div>';
   await fetchItems(); render(); loadProfile(); loadTheme(); loadRcTotal(); loadLang(); setTimeout(applyTranslations, 300);
   document.getElementById('fixed-footer').style.display = 'flex';
-  // Handle mobile header
-  function checkMobile(){
-    const isMobile = window.innerWidth <= 600;
-    const btns = document.getElementById('header-user-btns');
-    const hamburger = document.querySelector('.mobile-menu-btn');
-    if(btns) btns.style.display = isMobile ? 'none' : 'flex';
-    if(hamburger) hamburger.style.display = isMobile ? 'block' : 'none';
+  // Sync mobile header
+  function syncMobileHeader(){
+    const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'R&C';
+    const avatar = localStorage.getItem('rc_avatar_'+currentUser.id)||'🦊';
+    const mobileAvatar = document.getElementById('header-avatar-mobile');
+    const mobilePseudo = document.getElementById('header-pseudo-mobile');
+    if(mobileAvatar) mobileAvatar.textContent = avatar;
+    if(mobilePseudo) mobilePseudo.textContent = pseudo;
   }
-  checkMobile();
-  window.addEventListener('resize', checkMobile);
+  syncMobileHeader();
   if(localStorage.getItem('kofi_dismissed')==='1'){
     const banner = document.getElementById('kofi-banner');
     if(banner) banner.style.display='none';
@@ -3867,12 +3847,16 @@ async function deleteExchange(id){
 function openMobileMenu(){
   document.getElementById('mobile-menu-overlay').classList.add('open');
   document.getElementById('mobile-menu-panel').classList.add('open');
-  // Sync pseudo
   const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Mon profil';
-  document.getElementById('mobile-pseudo').textContent = pseudo;
-  // Sync admin
+  const avatar = localStorage.getItem('rc_avatar_'+currentUser.id)||'🦊';
+  const mobileP = document.getElementById('mobile-pseudo');
+  if(mobileP) mobileP.textContent = pseudo;
   const adminBtn = document.getElementById('mobile-admin-btn');
   if(adminBtn) adminBtn.style.display = isAdmin()?'flex':'none';
+  // Also update theme/lang display
+  const themeBtn = document.getElementById('mobile-theme-btn');
+  const currentThemeIcon = document.getElementById('theme-btn')?document.getElementById('theme-btn').textContent:'🌌';
+  if(themeBtn) themeBtn.textContent = currentThemeIcon+' '+(currentLang==='fr'?'Thème':'Theme');
 }
 function closeMobileMenu(){
   document.getElementById('mobile-menu-overlay').classList.remove('open');
