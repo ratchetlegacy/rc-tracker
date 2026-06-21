@@ -757,10 +757,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       </div>
     </div>
     <!-- Stat boxes - desktop only -->
-    <div class="header-stats" id="header-stats-row">
-      <div class="stat-card"><div class="slabel" data-i18n="hdr_invested">INVESTI</div><div class="svalue fvalue" id="stat-invested">—</div></div>
-      <div class="stat-card"><div class="slabel" data-i18n="hdr_value">VALEUR MARCHÉ</div><div class="svalue fvalue" id="stat-current">—</div></div>
-      <div class="stat-card"><div class="slabel" data-i18n="hdr_delta">PLUS-VALUE</div><div class="svalue fvalue" id="stat-delta">—</div></div>
+    <div style="display:flex;gap:12px;padding:8px 24px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,.05)" id="header-stats-row">
+      <div class="stat-card" style="flex:1"><div class="slabel" data-i18n="hdr_invested">INVESTI</div><div class="svalue fvalue" id="stat-invested">—</div></div>
+      <div class="stat-card" style="flex:1"><div class="slabel" data-i18n="hdr_value">VALEUR MARCHÉ</div><div class="svalue fvalue" id="stat-current">—</div></div>
+      <div class="stat-card" style="flex:1"><div class="slabel" data-i18n="hdr_delta">PLUS-VALUE</div><div class="svalue fvalue" id="stat-delta">—</div></div>
     </div>
   </header>
 
@@ -1887,9 +1887,11 @@ function render(){
   const miss=items.filter(i=>i.status==='missing').length;
   const total=items.length;
   const pct=total?Math.round(owned/total*100):0;
-  document.getElementById('cnt-owned').textContent=owned;
-  document.getElementById('cnt-wish').textContent=wish;
-  document.getElementById('cnt-total').textContent=total;
+  const elOwned=document.getElementById('cnt-owned');
+  const elWish=document.getElementById('cnt-wish');
+  if(elOwned) elOwned.textContent=owned;
+  if(elWish) elWish.textContent=wish;
+  const elTotal=document.getElementById('cnt-total'); if(elTotal) elTotal.textContent=total;
 
   // Rank progress bar
   const rankObj = getRank(owned);
@@ -3650,7 +3652,7 @@ function applyTranslations(){
     if(el.textContent.includes('Retour')||el.textContent.includes('Back')) el.textContent=t('btn_back');
   });
   // Re-render collection to update rank text etc
-  if(typeof render === 'function' && typeof items !== 'undefined') render();
+  // render() called separately after translations applied
   // Apply to key elements directly
   const map = {
     'add-btn': 'btn_add',
