@@ -565,14 +565,7 @@
     .mobile-menu-panel .menu-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg3);border:1px solid rgba(255,255,255,.07);color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;text-decoration:none;font-family:Inter,sans-serif}
     .mobile-menu-panel .menu-item:hover{background:rgba(123,79,212,.2);border-color:rgba(123,79,212,.3)}
     .mobile-menu-close{align-self:flex-end;background:transparent;border:none;color:var(--text-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px}
-        .header-mobile{display:none;align-items:center;gap:8px;margin-left:auto}
-    .header-titles-desktop{display:flex;flex-direction:column}
-    @media(max-width:650px){
-      #header-user-btns-desktop{display:none !important}
-      .header-titles-desktop{display:none !important}
-      .header-mobile{display:flex !important}
-      .card-grid{grid-template-columns:repeat(2,1fr) !important}
-    }
+    
     /* PRICE NOTIF */
     .price-notif{background:rgba(255,212,71,.08);border:1px solid rgba(255,212,71,.25);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
     .price-notif-icon{font-size:1.4rem;flex-shrink:0}
@@ -727,81 +720,75 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <!-- APP -->
 <div id="app-screen">
   <header>
-    <div class="header-top">
-      <!-- Logo -->
-      <div class="logo-img" onclick="showMainMenu()" style="cursor:pointer;flex-shrink:0" title="Accueil">
+    <!-- ROW 1: Logo + Nav -->
+    <div class="header-row1">
+      <div class="logo-img" onclick="showMainMenu()" style="cursor:pointer;flex-shrink:0">
         <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" alt="R&C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
         <div class="logo-fallback">🔧</div>
       </div>
-      <!-- Title - hidden on mobile -->
-      <div class="header-titles header-titles-desktop">
+      <div class="header-titles">
         <h1>Ratchet &amp; Clank Collection</h1>
-        <span>Tracker made by Ratchet Legacy</span>
+        <span>TRACKER MADE BY RATCHET LEGACY</span>
       </div>
-      <!-- Desktop buttons -->
-      <div class="header-user" id="header-user-btns-desktop">
-        <div class="profile-btn" id="header-avatar" onclick="openProfile()" title="Mon profil">🦊</div>
-        <span style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);cursor:pointer;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="header-pseudo" onclick="openProfile()">Collectionneur</span>
-        <button onclick="openStats()" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(123,79,212,.4);background:rgba(123,79,212,.1);color:var(--purple-light);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">📊 Stats</button>
-        <button onclick="cycleTheme()" id="theme-btn" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.82rem;cursor:pointer">🌌</button>
-        <button onclick="cycleLang()" id="lang-btn" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.72rem;font-family:Orbitron,sans-serif;cursor:pointer">🇫🇷</button>
-        <button onclick="openMarketplace()" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(61,214,140,.4);background:rgba(61,214,140,.1);color:var(--owned);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🤝 Échanges</button>
-        <button id="admin-btn" onclick="openAdmin()" style="display:none;padding:5px 12px;border-radius:8px;border:1px solid rgba(255,107,26,.4);background:rgba(255,107,26,.1);color:var(--orange);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🛠️ Admin</button>
+      <!-- Desktop nav -->
+      <div class="header-nav" id="header-nav-desktop">
+        <div class="profile-btn" id="header-avatar" onclick="openProfile()">🦊</div>
+        <span id="header-pseudo" onclick="openProfile()" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);cursor:pointer;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Collectionneur</span>
+        <button onclick="openStats()" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(123,79,212,.4);background:rgba(123,79,212,.1);color:var(--purple-light);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">📊 Stats</button>
+        <button onclick="cycleTheme()" id="theme-btn" style="padding:5px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.82rem;cursor:pointer">🌌</button>
+        <button onclick="cycleLang()" id="lang-btn" style="padding:5px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.72rem;font-family:Orbitron,sans-serif;cursor:pointer">🇫🇷</button>
+        <button onclick="openMarketplace()" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(61,214,140,.4);background:rgba(61,214,140,.1);color:var(--owned);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🤝 Échanges</button>
+        <button id="admin-btn" onclick="openAdmin()" style="display:none;padding:5px 10px;border-radius:8px;border:1px solid rgba(255,107,26,.4);background:rgba(255,107,26,.1);color:var(--orange);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🛠️ Admin</button>
         <button class="signout-btn" onclick="doSignOut()">Déconnexion</button>
       </div>
-      <!-- Mobile: avatar + pseudo + hamburger -->
-      <div class="header-mobile" id="header-mobile-btns">
-        <div class="profile-btn" style="width:32px;height:32px;font-size:1rem" id="header-avatar-mobile" onclick="openMobileMenu()">🦊</div>
-        <span style="font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700;color:var(--text);max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="header-pseudo-mobile">R&C</span>
+      <!-- Mobile nav -->
+      <div class="header-nav-mobile" id="header-nav-mobile">
+        <div class="profile-btn" id="header-avatar-mobile" onclick="openMobileMenu()" style="width:32px;height:32px;font-size:1rem">🦊</div>
+        <span id="header-pseudo-mobile" style="font-family:'Orbitron',sans-serif;font-size:.68rem;font-weight:700;color:var(--text);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">R&C</span>
         <button class="mobile-menu-btn" onclick="openMobileMenu()">☰</button>
       </div>
     </div>
-    <!-- Stat boxes - desktop only -->
-    <div style="display:flex;gap:12px;padding:8px 24px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,.05)" id="header-stats-row">
-      <div class="stat-card" style="flex:1"><div class="slabel" data-i18n="hdr_invested">INVESTI</div><div class="svalue fvalue" id="stat-invested">—</div></div>
-      <div class="stat-card" style="flex:1"><div class="slabel" data-i18n="hdr_value">VALEUR MARCHÉ</div><div class="svalue fvalue" id="stat-current">—</div></div>
-      <div class="stat-card" style="flex:1"><div class="slabel" data-i18n="hdr_delta">PLUS-VALUE</div><div class="svalue fvalue" id="stat-delta">—</div></div>
+
+    <!-- ROW 2: Stat cards -->
+    <div class="header-row2" id="header-stats-row">
+      <div class="stat-card"><div class="slabel" data-i18n="hdr_invested">INVESTI</div><div class="svalue fvalue" id="stat-invested">—</div></div>
+      <div class="stat-card"><div class="slabel" data-i18n="hdr_value">VALEUR MARCHÉ</div><div class="svalue fvalue" id="stat-current">—</div></div>
+      <div class="stat-card"><div class="slabel" data-i18n="hdr_delta">PLUS-VALUE</div><div class="svalue fvalue" id="stat-delta">—</div></div>
+    </div>
+
+    <!-- ROW 3: Rank + Progress -->
+    <div class="header-row3">
+      <div class="rank-row">
+        <span id="rank-icon" style="font-size:1.4rem">🌱</span>
+        <div style="flex:1">
+          <div id="rank-name" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--orange)">Recrue Galactic Ranger</div>
+          <div id="rank-next-label" style="font-size:.62rem;color:var(--text-dim)"></div>
+        </div>
+      </div>
+      <div class="progress-bars">
+        <div class="progress-row">
+          <span class="progress-label" data-i18n="rank_progression">PROGRESSION VERS LE PROCHAIN RANG</span>
+          <span id="pct-display" style="font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;color:var(--orange)">0%</span>
+        </div>
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="energy-bar" style="width:0%"></div></div>
+        <div class="progress-row" style="margin-top:6px">
+          <span class="progress-label" data-i18n="collection_rc">COLLECTION R&C</span>
+          <span style="font-size:.72rem;color:var(--orange)">
+            <span id="collection-pct" style="font-family:'Orbitron',sans-serif;font-weight:700">0%</span>
+            <span onclick="editCollectionTotal()" style="font-size:.6rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">?</span> <span data-i18n="objects_known">objets connus</span>)</span>
+          </span>
+        </div>
+        <div class="energy-bar-bg"><div class="energy-bar-fill" id="collection-bar" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--gold))"></div></div>
+      </div>
+      <div class="count-row">
+        <span>● <strong id="cnt-owned" style="color:var(--owned)">0</strong> <span data-i18n="items_owned">possédés</span></span>
+        <span>● <strong id="cnt-wish" style="color:var(--wishlist)">0</strong> <span data-i18n="items_wishlist">souhaités</span></span>
+        <span>● <strong id="cnt-total" style="color:var(--text-dim)">0</strong> <span data-i18n="items_total">total</span></span>
+      </div>
     </div>
   </header>
 
-  <!-- RANK & PROGRESS SECTION -->
-  <div class="rank-section" id="rank-section" style="padding:16px 24px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,.05)">
-    <!-- Rank row -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-      <div id="rank-icon" style="font-size:1.8rem">🌱</div>
-      <div style="flex:1">
-        <div id="rank-name" style="font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:700;color:var(--orange)">Recrue Galactic Ranger</div>
-        <div id="rank-next-label" style="font-size:.68rem;color:var(--text-dim);margin-top:2px"></div>
-      </div>
-    </div>
-    <!-- Rank progress bar -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <span style="font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim)" data-i18n="rank_progression">PROGRESSION VERS LE PROCHAIN RANG</span>
-      <span id="pct-display" style="font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:700;color:var(--orange)">0%</span>
-    </div>
-    <div class="energy-bar-bg" style="margin-bottom:10px">
-      <div class="energy-bar-fill" id="energy-bar" style="width:0%"></div>
-    </div>
-    <!-- Collection R&C bar -->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <span style="font-size:.6rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim)" data-i18n="collection_rc">COLLECTION R&C</span>
-      <span style="font-size:.72rem;color:var(--orange)">
-        <span id="collection-pct" style="font-family:'Orbitron',sans-serif;font-weight:700">0%</span>
-        <span onclick="editCollectionTotal()" style="font-size:.62rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">?</span> <span data-i18n="objects_known">objets connus</span>)</span>
-      </span>
-    </div>
-    <div class="energy-bar-bg" style="margin-bottom:10px">
-      <div class="energy-bar-fill" id="collection-bar" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--gold))"></div>
-    </div>
-    <!-- Counts -->
-    <div style="display:flex;gap:16px;font-size:.78rem">
-      <span>● <span id="cnt-owned" style="font-weight:700;color:var(--owned)">0</span> <span data-i18n="items_owned">possédés</span></span>
-      <span>● <span id="cnt-wish" style="font-weight:700;color:var(--wishlist)">0</span> <span data-i18n="items_wishlist">souhaités</span></span>
-      <span>● <span id="cnt-total" style="font-weight:700;color:var(--text-dim)">0</span> <span data-i18n="items_total">total</span></span>
-    </div>
-  </div>
-
-  <div class="controls" style="flex-direction:column;align-items:stretch;gap:10px">
+    <div class="controls" style="flex-direction:column;align-items:stretch;gap:10px">
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span class="filter-label">Type</span>
       <div class="filter-group" id="type-filters">
