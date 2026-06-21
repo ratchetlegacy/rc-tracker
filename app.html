@@ -756,6 +756,12 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <button class="mobile-menu-btn" onclick="openMobileMenu()">☰</button>
       </div>
     </div>
+    <!-- Stat boxes - desktop only -->
+    <div class="header-stats" id="header-stats-row">
+      <div class="stat-card"><div class="slabel" data-i18n="hdr_invested">INVESTI</div><div class="svalue fvalue" id="stat-invested">—</div></div>
+      <div class="stat-card"><div class="slabel" data-i18n="hdr_value">VALEUR MARCHÉ</div><div class="svalue fvalue" id="stat-current">—</div></div>
+      <div class="stat-card"><div class="slabel" data-i18n="hdr_delta">PLUS-VALUE</div><div class="svalue fvalue" id="stat-delta">—</div></div>
+    </div>
   </header>
 
   <div class="controls" style="flex-direction:column;align-items:stretch;gap:10px">
@@ -1828,12 +1834,14 @@ function render(){
   const hasBuy=ownedItems.some(i=>i.buy_price!=null);
   const hasCur=ownedItems.some(i=>i.cur_value!=null);
   const delta=totalCurrent-totalInvested;
-  document.getElementById('stat-invested').textContent=hasBuy?fmtEur(totalInvested):'—';
-  document.getElementById('stat-current').textContent=hasCur?fmtEur(totalCurrent):'—';
+  const elInvested=document.getElementById('stat-invested');
+  const elCurrent=document.getElementById('stat-current');
+  if(elInvested) elInvested.textContent=hasBuy?fmtEur(totalInvested):'—';
+  if(elCurrent) elCurrent.textContent=hasCur?fmtEur(totalCurrent):'—';
   if(hasBuy&&hasCur){
     const sign=delta>=0?'+':'';
-    document.getElementById('stat-delta').textContent=sign+fmtEur(delta);
-    document.getElementById('stat-delta').className='fvalue '+(delta>0?'profit-pos':delta<0?'profit-neg':'profit-zero');
+    const elDelta=document.getElementById('stat-delta');
+    if(elDelta){ elDelta.textContent=sign+fmtEur(delta); elDelta.className='fvalue '+(delta>0?'profit-pos':delta<0?'profit-neg':'profit-zero'); }
   }else{ document.getElementById('stat-delta').textContent='—'; document.getElementById('stat-delta').className='fvalue profit-zero'; }
 
   // progress
