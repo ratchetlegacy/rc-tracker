@@ -567,10 +567,10 @@
     .mobile-menu-close{align-self:flex-end;background:transparent;border:none;color:var(--text-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px}
     @media(max-width:600px){
       .mobile-menu-btn{display:block !important}
-      .header-user .header-user-btns{display:none !important}
-      .header-user .signout-btn{display:none !important}
+      #header-user-btns{display:none !important}
+      .signout-btn{display:none !important}
       .header-titles h1{font-size:.75rem !important}
-      .header-titles span{font-size:.55rem !important;display:none}
+      .header-titles span{font-size:.55rem !important;display:none !important}
       .card-grid{grid-template-columns:repeat(2,1fr) !important}
       .header-user{gap:6px !important}
       #header-pseudo{max-width:70px !important;font-size:.65rem !important}
@@ -2127,6 +2127,16 @@ async function launchApp(){
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>Chargement...</div>';
   await fetchItems(); render(); loadProfile(); loadTheme(); loadRcTotal(); loadLang(); setTimeout(applyTranslations, 300);
   document.getElementById('fixed-footer').style.display = 'flex';
+  // Handle mobile header
+  function checkMobile(){
+    const isMobile = window.innerWidth <= 600;
+    const btns = document.getElementById('header-user-btns');
+    const hamburger = document.querySelector('.mobile-menu-btn');
+    if(btns) btns.style.display = isMobile ? 'none' : 'flex';
+    if(hamburger) hamburger.style.display = isMobile ? 'block' : 'none';
+  }
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
   if(localStorage.getItem('kofi_dismissed')==='1'){
     const banner = document.getElementById('kofi-banner');
     if(banner) banner.style.display='none';
@@ -3679,7 +3689,7 @@ function startBarcodeDetection(video){
     closeScanner();
     return;
   }
-  const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e','isbn'] });
+  const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e'] });
   scannerInterval = setInterval(async () => {
     try {
       const barcodes = await detector.detect(video);
