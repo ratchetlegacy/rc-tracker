@@ -2280,7 +2280,8 @@ function savePseudo(){
 // ══ CLOUDINARY GALLERY ══
 const CLD_CLOUD = 'dmfq8hkvu';
 const CLD_API_KEY = '487377232434179';
-const CLD_API_SECRET = 'yK0_WCH2PBlU3GNEoElDEL14IGQ';
+// Cloudinary API SECRET must NEVER live in client code. It belongs only in the
+// Supabase Edge Function (cloudinary-import) as an environment secret.
 const CLD_FOLDERS = [];
 
 // ══ SUPABASE GALLERY ══
@@ -2404,7 +2405,7 @@ async function submitPhoto(){
 }
 
 // ══ ADMIN: ADD IMAGE TO BANK ══
-const ADMIN_EMAILS = ['ratchetlegacy@gmail.com','mathieu.reveillere.17@gmail.com'];
+const ADMIN_EMAILS = ['ratchetlegacy@gmail.com'];
 function isAdmin(){ return currentUser && ADMIN_EMAILS.includes((currentUser.email||'').toLowerCase()); }
 
 async function addImageToBank(name, url, folder, platform, region, edition){
