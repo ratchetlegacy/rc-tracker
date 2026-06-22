@@ -414,7 +414,9 @@
     .admin-img-info{padding:8px}
     .admin-img-name{font-size:.72rem;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .admin-img-meta{font-size:.62rem;color:var(--text-dim);margin-top:2px}
-    .admin-img-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(255,77,106,.8);border:none;color:#fff;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .admin-img-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(255,77,106,.8);border:none;color:#fff;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+    .admin-img-edit{position:absolute;top:4px;right:30px;width:22px;height:22px;border-radius:50%;background:rgba(123,79,212,.85);border:none;color:#fff;font-size:.66rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+    .admin-img-edit:hover{background:rgba(123,79,212,1)}
     /* SUBMISSIONS TABLE */
     .admin-sub-list{display:flex;flex-direction:column;gap:10px}
     .admin-sub-card{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px;display:flex;gap:14px;align-items:flex-start}
@@ -1764,17 +1766,27 @@ const RANKS=[
   {min:2250, max:2499, name:'Légende Insomniac',         icon:'🏆', color:'#FFD700'},
   {min:2500, max:99999,name:'Ratchet Legacy',            icon:'✨', color:'#B9F2FF'},
 ];
-// Collection total (configurable)
+// Collection total — shared value loaded from Supabase app_settings (key 'rc_total')
+let rcCollectionTotal = 0;
 function getCollectionTotal(){
-  return parseInt(localStorage.getItem('rc_collection_total') || '0');
+  return rcCollectionTotal || 0;
 }
 function editCollectionTotal(){
+  if(!isAdmin()){ showToast('Only an admin can change this total.', 'error'); return; }
   const current = getCollectionTotal();
-  const val = prompt('Total number of known R&C items in your collection (e.g. 500):', current || '');
+  const val = prompt('Total number of known R&C items (shared for everyone, e.g. 2500):', current || '');
   if(val !== null && !isNaN(parseInt(val)) && parseInt(val) > 0){
-    localStorage.setItem('rc_collection_total', parseInt(val));
-    render();
+    saveRcTotalValue(parseInt(val));
   }
+}
+async function saveRcTotalValue(val){
+  try {
+    const { error } = await sbClient.from('app_settings').upsert([{key:'rc_total', value: String(val)}], {onConflict:'key'});
+    if(error) throw error;
+    rcCollectionTotal = val;
+    showToast('Total updated: ' + val + ' items!', 'success');
+    render();
+  } catch(e){ showToast('Error: ' + e.message, 'error'); }
 }
 function getRank(n){
   return RANKS.find(r=>n>=r.min&&n<=r.max)||RANKS[0];
@@ -2445,7 +2457,7 @@ function filterAdminImages(){
 
 function renderAdminImages(imgs){
   const grid = document.getElementById('admin-images-grid');
-  if(!imgs.length){ grid.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;grid-column:1/-1">Aucune image.</div>'; return; }
+  if(!imgs.length){ grid.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;grid-column:1/-1">No images.</div>'; return; }
   grid.innerHTML = '';
   imgs.forEach(img => {
     const card = document.createElement('div');
@@ -2456,9 +2468,33 @@ function renderAdminImages(imgs){
       +'<div class="admin-img-name">'+escHtml(img.name)+'</div>'
       +'<div class="admin-img-meta">'+escHtml(img.folder||'')+(img.region?' · '+img.region:'')+'</div>'
       +'</div>'
-      +'<button class="admin-img-del" data-id="'+img.id+'" onclick="adminDeleteImage(this.dataset.id)">✕</button>';
+      +'<button class="admin-img-edit" data-id="'+img.id+'" onclick="adminEditImage(this.dataset.id)" title="Rename / edit">✏️</button>'
+      +'<button class="admin-img-del" data-id="'+img.id+'" onclick="adminDeleteImage(this.dataset.id)" title="Delete">✕</button>';
     grid.appendChild(card);
   });
+}
+
+async function adminEditImage(id){
+  const img = adminImages.find(i=>String(i.id)===String(id));
+  if(!img){ showToast('Image not found', 'error'); return; }
+  const newName = prompt('Image name:', img.name||'');
+  if(newName===null) return; // cancelled
+  const trimmed = newName.trim();
+  if(!trimmed){ showToast('Name cannot be empty', 'error'); return; }
+  const newFolder = prompt('Folder (PS2, PS3, PS4, PS5, PSP, Figures, Others):', img.folder||'');
+  if(newFolder===null) return;
+  const newRegion = prompt('Region (PAL, NTSC-U, NTSC-J, Worldwide) — optional:', img.region||'');
+  if(newRegion===null) return;
+  try {
+    const { error } = await sbClient.from('images').update({
+      name: trimmed,
+      folder: newFolder.trim(),
+      region: newRegion.trim()
+    }).eq('id', id);
+    if(error) throw error;
+    showToast('Image updated!', 'success');
+    await loadAdminImages();
+  } catch(e){ showToast('Error: '+e.message, 'error'); }
 }
 
 async function adminAddImage(){
@@ -3473,9 +3509,11 @@ async function saveRcTotal(){
   try {
     const { error } = await sbClient.from('app_settings').upsert([{key:'rc_total', value: val.toString()}], {onConflict:'key'});
     if(error) throw error;
+    rcCollectionTotal = val;
     showToast('Total updated: ' + val + ' items!', 'success');
     document.getElementById('admin-rc-total-current').textContent = 'Current: ' + val;
     updateRcProgressBar(val);
+    if(typeof render === 'function') render();
   } catch(e){ showToast('Error: ' + e.message, 'error'); }
 }
 
@@ -3483,7 +3521,11 @@ async function loadRcTotal(){
   try {
     const { data } = await sbClient.from('app_settings').select('value').eq('key','rc_total').single();
     const total = data ? parseInt(data.value) : 0;
-    if(total > 0) updateRcProgressBar(total);
+    if(total > 0){
+      rcCollectionTotal = total;
+      updateRcProgressBar(total);
+      if(typeof render === 'function') render();
+    }
     // Update admin field if open
     const field = document.getElementById('admin-rc-total');
     const current = document.getElementById('admin-rc-total-current');
