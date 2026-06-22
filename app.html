@@ -786,7 +786,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
-    <h2 id="modal-title">NOUVEL OBJET</h2>
+    <h2 id="modal-title">New item</h2>
 
     <!-- Infos générales -->
     <div class="form-section">
@@ -1469,7 +1469,7 @@ async function dbDelete(id){ const {error}=await sbClient.from('items').delete()
 function openModal(id){
   editingId=id||null;
   const item=id?items.find(i=>i.id===id):null;
-  document.getElementById('modal-title').textContent=item?"MODIFIER L'OBJET":'NEW ITEM';
+  document.getElementById('modal-title').textContent=item?t('modal_edit'):t('modal_new');
   document.getElementById('inp-name').value=item?item.name:'';
 
   // Type
@@ -1717,7 +1717,7 @@ async function setStatus(id,status){
   catch(e){ showToast('Error: '+e.message,'error'); }
 }
 async function deleteItem(id){
-  if(!confirm('Supprimer cet objet ?')) return;
+  if(!confirm(t('confirm_del_item'))) return;
   try{ await dbDelete(id); items=items.filter(i=>i.id!==id); render(); showToast('Supprimé.','success'); }
   catch(e){ showToast('Error: '+e.message,'error'); }
 }
@@ -1779,7 +1779,7 @@ function renderDelta(buy,cur){
   return `<div class="card-delta ${cls}">${arrow} ${sign}${fmtEur(d)} (${sign}${pct}%)</div>`;
 }
 
-const COND_LABELS={'occasion':'Second hand','neuf_blister':'Neuf / Blister','neuf':'Neuf','non_concerne':'—'};
+function condLabels(){return {'occasion':t('cond_second_hand'),'neuf_blister':t('cond_new_sealed'),'neuf':t('cond_new'),'non_concerne':'—'};}
 const COND_CLASSES={'occasion':'cond-used','neuf_blister':'cond-blister','neuf':'cond-new','non_concerne':'region'};
 const TYPE_ICONS={'Physical game':'🎮','Console Pack':'🕹','Console seule':'🖥','Accessoire':'🔌','Goodie':'🎁','Figure':'🤖','Statuette':'🏆','Plush':'🧸','Clothing':'👕','Guide':'📗','Book':'📖','Manga':'📚','Comics':'📕','Film':'🎬','Soundtrack':'🎵','Impression':'🖼','Cross-over':'🎯','Divers':'📦','Controller Pack':'🎮','Press Kit':'📰'};
 
@@ -1797,7 +1797,7 @@ function renderCompleteness(item){
   if(!chips.length) return '';
   const missing = chips.filter(c=>c.val==='absent');
   const missingBadge = missing.length > 0
-    ? '<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;background:rgba(255,77,106,.15);border:1px solid rgba(255,77,106,.4);color:var(--missing);font-size:.65rem;font-weight:700;margin-bottom:6px;flex-wrap:wrap">❌ Manque : '+missing.map(c=>c.label).join(', ')+'</div>'
+    ? '<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;background:rgba(255,77,106,.15);border:1px solid rgba(255,77,106,.4);color:var(--missing);font-size:.65rem;font-weight:700;margin-bottom:6px;flex-wrap:wrap">'+t('comp_missing_prefix')+missing.map(c=>c.label).join(', ')+'</div>'
     : '<div style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);color:var(--owned);font-size:.65rem;font-weight:600;margin-bottom:6px">✅ Complete</div>';
   return '<div class="card-completeness">'
     + missingBadge
@@ -1885,7 +1885,7 @@ function render(){
     if(!catItems.length) return;
     anyItem=true;
     const icon=getIcon(type)||'📦';
-    const label=type||'Sans catégorie';
+    const label=type||t('card_uncat');
     const ownedCat=items.filter(i=>(i.type||'')===(type||'')&&i.status==='owned').length;
     const totalCat=items.filter(i=>(i.type||'')===(type||'')).length;
 
@@ -1906,8 +1906,8 @@ function render(){
       const card=document.createElement('div');
       card.className='item-card '+item.status;
       const condCls=COND_CLASSES[item.condition||'occasion']||'cond-used';
-      const condLabel=COND_LABELS[item.condition||'occasion']||'Second hand';
-      const STATUS_LABELS={owned:'Possédé',wishlist:'Souhaité',missing:'Manquant'};
+      const condLabel=condLabels()[item.condition||'occasion']||t('cond_second_hand');
+      const STATUS_LABELS={owned:t('card_owned'),wishlist:t('card_wishlist'),missing:t('card_missing')};
       const showPrices=item.buy_price!=null||item.cur_value!=null;
 
       // Build card HTML using string concatenation to avoid backtick issues
@@ -1950,10 +1950,10 @@ function render(){
       // Prices
       if(showPrices){
         html += '<div class="card-prices">';
-        html += '<div class="price-chip"><div class="plabel">Achat</div>';
+        html += '<div class="price-chip"><div class="plabel">'+t('card_buy')+'</div>';
         html += item.buy_price!=null?'<div class="pval">'+fmtEur(item.buy_price)+'</div>':'<div class="pval no-price">—</div>';
         html += '</div>';
-        html += '<div class="price-chip"><div class="plabel">Valeur</div>';
+        html += '<div class="price-chip"><div class="plabel">'+t('card_value')+'</div>';
         html += item.cur_value!=null?'<div class="pval">'+fmtEur(item.cur_value)+'</div>':'<div class="pval no-price">—</div>';
         html += '</div></div>';
         html += renderDelta(item.buy_price,item.cur_value);
@@ -1983,16 +1983,16 @@ function render(){
       grid.appendChild(card);
         });
   });
-  if(!anyItem) container.innerHTML=`<div class="empty-state"><div class="icon">🔧</div>No items found.</div>`;
+  if(!anyItem) container.innerHTML=`<div class="empty-state"><div class="icon">🔧</div>${t('empty_state')}</div>`;
 }
 
 // ══ DETAIL ══
-const COND_LABELS_FULL={'occasion':'Second hand','neuf_blister':'Neuf sous blister','neuf':'Neuf','non_concerne':'Non concerné'};
+function condLabelsFull(){return {'occasion':t('cond_second_hand'),'neuf_blister':t('cond_new_sealed_full'),'neuf':t('cond_new'),'non_concerne':t('cond_na')};}
 function openDetail(id){
   const item=items.find(i=>i.id===id); if(!item) return;
-  const STATUS_LABELS={owned:'Possédé',wishlist:'Souhaité',missing:'Manquant'};
+  const STATUS_LABELS={owned:t('card_owned'),wishlist:t('card_wishlist'),missing:t('card_missing')};
   const condCls=COND_CLASSES[item.condition||'occasion']||'cond-used';
-  const condLabel=COND_LABELS_FULL[item.condition||'occasion']||'Second hand';
+  const condLabel=condLabelsFull()[item.condition||'occasion']||t('cond_second_hand');
 
   // cover
   const img=document.getElementById('detail-img');
@@ -2042,17 +2042,17 @@ function openDetail(id){
     const sign=d!=null&&d>=0?'+':'';
     const dCls=d>0?'pos':d<0?'neg':'zero';
     gridHTML+=`<div class="detail-block full">
-      <div class="dblabel">Valeur financière</div>
+      <div class="dblabel">${t('detail_finance_lbl')}</div>
       <div class="detail-prices">
-        <div class="detail-price-box"><div class="dplabel">Prix d'achat</div><div class="dpvalue">${fmtEur(item.buy_price)}</div></div>
-        <div class="detail-price-box"><div class="dplabel">Valeur actuelle</div><div class="dpvalue" style="color:var(--purple-light)">${fmtEur(item.cur_value)}</div></div>
+        <div class="detail-price-box"><div class="dplabel">${t('detail_buy_lbl')}</div><div class="dpvalue">${fmtEur(item.buy_price)}</div></div>
+        <div class="detail-price-box"><div class="dplabel">${t('detail_value_lbl')}</div><div class="dpvalue" style="color:var(--purple-light)">${fmtEur(item.cur_value)}</div></div>
       </div>
       ${d!=null?`<div class="detail-delta card-delta ${dCls}" style="margin:8px auto 0;width:fit-content">${d>0?'▲':'▼'} ${sign}${fmtEur(d)} (${sign}${item.buy_price>0?((d/parseFloat(item.buy_price))*100).toFixed(0):0}%)</div>`:''}
     </div>`;
   }
 
   // rating
-  if(item.rating) gridHTML+=`<div class="detail-block"><div class="dblabel">Note personnelle</div><div class="detail-stars">${'⭐'.repeat(item.rating)} <span style="font-size:.75rem;color:var(--text-dim)">${item.rating}/5</span></div></div>`;
+  if(item.rating) gridHTML+=`<div class="detail-block"><div class="dblabel">${t('detail_rating_lbl')}</div><div class="detail-stars">${'⭐'.repeat(item.rating)} <span style="font-size:.75rem;color:var(--text-dim)">${item.rating}/5</span></div></div>`;
 
   // notes
   if(item.notes) gridHTML+=`<div class="detail-block ${item.rating?'':'full'}"><div class="dblabel">Notes</div><div class="dbvalue" style="font-weight:400;font-size:.8rem">${escHtml(item.notes)}</div></div>`;
@@ -2103,9 +2103,9 @@ function show(id){
 async function launchApp(){
   // email display handled by profile
   show('app-screen');
-  document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>Chargement...</div>';
+  document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>'+t('loading')+'</div>';
   await fetchItems(); render(); loadProfile(); loadTheme(); loadRcTotal(); loadLang(); setTimeout(applyTranslations, 300);
-  document.getElementById('fixed-footer').style.display = 'flex';
+  const _ff = document.getElementById('fixed-footer'); if(_ff) _ff.style.display = 'flex';
   // Sync mobile header
   function syncMobileHeader(){
     const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'R&C';
@@ -2120,7 +2120,7 @@ async function launchApp(){
     const banner = document.getElementById('kofi-banner');
     if(banner) banner.style.display='none';
   }
-  if(isAdmin()) document.getElementById('admin-btn').style.display='block';
+  if(isAdmin()){ const _ab = document.getElementById('mobile-admin-btn'); if(_ab) _ab.style.display='flex'; }
 }
 
 // ══ FILTER LISTENERS ══
@@ -2149,8 +2149,8 @@ function loadProfile(){
   const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id) || '';
   const avatar = localStorage.getItem('rc_avatar_'+currentUser.id) || '🦊';
   // header
-  document.getElementById('header-pseudo').textContent = pseudo || 'My Profile';
-  document.getElementById('header-avatar').textContent = avatar;
+  const hPseudo = document.getElementById('header-pseudo'); if(hPseudo) hPseudo.textContent = pseudo || 'My Profile';
+  const hAvatar = document.getElementById('header-avatar'); if(hAvatar) hAvatar.textContent = avatar;
 }
 
 function openProfile(){
@@ -2173,7 +2173,7 @@ function openProfile(){
     el.onclick = () => {
       localStorage.setItem('rc_avatar_'+currentUser.id, a);
       document.getElementById('profile-avatar-big').textContent = a;
-      document.getElementById('header-avatar').textContent = a;
+      const _ha = document.getElementById('header-avatar'); if(_ha) _ha.textContent = a;
       grid.querySelectorAll('.avatar-opt').forEach(o => o.classList.remove('selected'));
       el.classList.add('selected');
       showToast('Avatar mis à jour !', 'success');
@@ -2223,7 +2223,7 @@ function openProfile(){
       +'</div>'
     ).join('');
   } else {
-    topEl.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem">Aucun objet avec valeur renseignée.</div>';
+    topEl.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem">'+t('no_value_obj')+'</div>';
   }
 
   // Type breakdown
@@ -2252,7 +2252,7 @@ function savePseudo(){
   if(!pseudo){ showToast('Entre un pseudo !','error'); return; }
   localStorage.setItem('rc_pseudo_'+currentUser.id, pseudo);
   document.getElementById('profile-pseudo-display').textContent = pseudo;
-  document.getElementById('header-pseudo').textContent = pseudo;
+  const _hp = document.getElementById('header-pseudo'); if(_hp) _hp.textContent = pseudo;
   showToast('Username saved!','success');
 }
 
@@ -2709,6 +2709,17 @@ const T = {
     'kpi_neuf':'Neuf/Blister','kpi_occasion':'Second hand',
     // Empty state
     'empty_state':'No items found.',
+    // Card / render labels
+    'card_owned':'Possédé','card_wishlist':'Souhaité','card_missing':'Manquant',
+    'card_buy':'Achat','card_value':'Valeur','card_uncat':'Sans catégorie',
+    'cond_second_hand':'Occasion','cond_new_sealed':'Neuf / Blister','cond_new':'Neuf',
+    'cond_new_sealed_full':'Neuf sous blister','cond_na':'Non concerné',
+    'loading':'Chargement...','modal_new_item':'Nouvel objet',
+    'detail_finance_lbl':'Valeur financière','detail_buy_lbl':"Prix d'achat",
+    'detail_value_lbl':'Valeur actuelle','detail_rating_lbl':'Note personnelle',
+    'comp_missing_prefix':'❌ Manque : ','comp_missing_lc':'manque : ',
+    'no_value_obj':'Aucun objet avec valeur renseignée.',
+    'confirm_del_item':'Supprimer cet objet ?',
     // Detail labels
     'detail_completeness':'Completeness',
     'detail_finance':'FINANCIAL VALUE',
@@ -2891,6 +2902,17 @@ const T = {
     'kpi_neuf':'New/Sealed','kpi_occasion':'Second hand',
     // Empty state
     'empty_state':'No items found.',
+    // Card / render labels
+    'card_owned':'Owned','card_wishlist':'Wishlist','card_missing':'Missing',
+    'card_buy':'Buy','card_value':'Value','card_uncat':'Uncategorized',
+    'cond_second_hand':'Second hand','cond_new_sealed':'New / Sealed','cond_new':'New',
+    'cond_new_sealed_full':'Brand new (sealed)','cond_na':'N/A',
+    'loading':'Loading...','modal_new_item':'New item',
+    'detail_finance_lbl':'Financial value','detail_buy_lbl':'Purchase price',
+    'detail_value_lbl':'Current value','detail_rating_lbl':'Personal rating',
+    'comp_missing_prefix':'❌ Missing: ','comp_missing_lc':'missing: ',
+    'no_value_obj':'No items with value set.',
+    'confirm_del_item':'Delete this item?',
     // Detail labels
     'detail_completeness':'Completeness',
     'detail_finance':'FINANCIAL VALUE',
@@ -3122,7 +3144,7 @@ function renderStats(){
       incomplete.forEach(item=>{
         const fields = COMPLETENESS_CONFIG[item.type]||[];
         const missing = fields.filter(f=>item['comp_'+f.k]==='absent').map(f=>f.l).join(', ');
-        html += '<div class="comp-alert"><div class="top-list-icon">'+getIcon(item.type)+'</div><div class="comp-alert-name">'+escHtml(item.name)+'</div><div class="comp-alert-missing">manque: '+escHtml(missing)+'</div></div>';
+        html += '<div class="comp-alert"><div class="top-list-icon">'+getIcon(item.type)+'</div><div class="comp-alert-name">'+escHtml(item.name)+'</div><div class="comp-alert-missing">'+t('comp_missing_lc')+escHtml(missing)+'</div></div>';
       });
       html += '</div>';
     }
