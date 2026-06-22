@@ -2404,8 +2404,8 @@ async function submitPhoto(){
 }
 
 // ══ ADMIN: ADD IMAGE TO BANK ══
-const ADMIN_EMAIL = 'ratchetlegacy@gmail.com';
-function isAdmin(){ return currentUser && currentUser.email === ADMIN_EMAIL; }
+const ADMIN_EMAILS = ['ratchetlegacy@gmail.com','mathieu.reveillere.17@gmail.com'];
+function isAdmin(){ return currentUser && ADMIN_EMAILS.includes((currentUser.email||'').toLowerCase()); }
 
 async function addImageToBank(name, url, folder, platform, region, edition){
   const thumbUrl = url.replace('/upload/', '/upload/w_200,h_260,c_fit,q_auto/');
