@@ -1022,14 +1022,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <input type="text" id="gallery-search" placeholder="🔍 Search..." oninput="renderGalleryGrid(galleryImages)"
         style="flex:1;min-width:150px;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none"/>
       <div id="gallery-folders" style="display:flex;gap:5px;flex-wrap:wrap">
-        <button class="gallery-folder-btn active" onclick="loadGalleryImages('');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">All</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS2');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS2</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS3');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS3</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS4');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS4</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('PS5');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS5</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('PSP');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PSP</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('Figures');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Figures</button>
-        <button class="gallery-folder-btn" onclick="loadGalleryImages('Others');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Others</button>
+        <button class="gallery-folder-btn active" onclick="loadGalleryImages('')">All</button>
       </div>
     </div>
     <div class="gallery-grid" id="gallery-grid">
@@ -2313,12 +2306,31 @@ let gallerySelectedUrl = '';
 async function openGallery(){
   gallerySelectedUrl = document.getElementById('inp-img').value || '';
   document.getElementById('gallery-overlay').classList.add('open');
+  await buildGalleryFolders();
   await loadGalleryImages();
+}
+
+// Build folder buttons dynamically from the distinct folders present in the DB
+async function buildGalleryFolders(){
+  const container = document.getElementById('gallery-folders');
+  if(!container) return;
+  let folders = [];
+  try {
+    const { data } = await sbClient.from('images').select('folder');
+    const set = new Set((data||[]).map(r=>(r.folder||'').trim()).filter(Boolean));
+    folders = [...set].sort((a,b)=>a.localeCompare(b));
+  } catch(e){ /* keep just All on error */ }
+  let html = '<button class="gallery-folder-btn active" data-folder="" onclick="loadGalleryImages(\'\')">All</button>';
+  folders.forEach(f=>{
+    const safe = f.replace(/'/g,"\\'");
+    html += '<button class="gallery-folder-btn" data-folder="'+escHtml(f)+'" onclick="loadGalleryImages(\''+safe+'\')">'+escHtml(f)+'</button>';
+  });
+  container.innerHTML = html;
 }
 
 async function loadGalleryImages(folder=''){
   document.querySelectorAll('.gallery-folder-btn').forEach(b=>{
-    b.classList.toggle('active', b.textContent.trim()===(folder||'All'));
+    b.classList.toggle('active', (b.getAttribute('data-folder')||'')===(folder||''));
   });
   const grid = document.getElementById('gallery-grid');
   grid.innerHTML = '<div class="gallery-empty">⚙️ Loading...</div>';
@@ -2340,7 +2352,7 @@ function renderGalleryGrid(images){
   const filtered = images.filter(img => !search || img.name.toLowerCase().includes(search) || (img.platform||'').toLowerCase().includes(search));
   
   if(!filtered.length){
-    grid.innerHTML = '<div class="gallery-empty">📭 Aucune image trouvée.<br><small>Les images sont ajout&eacute;es par l&apos;admin.</small></div>';
+    grid.innerHTML = '<div class="gallery-empty">📭 No images found.<br><small>Images are added by the admin.</small></div>';
     return;
   }
   grid.innerHTML = '';
