@@ -14,6 +14,8 @@
   <link rel="apple-touch-icon" href="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://media-library.cloudinary.com/global/all.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
@@ -374,7 +376,7 @@
     /* CLOUDINARY GALLERY */
     .gallery-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
     .gallery-overlay.open{display:flex}
-    .gallery-modal{background:var(--bg2);border:1px solid rgba(123,79,212,.3);border-radius:18px;width:100%;max-width:700px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+    .gallery-modal{background:var(--bg2);border:1px solid rgba(123,79,212,.3);border-radius:18px;width:100%;max-width:880px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
     .gallery-header{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:12px}
     .gallery-header h3{font-family:'Orbitron',sans-serif;font-size:.88rem;font-weight:700;color:var(--purple-light);flex:1}
     .gallery-close{background:transparent;border:none;color:var(--text-dim);font-size:1.1rem;cursor:pointer}
@@ -382,11 +384,11 @@
     .gallery-folder-btn{padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.74rem;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s}
     .gallery-folder-btn:hover{border-color:var(--purple);color:var(--text)}
     .gallery-folder-btn.active{background:var(--purple);border-color:var(--purple);color:#fff}
-    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;padding:12px 16px;overflow-y:auto;flex:1;max-height:400px}
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:14px 18px;overflow-y:auto;flex:1;max-height:62vh}
     .gallery-item{border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;background:var(--bg3);display:flex;flex-direction:column;align-items:center}
     .gallery-item:hover{border-color:var(--purple);transform:scale(1.03)}
     .gallery-item.selected{border-color:var(--orange);box-shadow:0 0 12px rgba(255,107,26,.4)}
-    .gallery-item img{width:100%;height:120px;object-fit:contain;flex-shrink:0}
+    .gallery-item img{width:100%;height:190px;object-fit:contain;flex-shrink:0}
     .gallery-empty{text-align:center;padding:40px;color:var(--text-dim);font-size:.82rem;grid-column:1/-1}
     .gallery-footer{padding:14px 22px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:center;gap:10px}
     .gallery-selected-preview{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--text-dim)}
@@ -1377,12 +1379,45 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
   <div class="menu-item" onclick="closeMobileMenu();openProfile()">🦊 <span id="mobile-pseudo">My profile</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 Stats</div>
+  <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
   <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
   <div class="menu-item" onclick="closeMobileMenu();cycleTheme()" id="mobile-theme-btn">🌌 Theme</div>
   <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin</div>
   <div class="menu-item" style="color:var(--missing);border-color:rgba(255,77,106,.2)" onclick="closeMobileMenu();doSignOut()">🚪 Sign out</div>
   <a href="https://ko-fi.com/ratchetlegacy" target="_blank" class="menu-item" style="color:#FF8C42;border-color:rgba(255,140,66,.2)">☕ Fuel the collection</a>
   <a href="legal.html" class="menu-item" style="color:var(--text-dim);font-size:.72rem">📄 Terms</a>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="export-overlay">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" onclick="closeExportModal()">✕</button>
+    <h2>📄 Export collection</h2>
+    <div class="form-section">
+      <div class="form-section-title">What to export</div>
+      <div class="form-group">
+        <select id="export-scope">
+          <option value="all">📦 Everything (owned + wishlist)</option>
+          <option value="owned" selected>✅ Owned only</option>
+          <option value="wishlist">🎯 Wishlist only</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Format</div>
+      <p style="font-size:.74rem;color:var(--text-dim);margin-bottom:12px;line-height:1.5">
+        <strong style="color:var(--text)">Simple table</strong> — light, fast, plain list of items.<br>
+        <strong style="color:var(--text)">Fancy PDF</strong> — card layout with cover images (takes a bit longer).
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button onclick="exportSimplePDF()" style="flex:1;min-width:150px;padding:11px;background:var(--bg3);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);font-family:Orbitron,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.04em;cursor:pointer">📋 SIMPLE TABLE</button>
+        <button onclick="exportFancyPDF()" style="flex:1;min-width:150px;padding:11px;background:linear-gradient(135deg,var(--purple),var(--orange));border:none;border-radius:10px;color:#fff;font-family:Orbitron,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.04em;cursor:pointer">✨ FANCY PDF</button>
+      </div>
+      <div id="export-progress" style="display:none;margin-top:14px;font-size:.78rem;color:var(--purple-light);text-align:center">
+        <span class="spin" style="display:inline-block;animation:spin 1s linear infinite">⚙️</span> <span id="export-progress-text">Generating...</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -2348,7 +2383,7 @@ function renderGalleryGrid(images){
     imgEl.loading = 'lazy';
     imgEl.alt = img.name;
     const label = document.createElement('div');
-    label.style.cssText = 'font-size:.58rem;color:var(--text-dim);text-align:center;padding:3px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%';
+    label.style.cssText = 'font-size:.68rem;color:var(--text-dim);text-align:center;padding:4px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%';
     label.textContent = img.name;
     el.appendChild(imgEl);
     el.appendChild(label);
@@ -3893,6 +3928,206 @@ function openMobileMenu(){
 function closeMobileMenu(){
   document.getElementById('mobile-menu-overlay').classList.remove('open');
   document.getElementById('mobile-menu-panel').classList.remove('open');
+}
+
+
+// ══ EXPORT PDF ══
+function openExportModal(){ document.getElementById('export-overlay').classList.add('open'); }
+function closeExportModal(){ document.getElementById('export-overlay').classList.remove('open'); }
+function getExportItems(){
+  const scope = document.getElementById('export-scope').value;
+  let list = items.slice();
+  if(scope==='owned') list = list.filter(i=>i.status==='owned');
+  else if(scope==='wishlist') list = list.filter(i=>i.status==='wishlist');
+  return list;
+}
+function exportScopeLabel(){
+  const scope = document.getElementById('export-scope').value;
+  return scope==='owned'?'Owned':scope==='wishlist'?'Wishlist':'Full collection';
+}
+function showExportProgress(txt){
+  const p=document.getElementById('export-progress');
+  const t=document.getElementById('export-progress-text');
+  if(p) p.style.display='block';
+  if(t) t.textContent=txt||'Generating...';
+}
+function hideExportProgress(){
+  const p=document.getElementById('export-progress');
+  if(p) p.style.display='none';
+}
+function exportFileName(ext){
+  const pseudo = (localStorage.getItem('rc_pseudo_'+currentUser.id)||'collection').replace(/[^a-z0-9]/gi,'_');
+  const d = new Date().toISOString().slice(0,10);
+  return 'RC_'+pseudo+'_'+d+'.'+ext;
+}
+
+// --- SIMPLE TABLE PDF ---
+function exportSimplePDF(){
+  const list = getExportItems();
+  if(!list.length){ showToast('Nothing to export for this selection.', 'error'); return; }
+  if(!window.jspdf || !window.jspdf.jsPDF){ showToast('PDF library not loaded. Check your connection.', 'error'); return; }
+  showExportProgress('Building table...');
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+    const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
+
+    // Header
+    doc.setFillColor(13,15,26);
+    doc.rect(0,0,297,22,'F');
+    doc.setTextColor(155,111,244);
+    doc.setFont('helvetica','bold'); doc.setFontSize(15);
+    doc.text('Ratchet & Clank Collection', 14, 11);
+    doc.setTextColor(180,185,200); doc.setFontSize(9); doc.setFont('helvetica','normal');
+    doc.text(pseudo + '  ·  ' + exportScopeLabel() + '  ·  ' + list.length + ' items  ·  ' + new Date().toLocaleDateString(), 14, 17);
+
+    const rows = list.map(i=>{
+      const buy = i.buy_price!=null ? parseFloat(i.buy_price).toFixed(2)+' EUR' : '-';
+      const val = i.cur_value!=null ? parseFloat(i.cur_value).toFixed(2)+' EUR' : '-';
+      const cond = i.condition==='neuf_blister' ? 'New/Sealed' : (i.condition==='occasion'?'Second hand':'-');
+      const status = i.status==='owned'?'Owned':i.status==='wishlist'?'Wishlist':i.status;
+      return [ i.name||'', i.type||'', i.platform||'', i.edition||'', i.region||'', cond, status, buy, val ];
+    });
+
+    doc.autoTable({
+      startY: 26,
+      head: [['Name','Type','Platform','Edition','Region','Condition','Status','Buy','Value']],
+      body: rows,
+      styles: { fontSize:7.5, cellPadding:1.6, textColor:[40,40,50] },
+      headStyles: { fillColor:[123,79,212], textColor:[255,255,255], fontStyle:'bold', fontSize:8 },
+      alternateRowStyles: { fillColor:[244,243,250] },
+      margin: { left:10, right:10 },
+    });
+
+    // Totals (owned with values)
+    const owned = list.filter(i=>i.status==='owned');
+    const invested = owned.reduce((s,i)=>i.buy_price!=null?s+parseFloat(i.buy_price):s,0);
+    const market = owned.reduce((s,i)=>i.cur_value!=null?s+parseFloat(i.cur_value):s,0);
+    let y = doc.lastAutoTable.finalY + 8;
+    doc.setTextColor(60,60,70); doc.setFontSize(9); doc.setFont('helvetica','bold');
+    doc.text('Total invested: '+invested.toFixed(2)+' EUR     Market value: '+market.toFixed(2)+' EUR     Delta: '+(market-invested>=0?'+':'')+(market-invested).toFixed(2)+' EUR', 14, y);
+
+    doc.save(exportFileName('pdf'));
+    hideExportProgress();
+    showToast('PDF exported!', 'success');
+    closeExportModal();
+  } catch(e){ hideExportProgress(); showToast('Export error: '+e.message, 'error'); }
+}
+
+// --- FANCY PDF WITH COVERS ---
+function loadImageAsDataURL(url){
+  return new Promise((resolve)=>{
+    if(!url){ resolve(null); return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function(){
+      try {
+        const canvas = document.createElement('canvas');
+        const maxW = 240; const scale = Math.min(1, maxW/img.naturalWidth);
+        canvas.width = img.naturalWidth*scale;
+        canvas.height = img.naturalHeight*scale;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#1A1E35'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        resolve({ data: canvas.toDataURL('image/jpeg',0.8), w:canvas.width, h:canvas.height });
+      } catch(e){ resolve(null); }
+    };
+    img.onerror = function(){ resolve(null); };
+    img.src = url;
+  });
+}
+
+async function exportFancyPDF(){
+  const list = getExportItems();
+  if(!list.length){ showToast('Nothing to export for this selection.', 'error'); return; }
+  if(!window.jspdf || !window.jspdf.jsPDF){ showToast('PDF library not loaded. Check your connection.', 'error'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
+
+  const pageW = 210, pageH = 297;
+  const margin = 12;
+  const cols = 3;
+  const gap = 6;
+  const cardW = (pageW - margin*2 - gap*(cols-1)) / cols;
+  const imgH = 34;
+  const cardH = imgH + 26;
+  let x = margin, y = 30, col = 0;
+
+  function header(){
+    doc.setFillColor(13,15,26);
+    doc.rect(0,0,pageW,24,'F');
+    doc.setTextColor(155,111,244); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+    doc.text('Ratchet & Clank Collection', margin, 11);
+    doc.setTextColor(180,185,200); doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.text(pseudo + '  ·  ' + exportScopeLabel() + '  ·  ' + list.length + ' items  ·  ' + new Date().toLocaleDateString(), margin, 18);
+  }
+  header();
+
+  for(let idx=0; idx<list.length; idx++){
+    const it = list[idx];
+    showExportProgress('Adding item '+(idx+1)+' / '+list.length+'...');
+
+    if(y + cardH > pageH - 14){
+      doc.addPage(); header(); y = 30; x = margin; col = 0;
+    }
+
+    // card background
+    doc.setFillColor(245,244,250); doc.setDrawColor(220,218,230);
+    doc.roundedRect(x, y, cardW, cardH, 2, 2, 'FD');
+
+    // status color strip
+    const sc = it.status==='owned'?[61,214,140]:it.status==='wishlist'?[255,180,71]:[255,77,106];
+    doc.setFillColor(sc[0],sc[1],sc[2]);
+    doc.roundedRect(x, y, 2, cardH, 1, 1, 'F');
+
+    // cover
+    const cover = await loadImageAsDataURL(it.img_url);
+    const innerX = x+4, innerW = cardW-8;
+    if(cover){
+      const ratio = cover.w/cover.h;
+      let dw = innerW, dh = dw/ratio;
+      if(dh > imgH){ dh = imgH; dw = dh*ratio; }
+      const ox = innerX + (innerW-dw)/2;
+      try { doc.addImage(cover.data,'JPEG', ox, y+3, dw, dh); } catch(e){}
+    } else {
+      doc.setFillColor(220,218,230); doc.rect(innerX, y+3, innerW, imgH, 'F');
+      doc.setTextColor(150,150,160); doc.setFontSize(12);
+      doc.text('—', innerX+innerW/2, y+3+imgH/2, {align:'center'});
+    }
+
+    // name
+    let ty = y + imgH + 8;
+    doc.setTextColor(30,30,40); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+    const name = doc.splitTextToSize(it.name||'', innerW);
+    doc.text(name[0]||'', innerX, ty);
+    // meta
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.2); doc.setTextColor(110,110,125);
+    ty += 4;
+    const meta = [it.platform, it.edition, it.region].filter(Boolean).join(' · ');
+    if(meta){ const ml = doc.splitTextToSize(meta, innerW); doc.text(ml[0]||'', innerX, ty); ty += 3.5; }
+    // prices
+    if(it.buy_price!=null || it.cur_value!=null){
+      const buy = it.buy_price!=null?parseFloat(it.buy_price).toFixed(0)+'E':'-';
+      const val = it.cur_value!=null?parseFloat(it.cur_value).toFixed(0)+'E':'-';
+      doc.setTextColor(123,79,212); doc.setFont('helvetica','bold'); doc.setFontSize(6.4);
+      doc.text('Buy '+buy+'   Val '+val, innerX, ty);
+    }
+
+    // advance grid
+    col++;
+    if(col>=cols){ col=0; x=margin; y += cardH + gap; }
+    else { x += cardW + gap; }
+  }
+
+  // footer on last page
+  doc.setTextColor(150,150,160); doc.setFontSize(7);
+  doc.text('Generated with Ratchet Legacy Tracker', margin, pageH-8);
+
+  doc.save(exportFileName('pdf'));
+  hideExportProgress();
+  showToast('Fancy PDF exported!', 'success');
+  closeExportModal();
 }
 
 async function boot(){
