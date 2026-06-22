@@ -388,7 +388,8 @@
     .gallery-item{border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;background:var(--bg3);display:flex;flex-direction:column;align-items:center}
     .gallery-item:hover{border-color:var(--purple);transform:scale(1.03)}
     .gallery-item.selected{border-color:var(--orange);box-shadow:0 0 12px rgba(255,107,26,.4)}
-    .gallery-item img{width:100%;height:auto;max-height:280px;object-fit:contain;flex-shrink:0;background:var(--bg);padding:6px}
+    .gallery-item .gallery-thumb{width:100%;height:260px;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:8px;box-sizing:border-box}
+    .gallery-item .gallery-thumb img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}
     .gallery-empty{text-align:center;padding:40px;color:var(--text-dim);font-size:.82rem;grid-column:1/-1}
     .gallery-footer{padding:14px 22px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:center;gap:10px}
     .gallery-selected-preview{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--text-dim)}
@@ -2364,14 +2365,17 @@ function renderGalleryGrid(images){
     el.dataset.url = url;
     el.title = img.name + (img.platform ? ' — '+img.platform : '') + (img.region ? ' ('+img.region+')' : '');
     el.onclick = () => selectGalleryImg(url);
+    const thumbWrap = document.createElement('div');
+    thumbWrap.className = 'gallery-thumb';
     const imgEl = document.createElement('img');
     imgEl.src = url;
     imgEl.loading = 'lazy';
     imgEl.alt = img.name;
+    thumbWrap.appendChild(imgEl);
     const label = document.createElement('div');
     label.style.cssText = 'font-size:.68rem;color:var(--text-dim);text-align:center;padding:4px 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%';
     label.textContent = img.name;
-    el.appendChild(imgEl);
+    el.appendChild(thumbWrap);
     el.appendChild(label);
     grid.appendChild(el);
   });
