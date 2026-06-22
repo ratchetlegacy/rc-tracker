@@ -71,6 +71,10 @@
       .header-titles span{display:none}
       .header-user{gap:4px}
       .header-user button{font-size:.62rem;padding:4px 8px}
+      .header-profile-pseudo{display:none}
+      .header-profile-btn{margin-left:auto;padding:3px;border-radius:50%;gap:0}
+      .header-profile-avatar{width:32px;height:32px;font-size:1.05rem}
+      .header-top{gap:8px}
     }
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
@@ -111,8 +115,12 @@
     /* APP */
     #app-screen{display:none}
     header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 50%,#0D1520 100%);border-bottom:1px solid rgba(123,79,212,.3);padding:16px 24px;position:relative;overflow:hidden}
-    .hamburger-btn{margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 12px;color:var(--chrome);font-size:1.1rem;cursor:pointer;flex-shrink:0}
+    .hamburger-btn{background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 12px;color:var(--chrome);font-size:1.1rem;cursor:pointer;flex-shrink:0}
     .hamburger-btn:hover{background:rgba(255,255,255,.08)}
+    .header-profile-btn{margin-left:auto;display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.05);border:1px solid rgba(123,79,212,.3);border-radius:30px;padding:5px 14px 5px 5px;cursor:pointer;transition:all .2s;flex-shrink:0}
+    .header-profile-btn:hover{background:rgba(123,79,212,.18);border-color:rgba(123,79,212,.5)}
+    .header-profile-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--orange));display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;box-shadow:0 2px 8px rgba(123,79,212,.4)}
+    .header-profile-pseudo{font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--text);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     header::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(123,79,212,.15) 0%,transparent 70%);pointer-events:none}
     .header-top{display:flex;align-items:center;gap:14px;margin-bottom:18px}
     .logo-img{width:52px;height:52px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 20px rgba(123,79,212,.4);position:relative}
@@ -723,7 +731,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div id="app-screen">
   <header>
     <div class="header-top">
-      <div class="logo-img" onclick="openMobileMenu()" style="cursor:pointer" title="Menu">
+      <div class="logo-img" title="R&C Tracker">
         <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" alt="R&C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
         <div class="logo-fallback">🔧</div>
       </div>
@@ -731,30 +739,34 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <h1>Ratchet &amp; Clank Collection</h1>
         <span>TRACKER MADE BY RATCHET LEGACY</span>
       </div>
-      <button class="hamburger-btn" onclick="openMobileMenu()">☰</button>
+      <button class="header-profile-btn" onclick="openProfile()" title="My profile">
+        <span class="header-profile-avatar" id="header-avatar">🦊</span>
+        <span class="header-profile-pseudo" id="header-pseudo">My profile</span>
+      </button>
+      <button class="hamburger-btn" onclick="openMobileMenu()" title="Menu">☰</button>
     </div>
 
     <!-- Progress bars only -->
     <div style="margin-top:10px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-        <span style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)">PROGRESSION TO NEXT RANK</span>
+        <span data-i18n="rank_progression" style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)">PROGRESSION TO NEXT RANK</span>
         <span id="pct-display" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--orange)">0%</span>
       </div>
       <div class="energy-bar-bg" style="margin-bottom:6px"><div class="energy-bar-fill" id="energy-bar" style="width:0%"></div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-        <span style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)">R&C COLLECTION</span>
+        <span data-i18n="collection_rc" style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)">R&C COLLECTION</span>
         <span>
           <span id="collection-pct" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--orange)">0%</span>
-          <span onclick="editCollectionTotal()" style="font-size:.6rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">2500</span> known)</span>
+          <span onclick="editCollectionTotal()" style="font-size:.6rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">2500</span> <span data-i18n="objects_known">known</span>)</span>
         </span>
       </div>
       <div class="energy-bar-bg" style="margin-bottom:6px"><div class="energy-bar-fill" id="collection-bar" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--gold))"></div></div>
       <div style="display:flex;gap:16px;font-size:.75rem;color:var(--text-dim)">
         <span id="rank-icon" style="font-size:1rem">🌱</span>
         <span id="rank-name" style="color:var(--orange);font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700"></span>
-        <span style="margin-left:auto">● <strong id="cnt-owned" style="color:var(--owned)">0</strong> owned</span>
-        <span>● <strong id="cnt-wish" style="color:var(--wishlist)">0</strong> wishlist</span>
-        <span>● <strong id="cnt-total" style="color:var(--text-dim)">0</strong> total</span>
+        <span style="margin-left:auto">● <strong id="cnt-owned" style="color:var(--owned)">0</strong> <span data-i18n="items_owned">owned</span></span>
+        <span>● <strong id="cnt-wish" style="color:var(--wishlist)">0</strong> <span data-i18n="items_wishlist">wishlist</span></span>
+        <span>● <strong id="cnt-total" style="color:var(--text-dim)">0</strong> <span data-i18n="items_total">total</span></span>
       </div>
     </div>
   </header>
@@ -2149,7 +2161,7 @@ function loadProfile(){
   const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id) || '';
   const avatar = localStorage.getItem('rc_avatar_'+currentUser.id) || '🦊';
   // header
-  const hPseudo = document.getElementById('header-pseudo'); if(hPseudo) hPseudo.textContent = pseudo || 'My Profile';
+  const hPseudo = document.getElementById('header-pseudo'); if(hPseudo) hPseudo.textContent = pseudo || t('btn_profile');
   const hAvatar = document.getElementById('header-avatar'); if(hAvatar) hAvatar.textContent = avatar;
 }
 
@@ -2566,120 +2578,120 @@ const T = {
     'btn_stats':'📊 Stats',
     'btn_admin':'🛠️ Admin',
     'btn_exchanges':'🤝 Échanges',
-    'btn_signout':'Sign out',
-    'btn_profile':'My profile',
+    'btn_signout':'Déconnexion',
+    'btn_profile':'Mon profil',
     // Filters
-    'filter_all':'All','filter_owned':'Possédés','filter_wishlist':'Souhaités',
-    'filter_search':'🔍 Rechercher...','filter_type':'All types',
+    'filter_all':'Tous','filter_owned':'Possédés','filter_wishlist':'Souhaités',
+    'filter_search':'🔍 Rechercher...','filter_type':'Tous les types',
     'filter_sort_recent':'Recent','filter_sort_name':'Name A→Z',
     'filter_sort_value':'Value ↓','filter_sort_rating':'Rating ↓',
     // Modal
-    'modal_new':'NEW ITEM','modal_edit':"MODIFIER L'OBJET",
+    'modal_new':'NOUVEL OBJET','modal_edit':"MODIFIER L'OBJET",
     'section_general':'📋 Informations générales',
-    'lbl_name':'Name *','lbl_type':'Type','lbl_edition':'Edition',
-    'lbl_manufacturer':'Manufacturer','lbl_platform':'Support / Platform',
-    'lbl_region':'Region','lbl_lang':'Language','lbl_status':'Status',
-    'section_condition':'📦 Condition & Completeness',
-    'lbl_condition':'Condition','lbl_quality':'Quality','lbl_completeness':'Completeness',
+    'lbl_name':'Nom *','lbl_type':'Type','lbl_edition':'Édition',
+    'lbl_manufacturer':'Fabricant','lbl_platform':'Support / Plateforme',
+    'lbl_region':'Région','lbl_lang':'Langue','lbl_status':'Statut',
+    'section_condition':'📦 État & Complétude',
+    'lbl_condition':'État','lbl_quality':'Qualité','lbl_completeness':'Complétude',
     'section_finance':'💰 Valeur financière',
     'lbl_buy_price':"Prix d'achat (€)",'lbl_cur_value':'Valeur actuelle (€)',
-    'hint_buy_price':'What you paid','hint_cur_value':'Market price',
+    'hint_buy_price':'Ce que tu as payé','hint_cur_value':'Prix du marché',
     'section_extras':'✨ Extras',
     'lbl_rating':'Note personnelle','lbl_image':'Image',
-    'lbl_notes':'Notes','lbl_comment':'Comment',
-    'lbl_wish_url':"🛒 Buy link (eBay, Vinted...)",
-    'lbl_bonus':'Bonus included (optional)',
-    'btn_cancel':'Annuler','btn_save':'SAVE',
-    'btn_gallery':'🖼️ Gallery','btn_scan':'📷 SCANNER LE CODE-BARRES',
-    'btn_submit_photo':'📸 Submit a missing photo',
+    'lbl_notes':'Notes','lbl_comment':'Commentaire',
+    'lbl_wish_url':"🛒 Lien d'achat (eBay, Vinted...)",
+    'lbl_bonus':'Bonus inclus (optionnel)',
+    'btn_cancel':'Annuler','btn_save':'ENREGISTRER',
+    'btn_gallery':'🖼️ Galerie','btn_scan':'📷 SCANNER LE CODE-BARRES',
+    'btn_submit_photo':'📸 Soumettre une photo manquante',
     // Status/Condition
-    'status_owned':'✅ Owned','status_wishlist':'🎯 Wishlist',
-    'cond_neuf':'🆕 Brand new (sealed)','cond_occasion':'📦 Second hand',
-    'grade_excellent':'⭐⭐⭐⭐⭐ Excellent','grade_tres_bon':'⭐⭐⭐⭐ Very good',
-    'grade_bon':'⭐⭐⭐ Good','grade_correct':'⭐⭐ Fair','grade_mauvais':'⭐ Poor',
+    'status_owned':'✅ Possédé','status_wishlist':'🎯 Souhaité',
+    'cond_neuf':'🆕 Neuf (sous blister)','cond_occasion':'📦 Occasion',
+    'grade_excellent':'⭐⭐⭐⭐⭐ Excellent','grade_tres_bon':'⭐⭐⭐⭐ Très bon',
+    'grade_bon':'⭐⭐⭐ Bon','grade_correct':'⭐⭐ Correct','grade_mauvais':'⭐ Mauvais',
     // Completeness
-    'comp_present':'✅ Present','comp_absent':'❌ Missing','comp_na':'— N/A',
-    'comp_complete':'✅ Complete','comp_complete_blister':'✅ Complete (blister)',
+    'comp_present':'✅ Présent','comp_absent':'❌ Manquant','comp_na':'— N/A',
+    'comp_complete':'✅ Complet','comp_complete_blister':'✅ Complet (blister)',
     'comp_missing':'❌ Manque : ','comp_not_set':'Non renseignée — cliquez sur Modifier',
     // Progress
-    'rank_progression':'PROGRESSION TO NEXT RANK',
-    'collection_rc':'Collection R&C','objects_known':'known items',
-    'rank_next':'items before','rank_max':'✨ Maximum rank !',
-    'items_owned':'owned','items_wishlist':'wishlist','items_total':'total',
+    'rank_progression':'PROGRESSION VERS LE RANG SUIVANT',
+    'collection_rc':'COLLECTION R&C','objects_known':'connus',
+    'rank_next':'objets avant','rank_max':'✨ Rang maximum !',
+    'items_owned':'possédés','items_wishlist':'souhaités','items_total':'au total',
     // Stats cards
     'stat_invested':'INVESTED','stat_value':'VALUE MARCHÉ','stat_delta':'PROFIT/LOSS',
     // Detail view
     'lbl_completeness_detail':'Completeness','lbl_finance':'FINANCIAL VALUE',
     'lbl_buy':"PURCHASE PRICE",'lbl_market':'CURRENT VALUE',
     'lbl_notes_detail':'Notes','lbl_rating_detail':'Note',
-    'btn_modify':'✏️ Edit','btn_mark_owned':'✅ Mark as owned',
-    'btn_exchange':'🤝 Propose for trade','btn_remove_exchange':'🗑️ Remove from trades',
-    'btn_delete':'🗑️ Delete','btn_see_listing':'🛒 See listing',
-    'btn_duplicate':'📋 Duplicate',
+    'btn_modify':'✏️ Modifier','btn_mark_owned':'✅ Marquer comme possédé',
+    'btn_exchange':'🤝 Proposer à l\'échange','btn_remove_exchange':'🗑️ Retirer des échanges',
+    'btn_delete':'🗑️ Supprimer','btn_see_listing':'🛒 Voir l\'annonce',
+    'btn_duplicate':'📋 Dupliquer',
     // Empty states
     'empty_collection':'Aucun objet dans ta collection',
     'empty_add':'Clique sur + ADD pour commencer !',
     'empty_wishlist':'Ta liste de souhaits est vide',
     'empty_search':'Aucun résultat pour cette recherche',
     // Gallery
-    'gallery_title':"🖼️ Image Bank",
+    'gallery_title':"🖼️ Banque d'images",
     'gallery_search':'🔍 Rechercher...','gallery_loading':'⚙️ Chargement...',
-    'gallery_empty':'No images available','gallery_select':'No image selected',
-    'btn_choose':'CHOOSE',
+    'gallery_empty':'Aucune image disponible','gallery_select':'Aucune image sélectionnée',
+    'btn_choose':'CHOISIR',
     // Auth
-    'auth_login':'Sign in','auth_register':'Create account',
-    'auth_email':'email@exemple.com','auth_password':'Password',
-    'auth_confirm_password':'Confirm password',
-    'btn_login':'SIGN IN','btn_register':'CREATE ACCOUNT',
+    'auth_login':'Connexion','auth_register':'Créer un compte',
+    'auth_email':'email@exemple.com','auth_password':'Mot de passe',
+    'auth_confirm_password':'Confirmer le mot de passe',
+    'btn_login':'CONNEXION','btn_register':'CRÉER LE COMPTE',
     // Profile
-    'profile_pseudo':'✏️ Username','profile_public':'🌐 Public profile',
-    'profile_public_desc':'Share your collection. Prices are never visible.',
-    'profile_link':'🔗 Your public link:','btn_copy':'📋 Copy',
-    'profile_toggle':'Make my profile public',
+    'profile_pseudo':'✏️ Pseudo','profile_public':'🌐 Profil public',
+    'profile_public_desc':'Partage ta collection. Les prix ne sont jamais visibles.',
+    'profile_link':'🔗 Ton lien public :','btn_copy':'📋 Copier',
+    'profile_toggle':'Rendre mon profil public',
     // Admin
-    'admin_title':'🛠️ ADMIN PANEL',
-    'admin_rc_total':'🎮 Total known R&C items',
-    'admin_images':'🖼️ Add image to bank',
-    'admin_bank':'📚 Images in bank',
+    'admin_title':'🛠️ PANNEAU ADMIN',
+    'admin_rc_total':'🎮 Total d\'objets R&C connus',
+    'admin_images':'🖼️ Ajouter une image à la banque',
+    'admin_bank':'📚 Images dans la banque',
     'admin_import':'☕ IMPORTER DEPUIS CLOUDINARY',
-    'admin_submissions':'📸 Submitted photos',
+    'admin_submissions':'📸 Photos soumises',
     // Marketplace
-    'market_title':'TRADE MARKETPLACE',
-    'market_filter_all':'All types',
-    'market_exchange':'🔄 Trades','market_sale':'💰 Sales','market_gift':'🎁 Gifts',
-    'market_empty':'No listings yet.',
-    'market_contact':'📩 CONTACT','market_remove':'🗑️ REMOVE LISTING',
-    'market_no_contact':'Pas de contact renseigné',
+    'market_title':'MARKETPLACE D\'ÉCHANGES',
+    'market_filter_all':'Tous les types',
+    'market_exchange':'🔄 Échanges','market_sale':'💰 Ventes','market_gift':'🎁 Dons',
+    'market_empty':'Aucune annonce pour le moment.',
+    'market_contact':'📩 CONTACTER','market_remove':'🗑️ RETIRER MON ANNONCE',
+    'market_no_contact':'Aucun contact renseigné',
     // Exchange modal
-    'exchange_title':'🤝 List this item',
+    'exchange_title':'🤝 Mettre cet objet en annonce',
     'exchange_consent':"⚠️ En proposant cet objet, vous acceptez de rendre visible votre pseudo et vos coordonnées de contact aux autres utilisateurs.",
-    'exchange_type':'Listing type *',
-    'exchange_looking':'What you want / Asking price',
-    'exchange_link':'Sale link (optional)',
+    'exchange_type':'Type d\'annonce *',
+    'exchange_looking':'Ce que tu cherches / Prix demandé',
+    'exchange_link':'Lien de vente (optionnel)',
     'exchange_contact':'Contact *',
-    'exchange_consent_check':"I agree my username and contact will be publicly visible",
-    'exchange_reminder':'⚠️ Remember to remove your listing once sold or traded!',
-    'btn_propose':'✅ LIST ITEM',
+    'exchange_consent_check':"J'accepte que mon pseudo et mon contact soient visibles publiquement",
+    'exchange_reminder':'⚠️ Pensez à retirer votre annonce une fois l\'objet vendu ou échangé !',
+    'btn_propose':'✅ PUBLIER L\'ANNONCE',
     // Toast messages
-    'toast_saved':'Item added!','toast_updated':'Item updated!',
-    'toast_deleted':'Item deleted.','toast_copied':'Link copied!',
-    'toast_exchange_published':'Listing published!',
-    'toast_exchange_removed':'Listing removed!',
-    'toast_image_added':'Image added!','toast_image_deleted':'Image deleted.',
-    'toast_pseudo_saved':'Username saved!',
+    'toast_saved':'Objet ajouté !','toast_updated':'Objet mis à jour !',
+    'toast_deleted':'Objet supprimé.','toast_copied':'Lien copié !',
+    'toast_exchange_published':'Annonce publiée !',
+    'toast_exchange_removed':'Annonce retirée !',
+    'toast_image_added':'Image ajoutée !','toast_image_deleted':'Image supprimée.',
+    'toast_pseudo_saved':'Pseudo enregistré !',
     'toast_import_success':'images importées !',
     // Scanner
-    'scan_title':'📷 Scan barcode',
-    'scan_hint':'Point the camera at the barcode',
+    'scan_title':'📷 Scanner le code-barres',
+    'scan_hint':'Vise le code-barres avec la caméra',
     'scan_detected':'✅ Code détecté !',
     'scan_searching':'🔍 Recherche en cours...',
     'scan_not_found':'Non trouvé. Remplissez manuellement.',
     'scan_not_supported':'Scan non supporté sur ce navigateur.',
     // Ko-fi
     'kofi_support':'SOUTENIR LE PROJET',
-    'kofi_desc':'This tracker is free — a coffee helps keep it alive!',
-    'footer_legal':'Terms & Privacy',
-    'footer_made':'Made with ❤️ by Ratchet Legacy',
+    'kofi_desc':'Ce tracker est gratuit — un café aide à le maintenir en vie !',
+    'footer_legal':'Mentions légales',
+    'footer_made':'Fait avec ❤️ par Ratchet Legacy',
     // Notifications
     'price_outdated_title':'objets à mettre à jour',
     'price_outdated_sub':'Valeur marché non mise à jour depuis plus de 30 jours.',
@@ -2687,10 +2699,10 @@ const T = {
     'price_no_value_sub':'Ajoute une valeur actuelle pour suivre ta collection.',
     'btn_see_list':'Voir la liste',
     'no_value_items':'Aucun objet avec valeur renseignée.',
-    'btn_back':'← Back',
-    'btn_back_stats':'← Back aux stats',
+    'btn_back':'← Retour',
+    'btn_back_stats':'← Retour aux stats',
     // Stats page
-    'stat_title':'📊 STATISTICS',
+    'stat_title':'📊 STATISTIQUES',
     'stat_by_type':'🥧 Distribution by type',
     'stat_owned_by_type':'📊 Owned by type',
     'stat_value_by_type':'💰 Market value by type',
@@ -2699,16 +2711,16 @@ const T = {
     'stat_by_region':'🌍 By region',
     'stat_ratings':'⭐ Personal ratings',
     'stat_completeness':'✅ Completeeness des objets',
-    'stat_complete':'Complete','stat_incomplete':'Incomplete','stat_rate':'Rate',
+    'stat_complete':'Complets','stat_incomplete':'Incomplets','stat_rate':'Taux',
     'stat_missing_items':'🚨 Objets avec éléments manquants :',
     'stat_no_comp':'Fill in completeness to see stats.',
     // KPI labels
     'kpi_total':'Total','kpi_owned':'Possédés','kpi_wishlist':'Souhaités',
-    'kpi_completeness':'Completeness','kpi_invested':'Investi',
+    'kpi_completeness':'Complétude','kpi_invested':'Investi',
     'kpi_value':'Valeur','kpi_delta':'Plus-value',
-    'kpi_neuf':'Neuf/Blister','kpi_occasion':'Second hand',
+    'kpi_neuf':'Neuf/Blister','kpi_occasion':'Occasion',
     // Empty state
-    'empty_state':'No items found.',
+    'empty_state':'Aucun objet trouvé.',
     // Card / render labels
     'card_owned':'Possédé','card_wishlist':'Souhaité','card_missing':'Manquant',
     'card_buy':'Achat','card_value':'Valeur','card_uncat':'Sans catégorie',
@@ -2721,39 +2733,39 @@ const T = {
     'no_value_obj':'Aucun objet avec valeur renseignée.',
     'confirm_del_item':'Supprimer cet objet ?',
     // Detail labels
-    'detail_completeness':'Completeness',
-    'detail_finance':'FINANCIAL VALUE',
-    'detail_buy':'PRIX D\'ACHAT','detail_market':'CURRENT VALUE',
+    'detail_completeness':'Complétude',
+    'detail_finance':'VALEUR FINANCIÈRE',
+    'detail_buy':'PRIX D\'ACHAT','detail_market':'VALEUR ACTUELLE',
     // Header stat labels  
-    'hdr_invested':'INVESTED','hdr_value':'VALUE MARCHÉ','hdr_delta':'PROFIT/LOSS',
+    'hdr_invested':'INVESTI','hdr_value':'VALEUR MARCHÉ','hdr_delta':'PLUS-VALUE',
     // Admin labels
-    'admin_name_lbl':'Name *','admin_folder_lbl':'Dossier',
-    'admin_platform_lbl':'Platform','admin_region_lbl':'Region',
-    'admin_edition_lbl':'Edition','admin_url_lbl':'URL de l\'image (Cloudinary) *',
+    'admin_name_lbl':'Nom *','admin_folder_lbl':'Dossier',
+    'admin_platform_lbl':'Support','admin_region_lbl':'Région',
+    'admin_edition_lbl':'Édition','admin_url_lbl':'URL de l\'image (Cloudinary) *',
     'admin_search':'🔍 Rechercher...','admin_loading':'Chargement...',
-    'admin_no_sub':'No pending submissions.',
-    'admin_approve':'✅ Approve','admin_reject':'❌ Reject',
-    'admin_save_total':'💾 SAVE',
-    'admin_add_btn':'+ ADD À LA BANQUE',
+    'admin_no_sub':'Aucune soumission en attente.',
+    'admin_approve':'✅ Approuver','admin_reject':'❌ Rejeter',
+    'admin_save_total':'💾 ENREGISTRER',
+    'admin_add_btn':'+ AJOUTER À LA BANQUE',
     // Profile screen
-    'profile_rank':'🏆 Rank','profile_stats':'📊 Statistics',
-    'profile_top5':'💎 Top 5 most valuable items',
-    'profile_by_type':'📦 Collection by type',
-    'profile_avatar_title':'🎭 Avatar','profile_pseudo_title':'✏️ Username',
-    'profile_save_pseudo':'SAVE',
+    'profile_rank':'🏆 Rang','profile_stats':'📊 Statistiques',
+    'profile_top5':'💎 Top 5 des objets les plus précieux',
+    'profile_by_type':'📦 Collection par type',
+    'profile_avatar_title':'🎭 Avatar','profile_pseudo_title':'✏️ Pseudo',
+    'profile_save_pseudo':'ENREGISTRER',
     // Submit photo
     'submit_title':'📸 Soumettre une photo',
     'submit_item_name':'Nom de l\'objet concerné',
     'submit_type':'Type / Catégorie',
     'submit_url':'URL de l\'image à soumettre',
-    'submit_comment':'Comment (optionnel)',
+    'submit_comment':'Commentaire (optionnel)',
     'submit_btn':'📸 SOUMETTRE',
     'submit_hint':'L\'image doit être accessible publiquement',
     // Legal
-    'legal_title':'Terms & Privacy',
-    'cgu_footer':'Terms & Privacy',
+    'legal_title':'Mentions légales',
+    'cgu_footer':'Mentions légales',
     'profile_no_value':'Aucun objet avec valeur renseignée.',
-    'profile_rank_next':'items before',
+    'profile_rank_next':'objets avant',
   },
   en: {
     // Header
@@ -2792,11 +2804,11 @@ const T = {
     'grade_bon':'⭐⭐⭐ Good','grade_correct':'⭐⭐ Fair','grade_mauvais':'⭐ Poor',
     // Completeness
     'comp_present':'✅ Present','comp_absent':'❌ Missing','comp_na':'— N/A',
-    'comp_complete':'✅ Completee','comp_complete_blister':'✅ Completee (sealed)',
+    'comp_complete':'✅ Complete','comp_complete_blister':'✅ Complete (sealed)',
     'comp_missing':'❌ Missing: ','comp_not_set':'Not filled — click Edit',
     // Progress
     'rank_progression':'PROGRESSION TO NEXT RANK',
-    'collection_rc':'R&C Collection','objects_known':'known items',
+    'collection_rc':'R&C COLLECTION','objects_known':'known',
     'rank_next':'items before','rank_max':'✨ Maximum rank!',
     'items_owned':'owned','items_wishlist':'wishlist','items_total':'total',
     // Stats cards
@@ -3537,119 +3549,73 @@ function applyTranslations(){
     else if(txt.includes('financière')||txt.includes('Financial')) el.textContent = t('section_finance');
     else if(txt.includes('Extras')) el.textContent = t('section_extras');
   });
-  // Update Ko-fi banner
-  const kofiBtn = document.querySelector('a[href*="ko-fi"]');
-  if(kofiBtn && kofiBtn.classList.contains('footer-kofi')) kofiBtn.textContent = '☕ '+'FUEL THE COLLECTION';
-  // Update signout button
-  document.querySelectorAll('.signout-btn').forEach(b=>b.textContent='Sign out');
-  // Update exchanges button
-  document.querySelectorAll('button[onclick*="openMarketplace"]').forEach(b=>b.textContent='🤝 Trades');
-  // Update stats button
-  document.querySelectorAll('button[onclick*="openStats"]').forEach(b=>b.textContent='📊 Stats');
-  // Update add button
-  document.querySelectorAll('button[onclick*="openModal()"]').forEach(b=>b.textContent='+ ADD');
-  // Update modal cancel/save
-  document.querySelectorAll('.btn-cancel').forEach(b=>b.textContent='Cancel');
-  document.querySelectorAll('.btn-save').forEach(b=>b.textContent='SAVE');
-  // Update gallery
+  // Ko-fi buttons
+  document.querySelectorAll('.footer-kofi').forEach(el=>{ el.textContent = t('kofi_support'); });
+  // Signout buttons
+  document.querySelectorAll('.signout-btn').forEach(b=>b.textContent=t('btn_signout'));
+  // Nav buttons by action
+  document.querySelectorAll('button[onclick*="openMarketplace"]').forEach(b=>b.textContent=t('btn_exchanges'));
+  document.querySelectorAll('button[onclick*="openStats"]').forEach(b=>b.textContent=t('btn_stats'));
+  document.querySelectorAll('button[onclick*="openModal()"]').forEach(b=>b.textContent=t('btn_add'));
+  // Modal cancel/save
+  document.querySelectorAll('.btn-cancel').forEach(b=>b.textContent=t('btn_cancel'));
+  document.querySelectorAll('.btn-save').forEach(b=>b.textContent=t('btn_save'));
+  // Gallery
   const galleryConfirm = document.querySelector('.gallery-confirm');
-  if(galleryConfirm) galleryConfirm.textContent = 'CHOOSE';
+  if(galleryConfirm) galleryConfirm.textContent = t('btn_choose');
   const galleryCancel = document.querySelector('.gallery-cancel');
-  if(galleryCancel) galleryCancel.textContent = 'Cancel';
-  // Update exchange modal
-  const exchangeSubmit = document.querySelector('.exchange-submit');
-  if(exchangeSubmit) exchangeSubmit.textContent = '✅ LIST ITEM';
-  const exchangeCancel = document.querySelector('.exchange-cancel');
-  if(exchangeCancel) exchangeCancel.textContent = 'Cancel';
-  // Update header stat labels
-  document.querySelectorAll('.stat-label').forEach(el=>{
-    const txt = el.textContent.trim();
-    if(txt===t('hdr_invested')||txt==='INVESTED') el.textContent=t('hdr_invested');
-    else if(txt.includes('MARCH')||txt.includes('VALUE')) el.textContent=t('hdr_value');
-    else if(txt.includes('PLUS')||txt.includes('PROFIT')) el.textContent=t('hdr_delta');
-  });
-  // Update empty state
-  document.querySelectorAll('.empty-state p, .empty-state span').forEach(el=>{
-    if(el.textContent.includes('Aucun objet')||el.textContent.includes('No items')) el.textContent='No items found.';
-  });
-  // Update CGU footer link
-  document.querySelectorAll('a[href="legal.html"]').forEach(el=>{
-    el.textContent='Terms & Privacy';
-  });
-  // Update Ko-fi support button text
-  document.querySelectorAll('.footer-kofi').forEach(el=>{
-    el.textContent='☕ '+'FUEL THE COLLECTION';
-  });
-  // Update mobile menu
-  const mobileTheme = document.getElementById('mobile-theme-btn');
-  if(mobileTheme) mobileTheme.querySelector('span') && (mobileTheme.textContent='🌌 '+(currentLang==='fr'?'Thème':'Theme'));
-  const mobileLang = document.getElementById('mobile-lang-btn');
-  if(mobileLang) mobileLang.textContent=(currentLang==='fr'?'🇫🇷 Language':'🇬🇧 Language');
-  // Update gallery title
+  if(galleryCancel) galleryCancel.textContent = t('btn_cancel');
   const galleryTitle = document.querySelector('.gallery-header h3');
-  if(galleryTitle) galleryTitle.textContent = '🖼️ Image Bank';
-  // Update scanner elements
+  if(galleryTitle) galleryTitle.textContent = t('gallery_title');
+  // Exchange modal
+  const exchangeSubmit = document.querySelector('.exchange-submit');
+  if(exchangeSubmit) exchangeSubmit.textContent = t('btn_propose');
+  const exchangeCancel = document.querySelector('.exchange-cancel');
+  if(exchangeCancel) exchangeCancel.textContent = t('btn_cancel');
+  // Scanner
   const scanTitle = document.querySelector('.scanner-title');
   if(scanTitle) scanTitle.textContent = t('scan_title');
-  // Update profile section titles
-  document.querySelectorAll('.profile-section-title, .admin-section-title').forEach(el=>{
-    const txt = el.textContent.trim();
-    if(txt.includes('Pseudo')||txt.includes('Username')) el.textContent='✏️ Username';
-    else if(txt.includes('Avatar')) el.textContent='🎭 Avatar';
-    else if(txt.includes('public')||txt.includes('Public')) el.textContent='🌐 Public profile';
-    else if(txt.includes('Rang')||txt.includes('Rank')) el.textContent='🏆 Rank';
-    else if(txt.includes('Statistics')||txt.includes('Statistics')) el.textContent='📊 Statistics';
-    else if(txt.includes('Top 5')) el.textContent='💎 Top 5 most valuable items';
-    else if(txt.includes('type')) el.textContent='📦 Collection by type';
+  // CGU footer link
+  document.querySelectorAll('a[href="legal.html"]').forEach(el=>{ el.textContent = t('footer_legal'); });
+  // Mobile menu theme/lang labels
+  const mobileTheme = document.getElementById('mobile-theme-btn');
+  if(mobileTheme){ const ic = (document.getElementById('theme-btn')?document.getElementById('theme-btn').textContent:'🌌'); mobileTheme.textContent = ic+' '+(currentLang==='fr'?'Thème':'Theme'); }
+  // Profile section titles (use stable data-i18n where present; fallback by keyword)
+  document.querySelectorAll('.profile-section-title').forEach(el=>{
+    const txt = el.textContent;
+    if(txt.includes('Pseudo')||txt.includes('Username')) el.textContent=t('profile_pseudo_title');
+    else if(txt.includes('Avatar')) el.textContent=t('profile_avatar_title');
+    else if(txt.toLowerCase().includes('public')) el.textContent=t('profile_public');
+    else if(txt.includes('Rang')||txt.includes('Rank')) el.textContent=t('profile_rank');
+    else if(txt.includes('Statistics')||txt.includes('Statistiques')) el.textContent=t('profile_stats');
+    else if(txt.includes('Top 5')) el.textContent=t('profile_top5');
+    else if(txt.toLowerCase().includes('type')) el.textContent=t('profile_by_type');
   });
-  // Update admin section titles
+  // Admin section titles
   document.querySelectorAll('.admin-section-title').forEach(el=>{
-    const txt = el.textContent.trim();
-    if(txt.includes('Total')) el.textContent='🎮 Total known R&C items';
-    else if(txt.includes('Ajouter')||txt.includes('Add image')) el.textContent='🖼️ Add image to bank';
-    else if(txt.includes('banque')||txt.includes('bank')) el.textContent='📚 Images in bank';
-    else if(txt.includes('soumises')||txt.includes('Submitted')) el.textContent='📸 Submitted photos';
+    const txt = el.textContent;
+    if(txt.includes('Total')) el.textContent=t('admin_rc_total');
+    else if(txt.includes('Add image')||txt.includes('Ajouter')) el.textContent=t('admin_images');
+    else if(txt.toLowerCase().includes('bank')||txt.includes('banque')) el.textContent=t('admin_bank');
+    else if(txt.includes('Submitted')||txt.includes('soumises')) el.textContent=t('admin_submissions');
   });
-  // Update stats page elements dynamically - only if stats screen is open
-  const statsScreen = document.getElementById('stats-screen');
-  if(statsScreen && statsScreen.classList.contains('open') && typeof renderStats === 'function') {
-    renderStats();
-  }
-  // Update header stat labels
+  // Generic data-i18n pass (authoritative)
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const key = el.getAttribute('data-i18n');
     if(el.tagName==='INPUT'||el.tagName==='TEXTAREA') el.placeholder=t(key);
     else el.textContent=t(key);
   });
-  // Update back buttons
+  // Back buttons
   document.querySelectorAll('.admin-back, .stats-back').forEach(el=>{
     if(el.textContent.includes('Retour')||el.textContent.includes('Back')) el.textContent=t('btn_back');
   });
-  // Re-render collection to update rank text etc
-  // render() called separately after translations applied
-  // Apply to key elements directly
-  const map = {
-    'add-btn': 'btn_add',
-    'header-pseudo': null, // don't translate pseudo
-  };
-  // Update add button
-  const addBtn = document.querySelector('button[onclick="openModal()"]');
-  if(addBtn) addBtn.textContent = '+ ADD';
-  // Update filter buttons
-  const filterBtns = document.querySelectorAll('.filter-btn[data-status="all"]');
-  filterBtns.forEach(b => b.textContent = t('filter_all'));
-  const filterOwned = document.querySelectorAll('.filter-btn[data-status="owned"]');
-  filterOwned.forEach(b => b.textContent = t('filter_owned'));
-  const filterWish = document.querySelectorAll('.filter-btn[data-status="wishlist"]');
-  filterWish.forEach(b => b.textContent = t('filter_wishlist'));
-  // Update search placeholder
-  const searchInput = document.getElementById('search-input');
-  if(searchInput) searchInput.placeholder = t('filter_search');
-  // Update modal labels
-  const modalTitle = document.getElementById('modal-title');
-  // Update footer
-  const kofiDesc = document.querySelector('.kofi-desc');
-  if(kofiDesc) kofiDesc.textContent = '100% free, no ads — your support makes it possible 🚀';
+  // Status filter buttons (keep emoji)
+  document.querySelectorAll('.filter-btn[data-status="all"]').forEach(b=>b.textContent=t('filter_all'));
+  document.querySelectorAll('.filter-btn[data-status="owned"]').forEach(b=>b.textContent='✅ '+t('filter_owned'));
+  document.querySelectorAll('.filter-btn[data-status="wishlist"]').forEach(b=>b.textContent='🎯 '+t('filter_wishlist'));
+  // Stats page refresh if open
+  const statsScreen = document.getElementById('stats-screen');
+  if(statsScreen && statsScreen.classList.contains('open') && typeof renderStats === 'function') renderStats();
   // Re-render collection
   if(typeof render === 'function') render();
 }
