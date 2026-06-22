@@ -763,7 +763,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span class="filter-label">Type</span>
       <div class="filter-group" id="type-filters">
-        <button class="filter-btn active" data-type="all">Tout</button>
+        <button class="filter-btn active" data-type="all">All</button>
       </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -1015,7 +1015,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <input type="text" id="gallery-search" placeholder="🔍 Search..." oninput="renderGalleryGrid(galleryImages)"
         style="flex:1;min-width:150px;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none"/>
       <div id="gallery-folders" style="display:flex;gap:5px;flex-wrap:wrap">
-        <button class="gallery-folder-btn active" onclick="loadGalleryImages('');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Tout</button>
+        <button class="gallery-folder-btn active" onclick="loadGalleryImages('');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">All</button>
         <button class="gallery-folder-btn" onclick="loadGalleryImages('PS2');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS2</button>
         <button class="gallery-folder-btn" onclick="loadGalleryImages('PS3');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS3</button>
         <button class="gallery-folder-btn" onclick="loadGalleryImages('PS4');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">PS4</button>
@@ -1321,7 +1321,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <h3>🤝 List this item</h3>
     <input type="hidden" id="exchange-item-id"/>
     <div class="exchange-consent">
-      ⚠️ En proposant cet objet, vous acceptez de rendre visible votre <strong>pseudo</strong> et vos <strong>coordonnées de contact</strong> aux autres utilisateurs de la plateforme.
+      ⚠️ By listing this item, you agree to make your <strong>username</strong> and <strong>contact info</strong> visible to other users.
     </div>
     <div class="exchange-form-group">
       <label>Listing type *</label>
@@ -1749,7 +1749,7 @@ function getCollectionTotal(){
 }
 function editCollectionTotal(){
   const current = getCollectionTotal();
-  const val = prompt('Nombre total d\'objets R&C connus dans ta collection (ex: 500):', current || '');
+  const val = prompt('Nombre total d\'objets R&C known dans ta collection (ex: 500):', current || '');
   if(val !== null && !isNaN(parseInt(val)) && parseInt(val) > 0){
     localStorage.setItem('rc_collection_total', parseInt(val));
     render();
@@ -1779,7 +1779,7 @@ function renderDelta(buy,cur){
   return `<div class="card-delta ${cls}">${arrow} ${sign}${fmtEur(d)} (${sign}${pct}%)</div>`;
 }
 
-const COND_LABELS={'occasion':'Occasion','neuf_blister':'Neuf / Blister','neuf':'Neuf','non_concerne':'—'};
+const COND_LABELS={'occasion':'Second hand','neuf_blister':'Neuf / Blister','neuf':'Neuf','non_concerne':'—'};
 const COND_CLASSES={'occasion':'cond-used','neuf_blister':'cond-blister','neuf':'cond-new','non_concerne':'region'};
 const TYPE_ICONS={'Physical game':'🎮','Console Pack':'🕹','Console seule':'🖥','Accessoire':'🔌','Goodie':'🎁','Figure':'🤖','Statuette':'🏆','Plush':'🧸','Clothing':'👕','Guide':'📗','Book':'📖','Manga':'📚','Comics':'📕','Film':'🎬','Soundtrack':'🎵','Impression':'🖼','Cross-over':'🎯','Divers':'📦','Controller Pack':'🎮','Press Kit':'📰'};
 
@@ -1810,7 +1810,7 @@ function getTypes(){ return [...new Set(items.map(i=>i.type).filter(Boolean))].s
 function buildTypeFilters(){
   const container=document.getElementById('type-filters');
   const types=getTypes();
-  container.innerHTML=`<button class="filter-btn ${activeType==='all'?'active':''}" data-type="all">Tout</button>`;
+  container.innerHTML=`<button class="filter-btn ${activeType==='all'?'active':''}" data-type="all">All</button>`;
   types.forEach(t=>{
     const btn=document.createElement('button');
     btn.className=`filter-btn ${activeType===t?'active':''}`;
@@ -1906,7 +1906,7 @@ function render(){
       const card=document.createElement('div');
       card.className='item-card '+item.status;
       const condCls=COND_CLASSES[item.condition||'occasion']||'cond-used';
-      const condLabel=COND_LABELS[item.condition||'occasion']||'Occasion';
+      const condLabel=COND_LABELS[item.condition||'occasion']||'Second hand';
       const STATUS_LABELS={owned:'Possédé',wishlist:'Souhaité',missing:'Manquant'};
       const showPrices=item.buy_price!=null||item.cur_value!=null;
 
@@ -1987,12 +1987,12 @@ function render(){
 }
 
 // ══ DETAIL ══
-const COND_LABELS_FULL={'occasion':'Occasion','neuf_blister':'Neuf sous blister','neuf':'Neuf','non_concerne':'Non concerné'};
+const COND_LABELS_FULL={'occasion':'Second hand','neuf_blister':'Neuf sous blister','neuf':'Neuf','non_concerne':'Non concerné'};
 function openDetail(id){
   const item=items.find(i=>i.id===id); if(!item) return;
   const STATUS_LABELS={owned:'Possédé',wishlist:'Souhaité',missing:'Manquant'};
   const condCls=COND_CLASSES[item.condition||'occasion']||'cond-used';
-  const condLabel=COND_LABELS_FULL[item.condition||'occasion']||'Occasion';
+  const condLabel=COND_LABELS_FULL[item.condition||'occasion']||'Second hand';
 
   // cover
   const img=document.getElementById('detail-img');
@@ -2275,7 +2275,7 @@ async function openGallery(){
 
 async function loadGalleryImages(folder=''){
   document.querySelectorAll('.gallery-folder-btn').forEach(b=>{
-    b.classList.toggle('active', b.textContent.trim()===(folder||'Tout'));
+    b.classList.toggle('active', b.textContent.trim()===(folder||'All'));
   });
   const grid = document.getElementById('gallery-grid');
   grid.innerHTML = '<div class="gallery-empty">⚙️ Chargement...</div>';
@@ -2569,7 +2569,7 @@ const T = {
     'btn_signout':'Sign out',
     'btn_profile':'My profile',
     // Filters
-    'filter_all':'Tout','filter_owned':'Possédés','filter_wishlist':'Souhaités',
+    'filter_all':'All','filter_owned':'Possédés','filter_wishlist':'Souhaités',
     'filter_search':'🔍 Rechercher...','filter_type':'All types',
     'filter_sort_recent':'Recent','filter_sort_name':'Name A→Z',
     'filter_sort_value':'Value ↓','filter_sort_rating':'Rating ↓',
@@ -2607,7 +2607,7 @@ const T = {
     'rank_next':'items before','rank_max':'✨ Maximum rank !',
     'items_owned':'owned','items_wishlist':'wishlist','items_total':'total',
     // Stats cards
-    'stat_invested':'INVESTI','stat_value':'VALEUR MARCHÉ','stat_delta':'PLUS-VALUE',
+    'stat_invested':'INVESTED','stat_value':'VALUE MARCHÉ','stat_delta':'PROFIT/LOSS',
     // Detail view
     'lbl_completeness_detail':'Completeness','lbl_finance':'FINANCIAL VALUE',
     'lbl_buy':"PURCHASE PRICE",'lbl_market':'CURRENT VALUE',
@@ -2632,7 +2632,7 @@ const T = {
     'auth_confirm_password':'Confirm password',
     'btn_login':'SIGN IN','btn_register':'CREATE ACCOUNT',
     // Profile
-    'profile_pseudo':'✏️ Pseudo','profile_public':'🌐 Public profile',
+    'profile_pseudo':'✏️ Username','profile_public':'🌐 Public profile',
     'profile_public_desc':'Share your collection. Prices are never visible.',
     'profile_link':'🔗 Your public link:','btn_copy':'📋 Copy',
     'profile_toggle':'Make my profile public',
@@ -2706,7 +2706,7 @@ const T = {
     'kpi_total':'Total','kpi_owned':'Possédés','kpi_wishlist':'Souhaités',
     'kpi_completeness':'Completeness','kpi_invested':'Investi',
     'kpi_value':'Valeur','kpi_delta':'Plus-value',
-    'kpi_neuf':'Neuf/Blister','kpi_occasion':'Occasion',
+    'kpi_neuf':'Neuf/Blister','kpi_occasion':'Second hand',
     // Empty state
     'empty_state':'No items found.',
     // Detail labels
@@ -2714,7 +2714,7 @@ const T = {
     'detail_finance':'FINANCIAL VALUE',
     'detail_buy':'PRIX D\'ACHAT','detail_market':'CURRENT VALUE',
     // Header stat labels  
-    'hdr_invested':'INVESTI','hdr_value':'VALEUR MARCHÉ','hdr_delta':'PLUS-VALUE',
+    'hdr_invested':'INVESTED','hdr_value':'VALUE MARCHÉ','hdr_delta':'PROFIT/LOSS',
     // Admin labels
     'admin_name_lbl':'Name *','admin_folder_lbl':'Dossier',
     'admin_platform_lbl':'Platform','admin_region_lbl':'Region',
@@ -2725,10 +2725,10 @@ const T = {
     'admin_save_total':'💾 SAVE',
     'admin_add_btn':'+ ADD À LA BANQUE',
     // Profile screen
-    'profile_rank':'🏆 Rang','profile_stats':'📊 Statistics',
-    'profile_top5':'💎 Top 5 objets les plus précieux',
-    'profile_by_type':'📦 Collection par type',
-    'profile_avatar_title':'🎭 Avatar','profile_pseudo_title':'✏️ Pseudo',
+    'profile_rank':'🏆 Rank','profile_stats':'📊 Statistics',
+    'profile_top5':'💎 Top 5 most valuable items',
+    'profile_by_type':'📦 Collection by type',
+    'profile_avatar_title':'🎭 Avatar','profile_pseudo_title':'✏️ Username',
     'profile_save_pseudo':'SAVE',
     // Submit photo
     'submit_title':'📸 Soumettre une photo',
@@ -3006,15 +3006,15 @@ function renderStats(){
 
   // KPI CARDS
   html += '<div class="kpi-grid">';
-  html += kpi('📦',t('kpi_total'),'total',total);
-  html += kpi('✅',t('kpi_owned'),'owned',owned.length);
-  html += kpi('🎯',t('kpi_wishlist'),'wish',wish.length);
-  html += kpi('📈',t('kpi_completeness'),'pct',total?Math.round(owned.length/total*100)+'%':'0%');
-  html += kpi('💸',t('kpi_invested'),'inv',hasBuy?fmtEurS(invested):'—');
-  html += kpi('💰',t('kpi_value'),'val',hasCur?fmtEurS(market):'—');
-  html += kpi(delta>=0?'📈':'📉',t('kpi_delta'),'delta',(hasBuy&&hasCur)?((delta>=0?'+':'')+fmtEurS(delta)):'—',hasBuy&&hasCur?(delta>=0?'var(--profit)':'var(--loss)'):'');
-  html += kpi('🆕',t('kpi_neuf'),'neuf',nNeuf);
-  html += kpi('📦',t('kpi_occasion'),'occ',nOcc);
+  html += kpi('📦','Total','total',total);
+  html += kpi('✅','Owned','owned',owned.length);
+  html += kpi('🎯','Wishlist','wish',wish.length);
+  html += kpi('📈','Completeness','pct',total?Math.round(owned.length/total*100)+'%':'0%');
+  html += kpi('💸','Invested','inv',hasBuy?fmtEurS(invested):'—');
+  html += kpi('💰','Value','val',hasCur?fmtEurS(market):'—');
+  html += kpi(delta>=0?'📈':'📉','Profit/Loss','delta',(hasBuy&&hasCur)?((delta>=0?'+':'')+fmtEurS(delta)):'—',hasBuy&&hasCur?(delta>=0?'var(--profit)':'var(--loss)'):'');
+  html += kpi('🆕','New/Sealed','neuf',nNeuf);
+  html += kpi('📦','Used','occ',nOcc);
   html += '</div>';
 
   // ROW 1: Type pie + Type bars
@@ -3059,7 +3059,7 @@ function renderStats(){
 
   // PIE: condition
   html += '<div class="stat-widget"><div class="stat-widget-title">📦 Condition des objets</div>';
-  const condData = [['Neuf / Blister',nNeuf],['Occasion',nOcc]].filter(e=>e[1]>0);
+  const condData = [['Neuf / Blister',nNeuf],['Second hand',nOcc]].filter(e=>e[1]>0);
   html += '<div class="pie-container">';
   html += buildPie(condData, nNeuf+nOcc);
   html += '<div class="pie-legend">';
@@ -3517,28 +3517,28 @@ function applyTranslations(){
   });
   // Update Ko-fi banner
   const kofiBtn = document.querySelector('a[href*="ko-fi"]');
-  if(kofiBtn && kofiBtn.classList.contains('footer-kofi')) kofiBtn.textContent = '☕ '+t('kofi_support');
+  if(kofiBtn && kofiBtn.classList.contains('footer-kofi')) kofiBtn.textContent = '☕ '+'FUEL THE COLLECTION';
   // Update signout button
-  document.querySelectorAll('.signout-btn').forEach(b=>b.textContent=t('btn_signout'));
+  document.querySelectorAll('.signout-btn').forEach(b=>b.textContent='Sign out');
   // Update exchanges button
-  document.querySelectorAll('button[onclick*="openMarketplace"]').forEach(b=>b.textContent=t('btn_exchanges'));
+  document.querySelectorAll('button[onclick*="openMarketplace"]').forEach(b=>b.textContent='🤝 Trades');
   // Update stats button
-  document.querySelectorAll('button[onclick*="openStats"]').forEach(b=>b.textContent=t('btn_stats'));
+  document.querySelectorAll('button[onclick*="openStats"]').forEach(b=>b.textContent='📊 Stats');
   // Update add button
-  document.querySelectorAll('button[onclick*="openModal()"]').forEach(b=>b.textContent=t('btn_add'));
+  document.querySelectorAll('button[onclick*="openModal()"]').forEach(b=>b.textContent='+ ADD');
   // Update modal cancel/save
-  document.querySelectorAll('.btn-cancel').forEach(b=>b.textContent=t('btn_cancel'));
-  document.querySelectorAll('.btn-save').forEach(b=>b.textContent=t('btn_save'));
+  document.querySelectorAll('.btn-cancel').forEach(b=>b.textContent='Cancel');
+  document.querySelectorAll('.btn-save').forEach(b=>b.textContent='SAVE');
   // Update gallery
   const galleryConfirm = document.querySelector('.gallery-confirm');
-  if(galleryConfirm) galleryConfirm.textContent = t('btn_choose');
+  if(galleryConfirm) galleryConfirm.textContent = 'CHOOSE';
   const galleryCancel = document.querySelector('.gallery-cancel');
-  if(galleryCancel) galleryCancel.textContent = t('btn_cancel');
+  if(galleryCancel) galleryCancel.textContent = 'Cancel';
   // Update exchange modal
   const exchangeSubmit = document.querySelector('.exchange-submit');
-  if(exchangeSubmit) exchangeSubmit.textContent = t('btn_propose');
+  if(exchangeSubmit) exchangeSubmit.textContent = '✅ LIST ITEM';
   const exchangeCancel = document.querySelector('.exchange-cancel');
-  if(exchangeCancel) exchangeCancel.textContent = t('btn_cancel');
+  if(exchangeCancel) exchangeCancel.textContent = 'Cancel';
   // Update header stat labels
   document.querySelectorAll('.stat-label').forEach(el=>{
     const txt = el.textContent.trim();
@@ -3548,15 +3548,15 @@ function applyTranslations(){
   });
   // Update empty state
   document.querySelectorAll('.empty-state p, .empty-state span').forEach(el=>{
-    if(el.textContent.includes('Aucun objet')||el.textContent.includes('No items')) el.textContent=t('empty_state');
+    if(el.textContent.includes('Aucun objet')||el.textContent.includes('No items')) el.textContent='No items found.';
   });
   // Update CGU footer link
   document.querySelectorAll('a[href="legal.html"]').forEach(el=>{
-    el.textContent=t('cgu_footer');
+    el.textContent='Terms & Privacy';
   });
   // Update Ko-fi support button text
   document.querySelectorAll('.footer-kofi').forEach(el=>{
-    el.textContent='☕ '+t('kofi_support');
+    el.textContent='☕ '+'FUEL THE COLLECTION';
   });
   // Update mobile menu
   const mobileTheme = document.getElementById('mobile-theme-btn');
@@ -3565,28 +3565,28 @@ function applyTranslations(){
   if(mobileLang) mobileLang.textContent=(currentLang==='fr'?'🇫🇷 Language':'🇬🇧 Language');
   // Update gallery title
   const galleryTitle = document.querySelector('.gallery-header h3');
-  if(galleryTitle) galleryTitle.textContent = t('gallery_title');
+  if(galleryTitle) galleryTitle.textContent = '🖼️ Image Bank';
   // Update scanner elements
   const scanTitle = document.querySelector('.scanner-title');
   if(scanTitle) scanTitle.textContent = t('scan_title');
   // Update profile section titles
   document.querySelectorAll('.profile-section-title, .admin-section-title').forEach(el=>{
     const txt = el.textContent.trim();
-    if(txt.includes('Pseudo')||txt.includes('Username')) el.textContent=t('profile_pseudo_title');
-    else if(txt.includes('Avatar')) el.textContent=t('profile_avatar_title');
-    else if(txt.includes('public')||txt.includes('Public')) el.textContent=t('profile_public');
-    else if(txt.includes('Rang')||txt.includes('Rank')) el.textContent=t('profile_rank');
-    else if(txt.includes('Statistics')||txt.includes('Statistics')) el.textContent=t('profile_stats');
-    else if(txt.includes('Top 5')) el.textContent=t('profile_top5');
-    else if(txt.includes('type')) el.textContent=t('profile_by_type');
+    if(txt.includes('Pseudo')||txt.includes('Username')) el.textContent='✏️ Username';
+    else if(txt.includes('Avatar')) el.textContent='🎭 Avatar';
+    else if(txt.includes('public')||txt.includes('Public')) el.textContent='🌐 Public profile';
+    else if(txt.includes('Rang')||txt.includes('Rank')) el.textContent='🏆 Rank';
+    else if(txt.includes('Statistics')||txt.includes('Statistics')) el.textContent='📊 Statistics';
+    else if(txt.includes('Top 5')) el.textContent='💎 Top 5 most valuable items';
+    else if(txt.includes('type')) el.textContent='📦 Collection by type';
   });
   // Update admin section titles
   document.querySelectorAll('.admin-section-title').forEach(el=>{
     const txt = el.textContent.trim();
-    if(txt.includes('Total')) el.textContent=t('admin_rc_total');
-    else if(txt.includes('Ajouter')||txt.includes('Add image')) el.textContent=t('admin_images');
-    else if(txt.includes('banque')||txt.includes('bank')) el.textContent=t('admin_bank');
-    else if(txt.includes('soumises')||txt.includes('Submitted')) el.textContent=t('admin_submissions');
+    if(txt.includes('Total')) el.textContent='🎮 Total known R&C items';
+    else if(txt.includes('Ajouter')||txt.includes('Add image')) el.textContent='🖼️ Add image to bank';
+    else if(txt.includes('banque')||txt.includes('bank')) el.textContent='📚 Images in bank';
+    else if(txt.includes('soumises')||txt.includes('Submitted')) el.textContent='📸 Submitted photos';
   });
   // Update stats page elements dynamically - only if stats screen is open
   const statsScreen = document.getElementById('stats-screen');
@@ -3612,7 +3612,7 @@ function applyTranslations(){
   };
   // Update add button
   const addBtn = document.querySelector('button[onclick="openModal()"]');
-  if(addBtn) addBtn.textContent = t('btn_add');
+  if(addBtn) addBtn.textContent = '+ ADD';
   // Update filter buttons
   const filterBtns = document.querySelectorAll('.filter-btn[data-status="all"]');
   filterBtns.forEach(b => b.textContent = t('filter_all'));
@@ -3627,7 +3627,7 @@ function applyTranslations(){
   const modalTitle = document.getElementById('modal-title');
   // Update footer
   const kofiDesc = document.querySelector('.kofi-desc');
-  if(kofiDesc) kofiDesc.textContent = t('kofi_desc');
+  if(kofiDesc) kofiDesc.textContent = '100% free, no ads — your support makes it possible 🚀';
   // Re-render collection
   if(typeof render === 'function') render();
 }
@@ -3754,7 +3754,7 @@ function renderMarketplace(){
   if(typeFilter) filtered = filtered.filter(i=>i.transaction_type===typeFilter);
   if(search) filtered = filtered.filter(i=>(i.item_name||'').toLowerCase().includes(search)||(i.looking_for||'').toLowerCase().includes(search));
   if(!filtered.length){
-    grid.innerHTML = '<div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px">Aucune proposition trouvée.</div>';
+    grid.innerHTML = '<div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px">No listings found.</div>';
     return;
   }
   grid.innerHTML = '';
