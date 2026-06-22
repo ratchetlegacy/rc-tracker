@@ -376,7 +376,7 @@
     /* CLOUDINARY GALLERY */
     .gallery-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
     .gallery-overlay.open{display:flex}
-    .gallery-modal{background:var(--bg2);border:1px solid rgba(123,79,212,.3);border-radius:18px;width:100%;max-width:880px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+    .gallery-modal{background:var(--bg2);border:1px solid rgba(123,79,212,.3);border-radius:18px;width:100%;max-width:1000px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
     .gallery-header{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:12px}
     .gallery-header h3{font-family:'Orbitron',sans-serif;font-size:.88rem;font-weight:700;color:var(--purple-light);flex:1}
     .gallery-close{background:transparent;border:none;color:var(--text-dim);font-size:1.1rem;cursor:pointer}
@@ -384,11 +384,11 @@
     .gallery-folder-btn{padding:5px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.74rem;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s}
     .gallery-folder-btn:hover{border-color:var(--purple);color:var(--text)}
     .gallery-folder-btn.active{background:var(--purple);border-color:var(--purple);color:#fff}
-    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:14px 18px;overflow-y:auto;flex:1;max-height:62vh}
+    .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;padding:16px 20px;overflow-y:auto;flex:1;max-height:66vh}
     .gallery-item{border-radius:10px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;background:var(--bg3);display:flex;flex-direction:column;align-items:center}
     .gallery-item:hover{border-color:var(--purple);transform:scale(1.03)}
     .gallery-item.selected{border-color:var(--orange);box-shadow:0 0 12px rgba(255,107,26,.4)}
-    .gallery-item img{width:100%;height:190px;object-fit:contain;flex-shrink:0}
+    .gallery-item img{width:100%;height:280px;object-fit:contain;flex-shrink:0}
     .gallery-empty{text-align:center;padding:40px;color:var(--text-dim);font-size:.82rem;grid-column:1/-1}
     .gallery-footer{padding:14px 22px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;align-items:center;gap:10px}
     .gallery-selected-preview{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--text-dim)}
@@ -501,20 +501,6 @@
     .avatar-opt{width:44px;height:44px;border-radius:50%;background:var(--bg3);border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;transition:all .2s}
     .avatar-opt.selected{border-color:var(--purple);background:rgba(123,79,212,.2)}
     .avatar-opt:hover{border-color:rgba(123,79,212,.5)}
-    /* BARCODE SCANNER */
-    .scanner-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:600;flex-direction:column;align-items:center;justify-content:center}
-    .scanner-overlay.open{display:flex}
-    .scanner-box{position:relative;width:min(320px,90vw);background:#000;border-radius:16px;overflow:hidden;border:2px solid var(--purple)}
-    .scanner-box video{width:100%;display:block}
-    .scanner-line{position:absolute;left:10%;right:10%;height:2px;background:linear-gradient(90deg,transparent,var(--purple-light),transparent);animation:scanLine 2s ease-in-out infinite}
-    @keyframes scanLine{0%{top:20%}50%{top:80%}100%{top:20%}}
-    .scanner-corners::before,.scanner-corners::after{content:'';position:absolute;width:20px;height:20px;border-color:var(--orange);border-style:solid}
-    .scanner-corners::before{top:10px;left:10px;border-width:3px 0 0 3px}
-    .scanner-corners::after{bottom:10px;right:10px;border-width:0 3px 3px 0}
-    .scanner-title{font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:16px;text-align:center}
-    .scanner-hint{font-size:.72rem;color:var(--text-dim);margin-top:12px;text-align:center}
-    .scanner-close{margin-top:20px;padding:10px 24px;background:rgba(255,77,106,.2);border:1px solid rgba(255,77,106,.4);border-radius:8px;color:var(--missing);font-family:Orbitron,sans-serif;font-size:.7rem;font-weight:700;cursor:pointer}
-    .scanner-result{margin-top:12px;padding:10px 16px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:8px;font-size:.75rem;color:var(--owned);text-align:center;display:none}
     /* MARKETPLACE */
     .market-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto}
     .market-screen.open{display:block}
@@ -987,9 +973,6 @@ CREATE POLICY "Users see own items" ON items FOR ALL
           <span class="star" data-v="5" onclick="setRating(5)">⭐</span>
         </div>
       </div>
-      <div class="form-group" id="scan-btn-group" style="display:none;margin-bottom:8px">
-        <button type="button" onclick="openScanner()" style="width:100%;padding:10px;background:linear-gradient(135deg,rgba(123,79,212,.2),rgba(255,107,26,.2));border:1px solid rgba(123,79,212,.4);border-radius:10px;color:var(--purple-light);font-size:.78rem;font-weight:600;cursor:pointer;font-family:Orbitron,sans-serif;letter-spacing:.05em">📷 SCANNER LE CODE-BARRES</button>
-      </div>
       <div class="form-group">
         <label>Image</label>
         <div style="display:flex;gap:8px;align-items:center">
@@ -1294,19 +1277,6 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
-<!-- BARCODE SCANNER -->
-<div class="scanner-overlay" id="scanner-overlay">
-  <div class="scanner-title">📷 Scan barcode</div>
-  <div class="scanner-box">
-    <video id="scanner-video" autoplay playsinline muted></video>
-    <div class="scanner-line"></div>
-    <div class="scanner-corners"></div>
-  </div>
-  <div class="scanner-hint"data-i18n="scan_hint">Point the camera at the barcode</div>
-  <div class="scanner-result" id="scanner-result">✅ Code detected!</div>
-  <button class="scanner-close" onclick="closeScanner()">✕ FERMER</button>
-</div>
-
 <!-- MARKETPLACE SCREEN -->
 <div class="market-screen" id="market-screen">
   <div class="market-header">
@@ -1407,11 +1377,11 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="form-section-title">Format</div>
       <p style="font-size:.74rem;color:var(--text-dim);margin-bottom:12px;line-height:1.5">
         <strong style="color:var(--text)">Simple table</strong> — light, fast, plain list of items.<br>
-        <strong style="color:var(--text)">Fancy PDF</strong> — card layout with cover images (takes a bit longer).
+        <strong style="color:var(--text)">Magazine PDF</strong> — cover, profile, full stats &amp; items by category with covers (takes a bit longer).
       </p>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button onclick="exportSimplePDF()" style="flex:1;min-width:150px;padding:11px;background:var(--bg3);border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);font-family:Orbitron,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.04em;cursor:pointer">📋 SIMPLE TABLE</button>
-        <button onclick="exportFancyPDF()" style="flex:1;min-width:150px;padding:11px;background:linear-gradient(135deg,var(--purple),var(--orange));border:none;border-radius:10px;color:#fff;font-family:Orbitron,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.04em;cursor:pointer">✨ FANCY PDF</button>
+        <button onclick="exportFancyPDF()" style="flex:1;min-width:150px;padding:11px;background:linear-gradient(135deg,var(--purple),var(--orange));border:none;border-radius:10px;color:#fff;font-family:Orbitron,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.04em;cursor:pointer">✨ MAGAZINE PDF</button>
       </div>
       <div id="export-progress" style="display:none;margin-top:14px;font-size:.78rem;color:var(--purple-light);text-align:center">
         <span class="spin" style="display:inline-block;animation:spin 1s linear infinite">⚙️</span> <span id="export-progress-text">Generating...</span>
@@ -1664,14 +1634,10 @@ function updateCompleteness(){
   // Show bonus field for books/manga etc
   const hasBonus = ['Book','Manga','Comics','Art Book','Guide','Soundtrack','Film'].includes(type);
   if(bonusField) bonusField.style.display = hasBonus ? 'block' : 'none';
-  // Show scan button for games and books only
-  const scanTypes = ['Physical game','Book','Manga','Comics','Art Book','Guide'];
-  const scanBtn = document.getElementById('scan-btn-group');
-  if(scanBtn) scanBtn.style.display = scanTypes.includes(type) ? 'block' : 'none';
 
   container.innerHTML = '';
   if(!fields.length && !hasBonus){
-    container.innerHTML = '<span style="font-size:.75rem;color:var(--text-dim)">Aucun élément de complétude pour ce type.</span>';
+    container.innerHTML = '<span style="font-size:.75rem;color:var(--text-dim)">No completeness items for this type.</span>';
     return;
   }
 
@@ -2683,7 +2649,7 @@ const T = {
     'lbl_wish_url':"🛒 Lien d'achat (eBay, Vinted...)",
     'lbl_bonus':'Bonus inclus (optionnel)',
     'btn_cancel':'Annuler','btn_save':'ENREGISTRER',
-    'btn_gallery':'🖼️ Galerie','btn_scan':'📷 SCANNER LE CODE-BARRES',
+    'btn_gallery':'🖼️ Galerie',
     'btn_submit_photo':'📸 Submit a photo manquante',
     // Status/Condition
     'status_owned':'✅ Possédé','status_wishlist':'🎯 Souhaité',
@@ -2761,13 +2727,6 @@ const T = {
     'toast_image_added':'Image ajoutée !','toast_image_deleted':'Image supprimée.',
     'toast_pseudo_saved':'Pseudo enregistré !',
     'toast_import_success':'images importées !',
-    // Scanner
-    'scan_title':'📷 Scanner le code-barres',
-    'scan_hint':'Vise le code-barres avec la caméra',
-    'scan_detected':'✅ Code detected!',
-    'scan_searching':'🔍 Searching...',
-    'scan_not_found':'Non trouvé. Remplissez manuellement.',
-    'scan_not_supported':'Scan non supporté sur ce navigateur.',
     // Ko-fi
     'kofi_support':'SOUTENIR LE PROJET',
     'kofi_desc':'Ce tracker est gratuit — un café aide à le maintenir en vie !',
@@ -2876,7 +2835,7 @@ const T = {
     'lbl_wish_url':'🛒 Buy link (eBay, Vinted...)',
     'lbl_bonus':'Bonus included (optional)',
     'btn_cancel':'Cancel','btn_save':'SAVE',
-    'btn_gallery':'🖼️ Gallery','btn_scan':'📷 SCAN BARCODE',
+    'btn_gallery':'🖼️ Gallery',
     'btn_submit_photo':'📸 Submit missing photo',
     // Status/Condition
     'status_owned':'✅ Owned','status_wishlist':'🎯 Wishlist',
@@ -2954,13 +2913,6 @@ const T = {
     'toast_image_added':'Image added!','toast_image_deleted':'Image deleted.',
     'toast_pseudo_saved':'Username saved!',
     'toast_import_success':'images imported!',
-    // Scanner
-    'scan_title':'📷 Scan barcode',
-    'scan_hint':'Point the camera at the barcode',
-    'scan_detected':'✅ Code detected!',
-    'scan_searching':'🔍 Searching...',
-    'scan_not_found':'Not found. Please fill in manually.',
-    'scan_not_supported':'Scanning not supported on this browser.',
     // Ko-fi
     'kofi_support':'SUPPORT THE PROJECT',
     'kofi_desc':'This tracker is free — a coffee helps maintain it!',
@@ -3652,9 +3604,6 @@ function applyTranslations(){
   if(exchangeSubmit) exchangeSubmit.textContent = t('btn_propose');
   const exchangeCancel = document.querySelector('.exchange-cancel');
   if(exchangeCancel) exchangeCancel.textContent = t('btn_cancel');
-  // Scanner
-  const scanTitle = document.querySelector('.scanner-title');
-  if(scanTitle) scanTitle.textContent = t('scan_title');
   // CGU footer link
   document.querySelectorAll('a[href="legal.html"]').forEach(el=>{ el.textContent = t('footer_legal'); });
   // Mobile menu theme/lang labels
@@ -3698,100 +3647,6 @@ function applyTranslations(){
   if(statsScreen && statsScreen.classList.contains('open') && typeof renderStats === 'function') renderStats();
   // Re-render collection
   if(typeof render === 'function') render();
-}
-
-// ══ BARCODE SCANNER ══
-let scannerStream = null;
-let scannerInterval = null;
-
-const SCAN_TYPES_GAMES = ['Physical game'];
-const SCAN_TYPES_BOOKS = ['Book','Manga','Comics','Art Book','Guide'];
-
-async function openScanner(){
-  document.getElementById('scanner-overlay').classList.add('open');
-  document.getElementById('scanner-result').style.display = 'none';
-  try {
-    scannerStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
-    });
-    const video = document.getElementById('scanner-video');
-    video.srcObject = scannerStream;
-    await video.play();
-    startBarcodeDetection(video);
-  } catch(e){
-    showToast('Camera unavailable: ' + e.message, 'error');
-    closeScanner();
-  }
-}
-
-function closeScanner(){
-  if(scannerStream){ scannerStream.getTracks().forEach(t=>t.stop()); scannerStream=null; }
-  if(scannerInterval){ clearInterval(scannerInterval); scannerInterval=null; }
-  document.getElementById('scanner-overlay').classList.remove('open');
-}
-
-function startBarcodeDetection(video){
-  if(!('BarcodeDetector' in window)){
-    showToast('Scanning not supported on this browser. Try Chrome on Android.', 'error');
-    closeScanner();
-    return;
-  }
-  const detector = new BarcodeDetector({ formats: ['ean_13','ean_8','upc_a','upc_e'] });
-  scannerInterval = setInterval(async () => {
-    try {
-      const barcodes = await detector.detect(video);
-      if(barcodes.length > 0){
-        const code = barcodes[0].rawValue;
-        clearInterval(scannerInterval);
-        document.getElementById('scanner-result').style.display = 'block';
-        document.getElementById('scanner-result').textContent = '✅ Code : ' + code;
-        setTimeout(async () => {
-          closeScanner();
-          await lookupBarcode(code);
-        }, 800);
-      }
-    } catch(e){}
-  }, 300);
-}
-
-async function lookupBarcode(code){
-  showToast('🔍 Searching...', 'success');
-  const type = document.getElementById('inp-type').value;
-  const isBook = SCAN_TYPES_BOOKS.includes(type);
-  
-  try {
-    if(isBook){
-      // Open Library for books
-      const res = await fetch('https://openlibrary.org/api/books?bibkeys=ISBN:'+code+'&format=json&jscmd=data');
-      const data = await res.json();
-      const key = 'ISBN:' + code;
-      if(data[key]){
-        const book = data[key];
-        document.getElementById('inp-name').value = book.title || '';
-        if(book.publishers && book.publishers[0]) document.getElementById('inp-manufacturer').value = book.publishers[0].name;
-        if(book.cover && book.cover.large) document.getElementById('inp-img').value = book.cover.large;
-        else if(book.cover && book.cover.medium) document.getElementById('inp-img').value = book.cover.medium;
-        showToast('✅ ' + (book.title || 'Book trouvé !'), 'success');
-      } else {
-        showToast('Book not found. Please fill in manually.', 'error');
-      }
-    } else {
-      // UPC Item DB for games
-      const res = await fetch('https://api.upcitemdb.com/prod/trial/lookup?upc='+code);
-      const data = await res.json();
-      if(data.items && data.items.length > 0){
-        const item = data.items[0];
-        document.getElementById('inp-name').value = item.title || '';
-        if(item.brand) document.getElementById('inp-manufacturer').value = item.brand;
-        if(item.images && item.images.length > 0) document.getElementById('inp-img').value = item.images[0];
-        showToast('✅ ' + (item.title || 'Jeu trouvé !'), 'success');
-      } else {
-        showToast('Game not found. Please fill in manually.', 'error');
-      }
-    }
-  } catch(e){
-    showToast('Search error. Please fill in manually.', 'error');
-  }
 }
 
 // ══ MARKETPLACE ══
@@ -4043,92 +3898,288 @@ async function exportFancyPDF(){
   if(!window.jspdf || !window.jspdf.jsPDF){ showToast('PDF library not loaded. Check your connection.', 'error'); return; }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const pageW = 210, pageH = 297, margin = 14;
   const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
+  const avatar = localStorage.getItem('rc_avatar_'+currentUser.id)||'🦊';
+  const today = new Date().toLocaleDateString();
 
-  const pageW = 210, pageH = 297;
-  const margin = 12;
-  const cols = 3;
-  const gap = 6;
-  const cardW = (pageW - margin*2 - gap*(cols-1)) / cols;
-  const imgH = 34;
-  const cardH = imgH + 26;
-  let x = margin, y = 30, col = 0;
+  // ---- shared computed data ----
+  const owned = list.filter(i=>i.status==='owned');
+  const wish  = list.filter(i=>i.status==='wishlist');
+  const ownedAll = items.filter(i=>i.status==='owned'); // rank based on full collection
+  const rank = getRank(ownedAll.length);
+  const nextRank = RANKS[RANKS.indexOf(rank)+1];
+  const rankPct = nextRank ? Math.round(((ownedAll.length-rank.min)/(nextRank.min-rank.min))*100) : 100;
+  const invested = owned.reduce((s,i)=>i.buy_price!=null?s+parseFloat(i.buy_price):s,0);
+  const market = owned.reduce((s,i)=>i.cur_value!=null?s+parseFloat(i.cur_value):s,0);
+  const delta = market - invested;
 
-  function header(){
-    doc.setFillColor(13,15,26);
-    doc.rect(0,0,pageW,24,'F');
-    doc.setTextColor(155,111,244); doc.setFont('helvetica','bold'); doc.setFontSize(14);
-    doc.text('Ratchet & Clank Collection', margin, 11);
-    doc.setTextColor(180,185,200); doc.setFont('helvetica','normal'); doc.setFontSize(8);
-    doc.text(pseudo + '  ·  ' + exportScopeLabel() + '  ·  ' + list.length + ' items  ·  ' + new Date().toLocaleDateString(), margin, 18);
+  function hexToRgb(h){ h=h.replace('#',''); if(h.length===3) h=h.split('').map(c=>c+c).join(''); const n=parseInt(h,16); return [(n>>16)&255,(n>>8)&255,n&255]; }
+  function rankRgb(){ try{ return hexToRgb(rank.color); }catch(e){ return [155,111,244]; } }
+
+  showExportProgress('Building cover...');
+
+  // ════════ PAGE 1 — COVER (splash style) ════════
+  // dark gradient background (simulated with bands)
+  for(let i=0;i<pageH;i+=2){
+    const t = i/pageH;
+    const r = Math.round(13 + t*12);
+    const g = Math.round(15 + t*8);
+    const b = Math.round(26 + t*30);
+    doc.setFillColor(r,g,b); doc.rect(0,i,pageW,2.2,'F');
   }
-  header();
-
-  for(let idx=0; idx<list.length; idx++){
-    const it = list[idx];
-    showExportProgress('Adding item '+(idx+1)+' / '+list.length+'...');
-
-    if(y + cardH > pageH - 14){
-      doc.addPage(); header(); y = 30; x = margin; col = 0;
+  // purple glow top-right
+  try {
+    if(doc.setGState && doc.GState){
+      doc.setFillColor(123,79,212); doc.setGState(new doc.GState({opacity:0.12}));
+      doc.circle(pageW-10, 30, 60, 'F');
+      doc.setFillColor(255,107,26);
+      doc.circle(20, pageH-30, 50, 'F');
+      doc.setGState(new doc.GState({opacity:1}));
     }
+  } catch(e){ /* opacity not supported; skip glow */ }
 
-    // card background
-    doc.setFillColor(245,244,250); doc.setDrawColor(220,218,230);
-    doc.roundedRect(x, y, cardW, cardH, 2, 2, 'FD');
-
-    // status color strip
-    const sc = it.status==='owned'?[61,214,140]:it.status==='wishlist'?[255,180,71]:[255,77,106];
-    doc.setFillColor(sc[0],sc[1],sc[2]);
-    doc.roundedRect(x, y, 2, cardH, 1, 1, 'F');
-
-    // cover
-    const cover = await loadImageAsDataURL(it.img_url);
-    const innerX = x+4, innerW = cardW-8;
-    if(cover){
-      const ratio = cover.w/cover.h;
-      let dw = innerW, dh = dw/ratio;
-      if(dh > imgH){ dh = imgH; dw = dh*ratio; }
-      const ox = innerX + (innerW-dw)/2;
-      try { doc.addImage(cover.data,'JPEG', ox, y+3, dw, dh); } catch(e){}
-    } else {
-      doc.setFillColor(220,218,230); doc.rect(innerX, y+3, innerW, imgH, 'F');
-      doc.setTextColor(150,150,160); doc.setFontSize(12);
-      doc.text('—', innerX+innerW/2, y+3+imgH/2, {align:'center'});
-    }
-
-    // name
-    let ty = y + imgH + 8;
-    doc.setTextColor(30,30,40); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
-    const name = doc.splitTextToSize(it.name||'', innerW);
-    doc.text(name[0]||'', innerX, ty);
-    // meta
-    doc.setFont('helvetica','normal'); doc.setFontSize(6.2); doc.setTextColor(110,110,125);
-    ty += 4;
-    const meta = [it.platform, it.edition, it.region].filter(Boolean).join(' · ');
-    if(meta){ const ml = doc.splitTextToSize(meta, innerW); doc.text(ml[0]||'', innerX, ty); ty += 3.5; }
-    // prices
-    if(it.buy_price!=null || it.cur_value!=null){
-      const buy = it.buy_price!=null?parseFloat(it.buy_price).toFixed(0)+'E':'-';
-      const val = it.cur_value!=null?parseFloat(it.cur_value).toFixed(0)+'E':'-';
-      doc.setTextColor(123,79,212); doc.setFont('helvetica','bold'); doc.setFontSize(6.4);
-      doc.text('Buy '+buy+'   Val '+val, innerX, ty);
-    }
-
-    // advance grid
-    col++;
-    if(col>=cols){ col=0; x=margin; y += cardH + gap; }
-    else { x += cardW + gap; }
+  // logo
+  const logo = await loadImageAsDataURL('https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg');
+  const logoSize = 54;
+  const logoX = (pageW-logoSize)/2, logoY = 70;
+  // gold ring
+  doc.setDrawColor(255,215,0); doc.setLineWidth(1.4);
+  doc.circle(pageW/2, logoY+logoSize/2, logoSize/2+4, 'S');
+  doc.setLineWidth(0.2);
+  if(logo){
+    try { doc.addImage(logo.data,'JPEG', logoX, logoY, logoSize, logoSize); } catch(e){}
+  } else {
+    doc.setFillColor(123,79,212); doc.circle(pageW/2, logoY+logoSize/2, logoSize/2,'F');
   }
 
-  // footer on last page
-  doc.setTextColor(150,150,160); doc.setFontSize(7);
-  doc.text('Generated with Ratchet Legacy Tracker', margin, pageH-8);
+  // title
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(30);
+  doc.text('RATCHET & CLANK', pageW/2, 150, {align:'center'});
+  doc.setTextColor(155,111,244); doc.setFontSize(16);
+  doc.text('COLLECTION', pageW/2, 161, {align:'center'});
+  // divider
+  doc.setDrawColor(255,107,26); doc.setLineWidth(0.6);
+  doc.line(pageW/2-30, 168, pageW/2+30, 168);
+  doc.setLineWidth(0.2);
+  // pseudo + scope
+  doc.setTextColor(230,234,240); doc.setFont('helvetica','bold'); doc.setFontSize(18);
+  doc.text(pseudo, pageW/2, 184, {align:'center'});
+  doc.setTextColor(180,185,200); doc.setFont('helvetica','normal'); doc.setFontSize(11);
+  doc.text(exportScopeLabel() + '  ·  ' + list.length + ' items', pageW/2, 193, {align:'center'});
+  // rank badge
+  const rr = rankRgb();
+  doc.setTextColor(rr[0],rr[1],rr[2]); doc.setFont('helvetica','bold'); doc.setFontSize(13);
+  doc.text(rank.name, pageW/2, 210, {align:'center'});
+  // date footer
+  doc.setTextColor(140,145,160); doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text(today, pageW/2, pageH-18, {align:'center'});
+  doc.text('Ratchet Legacy Tracker', pageW/2, pageH-12, {align:'center'});
+
+  // ════════ PAGE 2 — PROFILE ════════
+  showExportProgress('Building profile page...');
+  doc.addPage();
+  pageHeader(doc, 'PROFILE', pseudo, today);
+  let y = 40;
+  // avatar circle + pseudo
+  doc.setFillColor(123,79,212); doc.circle(margin+14, y+8, 12, 'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(16); doc.setFont('helvetica','bold');
+  doc.text(avatar, margin+14, y+11, {align:'center'});
+  doc.setTextColor(30,30,40); doc.setFontSize(20);
+  doc.text(pseudo, margin+34, y+6);
+  doc.setTextColor(110,110,125); doc.setFont('helvetica','normal'); doc.setFontSize(10);
+  doc.text(currentUser.email||'', margin+34, y+13);
+
+  // rank block
+  y += 30;
+  doc.setFillColor(245,244,250); doc.roundedRect(margin, y, pageW-margin*2, 26, 3,3,'F');
+  doc.setTextColor(rr[0],rr[1],rr[2]); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text(rank.name, margin+6, y+10);
+  doc.setTextColor(110,110,125); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.text(nextRank ? ((nextRank.min-ownedAll.length)+' items to '+nextRank.name) : 'Maximum rank reached!', margin+6, y+17);
+  // progress bar
+  const barW = pageW-margin*2-12;
+  doc.setFillColor(225,223,235); doc.roundedRect(margin+6, y+20, barW, 3, 1.5,1.5,'F');
+  doc.setFillColor(rr[0],rr[1],rr[2]); doc.roundedRect(margin+6, y+20, barW*rankPct/100, 3, 1.5,1.5,'F');
+
+  // KPIs grid
+  y += 36;
+  doc.setTextColor(60,60,70); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text('Key figures', margin, y); y += 6;
+  const kpis = [
+    ['Owned', owned.length], ['Wishlist', wish.length], ['Total', list.length],
+    ['Completion', (list.length?Math.round(owned.length/list.length*100):0)+'%'],
+    ['Invested', invested.toFixed(0)+' E'], ['Market value', market.toFixed(0)+' E'],
+    ['Profit/Loss', (delta>=0?'+':'')+delta.toFixed(0)+' E'],
+  ];
+  const kc=3, kw=(pageW-margin*2-8*(kc-1))/kc, kh=20;
+  let kx=margin, ky=y, kcol=0;
+  kpis.forEach(([label,val])=>{
+    doc.setFillColor(248,247,252); doc.setDrawColor(225,223,235);
+    doc.roundedRect(kx,ky,kw,kh,2,2,'FD');
+    doc.setTextColor(123,79,212); doc.setFont('helvetica','bold'); doc.setFontSize(15);
+    doc.text(String(val), kx+kw/2, ky+10, {align:'center'});
+    doc.setTextColor(120,120,135); doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.text(label, kx+kw/2, ky+16, {align:'center'});
+    kcol++; if(kcol>=kc){ kcol=0; kx=margin; ky+=kh+8; } else { kx+=kw+8; }
+  });
+
+  // ════════ PAGE 3 — STATS ════════
+  showExportProgress('Building stats page...');
+  doc.addPage();
+  pageHeader(doc, 'STATISTICS', pseudo, today);
+  y = 40;
+
+  // by type
+  const typeMap={}; list.forEach(i=>{ if(i.type) typeMap[i.type]=(typeMap[i.type]||0)+1; });
+  const typeSorted=Object.entries(typeMap).sort((a,b)=>b[1]-a[1]);
+  y = statBarBlock(doc, 'Distribution by type', typeSorted, margin, y, pageW, [123,79,212]);
+
+  // by region
+  const regMap={}; list.forEach(i=>{ const r=i.region||'?'; regMap[r]=(regMap[r]||0)+1; });
+  const regSorted=Object.entries(regMap).sort((a,b)=>b[1]-a[1]);
+  y = statBarBlock(doc, 'Distribution by region', regSorted, margin, y, pageW, [255,107,26]);
+
+  // condition
+  const nNew = list.filter(i=>i.condition==='neuf_blister').length;
+  const nUsed= list.filter(i=>i.condition==='occasion').length;
+  y = statBarBlock(doc, 'Condition', [['New / Sealed',nNew],['Second hand',nUsed]].filter(e=>e[1]>0), margin, y, pageW, [61,214,140]);
+
+  // value by type
+  const valMap={}; owned.filter(i=>i.cur_value!=null).forEach(i=>{ valMap[i.type||'Other']=(valMap[i.type||'Other']||0)+parseFloat(i.cur_value); });
+  const valSorted=Object.entries(valMap).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,Math.round(v)]);
+  if(valSorted.length) y = statBarBlock(doc, 'Market value by type (EUR)', valSorted, margin, y, pageW, [255,180,71]);
+
+  // top valuable
+  const top = [...owned].filter(i=>i.cur_value!=null).sort((a,b)=>parseFloat(b.cur_value)-parseFloat(a.cur_value)).slice(0,5);
+  if(top.length){
+    if(y > pageH-60){ doc.addPage(); pageHeader(doc,'STATISTICS',pseudo,today); y=40; }
+    doc.setTextColor(60,60,70); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+    doc.text('Top 5 most valuable', margin, y); y+=6;
+    top.forEach((it,i)=>{
+      doc.setFillColor(248,247,252); doc.roundedRect(margin,y,pageW-margin*2,10,1.5,1.5,'F');
+      doc.setTextColor(120,120,135); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+      doc.text('#'+(i+1), margin+4, y+6.5);
+      doc.setTextColor(40,40,50); doc.setFont('helvetica','normal');
+      doc.text(doc.splitTextToSize(it.name||'',120)[0]||'', margin+16, y+6.5);
+      doc.setTextColor(123,79,212); doc.setFont('helvetica','bold');
+      doc.text(parseFloat(it.cur_value).toFixed(0)+' E', pageW-margin-4, y+6.5, {align:'right'});
+      y+=12;
+    });
+    y+=4;
+  }
+
+  // ════════ PAGE 4+ — ITEMS BY CATEGORY (with covers) ════════
+  showExportProgress('Building items pages...');
+  doc.addPage();
+  pageHeader(doc, 'COLLECTION', pseudo, today);
+  let iy = 40;
+
+  const cats = [...new Set(list.map(i=>i.type).filter(Boolean))].sort();
+  const noType = list.filter(i=>!i.type);
+  if(noType.length) cats.push('');
+
+  const cols=3, gap=6;
+  const cardW=(pageW-margin*2-gap*(cols-1))/cols;
+  const imgH=34, cardH=imgH+26;
+
+  for(const cat of cats){
+    const catItems = list.filter(i=>(i.type||'')===(cat||''));
+    if(!catItems.length) continue;
+    // category title
+    if(iy > pageH-50){ doc.addPage(); pageHeader(doc,'COLLECTION',pseudo,today); iy=40; }
+    doc.setTextColor(123,79,212); doc.setFont('helvetica','bold'); doc.setFontSize(12);
+    doc.text((getIcon(cat)||'')+' '+(cat||'Uncategorized')+'  ('+catItems.length+')', margin, iy);
+    doc.setDrawColor(220,218,235); doc.setLineWidth(0.4);
+    doc.line(margin, iy+2.5, pageW-margin, iy+2.5);
+    iy += 8;
+
+    let cx=margin, col=0;
+    for(let idx=0; idx<catItems.length; idx++){
+      const it = catItems[idx];
+      showExportProgress('Item '+(idx+1)+'/'+catItems.length+' · '+(cat||'Misc'));
+      if(iy + cardH > pageH-14){ doc.addPage(); pageHeader(doc,'COLLECTION',pseudo,today); iy=40; cx=margin; col=0; }
+      // card
+      doc.setFillColor(245,244,250); doc.setDrawColor(222,220,232);
+      doc.roundedRect(cx, iy, cardW, cardH, 2,2,'FD');
+      const sc = it.status==='owned'?[61,214,140]:it.status==='wishlist'?[255,180,71]:[255,77,106];
+      doc.setFillColor(sc[0],sc[1],sc[2]); doc.roundedRect(cx, iy, 2, cardH, 1,1,'F');
+      const innerX=cx+4, innerW=cardW-8;
+      const cover = await loadImageAsDataURL(it.img_url);
+      if(cover){
+        const ratio=cover.w/cover.h; let dw=innerW, dh=dw/ratio;
+        if(dh>imgH){ dh=imgH; dw=dh*ratio; }
+        try { doc.addImage(cover.data,'JPEG', innerX+(innerW-dw)/2, iy+3, dw, dh); } catch(e){}
+      } else {
+        doc.setFillColor(222,220,232); doc.rect(innerX, iy+3, innerW, imgH,'F');
+        doc.setTextColor(150,150,160); doc.setFontSize(12);
+        doc.text('—', innerX+innerW/2, iy+3+imgH/2, {align:'center'});
+      }
+      let ty=iy+imgH+8;
+      doc.setTextColor(30,30,40); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+      doc.text(doc.splitTextToSize(it.name||'',innerW)[0]||'', innerX, ty);
+      ty+=4; doc.setFont('helvetica','normal'); doc.setFontSize(6.2); doc.setTextColor(110,110,125);
+      const meta=[it.platform,it.edition,it.region].filter(Boolean).join(' · ');
+      if(meta){ doc.text(doc.splitTextToSize(meta,innerW)[0]||'', innerX, ty); ty+=3.5; }
+      if(it.buy_price!=null||it.cur_value!=null){
+        const b=it.buy_price!=null?parseFloat(it.buy_price).toFixed(0)+'E':'-';
+        const v=it.cur_value!=null?parseFloat(it.cur_value).toFixed(0)+'E':'-';
+        doc.setTextColor(123,79,212); doc.setFont('helvetica','bold'); doc.setFontSize(6.4);
+        doc.text('Buy '+b+'   Val '+v, innerX, ty);
+      }
+      col++; if(col>=cols){ col=0; cx=margin; iy+=cardH+gap; } else { cx+=cardW+gap; }
+    }
+    if(col!==0){ iy+=cardH+gap; cx=margin; col=0; } // newline after category
+    iy += 4;
+  }
+
+  // page numbers
+  const total = doc.internal.getNumberOfPages();
+  for(let p=1;p<=total;p++){
+    doc.setPage(p);
+    doc.setTextColor(160,160,170); doc.setFontSize(7); doc.setFont('helvetica','normal');
+    doc.text(p+' / '+total, pageW-margin, pageH-8, {align:'right'});
+  }
 
   doc.save(exportFileName('pdf'));
   hideExportProgress();
-  showToast('Fancy PDF exported!', 'success');
+  showToast('Magazine PDF exported!', 'success');
   closeExportModal();
 }
+
+// PDF page header band (for inner pages)
+function pageHeader(doc, sectionTitle, pseudo, today){
+  doc.setFillColor(13,15,26); doc.rect(0,0,210,22,'F');
+  doc.setTextColor(155,111,244); doc.setFont('helvetica','bold'); doc.setFontSize(13);
+  doc.text('Ratchet & Clank Collection', 14, 10);
+  doc.setTextColor(255,107,26); doc.setFont('helvetica','bold'); doc.setFontSize(8);
+  doc.text(sectionTitle, 14, 16);
+  doc.setTextColor(170,175,190); doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.text(pseudo+'  ·  '+today, 210-14, 13, {align:'right'});
+}
+
+// horizontal bar stats block; returns new y
+function statBarBlock(doc, title, entries, margin, y, pageW, color){
+  const pageH=297;
+  if(y > pageH-40){ doc.addPage(); pageHeader(doc, 'STATISTICS', '', ''); y=40; }
+  doc.setTextColor(60,60,70); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text(title, margin, y); y+=5;
+  const max = Math.max(...entries.map(e=>e[1]), 1);
+  const labelW = 55, barX = margin+labelW, barMaxW = pageW-margin-barX-18;
+  entries.slice(0,10).forEach(([label,val])=>{
+    if(y > pageH-16){ doc.addPage(); pageHeader(doc,'STATISTICS','',''); y=40; }
+    doc.setTextColor(90,90,105); doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.text(doc.splitTextToSize(String(label),labelW-3)[0]||'', margin, y+3.4);
+    doc.setFillColor(230,228,238); doc.roundedRect(barX, y, barMaxW, 5, 1,1,'F');
+    const w = Math.max(2, barMaxW*val/max);
+    doc.setFillColor(color[0],color[1],color[2]); doc.roundedRect(barX, y, w, 5, 1,1,'F');
+    doc.setTextColor(60,60,70); doc.setFont('helvetica','bold'); doc.setFontSize(8);
+    doc.text(String(val), pageW-margin, y+3.8, {align:'right'});
+    y+=8;
+  });
+  return y+4;
+}
+
 
 async function boot(){
   const config=PRESET_CONFIG;
