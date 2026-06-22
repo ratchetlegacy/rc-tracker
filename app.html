@@ -110,7 +110,9 @@
 
     /* APP */
     #app-screen{display:none}
-    header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 50%,#0D1520 100%);border-bottom:1px solid rgba(123,79,212,.3);padding:20px 32px;position:relative;overflow:hidden}
+    header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 50%,#0D1520 100%);border-bottom:1px solid rgba(123,79,212,.3);padding:16px 24px;position:relative;overflow:hidden}
+    .hamburger-btn{margin-left:auto;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 12px;color:var(--chrome);font-size:1.1rem;cursor:pointer;flex-shrink:0}
+    .hamburger-btn:hover{background:rgba(255,255,255,.08)}
     header::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(123,79,212,.15) 0%,transparent 70%);pointer-events:none}
     .header-top{display:flex;align-items:center;gap:14px;margin-bottom:18px}
     .logo-img{width:52px;height:52px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 20px rgba(123,79,212,.4);position:relative}
@@ -720,75 +722,39 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <!-- APP -->
 <div id="app-screen">
   <header>
-    <!-- Decorative glow -->
     <div class="header-top">
-      <!-- Logo -->
-      <div class="logo-img" onclick="showMainMenu()" style="cursor:pointer" title="Accueil">
+      <div class="logo-img" onclick="openMobileMenu()" style="cursor:pointer" title="Menu">
         <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" alt="R&C" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
         <div class="logo-fallback">🔧</div>
       </div>
-      <!-- Title -->
       <div class="header-titles">
         <h1>Ratchet &amp; Clank Collection</h1>
         <span>TRACKER MADE BY RATCHET LEGACY</span>
       </div>
-      <!-- Desktop nav buttons -->
-      <div class="header-user" id="header-nav-desktop">
-        <div class="profile-btn" id="header-avatar" onclick="openProfile()" title="Mon profil">🦊</div>
-        <span id="header-pseudo" onclick="openProfile()" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;color:var(--text);cursor:pointer;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Collectionneur</span>
-        <button onclick="openStats()" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(123,79,212,.4);background:rgba(123,79,212,.1);color:var(--purple-light);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">📊 Stats</button>
-        <button onclick="cycleTheme()" id="theme-btn" style="padding:5px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.82rem;cursor:pointer">🌌</button>
-        <button onclick="cycleLang()" id="lang-btn" style="padding:5px 8px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--chrome);font-size:.72rem;font-family:Orbitron,sans-serif;cursor:pointer">🇫🇷</button>
-        <button onclick="openMarketplace()" style="padding:5px 10px;border-radius:8px;border:1px solid rgba(61,214,140,.4);background:rgba(61,214,140,.1);color:var(--owned);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🤝 Échanges</button>
-        <button id="admin-btn" onclick="openAdmin()" style="display:none;padding:5px 10px;border-radius:8px;border:1px solid rgba(255,107,26,.4);background:rgba(255,107,26,.1);color:var(--orange);font-size:.72rem;font-family:Inter,sans-serif;cursor:pointer">🛠️ Admin</button>
-        <button class="signout-btn" onclick="doSignOut()">Déconnexion</button>
-      </div>
-      <!-- Mobile hamburger -->
-      <button class="mobile-menu-btn" id="mobile-hamburger" onclick="openMobileMenu()" style="display:none;margin-left:auto">☰</button>
+      <button class="hamburger-btn" onclick="openMobileMenu()">☰</button>
     </div>
 
-    <!-- Stat cards row -->
-    <div style="display:flex;border-top:1px solid rgba(255,255,255,.06);margin-top:4px">
-      <div class="stat-card" style="flex:1;border-right:1px solid rgba(255,255,255,.06)">
-        <div class="slabel" data-i18n="hdr_invested">INVESTI</div>
-        <div class="svalue fvalue" id="stat-invested">—</div>
-      </div>
-      <div class="stat-card" style="flex:1;border-right:1px solid rgba(255,255,255,.06)">
-        <div class="slabel" data-i18n="hdr_value">VALEUR MARCHÉ</div>
-        <div class="svalue fvalue" id="stat-current">—</div>
-      </div>
-      <div class="stat-card" style="flex:1">
-        <div class="slabel" data-i18n="hdr_delta">PLUS-VALUE</div>
-        <div class="svalue fvalue" id="stat-delta">—</div>
-      </div>
-    </div>
-
-    <!-- Rank + Progress bars -->
-    <div style="margin-top:12px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <span id="rank-icon" style="font-size:1.3rem">🌱</span>
-        <div>
-          <div id="rank-name" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--orange)">Recrue Galactic Ranger</div>
-          <div id="rank-next-label" style="font-size:.6rem;color:var(--text-dim)"></div>
-        </div>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
-        <span style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)" data-i18n="rank_progression">PROGRESSION VERS LE PROCHAIN RANG</span>
+    <!-- Progress bars only -->
+    <div style="margin-top:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)">PROGRESSION TO NEXT RANK</span>
         <span id="pct-display" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--orange)">0%</span>
       </div>
-      <div class="energy-bar-bg" style="margin-bottom:8px"><div class="energy-bar-fill" id="energy-bar" style="width:0%"></div></div>
-      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
-        <span style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)" data-i18n="collection_rc">COLLECTION R&C</span>
+      <div class="energy-bar-bg" style="margin-bottom:6px"><div class="energy-bar-fill" id="energy-bar" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)">R&C COLLECTION</span>
         <span>
           <span id="collection-pct" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--orange)">0%</span>
-          <span onclick="editCollectionTotal()" style="font-size:.6rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">?</span> <span data-i18n="objects_known">objets connus</span>)</span>
+          <span onclick="editCollectionTotal()" style="font-size:.6rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">2500</span> known)</span>
         </span>
       </div>
-      <div class="energy-bar-bg" style="margin-bottom:8px"><div class="energy-bar-fill" id="collection-bar" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--gold))"></div></div>
+      <div class="energy-bar-bg" style="margin-bottom:6px"><div class="energy-bar-fill" id="collection-bar" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--gold))"></div></div>
       <div style="display:flex;gap:16px;font-size:.75rem;color:var(--text-dim)">
-        <span>● <strong id="cnt-owned" style="color:var(--owned)">0</strong> <span data-i18n="items_owned">possédés</span></span>
-        <span>● <strong id="cnt-wish" style="color:var(--wishlist)">0</strong> <span data-i18n="items_wishlist">souhaités</span></span>
-        <span>● <strong id="cnt-total" style="color:var(--text-dim)">0</strong> <span data-i18n="items_total">total</span></span>
+        <span id="rank-icon" style="font-size:1rem">🌱</span>
+        <span id="rank-name" style="color:var(--orange);font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700"></span>
+        <span style="margin-left:auto">● <strong id="cnt-owned" style="color:var(--owned)">0</strong> owned</span>
+        <span>● <strong id="cnt-wish" style="color:var(--wishlist)">0</strong> wishlist</span>
+        <span>● <strong id="cnt-total" style="color:var(--text-dim)">0</strong> total</span>
       </div>
     </div>
   </header>
@@ -807,7 +773,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <button class="filter-btn s-wish" data-status="wishlist">🎯 Souhaité</button>
       </div>
       <div class="spacer"></div>
-      <button class="add-btn" onclick="openModal()" data-i18n="btn_add">+ AJOUTER</button>
+      <button class="add-btn" onclick="openModal()" data-i18n="btn_add">+ ADD</button>
     </div>
   </div>
 
@@ -1032,8 +998,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
 
     <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
-      <button class="btn-save" onclick="saveItem()">SAUVEGARDER</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveItem()">SAVE</button>
     </div>
   </div>
 </div>
@@ -1046,7 +1012,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <button class="gallery-close" onclick="closeGallery()">✕</button>
     </div>
     <div style="padding:10px 22px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <input type="text" id="gallery-search" placeholder="🔍 Rechercher..." oninput="renderGalleryGrid(galleryImages)"
+      <input type="text" id="gallery-search" placeholder="🔍 Search..." oninput="renderGalleryGrid(galleryImages)"
         style="flex:1;min-width:150px;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none"/>
       <div id="gallery-folders" style="display:flex;gap:5px;flex-wrap:wrap">
         <button class="gallery-folder-btn active" onclick="loadGalleryImages('');document.querySelectorAll('.gallery-folder-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">Tout</button>
@@ -1067,7 +1033,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <span>Aucune image sélectionnée</span>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="gallery-cancel" onclick="closeGallery()">Annuler</button>
+        <button class="gallery-cancel" onclick="closeGallery()">Cancel</button>
         <button class="gallery-confirm" onclick="confirmGallery()">CHOISIR</button>
       </div>
     </div>
@@ -1104,7 +1070,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <textarea id="submit-comment" placeholder="Précisions sur la variante, région, édition..."></textarea>
     </div>
     <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeSubmitPhoto()">Annuler</button>
+      <button class="btn-cancel" onclick="closeSubmitPhoto()">Cancel</button>
       <button class="btn-save" onclick="submitPhoto()">ENVOYER</button>
     </div>
   </div>
@@ -1181,7 +1147,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
             <button onclick="openCloudinaryPicker()" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">☁️ Cloudinary</button>
           </div>
         </div>
-        <button class="admin-submit" onclick="adminAddImage()">+ AJOUTER À LA BANQUE</button>
+        <button class="admin-submit" onclick="adminAddImage()">+ ADD À LA BANQUE</button>
       </div>
     </div>
 
@@ -1190,7 +1156,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="admin-section-title">📚 Images dans la banque (<span id="admin-img-count">0</span>)
         <button onclick="importFromCloudinary()" style="margin-left:auto;padding:6px 14px;background:linear-gradient(135deg,var(--orange),var(--purple));border:none;border-radius:8px;color:#fff;font-family:Orbitron,sans-serif;font-size:.65rem;font-weight:700;cursor:pointer" id="import-btn">☁️ IMPORTER DEPUIS CLOUDINARY</button>
       </div>
-      <input type="text" id="admin-img-search" placeholder="🔍 Rechercher..." oninput="filterAdminImages()"
+      <input type="text" id="admin-img-search" placeholder="🔍 Search..." oninput="filterAdminImages()"
         style="width:100%;background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none;margin-bottom:12px"/>
       <div class="admin-images-grid" id="admin-images-grid">
         <div style="color:var(--text-dim);font-size:.82rem;grid-column:1/-1">Chargement...</div>
@@ -1272,7 +1238,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="profile-section-title" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase;margin-bottom:12px">✏️ Pseudo</div>
       <div class="pseudo-edit">
         <input type="text" class="pseudo-input" id="pseudo-input" placeholder="Ton pseudo..."/>
-        <button class="pseudo-save" onclick="savePseudo()">SAUVEGARDER</button>
+        <button class="pseudo-save" onclick="savePseudo()">SAVE</button>
       </div>
     </div>
 
@@ -1329,7 +1295,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div class="market-screen" id="market-screen">
   <div class="market-header">
     <div style="font-size:1.5rem">🤝</div>
-    <h1>MARKETPLACE ÉCHANGES</h1>
+    <h1>TRADE MARKETPLACE</h1>
     <button class="admin-back" onclick="closeMarketplace()" data-i18n="btn_back">← Retour</button>
   </div>
   <div class="market-body">
@@ -1340,7 +1306,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <option value="sale">💰 Ventes</option>
         <option value="gift">🎁 Dons</option>
       </select>
-      <input type="text" id="market-search" placeholder="🔍 Rechercher..." oninput="renderMarketplace()"
+      <input type="text" id="market-search" placeholder="🔍 Search..." oninput="renderMarketplace()"
         style="flex:1;min-width:180px;background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none"/>
     </div>
     <div id="market-grid" class="market-grid">
@@ -1387,7 +1353,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       ⚠️ Pensez à retirer votre annonce une fois l'objet vendu ou échangé !
     </div>
     <button class="exchange-submit" onclick="submitExchange()">✅ PROPOSER</button>
-    <button class="exchange-cancel" onclick="closeExchangeModal()">Annuler</button>
+    <button class="exchange-cancel" onclick="closeExchangeModal()">Cancel</button>
   </div>
 </div>
 
@@ -1397,13 +1363,12 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
   <div class="menu-item" onclick="closeMobileMenu();openProfile()">🦊 <span id="mobile-pseudo">Mon profil</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 Stats</div>
-  <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Échanges</div>
+  <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
   <div class="menu-item" onclick="closeMobileMenu();cycleTheme()" id="mobile-theme-btn">🌌 Thème</div>
-  <div class="menu-item" onclick="closeMobileMenu();cycleLang()" id="mobile-lang-btn">🇫🇷 Langue</div>
   <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin</div>
-  <div class="menu-item" style="color:var(--missing);border-color:rgba(255,77,106,.2)" onclick="closeMobileMenu();doSignOut()">🚪 Déconnexion</div>
-  <a href="https://ko-fi.com/ratchetlegacy" target="_blank" class="menu-item" style="color:#FF8C42;border-color:rgba(255,140,66,.2)">☕ Soutenir</a>
-  <a href="legal.html" class="menu-item" style="color:var(--text-dim);font-size:.72rem">📄 CGU</a>
+  <div class="menu-item" style="color:var(--missing);border-color:rgba(255,77,106,.2)" onclick="closeMobileMenu();doSignOut()">🚪 Sign out</div>
+  <a href="https://ko-fi.com/ratchetlegacy" target="_blank" class="menu-item" style="color:#FF8C42;border-color:rgba(255,140,66,.2)">☕ Support</a>
+  <a href="legal.html" class="menu-item" style="color:var(--text-dim);font-size:.72rem">📄 Terms</a>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1504,7 +1469,7 @@ async function dbDelete(id){ const {error}=await sbClient.from('items').delete()
 function openModal(id){
   editingId=id||null;
   const item=id?items.find(i=>i.id===id):null;
-  document.getElementById('modal-title').textContent=item?"MODIFIER L'OBJET":'NOUVEL OBJET';
+  document.getElementById('modal-title').textContent=item?"MODIFIER L'OBJET":'NEW ITEM';
   document.getElementById('inp-name').value=item?item.name:'';
 
   // Type
@@ -1737,12 +1702,12 @@ async function saveItem(){
       const {data:updatedItem} = await sbClient.from('items').select('*').eq('id',editingId).single();
       if(updatedItem && idx!==-1) items[idx]=updatedItem;
       else if(idx!==-1) items[idx]={...items[idx],...payload};
-      showToast('Objet mis à jour !','success');
+      showToast('Item updated!','success');
     }else{
       const newItem=await dbInsert(payload);
       const {data:fullItem} = await sbClient.from('items').select('*').eq('id',newItem.id).single();
       items.push(fullItem||newItem);
-      showToast('Objet ajouté !','success');
+      showToast('Item added!','success');
     }
     closeModal(); render();
   }catch(e){ showToast('Erreur : '+e.message,'error'); }
@@ -1863,14 +1828,9 @@ function render(){
   const hasBuy=ownedItems.some(i=>i.buy_price!=null);
   const hasCur=ownedItems.some(i=>i.cur_value!=null);
   const delta=totalCurrent-totalInvested;
-  const elInvested=document.getElementById('stat-invested');
-  const elCurrent=document.getElementById('stat-current');
-  if(elInvested) elInvested.textContent=hasBuy?fmtEur(totalInvested):'—';
-  if(elCurrent) elCurrent.textContent=hasCur?fmtEur(totalCurrent):'—';
+  // stat cards moved to stats page
   if(hasBuy&&hasCur){
     const sign=delta>=0?'+':'';
-    const elDelta=document.getElementById('stat-delta');
-    if(elDelta){ elDelta.textContent=sign+fmtEur(delta); elDelta.className='fvalue '+(delta>0?'profit-pos':delta<0?'profit-neg':'profit-zero'); }
   }else{ document.getElementById('stat-delta').textContent='—'; document.getElementById('stat-delta').className='fvalue profit-zero'; }
 
   // progress
@@ -2023,7 +1983,7 @@ function render(){
       grid.appendChild(card);
         });
   });
-  if(!anyItem) container.innerHTML=`<div class="empty-state"><div class="icon">🔧</div>Aucun objet trouvé.</div>`;
+  if(!anyItem) container.innerHTML=`<div class="empty-state"><div class="icon">🔧</div>No items found.</div>`;
 }
 
 // ══ DETAIL ══
@@ -2242,8 +2202,8 @@ function openProfile(){
   const pct = total ? Math.round(owned/total*100) : 0;
 
   document.getElementById('profile-stats-grid').innerHTML =
-    '<div class="stat-card"><div class="sicon">✅</div><div class="svalue">'+owned+'</div><div class="slabel">Possédés</div></div>'
-    +'<div class="stat-card"><div class="sicon">🎯</div><div class="svalue">'+wish+'</div><div class="slabel">Souhaités</div></div>'
+    '<div class="stat-card"><div class="sicon">✅</div><div class="svalue">'+owned+'</div><div class="slabel">Owned</div></div>'
+    +'<div class="stat-card"><div class="sicon">🎯</div><div class="svalue">'+wish+'</div><div class="slabel">Wishlist</div></div>'
     +'<div class="stat-card"><div class="sicon">📦</div><div class="svalue">'+total+'</div><div class="slabel">Total</div></div>'
     +'<div class="stat-card"><div class="sicon">📈</div><div class="svalue">'+pct+'%</div><div class="slabel">Complétude</div></div>'
     +'<div class="stat-card"><div class="sicon">💸</div><div class="svalue">'+fmtEur(totalInvested)+'</div><div class="slabel">Investi</div></div>'
@@ -2293,7 +2253,7 @@ function savePseudo(){
   localStorage.setItem('rc_pseudo_'+currentUser.id, pseudo);
   document.getElementById('profile-pseudo-display').textContent = pseudo;
   document.getElementById('header-pseudo').textContent = pseudo;
-  showToast('Pseudo sauvegardé !','success');
+  showToast('Username saved!','success');
 }
 
 // ══ CLOUDINARY GALLERY ══
@@ -2493,7 +2453,7 @@ async function adminAddImage(){
       name, url, thumb_url: thumbUrl, folder, platform, region, edition, added_by: currentUser.email
     }]);
     if(error) throw error;
-    showToast('Image ajoutée !', 'success');
+    showToast('Image added!', 'success');
     document.getElementById('admin-img-name').value = '';
     document.getElementById('admin-img-url').value = '';
     document.getElementById('admin-img-platform').value = '';
@@ -2506,7 +2466,7 @@ async function adminDeleteImage(id){
   if(!confirm('Supprimer cette image de la banque ?')) return;
   const { error } = await sbClient.from('images').delete().eq('id', id);
   if(error){ showToast('Erreur : '+error.message,'error'); return; }
-  showToast('Image supprimée.', 'success');
+  showToast('Image deleted.', 'success');
   await loadAdminImages();
 }
 
@@ -2602,11 +2562,11 @@ const T = {
     // Header
     'app_title':'Ratchet & Clank Collection',
     'app_subtitle':'TRACKER MADE BY RATCHET LEGACY',
-    'btn_add':'+ AJOUTER',
+    'btn_add':'+ ADD',
     'btn_stats':'📊 Stats',
     'btn_admin':'🛠️ Admin',
     'btn_exchanges':'🤝 Échanges',
-    'btn_signout':'Déconnexion',
+    'btn_signout':'Sign out',
     'btn_profile':'Mon profil',
     // Filters
     'filter_all':'Tout','filter_owned':'Possédés','filter_wishlist':'Souhaités',
@@ -2614,7 +2574,7 @@ const T = {
     'filter_sort_recent':'Récents','filter_sort_name':'Nom A→Z',
     'filter_sort_value':'Valeur ↓','filter_sort_rating':'Note ↓',
     // Modal
-    'modal_new':'NOUVEL OBJET','modal_edit':"MODIFIER L'OBJET",
+    'modal_new':'NEW ITEM','modal_edit':"MODIFIER L'OBJET",
     'section_general':'📋 Informations générales',
     'lbl_name':'Nom *','lbl_type':'Type','lbl_edition':'Édition',
     'lbl_manufacturer':'Fabricant','lbl_platform':'Support / Plateforme',
@@ -2658,7 +2618,7 @@ const T = {
     'btn_duplicate':'📋 Dupliquer',
     // Empty states
     'empty_collection':'Aucun objet dans ta collection',
-    'empty_add':'Clique sur + AJOUTER pour commencer !',
+    'empty_add':'Clique sur + ADD pour commencer !',
     'empty_wishlist':'Ta liste de souhaits est vide',
     'empty_search':'Aucun résultat pour cette recherche',
     // Gallery
@@ -2684,11 +2644,11 @@ const T = {
     'admin_import':'☕ IMPORTER DEPUIS CLOUDINARY',
     'admin_submissions':'📸 Photos soumises',
     // Marketplace
-    'market_title':'MARKETPLACE ÉCHANGES',
+    'market_title':'TRADE MARKETPLACE',
     'market_filter_all':'Tous types',
-    'market_exchange':'🔄 Échanges','market_sale':'💰 Ventes','market_gift':'🎁 Dons',
-    'market_empty':'Aucune proposition pour le moment.',
-    'market_contact':'📩 CONTACTER','market_remove':'🗑️ RETIRER MON ANNONCE',
+    'market_exchange':'🔄 Trades','market_sale':'💰 Sales','market_gift':'🎁 Gifts',
+    'market_empty':'No listings yet.',
+    'market_contact':'📩 CONTACT','market_remove':'🗑️ REMOVE LISTING',
     'market_no_contact':'Pas de contact renseigné',
     // Exchange modal
     'exchange_title':'🤝 Proposer cet objet',
@@ -2701,12 +2661,12 @@ const T = {
     'exchange_reminder':'⚠️ Pensez à retirer votre annonce une fois vendu ou échangé !',
     'btn_propose':'✅ PROPOSER',
     // Toast messages
-    'toast_saved':'Objet ajouté !','toast_updated':'Objet mis à jour !',
-    'toast_deleted':'Objet supprimé.','toast_copied':'Lien copié !',
-    'toast_exchange_published':'Proposition publiée !',
-    'toast_exchange_removed':'Annonce retirée !',
-    'toast_image_added':'Image ajoutée !','toast_image_deleted':'Image supprimée.',
-    'toast_pseudo_saved':'Pseudo sauvegardé !',
+    'toast_saved':'Item added!','toast_updated':'Item updated!',
+    'toast_deleted':'Item deleted.','toast_copied':'Link copied!',
+    'toast_exchange_published':'Listing published!',
+    'toast_exchange_removed':'Listing removed!',
+    'toast_image_added':'Image added!','toast_image_deleted':'Image deleted.',
+    'toast_pseudo_saved':'Username saved!',
     'toast_import_success':'images importées !',
     // Scanner
     'scan_title':'📷 Scanner le code-barres',
@@ -2717,8 +2677,8 @@ const T = {
     'scan_not_supported':'Scan non supporté sur ce navigateur.',
     // Ko-fi
     'kofi_support':'SOUTENIR LE PROJET',
-    'kofi_desc':'Ce tracker est gratuit — un café aide à le maintenir !',
-    'footer_legal':'CGU & Mentions légales',
+    'kofi_desc':'This tracker is free — a coffee helps keep it alive!',
+    'footer_legal':'Terms & Privacy',
     'footer_made':'Made with ❤️ by Ratchet Legacy',
     // Notifications
     'price_outdated_title':'objets à mettre à jour',
@@ -2748,7 +2708,7 @@ const T = {
     'kpi_value':'Valeur','kpi_delta':'Plus-value',
     'kpi_neuf':'Neuf/Blister','kpi_occasion':'Occasion',
     // Empty state
-    'empty_state':'Aucun objet trouvé.',
+    'empty_state':'No items found.',
     // Detail labels
     'detail_completeness':'Complétude',
     'detail_finance':'VALEUR FINANCIÈRE',
@@ -2763,7 +2723,7 @@ const T = {
     'admin_no_sub':'Aucune soumission en attente.',
     'admin_approve':'✅ Approuver','admin_reject':'❌ Refuser',
     'admin_save_total':'💾 SAUVEGARDER',
-    'admin_add_btn':'+ AJOUTER À LA BANQUE',
+    'admin_add_btn':'+ ADD À LA BANQUE',
     // Profile screen
     'profile_rank':'🏆 Rang','profile_stats':'📊 Statistiques',
     'profile_top5':'💎 Top 5 objets les plus précieux',
@@ -2779,8 +2739,8 @@ const T = {
     'submit_btn':'📸 SOUMETTRE',
     'submit_hint':'L\'image doit être accessible publiquement',
     // Legal
-    'legal_title':'CGU & Mentions légales',
-    'cgu_footer':'CGU & Mentions légales',
+    'legal_title':'Terms & Privacy',
+    'cgu_footer':'Terms & Privacy',
     'profile_no_value':'Aucun objet avec valeur renseignée.',
     'profile_rank_next':'objets avant',
   },
@@ -3324,7 +3284,7 @@ async function removePublicProfile(){
 
 function copyPublicLink(){
   const link = document.getElementById('public-link-input').value;
-  navigator.clipboard.writeText(link).then(()=>showToast('Lien copié !','success'));
+  navigator.clipboard.writeText(link).then(()=>showToast('Link copied!','success'));
 }
 
 function loadPublicToggle(){
@@ -3373,8 +3333,8 @@ async function checkPublicProfile(){
     // Rank bar
     html += '<div style="max-width:300px;margin:0 auto 16px"><div style="height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+rankPct+'%;background:'+rank.color+';border-radius:3px;transition:width .8s"></div></div><div style="font-size:.65rem;color:var(--text-dim);margin-top:4px">'+(nextRank?nextRank.min-owned.length+' '+t('rank_next')+' '+nextRank.name:t('rank_max'))+'</div></div>';
     html += '<div class="public-stats-row">';
-    html += '<div class="public-stat"><div class="public-stat-val">'+owned.length+'</div><div class="public-stat-label">Possédés</div></div>';
-    html += '<div class="public-stat"><div class="public-stat-val">'+wish.length+'</div><div class="public-stat-label">Souhaités</div></div>';
+    html += '<div class="public-stat"><div class="public-stat-val">'+owned.length+'</div><div class="public-stat-label">Owned</div></div>';
+    html += '<div class="public-stat"><div class="public-stat-val">'+wish.length+'</div><div class="public-stat-label">Wishlist</div></div>';
     html += '<div class="public-stat"><div class="public-stat-val">'+pItems.length+'</div><div class="public-stat-label">Total</div></div>';
     html += '</div></div>';
 
@@ -3782,7 +3742,7 @@ async function loadMarketplace(){
     marketItems = data || [];
     renderMarketplace();
   } catch(e){ 
-    document.getElementById('market-grid').innerHTML = '<div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px"data-i18n="market_empty">Aucune proposition pour le moment.</div>';
+    document.getElementById('market-grid').innerHTML = '<div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px"data-i18n="market_empty">No listings yet.</div>';
   }
 }
 
@@ -3812,8 +3772,8 @@ function renderMarketplace(){
       +(item.looking_for?'<div class="market-card-looking">🔍 '+escHtml(item.looking_for)+'</div>':'')
       +'<div class="market-card-owner">👤 '+escHtml(item.owner_pseudo||'Collectionneur')+'</div>'
       +(item.sale_link?'<a href="'+escHtml(item.sale_link)+'" target="_blank" rel="noopener" class="market-contact-btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:6px">🔗 VOIR ANNONCE</a>':'')
-      +(isOwner ? '' : '<button class="market-contact-btn" data-contact="'+escHtml(item.contact||'')+'" onclick="contactOwner(this.dataset.contact)">📩 CONTACTER</button>')
-      +(isOwner ? '<button class="market-contact-btn" data-id="'+item.id+'" onclick="deleteExchange(this.dataset.id)" style="background:rgba(255,77,106,.3);margin-top:6px">🗑️ RETIRER MON ANNONCE</button>' : '')
+      +(isOwner ? '' : '<button class="market-contact-btn" data-contact="'+escHtml(item.contact||'')+'" onclick="contactOwner(this.dataset.contact)">📩 CONTACT</button>')
+      +(isOwner ? '<button class="market-contact-btn" data-id="'+item.id+'" onclick="deleteExchange(this.dataset.id)" style="background:rgba(255,77,106,.3);margin-top:6px">🗑️ REMOVE LISTING</button>' : '')
       +'</div>';
     grid.appendChild(card);
   });
@@ -3869,7 +3829,7 @@ async function submitExchange(){
     }]);
     if(error) throw error;
     closeExchangeModal();
-    showToast('Proposition publiée !', 'success');
+    showToast('Listing published!', 'success');
   } catch(e){ showToast('Erreur : '+e.message, 'error'); }
 }
 
@@ -3878,7 +3838,7 @@ async function deleteExchange(id){
   try {
     const { error } = await sbClient.from('exchanges').update({is_active:false}).eq('id',id).eq('owner_id',currentUser.id);
     if(error) throw error;
-    showToast('Annonce retirée !', 'success');
+    showToast('Listing removed!', 'success');
     await loadMarketplace();
   } catch(e){ showToast('Erreur : '+e.message, 'error'); }
 }
@@ -3925,7 +3885,7 @@ boot();
   <a href="https://ko-fi.com/ratchetlegacy" target="_blank" rel="noopener" class="footer-kofi">
     ☕ SOUTENIR
   </a>
-  <a href="legal.html" class="footer-legal">CGU & Mentions légales</a>
+  <a href="legal.html" class="footer-legal">Terms & Privacy</a>
   <span style="font-size:.55rem;color:var(--text-dim)"data-i18n="footer_made">Made with ❤️ by Ratchet Legacy</span>
 </div>
 
