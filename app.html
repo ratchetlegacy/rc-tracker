@@ -648,8 +648,8 @@
       </div>
       <div><h1>R&amp;C TRACKER</h1><span>Configuration Supabase</span></div>
     </div>
-    <h2>⚙️ Sign in à la base de données</h2>
-    <p>Entre tes identifiants Supabase. Tu les trouves dans <strong>Settings → API</strong>.</p>
+    <h2>⚙️ Connect to the database</h2>
+    <p>Enter your Supabase credentials. You can find them in <strong>Settings → API</strong>.</p>
     <div class="setup-field">
       <label>Project URL</label>
       <input type="text" id="setup-url" placeholder="https://xxxx.supabase.co"/>
@@ -657,7 +657,7 @@
     <div class="setup-field">
       <label>Anon Key</label>
       <input type="text" id="setup-key" placeholder="eyJ..."/>
-      <div class="setup-hint">Pas de projet ? <a href="https://supabase.com" target="_blank">Create account gratuit →</a></div>
+      <div class="setup-hint">Pas de projet ? <a href="https://supabase.com" target="_blank">Create a free account →</a></div>
     </div>
     <button class="setup-submit" onclick="applySetup()">CONNECTER</button>
     <div id="setup-error" style="margin-top:12px"></div>
@@ -714,8 +714,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div><h1>R&amp;C TRACKER</h1><span>Ratchet &amp; Clank · Collection</span></div>
     </div>
     <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign in</button>
-      <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create account</button>
+      <button class="auth-tab active" id="tab-login" onclick="switchTab('login')" data-i18n="auth_login">Sign in</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')" data-i18n="auth_register">Create account</button>
     </div>
     <div class="auth-form">
       <input type="email" id="auth-email" placeholder="email@exemple.com"/>
@@ -779,7 +779,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <span class="filter-label">Status</span>
+      <span class="filter-label" data-i18n="lbl_status">Status</span>
       <div class="filter-group" id="status-filters">
         <button class="filter-btn s-owned" data-status="owned">✅ Owned</button>
         <button class="filter-btn s-wish" data-status="wishlist">🎯 Wishlist</button>
@@ -790,7 +790,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 
   <div class="grid-container" id="grid-container">
-    <div class="loading"><span class="spin">⚙️</span>Chargement...</div>
+    <div class="loading"><span class="spin">⚙️</span>Loading...</div>
   </div>
 </div>
 
@@ -802,48 +802,48 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- Infos générales -->
     <div class="form-section">
-      <div class="form-section-title">📋 Informations générales</div>
+      <div class="form-section-title" data-i18n="section_general">📋 General information</div>
       <div class="form-group">
-        <label>Name *</label>
+        <label data-i18n="lbl_name">Name *</label>
         <input type="text" id="inp-name" placeholder="ex: Ratchet &amp; Clank"/>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>Type</label>
           <select id="inp-type" onchange="updateCompleteness();toggleCustomField('inp-type','inp-type-custom')">
-            <option value="">— Sélectionner —</option>
+            <option value="">— Select —</option>
             <option>Physical game</option><option>Console Pack</option><option>Controller Pack</option>
-            <option>Accessoire</option><option>Goodie</option>
+            <option>Accessory</option><option>Goodie</option>
             <option>Figure</option><option>Statuette</option><option>Plush</option>
             <option>Clothing</option><option>Guide</option><option>Book</option>
             <option>Manga</option><option>Comics</option><option>Art Book</option>
-            <option>Film</option><option>Soundtrack</option><option>Impression</option>
-            <option>Cross-over</option><option>Press Kit</option><option>Divers</option>
-            <option value="__custom__">✏️ Other (saisie libre)</option>
+            <option>Film</option><option>Soundtrack</option><option>Print</option>
+            <option>Cross-over</option><option>Press Kit</option><option>Misc</option>
+            <option value="__custom__">✏️ Other (free text)</option>
           </select>
-          <input type="text" id="inp-type-custom" placeholder="Saisir le type..." style="margin-top:5px;display:none"/>
+          <input type="text" id="inp-type-custom" placeholder="Enter type..." style="margin-top:5px;display:none"/>
         </div>
         <div class="form-group">
-          <label>Edition</label>
+          <label data-i18n="lbl_edition">Edition</label>
           <select id="inp-edition" onchange="toggleCustomField('inp-edition','inp-edition-custom')">
-            <option value="">— Sélectionner —</option>
+            <option value="">— Select —</option>
             <option>Classic</option><option>Platinum</option><option>Essential</option>
-            <option>Collector</option><option>Limitée</option><option>Steelbook</option>
+            <option>Collector</option><option>Limited</option><option>Steelbook</option>
             <option>Remake</option><option>Greatest Hit</option><option>Playstation Hit</option>
             <option>DC Comics</option><option>Dark Horse</option><option>Scholastic Inc</option>
-            <option>BlinkBag</option><option>Employés Only</option><option>Démo Only</option>
-            <option>Promo Only</option><option>Press Only</option><option>Non Commercialisé</option>
-            <option>Serie 1</option><option>Serie 2</option><option>Impression Exclusive</option>
-            <option value="__custom__">✏️ Other (saisie libre)</option>
+            <option>BlinkBag</option><option>Employees Only</option><option>Demo Only</option>
+            <option>Promo Only</option><option>Press Only</option><option>Not For Sale</option>
+            <option>Serie 1</option><option>Serie 2</option><option>Exclusive Print</option>
+            <option value="__custom__">✏️ Other (free text)</option>
           </select>
-          <input type="text" id="inp-edition-custom" placeholder="Saisir l'édition..." style="margin-top:5px;display:none"/>
+          <input type="text" id="inp-edition-custom" placeholder="Enter edition..." style="margin-top:5px;display:none"/>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Manufacturer</label>
+          <label data-i18n="lbl_manufacturer">Manufacturer</label>
           <select id="inp-manufacturer" onchange="toggleCustomField('inp-manufacturer','inp-manufacturer-custom')">
-            <option value="">— Sélectionner —</option>
+            <option value="">— Select —</option>
             <option>Insomniac Games</option><option>Sony Interactive Entertainment</option>
             <option>PlayStation</option><option>Sony Computer Entertainment</option>
             <option>PlayStation Gear</option><option>Funko</option><option>Youtooz</option>
@@ -853,62 +853,62 @@ CREATE POLICY "Users see own items" ON items FOR ALL
             <option>Mark Englert</option><option>Dave Perillo</option><option>Sony Music</option>
             <option>Tokyopop</option><option>Dark Horse Books</option><option>Penguin Random House</option>
             <option>WildStorm</option><option>DC Comics</option><option>Toys "R" Us</option>
-            <option>Kellogg's</option><option>Fait maison</option><option>DC Unlimited</option>
+            <option>Kellogg's</option><option>Homemade</option><option>DC Unlimited</option>
             <option>Primas Guide</option><option>Brady Games</option><option>Shougakukan</option>
             <option>Milan</option><option>Iam8Bit</option><option>Mezco Toys</option>
             <option>ECS Toys</option><option>Neamedia</option><option>Creature Box</option>
             <option>Nkok</option><option>Scholastic Inc</option>
-            <option value="__custom__">✏️ Other (saisie libre)</option>
+            <option value="__custom__">✏️ Other (free text)</option>
           </select>
-          <input type="text" id="inp-manufacturer-custom" placeholder="Saisir le fabricant..." style="margin-top:5px;display:none"/>
+          <input type="text" id="inp-manufacturer-custom" placeholder="Enter manufacturer..." style="margin-top:5px;display:none"/>
         </div>
         <div class="form-group">
-          <label>Support / Platform</label>
+          <label data-i18n="lbl_platform">Support / Platform</label>
           <select id="inp-platform" onchange="toggleCustomField('inp-platform','inp-platform-custom')">
-            <option value="">— Sélectionner —</option>
+            <option value="">— Select —</option>
             <option>Playstation 2</option><option>Playstation 3</option><option>Playstation 4</option>
             <option>Playstation 5</option><option>PSP</option><option>PSP Go</option>
             <option>PS Vita</option><option>Mobile</option><option>Guides</option>
             <option>Art Book</option><option>Comics</option><option>Manga</option>
             <option>Magazine</option><option>DVD</option><option>Blue-Ray</option>
-            <option>Blue-Ray 3D</option><option>CD Audio</option><option>Affiches</option>
-            <option>PLV Publicitaire</option><option>Plush</option><option>Porte-clé peluche</option>
-            <option>Plush sonore</option><option>Plush collector</option>
-            <option>Badge</option><option>Porte-clé</option><option>Pin's</option>
-            <option>Autocollant</option><option>Sac / Tote bag</option><option>Mug</option>
-            <option>Stylo</option><option>Casquette</option><option>Carte collector</option>
-            <option>Objet mystère</option><option>Goodie divers</option>
+            <option>Blue-Ray 3D</option><option>CD Audio</option><option>Posters</option>
+            <option>Advertising Display</option><option>Plush</option><option>Plush Keychain</option>
+            <option>Sound Plush</option><option>Collector Plush</option>
+            <option>Badge</option><option>Keychain</option><option>Pin's</option>
+            <option>Sticker</option><option>Bag / Tote bag</option><option>Mug</option>
+            <option>Pen</option><option>Cap</option><option>Collector Card</option>
+            <option>Mystery Item</option><option>Misc Goodie</option>
             <option>T-shirt / Polo</option><option>Sweat / Veste</option><option>Costume</option>
-            <option>Figure PVC</option><option>Figure Résine</option><option>Figure Vinyle</option>
+            <option>Figure PVC</option><option>Resin Figure</option><option>Vinyl Figure</option>
             <option>Figure Custom</option><option>Figure 3D Print</option>
-            <option>Jouets</option><option>Vinyles</option><option>Roman</option>
-            <option value="__custom__">✏️ Other (saisie libre)</option>
+            <option>Toys</option><option>Vinyls</option><option>Novel</option>
+            <option value="__custom__">✏️ Other (free text)</option>
           </select>
-          <input type="text" id="inp-platform-custom" placeholder="Saisir le support..." style="margin-top:5px;display:none"/>
+          <input type="text" id="inp-platform-custom" placeholder="Enter platform..." style="margin-top:5px;display:none"/>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Region</label>
+          <label data-i18n="lbl_region">Region</label>
           <select id="inp-region">
             <option value="PAL">🌍 PAL</option>
             <option value="NTSC-U">🇺🇸 NTSC-U</option>
             <option value="NTSC-J">🇯🇵 NTSC-J</option>
-            <option value="Mondial">🌐 Mondial</option>
+            <option value="Mondial">🌐 Worldwide</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Language</label>
+          <label data-i18n="lbl_lang">Language</label>
           <select id="inp-lang">
-            <option value="FR">🇫🇷 Français</option>
-            <option value="EN">🇬🇧 Anglais</option>
-            <option value="JP">🇯🇵 Japanais</option>
-            <option value="DE">🇩🇪 Allemand</option>
-            <option value="ES">🇪🇸 Espagnol</option>
-            <option value="IT">🇮🇹 Italien</option>
-            <option value="PT">🇵🇹 Portugais</option>
-            <option value="NL">🇳🇱 Néerlandais</option>
-            <option value="Multi">🌐 Multilingue</option>
+            <option value="FR">🇫🇷 French</option>
+            <option value="EN">🇬🇧 English</option>
+            <option value="JP">🇯🇵 Japanese</option>
+            <option value="DE">🇩🇪 German</option>
+            <option value="ES">🇪🇸 Spanish</option>
+            <option value="IT">🇮🇹 Italian</option>
+            <option value="PT">🇵🇹 Portuguese</option>
+            <option value="NL">🇳🇱 Dutch</option>
+            <option value="Multi">🌐 Multilingual</option>
           </select>
         </div>
         <div class="form-group">
@@ -923,17 +923,17 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- Condition & Completeness -->
     <div class="form-section">
-      <div class="form-section-title">📦 Condition &amp; Completeness</div>
+      <div class="form-section-title" data-i18n="section_condition">📦 Condition &amp; Completeness</div>
       <div class="form-row">
         <div class="form-group">
-          <label>Condition</label>
+          <label data-i18n="lbl_condition">Condition</label>
           <select id="inp-condition" onchange="toggleCondition()">
-            <option value="neuf_blister">🆕 Brand new (sealed)</option>
-            <option value="occasion">📦 Second hand</option>
+            <option value="neuf_blister" data-i18n="cond_neuf">🆕 Brand new (sealed)</option>
+            <option value="occasion" data-i18n="cond_occasion">📦 Second hand</option>
           </select>
         </div>
         <div class="form-group" id="occasion-grade-group" style="display:none">
-          <label>Quality</label>
+          <label data-i18n="lbl_quality">Quality</label>
           <select id="inp-grade">
             <option value="excellent">⭐⭐⭐⭐⭐ Excellent</option>
             <option value="tres_bon">⭐⭐⭐⭐ Very good</option>
@@ -944,10 +944,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         </div>
       </div>
       <div id="completeness-section">
-        <label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);font-weight:600;display:block;margin-bottom:8px">Completeness</label>
+        <label data-i18n="lbl_completeness" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);font-weight:600;display:block;margin-bottom:8px">Completeness</label>
         <div id="completeness-checks" class="completeness-checks"></div>
         <div class="form-group" id="bonus-field" style="display:none;margin-top:8px">
-          <label>Bonus included (optional)</label>
+          <label data-i18n="lbl_bonus">Bonus included (optional)</label>
           <input type="text" id="inp-bonus" placeholder="ex: DVD, planche de stickers, affiche..."/>
         </div>
       </div>
@@ -955,15 +955,15 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- Valeur financière -->
     <div class="form-section">
-      <div class="form-section-title">💰 Valeur financière</div>
+      <div class="form-section-title" data-i18n="section_finance">💰 Financial value</div>
       <div class="form-row">
         <div class="form-group">
-          <label>Prix d'achat (€)</label>
+          <label>Purchase price (€)</label>
           <input type="number" id="inp-buy" placeholder="ex: 12.99" min="0" step="0.01"/>
           <div class="price-hint"data-i18n="hint_buy_price">What you paid</div>
         </div>
         <div class="form-group">
-          <label>Valeur actuelle (€)</label>
+          <label>Current value (€)</label>
           <input type="number" id="inp-val" placeholder="ex: 25.00" min="0" step="0.01"/>
           <div class="price-hint"data-i18n="hint_cur_value">Market price</div>
         </div>
@@ -972,7 +972,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- Extras -->
     <div class="form-section">
-      <div class="form-section-title">✨ Extras</div>
+      <div class="form-section-title" data-i18n="section_extras">✨ Extras</div>
       <div class="form-group">
         <label>Note personnelle</label>
         <div class="star-input" id="rating-stars">
@@ -989,29 +989,29 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="form-group">
         <label>Image</label>
         <div style="display:flex;gap:8px;align-items:center">
-          <input type="url" id="inp-img" placeholder="URL ou choisir depuis la galerie..." style="flex:1"/>
+          <input type="url" id="inp-img" placeholder="URL or choose from gallery..." style="flex:1"/>
           <button type="button" onclick="openGallery()" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Gallery</button>
         </div>
         <div class="price-hint">Paste a link or choose from gallery</div>
-        <button type="button" onclick="openSubmitPhoto()" style="margin-top:8px;padding:6px 12px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">📸 Submit a missing photo</button>
+        <button type="button" onclick="openSubmitPhoto()" style="margin-top:8px;padding:6px 12px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif" data-i18n="btn_submit_photo">📸 Submit a missing photo</button>
       </div>
       <div class="form-group" id="wish-url-group" style="display:none">
-        <label>🛒 Buy link (eBay, Vinted...)</label>
+        <label data-i18n="lbl_wish_url">🛒 Buy link (eBay, Vinted...)</label>
         <input type="url" id="inp-wish-url" placeholder="https://www.ebay.fr/..."/>
       </div>
       <div class="form-group">
-        <label>Notes</label>
-        <textarea id="inp-notes" placeholder="Infos spéciales..."></textarea>
+        <label data-i18n="lbl_notes">Notes</label>
+        <textarea id="inp-notes" placeholder="Special info..."></textarea>
       </div>
       <div class="form-group">
-        <label>Comment</label>
-        <textarea id="inp-comment" placeholder="Histoire personnelle, cadeau..."></textarea>
+        <label data-i18n="lbl_comment">Comment</label>
+        <textarea id="inp-comment" placeholder="Personal story, gift..."></textarea>
       </div>
     </div>
 
     <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="saveItem()">SAVE</button>
+      <button class="btn-cancel" onclick="closeModal()" data-i18n="btn_cancel">Cancel</button>
+      <button class="btn-save" onclick="saveItem()" data-i18n="btn_save">SAVE</button>
     </div>
   </div>
 </div>
@@ -1020,7 +1020,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div class="gallery-overlay" id="gallery-overlay">
   <div class="gallery-modal">
     <div class="gallery-header">
-      <h3>🖼️ Image Bank</h3>
+      <h3 data-i18n="gallery_title">🖼️ Image Bank</h3>
       <button class="gallery-close" onclick="closeGallery()">✕</button>
     </div>
     <div style="padding:10px 22px;border-bottom:1px solid rgba(255,255,255,.05);display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -1038,15 +1038,15 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       </div>
     </div>
     <div class="gallery-grid" id="gallery-grid">
-      <div class="gallery-empty">⚙️ Chargement...</div>
+      <div class="gallery-empty">⚙️ Loading...</div>
     </div>
     <div class="gallery-footer">
       <div class="gallery-selected-preview" id="gallery-preview">
-        <span>No image selected</span>
+        <span data-i18n="gallery_select">No image selected</span>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="gallery-cancel" onclick="closeGallery()">Cancel</button>
-        <button class="gallery-confirm" onclick="confirmGallery()">CHOOSE</button>
+        <button class="gallery-cancel" onclick="closeGallery()" data-i18n="btn_cancel">Cancel</button>
+        <button class="gallery-confirm" onclick="confirmGallery()" data-i18n="btn_choose">CHOOSE</button>
       </div>
     </div>
   </div>
@@ -1056,14 +1056,14 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div class="modal-overlay" id="submit-photo-overlay">
   <div class="modal" style="max-width:440px">
     <button class="modal-close" onclick="closeSubmitPhoto()">✕</button>
-    <h2>📸 Soumettre une photo</h2>
-    <p style="font-size:.78rem;color:var(--text-dim);margin-bottom:16px">Tu as une photo d'un objet absent de la banque d'images ? Soumets-la ici, elle sera examinée avant d'être ajoutée.</p>
+    <h2>📸 Submit a photo</h2>
+    <p style="font-size:.78rem;color:var(--text-dim);margin-bottom:16px">Have a photo of an item missing from the image bank? Submit it here, it will be reviewed before being added.</p>
     <div class="form-group">
-      <label>Nom de l'objet concerné</label>
+      <label>Item name</label>
       <input type="text" id="submit-item-name" placeholder="ex: Ratchet & Clank PS2 PAL"/>
     </div>
     <div class="form-group">
-      <label>Type / Catégorie</label>
+      <label>Type / Category</label>
       <select id="submit-item-type">
         <option value="Physical game">🎮 Physical game</option>
         <option value="Figure">🤖 Figure</option>
@@ -1073,13 +1073,13 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       </select>
     </div>
     <div class="form-group">
-      <label>URL de l'image à soumettre</label>
+      <label>Image URL to submit</label>
       <input type="url" id="submit-img-url" placeholder="https://... (lien direct vers l'image)"/>
-      <div class="price-hint">L'image doit être accessible publiquement</div>
+      <div class="price-hint">The image must be publicly accessible</div>
     </div>
     <div class="form-group">
-      <label>Comment (optionnel)</label>
-      <textarea id="submit-comment" placeholder="Précisions sur la variante, région, édition..."></textarea>
+      <label>Comment (optional)</label>
+      <textarea id="submit-comment" placeholder="Details about variant, region, edition..."></textarea>
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeSubmitPhoto()">Cancel</button>
@@ -1091,7 +1091,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <!-- ADMIN SCREEN -->
 <div class="admin-screen" id="admin-screen">
   <div class="admin-header">
-    <div class="logo-img" onclick="closeAdmin();showMainMenu()" style="cursor:pointer" title="Accueil"o-img" style="width:40px;height:40px">
+    <div class="logo-img" onclick="closeAdmin();showMainMenu()" style="cursor:pointer" title="Home" style="width:40px;height:40px">
       <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
     </div>
     <h1>🛠️ ADMIN PANEL</h1>
@@ -1101,9 +1101,9 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- RC TOTAL SETTING -->
     <div class="admin-section">
-      <div class="admin-section-title">🎮 Total known R&C items</div>
+      <div class="admin-section-title" data-i18n="admin_rc_total">🎮 Total known R&C items</div>
       <div class="admin-form">
-        <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:12px">Définit le total utilisé pour la barre de progression "Collection R&C" de tous les utilisateurs.</p>
+        <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:12px">Sets the total used for the "R&C Collection" progress bar for all users.</p>
         <div style="display:flex;gap:10px;align-items:center">
           <input type="number" id="admin-rc-total" min="1" placeholder="ex: 250"
             style="width:150px;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.9rem;outline:none"/>
@@ -1115,7 +1115,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- ADD IMAGE -->
     <div class="admin-section">
-      <div class="admin-section-title">🖼️ Add image to bank</div>
+      <div class="admin-section-title" data-i18n="admin_images">🖼️ Add image to bank</div>
       <div class="admin-form">
         <div class="form-row">
           <div class="form-group">
@@ -1144,7 +1144,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
               <option value="PAL">PAL</option>
               <option value="NTSC-U">NTSC-U</option>
               <option value="NTSC-J">NTSC-J</option>
-              <option value="Mondial">Mondial</option>
+              <option value="Mondial">Worldwide</option>
             </select>
           </div>
           <div class="form-group">
@@ -1171,7 +1171,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <input type="text" id="admin-img-search" placeholder="🔍 Search..." oninput="filterAdminImages()"
         style="width:100%;background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none;margin-bottom:12px"/>
       <div class="admin-images-grid" id="admin-images-grid">
-        <div style="color:var(--text-dim);font-size:.82rem;grid-column:1/-1">Chargement...</div>
+        <div style="color:var(--text-dim);font-size:.82rem;grid-column:1/-1">Loading...</div>
       </div>
     </div>
 
@@ -1179,7 +1179,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="admin-section">
       <div class="admin-section-title">📸 Submitted photos par les utilisateurs (<span id="admin-sub-count">0</span>)</div>
       <div class="admin-sub-list" id="admin-sub-list">
-        <div style="color:var(--text-dim);font-size:.82rem">Chargement...</div>
+        <div style="color:var(--text-dim);font-size:.82rem">Loading...</div>
       </div>
     </div>
 
@@ -1189,14 +1189,14 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <!-- STATS SCREEN -->
 <div class="stats-screen" id="stats-screen">
   <div class="stats-page-header">
-    <div class="logo-img" onclick="closeStats();showMainMenu()" style="cursor:pointer" title="Accueil"o-img" style="width:40px;height:40px">
+    <div class="logo-img" onclick="closeStats();showMainMenu()" style="cursor:pointer" title="Home" style="width:40px;height:40px">
       <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
     </div>
     <h1 data-i18n="stat_title">📊 STATISTICS</h1>
     <button class="stats-back" onclick="closeStats()" data-i18n="btn_back">← Back</button>
   </div>
   <div class="stats-body" id="stats-body">
-    <div style="text-align:center;padding:60px;color:var(--text-dim)"><span style="font-size:2rem;display:block;margin-bottom:10px;animation:spin 1s linear infinite">⚙️</span>Calcul des statistiques...</div>
+    <div style="text-align:center;padding:60px;color:var(--text-dim)"><span style="font-size:2rem;display:block;margin-bottom:10px;animation:spin 1s linear infinite">⚙️</span>Calculating statistics...</div>
 
 </div>
 
@@ -1229,7 +1229,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- TOP 5 -->
     <div class="admin-section">
-      <div class="admin-section-title">💎 Top 5 objets les plus précieux</div>
+      <div class="admin-section-title">💎 Top 5 most valuable items</div>
       <div class="top-list" id="profile-top-items"></div>
     </div>
 
@@ -1256,7 +1256,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- PUBLIC PROFILE -->
     <div class="profile-section" style="margin-bottom:20px">
-      <div class="profile-section-title" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase;margin-bottom:12px">🌐 Public profile</div>
+      <div class="profile-section-title" data-i18n="profile_public" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase;margin-bottom:12px">🌐 Public profile</div>
       <div style="background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px">
         <div class="toggle-wrap">
           <label class="toggle-switch">
@@ -1282,11 +1282,11 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <!-- PUBLIC PROFILE SCREEN -->
 <div class="public-screen" id="public-screen">
   <div id="public-content">
-    <div style="text-align:center;padding:60px;color:var(--text-dim)"><span style="font-size:2rem;display:block;margin-bottom:10px">⚙️</span>Chargement...</div>
+    <div style="text-align:center;padding:60px;color:var(--text-dim)"><span style="font-size:2rem;display:block;margin-bottom:10px">⚙️</span>Loading...</div>
   </div>
   <div class="public-footer">
     <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:32px;height:32px;border-radius:8px;vertical-align:middle;margin-right:8px"/>
-    Ratchet Legacy Tracker — <a href="https://ratchetlegacy.github.io/rc-tracker" style="color:var(--purple-light)">Créer ma collection</a>
+    Ratchet Legacy Tracker — <a href="https://ratchetlegacy.github.io/rc-tracker" style="color:var(--purple-light)">Create my collection</a>
   </div>
 </div>
 
@@ -1299,7 +1299,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="scanner-corners"></div>
   </div>
   <div class="scanner-hint"data-i18n="scan_hint">Point the camera at the barcode</div>
-  <div class="scanner-result" id="scanner-result">✅ Code détecté !</div>
+  <div class="scanner-result" id="scanner-result">✅ Code detected!</div>
   <button class="scanner-close" onclick="closeScanner()">✕ FERMER</button>
 </div>
 
@@ -1314,15 +1314,15 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
       <select id="market-filter-type" onchange="renderMarketplace()" style="background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none">
         <option value="">All types</option>
-        <option value="exchange">🔄 Échanges</option>
-        <option value="sale">💰 Ventes</option>
-        <option value="gift">🎁 Dons</option>
+        <option value="exchange">🔄 Trades</option>
+        <option value="sale">💰 Sales</option>
+        <option value="gift">🎁 Gifts</option>
       </select>
       <input type="text" id="market-search" placeholder="🔍 Search..." oninput="renderMarketplace()"
         style="flex:1;min-width:180px;background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none"/>
     </div>
     <div id="market-grid" class="market-grid">
-      <div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px">Chargement...</div>
+      <div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px">Loading...</div>
     </div>
   </div>
 </div>
@@ -1330,29 +1330,29 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <!-- EXCHANGE PROPOSE MODAL -->
 <div class="exchange-modal" id="exchange-modal">
   <div class="exchange-box">
-    <h3>🤝 List this item</h3>
+    <h3 data-i18n="exchange_title">🤝 List this item</h3>
     <input type="hidden" id="exchange-item-id"/>
     <div class="exchange-consent">
       ⚠️ By listing this item, you agree to make your <strong>username</strong> and <strong>contact info</strong> visible to other users.
     </div>
     <div class="exchange-form-group">
-      <label>Listing type *</label>
+      <label data-i18n="exchange_type">Listing type *</label>
       <select id="exchange-type" class="exchange-input">
         <option value="exchange">🔄 Trade (for another item)</option>
-        <option value="sale">💰 Vente</option>
-        <option value="gift">🎁 Don gratuit</option>
+        <option value="sale">💰 Sale</option>
+        <option value="gift">🎁 Free gift</option>
       </select>
     </div>
     <div class="exchange-form-group">
-      <label>What you want / Asking price</label>
-      <input type="text" id="exchange-looking" class="exchange-input" placeholder="ex: Cherche R&C PS3 PAL / 15€ / Gratuit..."/>
+      <label data-i18n="exchange_looking">What you want / Asking price</label>
+      <input type="text" id="exchange-looking" class="exchange-input" placeholder="e.g. Looking for R&C PS3 PAL / €15 / Free..."/>
     </div>
     <div class="exchange-form-group">
-      <label>Sale link (optional)</label>
+      <label data-i18n="exchange_link">Sale link (optional)</label>
       <input type="url" id="exchange-link" class="exchange-input" placeholder="https://ebay.fr/... ou vinted.fr/..."/>
     </div>
     <div class="exchange-form-group">
-      <label>Contact *</label>
+      <label data-i18n="exchange_contact">Contact *</label>
       <input type="text" id="exchange-contact" class="exchange-input" placeholder="Discord: User#1234 / email@exemple.com"/>
     </div>
     <div style="margin-top:8px">
@@ -1362,10 +1362,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       </label>
     </div>
     <div style="background:rgba(255,212,71,.08);border:1px solid rgba(255,212,71,.2);border-radius:8px;padding:10px;font-size:.72rem;color:var(--wishlist);margin-top:10px">
-      ⚠️ Pensez à retirer votre annonce une fois l'objet vendu ou échangé !
+      ⚠️ Remember to remove your listing once the item is sold or traded!
     </div>
-    <button class="exchange-submit" onclick="submitExchange()">✅ LIST ITEM</button>
-    <button class="exchange-cancel" onclick="closeExchangeModal()">Cancel</button>
+    <button class="exchange-submit" onclick="submitExchange()" data-i18n="btn_propose">✅ LIST ITEM</button>
+    <button class="exchange-cancel" onclick="closeExchangeModal()" data-i18n="btn_cancel">Cancel</button>
   </div>
 </div>
 
@@ -1376,7 +1376,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openProfile()">🦊 <span id="mobile-pseudo">My profile</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 Stats</div>
   <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
-  <div class="menu-item" onclick="closeMobileMenu();cycleTheme()" id="mobile-theme-btn">🌌 Thème</div>
+  <div class="menu-item" onclick="closeMobileMenu();cycleTheme()" id="mobile-theme-btn">🌌 Theme</div>
   <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin</div>
   <div class="menu-item" style="color:var(--missing);border-color:rgba(255,77,106,.2)" onclick="closeMobileMenu();doSignOut()">🚪 Sign out</div>
   <a href="https://ko-fi.com/ratchetlegacy" target="_blank" class="menu-item" style="color:#FF8C42;border-color:rgba(255,140,66,.2)">☕ Fuel the collection</a>
@@ -1431,7 +1431,7 @@ async function applySetup(){
     saveConfig(url,key); show('auth-screen');
   }catch(e){ errEl.innerHTML=`<div class="auth-error">Error: ${e.message}</div>`; }
 }
-function copySQL(){ navigator.clipboard.writeText(document.getElementById('sql-block').textContent).then(()=>showToast('SQL copié !','success')); }
+function copySQL(){ navigator.clipboard.writeText(document.getElementById('sql-block').textContent).then(()=>showToast('SQL copied!','success')); }
 
 // ══ AUTH ══
 let authMode='login';
@@ -1468,10 +1468,19 @@ async function doSignOut(){ await sbClient.auth.signOut(); currentUser=null; ite
 let items=[], activeType='all', activeStatus=null, editingId=null, currentRating=0;
 
 // ══ DB ══
+// Legacy FR option values -> EN (display migration; persisted on next save of the item)
+const OPT_MIGRATE = {"Accessoire":"Accessory","Divers":"Misc","Impression":"Print","Limitée":"Limited","Employés Only":"Employees Only","Démo Only":"Demo Only","Non Commercialisé":"Not For Sale","Impression Exclusive":"Exclusive Print","Fait maison":"Homemade","Affiches":"Posters","PLV Publicitaire":"Advertising Display","Porte-clé peluche":"Plush Keychain","Plush sonore":"Sound Plush","Plush collector":"Collector Plush","Porte-clé":"Keychain","Autocollant":"Sticker","Sac / Tote bag":"Bag / Tote bag","Stylo":"Pen","Casquette":"Cap","Carte collector":"Collector Card","Objet mystère":"Mystery Item","Goodie divers":"Misc Goodie","Figure Résine":"Resin Figure","Figure Vinyle":"Vinyl Figure","Jouets":"Toys","Vinyles":"Vinyls","Roman":"Novel"};
+function migrateItemLang(it){
+  ['type','edition','manufacturer','platform'].forEach(f=>{
+    if(it[f] && OPT_MIGRATE[it[f]]) it[f] = OPT_MIGRATE[it[f]];
+  });
+  return it;
+}
+
 async function fetchItems(){
   const {data,error}=await sbClient.from('items').select('*').order('created_at',{ascending:true});
   if(error){ showToast('Error: '+error.message,'error'); return; }
-  items=data||[];
+  items=(data||[]).map(migrateItemLang);
 }
 async function dbInsert(obj){ const {data,error}=await sbClient.from('items').insert([obj]).select().single(); if(error) throw error; return data; }
 async function dbUpdate(id,obj){ const {error}=await sbClient.from('items').update(obj).eq('id',id); if(error) throw error; }
@@ -1730,7 +1739,7 @@ async function setStatus(id,status){
 }
 async function deleteItem(id){
   if(!confirm(t('confirm_del_item'))) return;
-  try{ await dbDelete(id); items=items.filter(i=>i.id!==id); render(); showToast('Supprimé.','success'); }
+  try{ await dbDelete(id); items=items.filter(i=>i.id!==id); render(); showToast('Deleted.','success'); }
   catch(e){ showToast('Error: '+e.message,'error'); }
 }
 
@@ -1761,7 +1770,7 @@ function getCollectionTotal(){
 }
 function editCollectionTotal(){
   const current = getCollectionTotal();
-  const val = prompt('Nombre total d\'objets R&C known dans ta collection (ex: 500):', current || '');
+  const val = prompt('Total number of known R&C items in your collection (e.g. 500):', current || '');
   if(val !== null && !isNaN(parseInt(val)) && parseInt(val) > 0){
     localStorage.setItem('rc_collection_total', parseInt(val));
     render();
@@ -2188,7 +2197,7 @@ function openProfile(){
       const _ha = document.getElementById('header-avatar'); if(_ha) _ha.textContent = a;
       grid.querySelectorAll('.avatar-opt').forEach(o => o.classList.remove('selected'));
       el.classList.add('selected');
-      showToast('Avatar mis à jour !', 'success');
+      showToast('Avatar updated!', 'success');
     };
     grid.appendChild(el);
   });
@@ -2261,7 +2270,7 @@ function closeProfile(){
 
 function savePseudo(){
   const pseudo = document.getElementById('pseudo-input').value.trim();
-  if(!pseudo){ showToast('Entre un pseudo !','error'); return; }
+  if(!pseudo){ showToast('Enter a username!','error'); return; }
   localStorage.setItem('rc_pseudo_'+currentUser.id, pseudo);
   document.getElementById('profile-pseudo-display').textContent = pseudo;
   const _hp = document.getElementById('header-pseudo'); if(_hp) _hp.textContent = pseudo;
@@ -2290,7 +2299,7 @@ async function loadGalleryImages(folder=''){
     b.classList.toggle('active', b.textContent.trim()===(folder||'All'));
   });
   const grid = document.getElementById('gallery-grid');
-  grid.innerHTML = '<div class="gallery-empty">⚙️ Chargement...</div>';
+  grid.innerHTML = '<div class="gallery-empty">⚙️ Loading...</div>';
   try {
     let query = sbClient.from('images').select('*').order('name');
     if(folder) query = query.eq('folder', folder);
@@ -2344,7 +2353,7 @@ function selectGalleryImg(url){
 function confirmGallery(){
   if(gallerySelectedUrl){
     document.getElementById('inp-img').value = gallerySelectedUrl;
-    showToast('Image sélectionnée !', 'success');
+    showToast('Image selected!', 'success');
   }
   closeGallery();
 }
@@ -2372,7 +2381,7 @@ async function submitPhoto(){
   const type = document.getElementById('submit-item-type').value;
   const imgUrl = document.getElementById('submit-img-url').value.trim();
   const comment = document.getElementById('submit-comment').value.trim();
-  if(!name || !imgUrl){ showToast('Remplis le nom et l\'URL de l\'image', 'error'); return; }
+  if(!name || !imgUrl){ showToast('Fill in the name and image URL', 'error'); return; }
   try {
     const { error } = await sbClient.from('photo_submissions').insert([{
       user_id: currentUser.id,
@@ -2384,7 +2393,7 @@ async function submitPhoto(){
       status: 'pending'
     }]);
     if(error) throw error;
-    showToast('Photo soumise ! Elle sera examinée prochainement.', 'success');
+    showToast('Photo submitted! It will be reviewed soon.', 'success');
     closeSubmitPhoto();
     document.getElementById('submit-item-name').value = '';
     document.getElementById('submit-img-url').value = '';
@@ -2412,7 +2421,7 @@ async function addImageToBank(name, url, folder, platform, region, edition){
 let adminImages = [];
 
 async function openAdmin(){
-  if(!isAdmin()){ showToast('Accès refusé', 'error'); return; }
+  if(!isAdmin()){ showToast('Access denied', 'error'); return; }
   document.getElementById('admin-screen').classList.add('open');
   await loadAdminImages();
   await loadAdminSubmissions();
@@ -2458,7 +2467,7 @@ async function adminAddImage(){
   const platform = document.getElementById('admin-img-platform').value.trim();
   const region = document.getElementById('admin-img-region').value;
   const edition = document.getElementById('admin-img-edition').value.trim();
-  if(!name||!url){ showToast('Nom et URL requis', 'error'); return; }
+  if(!name||!url){ showToast('Name and URL required', 'error'); return; }
   try {
     const thumbUrl = url.includes('/upload/') ? url.replace('/upload/', '/upload/w_200,h_260,c_fit,q_auto/') : url;
     const { error } = await sbClient.from('images').insert([{
@@ -2475,7 +2484,7 @@ async function adminAddImage(){
 }
 
 async function adminDeleteImage(id){
-  if(!confirm('Supprimer cette image de la banque ?')) return;
+  if(!confirm('Delete this image from the bank?')) return;
   const { error } = await sbClient.from('images').delete().eq('id', id);
   if(error){ showToast('Error: '+error.message,'error'); return; }
   showToast('Image deleted.', 'success');
@@ -2511,7 +2520,7 @@ async function approveSubmission(id, name, imgUrl, type){
     const thumbUrl = imgUrl.includes('/upload/') ? imgUrl.replace('/upload/', '/upload/w_200,h_260,c_fit,q_auto/') : imgUrl;
     await sbClient.from('images').insert([{ name, url: imgUrl, thumb_url: thumbUrl, folder: type||'Others', added_by: 'user_submission' }]);
     await sbClient.from('photo_submissions').update({status:'approved'}).eq('id',id);
-    showToast('Photo approuvée et ajoutée !', 'success');
+    showToast('Photo approved and added!', 'success');
     await loadAdminSubmissions();
     await loadAdminImages();
   } catch(e){ showToast('Error: '+e.message,'error'); }
@@ -2519,12 +2528,12 @@ async function approveSubmission(id, name, imgUrl, type){
 
 async function rejectSubmission(id){
   await sbClient.from('photo_submissions').update({status:'rejected'}).eq('id',id);
-  showToast('Soumission refusée.', 'success');
+  showToast('Submission rejected.', 'success');
   await loadAdminSubmissions();
 }
 
 function openCloudinaryPicker(){
-  if(typeof cloudinary === 'undefined'){ showToast('Widget Cloudinary non disponible','error'); return; }
+  if(typeof cloudinary === 'undefined'){ showToast('Cloudinary widget unavailable','error'); return; }
   const widget = cloudinary.createMediaLibrary(
     { cloud_name: CLD_CLOUD, api_key: CLD_API_KEY, max_files: 1 },
     { insertHandler: function(data){
@@ -2562,7 +2571,7 @@ async function importFromCloudinary(){
       throw new Error(result.error || 'Erreur inconnue');
     }
   } catch(e){
-    showToast('Erreur import : ' + e.message, 'error');
+    showToast('Import error: ' + e.message, 'error');
   } finally {
     btn.textContent = '☁️ IMPORT FROM CLOUDINARY';
     btn.disabled = false;
@@ -2584,7 +2593,7 @@ const T = {
     'filter_all':'Tous','filter_owned':'Possédés','filter_wishlist':'Souhaités',
     'filter_search':'🔍 Rechercher...','filter_type':'Tous les types',
     'filter_sort_recent':'Recent','filter_sort_name':'Name A→Z',
-    'filter_sort_value':'Value ↓','filter_sort_rating':'Rating ↓',
+    'filter_sort_value':'Valeur ↓','filter_sort_rating':'Rating ↓',
     // Modal
     'modal_new':'NOUVEL OBJET','modal_edit':"MODIFIER L'OBJET",
     'section_general':'📋 Informations générales',
@@ -2593,8 +2602,8 @@ const T = {
     'lbl_region':'Région','lbl_lang':'Langue','lbl_status':'Statut',
     'section_condition':'📦 État & Complétude',
     'lbl_condition':'État','lbl_quality':'Qualité','lbl_completeness':'Complétude',
-    'section_finance':'💰 Valeur financière',
-    'lbl_buy_price':"Prix d'achat (€)",'lbl_cur_value':'Valeur actuelle (€)',
+    'section_finance':'💰 Financial value',
+    'lbl_buy_price':"Purchase price (€)",'lbl_cur_value':'Current value (€)',
     'hint_buy_price':'Ce que tu as payé','hint_cur_value':'Prix du marché',
     'section_extras':'✨ Extras',
     'lbl_rating':'Note personnelle','lbl_image':'Image',
@@ -2603,7 +2612,7 @@ const T = {
     'lbl_bonus':'Bonus inclus (optionnel)',
     'btn_cancel':'Annuler','btn_save':'ENREGISTRER',
     'btn_gallery':'🖼️ Galerie','btn_scan':'📷 SCANNER LE CODE-BARRES',
-    'btn_submit_photo':'📸 Soumettre une photo manquante',
+    'btn_submit_photo':'📸 Submit a photo manquante',
     // Status/Condition
     'status_owned':'✅ Possédé','status_wishlist':'🎯 Souhaité',
     'cond_neuf':'🆕 Neuf (sous blister)','cond_occasion':'📦 Occasion',
@@ -2621,8 +2630,8 @@ const T = {
     // Stats cards
     'stat_invested':'INVESTED','stat_value':'VALUE MARCHÉ','stat_delta':'PROFIT/LOSS',
     // Detail view
-    'lbl_completeness_detail':'Completeness','lbl_finance':'FINANCIAL VALUE',
-    'lbl_buy':"PURCHASE PRICE",'lbl_market':'CURRENT VALUE',
+    'lbl_completeness_detail':'Completeness','lbl_finance':'VALEUR FINANCIÈRE',
+    'lbl_buy':"PURCHASE PRICE",'lbl_market':'VALEUR ACTUELLE',
     'lbl_notes_detail':'Notes','lbl_rating_detail':'Note',
     'btn_modify':'✏️ Modifier','btn_mark_owned':'✅ Marquer comme possédé',
     'btn_exchange':'🤝 Proposer à l\'échange','btn_remove_exchange':'🗑️ Retirer des échanges',
@@ -2635,7 +2644,7 @@ const T = {
     'empty_search':'Aucun résultat pour cette recherche',
     // Gallery
     'gallery_title':"🖼️ Banque d'images",
-    'gallery_search':'🔍 Rechercher...','gallery_loading':'⚙️ Chargement...',
+    'gallery_search':'🔍 Rechercher...','gallery_loading':'⚙️ Loading...',
     'gallery_empty':'Aucune image disponible','gallery_select':'Aucune image sélectionnée',
     'btn_choose':'CHOISIR',
     // Auth
@@ -2658,13 +2667,13 @@ const T = {
     // Marketplace
     'market_title':'MARKETPLACE D\'ÉCHANGES',
     'market_filter_all':'Tous les types',
-    'market_exchange':'🔄 Échanges','market_sale':'💰 Ventes','market_gift':'🎁 Dons',
+    'market_exchange':'🔄 Trades','market_sale':'💰 Sales','market_gift':'🎁 Gifts',
     'market_empty':'Aucune annonce pour le moment.',
     'market_contact':'📩 CONTACTER','market_remove':'🗑️ RETIRER MON ANNONCE',
     'market_no_contact':'Aucun contact renseigné',
     // Exchange modal
     'exchange_title':'🤝 Mettre cet objet en annonce',
-    'exchange_consent':"⚠️ En proposant cet objet, vous acceptez de rendre visible votre pseudo et vos coordonnées de contact aux autres utilisateurs.",
+    'exchange_consent':"⚠️ By listing this item, you agree to make your username and contact info visible to other users.",
     'exchange_type':'Type d\'annonce *',
     'exchange_looking':'Ce que tu cherches / Prix demandé',
     'exchange_link':'Lien de vente (optionnel)',
@@ -2683,8 +2692,8 @@ const T = {
     // Scanner
     'scan_title':'📷 Scanner le code-barres',
     'scan_hint':'Vise le code-barres avec la caméra',
-    'scan_detected':'✅ Code détecté !',
-    'scan_searching':'🔍 Recherche en cours...',
+    'scan_detected':'✅ Code detected!',
+    'scan_searching':'🔍 Searching...',
     'scan_not_found':'Non trouvé. Remplissez manuellement.',
     'scan_not_supported':'Scan non supporté sur ce navigateur.',
     // Ko-fi
@@ -2704,8 +2713,8 @@ const T = {
     // Stats page
     'stat_title':'📊 STATISTIQUES',
     'stat_by_type':'🥧 Distribution by type',
-    'stat_owned_by_type':'📊 Owned by type',
-    'stat_value_by_type':'💰 Market value by type',
+    'stat_owned_by_type':'📊 Possédés par type',
+    'stat_value_by_type':'💰 Valeur marché par type',
     'stat_condition':'📦 Condition des objets',
     'stat_top10':'💎 Top objets les plus précieux',
     'stat_by_region':'🌍 By region',
@@ -2754,9 +2763,9 @@ const T = {
     'profile_avatar_title':'🎭 Avatar','profile_pseudo_title':'✏️ Pseudo',
     'profile_save_pseudo':'ENREGISTRER',
     // Submit photo
-    'submit_title':'📸 Soumettre une photo',
+    'submit_title':'📸 Submit a photo',
     'submit_item_name':'Nom de l\'objet concerné',
-    'submit_type':'Type / Catégorie',
+    'submit_type':'Type / Category',
     'submit_url':'URL de l\'image à soumettre',
     'submit_comment':'Commentaire (optionnel)',
     'submit_btn':'📸 SOUMETTRE',
@@ -3436,7 +3445,7 @@ function cycleTheme(){
   document.documentElement.setAttribute('data-theme', theme.id);
   document.getElementById('theme-btn').textContent = theme.icon;
   localStorage.setItem('rc_theme', currentThemeIdx);
-  showToast('Thème ' + theme.name + ' !', 'success');
+  showToast(theme.name + ' theme!', 'success');
 }
 
 function loadTheme(){
@@ -3459,12 +3468,12 @@ function showMainMenu(){
 
 async function saveRcTotal(){
   const val = parseInt(document.getElementById('admin-rc-total').value);
-  if(!val || val < 1){ showToast('Entrez un nombre valide', 'error'); return; }
+  if(!val || val < 1){ showToast('Enter a valid number', 'error'); return; }
   try {
     const { error } = await sbClient.from('app_settings').upsert([{key:'rc_total', value: val.toString()}], {onConflict:'key'});
     if(error) throw error;
-    showToast('Total mis à jour : ' + val + ' objets !', 'success');
-    document.getElementById('admin-rc-total-current').textContent = 'Actuel : ' + val;
+    showToast('Total updated: ' + val + ' items!', 'success');
+    document.getElementById('admin-rc-total-current').textContent = 'Current: ' + val;
     updateRcProgressBar(val);
   } catch(e){ showToast('Error: ' + e.message, 'error'); }
 }
@@ -3478,7 +3487,7 @@ async function loadRcTotal(){
     const field = document.getElementById('admin-rc-total');
     const current = document.getElementById('admin-rc-total-current');
     if(field && total > 0) field.value = total;
-    if(current && total > 0) current.textContent = 'Actuel : ' + total;
+    if(current && total > 0) current.textContent = 'Current: ' + total;
   } catch(e){ console.log('RC total not set yet'); }
 }
 
@@ -3495,20 +3504,13 @@ function updateRcProgressBar(total){
 
 // ══ TRANSLATIONS ══
 const LANGS = ['fr', 'en'];
-let currentLang = 'fr';
+let currentLang = 'en';
 
 function loadLang(){
-  const saved = localStorage.getItem('rc_lang');
-  if(saved){
-    currentLang = saved;
-  } else {
-    // Auto-detect browser/phone language
-    const browserLang = (navigator.language || navigator.userLanguage || 'fr').toLowerCase();
-    // Only French phones get French, everything else gets English
-    currentLang = browserLang.startsWith('fr') ? 'fr' : 'en';
-  }
+  // App is forced to English for everyone.
+  currentLang = 'en';
   const btn = document.getElementById('lang-btn');
-  if(btn) btn.textContent = currentLang === 'fr' ? '🇫🇷' : '🇬🇧';
+  if(btn) btn.textContent = '🇬🇧';
   // Apply translations after items are loaded
   if(typeof items !== 'undefined' && items.length >= 0) {
     setTimeout(applyTranslations, 200);
@@ -3579,7 +3581,7 @@ function applyTranslations(){
   document.querySelectorAll('a[href="legal.html"]').forEach(el=>{ el.textContent = t('footer_legal'); });
   // Mobile menu theme/lang labels
   const mobileTheme = document.getElementById('mobile-theme-btn');
-  if(mobileTheme){ const ic = (document.getElementById('theme-btn')?document.getElementById('theme-btn').textContent:'🌌'); mobileTheme.textContent = ic+' '+(currentLang==='fr'?'Thème':'Theme'); }
+  if(mobileTheme){ const ic = (document.getElementById('theme-btn')?document.getElementById('theme-btn').textContent:'🌌'); mobileTheme.textContent = ic+' '+'Theme'; }
   // Profile section titles (use stable data-i18n where present; fallback by keyword)
   document.querySelectorAll('.profile-section-title').forEach(el=>{
     const txt = el.textContent;
@@ -3639,7 +3641,7 @@ async function openScanner(){
     await video.play();
     startBarcodeDetection(video);
   } catch(e){
-    showToast('Camera unavailable : ' + e.message, 'error');
+    showToast('Camera unavailable: ' + e.message, 'error');
     closeScanner();
   }
 }
@@ -3652,7 +3654,7 @@ function closeScanner(){
 
 function startBarcodeDetection(video){
   if(!('BarcodeDetector' in window)){
-    showToast('Scan non supporté sur ce navigateur. Essayez Chrome sur Android.', 'error');
+    showToast('Scanning not supported on this browser. Try Chrome on Android.', 'error');
     closeScanner();
     return;
   }
@@ -3675,7 +3677,7 @@ function startBarcodeDetection(video){
 }
 
 async function lookupBarcode(code){
-  showToast('🔍 Recherche en cours...', 'success');
+  showToast('🔍 Searching...', 'success');
   const type = document.getElementById('inp-type').value;
   const isBook = SCAN_TYPES_BOOKS.includes(type);
   
@@ -3693,7 +3695,7 @@ async function lookupBarcode(code){
         else if(book.cover && book.cover.medium) document.getElementById('inp-img').value = book.cover.medium;
         showToast('✅ ' + (book.title || 'Book trouvé !'), 'success');
       } else {
-        showToast('Book non trouvé. Remplissez manuellement.', 'error');
+        showToast('Book not found. Please fill in manually.', 'error');
       }
     } else {
       // UPC Item DB for games
@@ -3706,11 +3708,11 @@ async function lookupBarcode(code){
         if(item.images && item.images.length > 0) document.getElementById('inp-img').value = item.images[0];
         showToast('✅ ' + (item.title || 'Jeu trouvé !'), 'success');
       } else {
-        showToast('Jeu non trouvé. Remplissez manuellement.', 'error');
+        showToast('Game not found. Please fill in manually.', 'error');
       }
     }
   } catch(e){
-    showToast('Erreur de recherche. Remplissez manuellement.', 'error');
+    showToast('Search error. Please fill in manually.', 'error');
   }
 }
 
@@ -3747,7 +3749,7 @@ function renderMarketplace(){
   }
   grid.innerHTML = '';
   filtered.forEach(item => {
-    const typeLabels = {exchange:'🔄 Échange', sale:'💰 Vente', gift:'🎁 Don'};
+    const typeLabels = {exchange:'🔄 Échange', sale:'💰 Sale', gift:'🎁 Don'};
     const card = document.createElement('div');
     card.className = 'market-card';
     const imgHtml = item.img_url ? '<img class=\'market-card-img\' src=\''+escHtml(item.img_url)+'\'/>' : '<div class=\'market-card-img\' style=\'display:flex;align-items:center;justify-content:center;font-size:2rem\'>📦</div>';
@@ -3768,20 +3770,20 @@ function renderMarketplace(){
 }
 
 function contactOwner(contact){
-  if(!contact){ showToast('Pas de contact renseigné', 'error'); return; }
+  if(!contact){ showToast('No contact provided', 'error'); return; }
   if(contact.includes('@')){
     window.location.href = 'mailto:'+contact;
   } else if(contact.startsWith('http')){
     window.open(contact, '_blank');
   } else {
-    navigator.clipboard.writeText(contact).then(()=>showToast('Contact copié : '+contact, 'success'));
+    navigator.clipboard.writeText(contact).then(()=>showToast('Contact copied: '+contact, 'success'));
   }
 }
 
 let exchangeItemData = null;
 function openExchangeModal(itemId){
   const item = items.find(i=>i.id===itemId);
-  if(!item){ showToast('Objet introuvable', 'error'); return; }
+  if(!item){ showToast('Item not found', 'error'); return; }
   exchangeItemData = item;
   document.getElementById('exchange-item-id').value = itemId;
   document.getElementById('exchange-looking').value = '';
@@ -3794,10 +3796,10 @@ function closeExchangeModal(){ document.getElementById('exchange-modal').classLi
 
 async function submitExchange(){
   if(!document.getElementById('exchange-consent-check').checked){
-    showToast('Vous devez accepter les conditions', 'error'); return;
+    showToast('You must accept the conditions', 'error'); return;
   }
   const contact = document.getElementById('exchange-contact').value.trim();
-  if(!contact){ showToast('Contact requis', 'error'); return; }
+  if(!contact){ showToast('Contact required', 'error'); return; }
   const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
   const item = exchangeItemData;
   try {
@@ -3822,7 +3824,7 @@ async function submitExchange(){
 }
 
 async function deleteExchange(id){
-  if(!confirm('Retirer cette annonce du marketplace ?')) return;
+  if(!confirm('Remove this listing from the marketplace?')) return;
   try {
     const { error } = await sbClient.from('exchanges').update({is_active:false}).eq('id',id).eq('owner_id',currentUser.id);
     if(error) throw error;
@@ -3843,7 +3845,7 @@ function openMobileMenu(){
   // Also update theme/lang display
   const themeBtn = document.getElementById('mobile-theme-btn');
   const currentThemeIcon = document.getElementById('theme-btn')?document.getElementById('theme-btn').textContent:'🌌';
-  if(themeBtn) themeBtn.textContent = currentThemeIcon+' '+(currentLang==='fr'?'Thème':'Theme');
+  if(themeBtn) themeBtn.textContent = currentThemeIcon+' '+'Theme';
 }
 function closeMobileMenu(){
   document.getElementById('mobile-menu-overlay').classList.remove('open');
