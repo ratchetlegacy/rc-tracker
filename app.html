@@ -183,7 +183,9 @@
     .spacer{flex:1}
     .controls-sep{width:1px;background:rgba(255,255,255,.1);margin:0 6px;align-self:stretch}
     .filter-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim);font-weight:600;padding:0 4px;align-self:center}
-    .add-btn{padding:7px 16px;background:linear-gradient(135deg,var(--purple),var(--orange));border:none;border-radius:8px;color:#fff;font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:opacity .2s,transform .15s}
+    .add-btn{padding:11px 22px;background:linear-gradient(135deg,var(--purple),var(--orange));border:none;border-radius:10px;color:#fff;font-family:'Orbitron',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:opacity .2s,transform .15s,box-shadow .2s;box-shadow:0 4px 16px rgba(123,79,212,.45);animation:addPulse 2.6s ease-in-out infinite}
+    .add-btn:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(255,107,26,.5)}
+    @keyframes addPulse{0%,100%{box-shadow:0 4px 16px rgba(123,79,212,.45)}50%{box-shadow:0 4px 22px rgba(255,107,26,.55)}}
     .add-btn:hover{opacity:.88;transform:translateY(-1px)}
 
     /* GRID */
@@ -808,7 +810,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <button class="filter-btn s-wish" data-status="wishlist">🎯 Wishlist</button>
       </div>
       <div class="spacer"></div>
-      <button class="add-btn" onclick="openModal()" data-i18n="btn_add">+ ADD</button>
+      <button class="add-btn" onclick="openModal()" data-i18n="btn_add">+ ADD OBJECT</button>
     </div>
   </div>
 
@@ -1259,7 +1261,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <div class="guide-card-icon">➕</div>
         <div class="guide-card-content">
           <h3>Add an item</h3>
-          <p>Tap the <strong>+ ADD</strong> button (bottom right). Fill in the name, type, platform, edition and region. Set its status — <strong>Owned</strong> or <strong>Wishlist</strong> — its condition (New/Sealed or Second hand), and optionally a buy price and current market value. Pick a cover from the image bank, then save.</p>
+          <p>Tap the <strong>+ ADD OBJECT</strong> button (bottom right). Fill in the name, type, platform, edition and region. Set its status — <strong>Owned</strong> or <strong>Wishlist</strong> — its condition (New/Sealed or Second hand), and optionally a buy price and current market value. Pick a cover from the image bank, then save.</p>
         </div>
       </div>
 
@@ -3025,7 +3027,7 @@ const T = {
     // Header
     'app_title':'Ratchet & Clank Collection',
     'app_subtitle':'TRACKER MADE BY RATCHET LEGACY',
-    'btn_add':'+ ADD','btn_stats':'📊 Stats','btn_admin':'🛠️ Admin',
+    'btn_add':'+ ADD OBJECT','btn_stats':'📊 Stats','btn_admin':'🛠️ Admin',
     'btn_exchanges':'🤝 Trades','btn_signout':'Sign out','btn_profile':'My profile',
     // Filters
     'filter_all':'All','filter_owned':'Owned','filter_wishlist':'Wishlist',
@@ -3077,7 +3079,7 @@ const T = {
     'btn_duplicate':'📋 Duplicate',
     // Empty states
     'empty_collection':'No items in your collection',
-    'empty_add':'Click + ADD to get started!',
+    'empty_add':'Click + ADD OBJECT to get started!',
     'empty_wishlist':'Your wishlist is empty',
     'empty_search':'No results for this search',
     // Gallery
@@ -4483,7 +4485,7 @@ async function downloadGuidePDF(){
       ['Android (Chrome)','Open the tracker in Chrome. Tap the menu (three dots, top right), then Add to Home screen or Install app, and confirm. The app launches full-screen and is offline-ready.'],
     ]},
     { label:'FOR COLLECTORS', color:C_CYAN, items:[
-      ['Add an item','Tap + ADD (bottom right). Fill in name, type, platform, edition and region. Set status (Owned or Wishlist), condition, and optional buy price and market value. Pick a cover, then save.'],
+      ['Add an item','Tap + ADD OBJECT (bottom right). Fill in name, type, platform, edition and region. Set status (Owned or Wishlist), condition, and optional buy price and market value. Pick a cover, then save.'],
       ['Choose a cover','In the form tap Image bank to browse covers by folder (PS2, PS3, Figures...). Search by name, tap an image, then Choose. Missing one? Use Submit a photo to send it to the admin.'],
       ['Completeness','For games, tick what you have (box, manual, disc...). The app tracks complete vs incomplete items and flags what is missing.'],
       ['Wishlist','Set status to Wishlist for items you are hunting. They show separately, do not count as owned, but appear in your stats.'],
