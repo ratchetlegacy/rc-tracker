@@ -1220,7 +1220,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="logo-img" onclick="closeGuide();showMainMenu()" style="cursor:pointer;width:40px;height:40px" title="Home">
       <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
     </div>
-    <h1>📖 USER GUIDE</h1>
+    <h1>📖 HOW TO USE</h1>
     <button class="stats-back" onclick="closeGuide()">← Back</button>
   </div>
   <div class="stats-body">
@@ -1231,6 +1231,25 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <h2 class="guide-hero-title">How to use the Tracker</h2>
         <p class="guide-hero-sub">Everything you need to manage, track and show off your collection.</p>
         <button class="guide-pdf-btn" onclick="downloadGuidePDF()">📄 Download this guide as PDF</button>
+      </div>
+
+      <!-- INSTALL SECTION -->
+      <div class="guide-section-label">📱 Install the app on your phone</div>
+
+      <div class="guide-card">
+        <div class="guide-card-icon">🍎</div>
+        <div class="guide-card-content">
+          <h3>iPhone / iPad (Safari)</h3>
+          <p>Open the tracker in <strong>Safari</strong>. Tap the <strong>Share</strong> button (the square with an arrow, at the bottom), scroll down and tap <strong>Add to Home Screen</strong>, then <strong>Add</strong>. The R&amp;C Tracker icon appears on your home screen and opens full-screen like a real app.</p>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-icon">🤖</div>
+        <div class="guide-card-content">
+          <h3>Android (Chrome)</h3>
+          <p>Open the tracker in <strong>Chrome</strong>. Tap the <strong>⋮</strong> menu (top right), then <strong>Add to Home screen</strong> (or <strong>Install app</strong>), and confirm. The icon is added and the app launches full-screen, offline-ready.</p>
+        </div>
       </div>
 
       <!-- USER SECTION -->
@@ -1507,14 +1526,14 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
   <div class="menu-item" onclick="closeMobileMenu();openProfile()">🦊 <span id="mobile-pseudo">My profile</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 Stats</div>
-  <div class="menu-item" onclick="closeMobileMenu();openGuide()">📖 Guide</div>
-  <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
   <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
+  <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
+  <div class="menu-item" onclick="closeMobileMenu();openGuide()">📖 How to use</div>
   <div class="menu-item" onclick="closeMobileMenu();cycleTheme()" id="mobile-theme-btn">🌌 Theme</div>
+  <a href="https://ko-fi.com/ratchetlegacy" target="_blank" class="menu-item" style="color:#FF8C42;border-color:rgba(255,140,66,.2)">☕ Fuel the collection!</a>
   <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin</div>
   <div class="menu-item" style="color:var(--missing);border-color:rgba(255,77,106,.2)" onclick="closeMobileMenu();doSignOut()">🚪 Sign out</div>
-  <a href="https://ko-fi.com/ratchetlegacy" target="_blank" class="menu-item" style="color:#FF8C42;border-color:rgba(255,140,66,.2)">☕ Fuel the collection</a>
-  <a href="legal.html" class="menu-item" style="color:var(--text-dim);font-size:.72rem">📄 Terms</a>
+  <a href="legal.html" class="menu-item" style="color:var(--text-dim);font-size:.72rem">📄 Terms & Privacy</a>
 </div>
 
 <!-- EXPORT MODAL -->
@@ -4459,6 +4478,10 @@ async function downloadGuidePDF(){
 
   // Content
   const sections = [
+    { label:'INSTALL ON YOUR PHONE', color:C_LIME, items:[
+      ['iPhone / iPad (Safari)','Open the tracker in Safari. Tap the Share button (square with an arrow, at the bottom), scroll down and tap Add to Home Screen, then Add. The icon appears on your home screen and opens full-screen like a real app.'],
+      ['Android (Chrome)','Open the tracker in Chrome. Tap the menu (three dots, top right), then Add to Home screen or Install app, and confirm. The app launches full-screen and is offline-ready.'],
+    ]},
     { label:'FOR COLLECTORS', color:C_CYAN, items:[
       ['Add an item','Tap + ADD (bottom right). Fill in name, type, platform, edition and region. Set status (Owned or Wishlist), condition, and optional buy price and market value. Pick a cover, then save.'],
       ['Choose a cover','In the form tap Image bank to browse covers by folder (PS2, PS3, Figures...). Search by name, tap an image, then Choose. Missing one? Use Submit a photo to send it to the admin.'],
