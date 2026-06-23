@@ -568,6 +568,27 @@
     .footer-legal:hover{color:var(--text)}
     /* Add bottom padding to all screens */
     .app-content,.stats-body,.admin-body,.market-body,.public-body{padding-bottom:50px}
+    /* GUIDE */
+    .guide-wrap{max-width:840px;margin:0 auto}
+    .guide-hero{text-align:center;padding:30px 20px 36px;background:linear-gradient(160deg,rgba(120,210,235,.12),rgba(155,111,244,.06));border:1px solid rgba(120,210,235,.2);border-radius:18px;margin-bottom:28px}
+    .guide-hero-badge{font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:.22em;color:var(--purple-light);margin-bottom:14px}
+    .guide-hero-title{font-family:'Orbitron',sans-serif;font-size:1.5rem;color:var(--text);margin:0 0 8px}
+    .guide-hero-sub{color:var(--text-dim);font-size:.9rem;margin:0 0 20px}
+    .guide-pdf-btn{padding:11px 22px;background:linear-gradient(135deg,var(--purple),var(--orange));border:none;border-radius:10px;color:#fff;font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.04em;cursor:pointer}
+    .guide-pdf-btn:hover{opacity:.92}
+    .guide-section-label{font-family:'Orbitron',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.14em;color:var(--cyan,#78D2EB);text-transform:uppercase;margin:34px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(120,210,235,.2)}
+    .guide-section-label.admin{color:var(--orange);border-color:rgba(255,107,26,.25)}
+    .guide-card{display:flex;gap:16px;align-items:flex-start;background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:18px 20px;margin-bottom:14px;transition:border-color .2s}
+    .guide-card:hover{border-color:rgba(120,210,235,.3)}
+    .guide-card.admin:hover{border-color:rgba(255,107,26,.3)}
+    .guide-card-icon{font-size:1.6rem;flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--bg3);border-radius:10px}
+    .guide-card-content h3{font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--text);margin:2px 0 6px}
+    .guide-card-content p{color:var(--text-dim);font-size:.86rem;line-height:1.55;margin:0}
+    .guide-card-content strong{color:var(--text)}
+    .guide-card-content em{color:var(--purple-light);font-style:normal}
+    .guide-footer{text-align:center;padding:30px 0 10px;color:var(--text-dim);font-size:.82rem;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .guide-footer-logo{width:48px;height:48px;border-radius:50%;object-fit:cover;opacity:.9}
+    @media(max-width:600px){.guide-card{padding:14px}.guide-hero-title{font-size:1.2rem}}
     /* MOBILE MENU */
     .mobile-menu-btn{display:none;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:var(--chrome);font-size:1.1rem;cursor:pointer;flex-shrink:0}
     .mobile-menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:800}
@@ -1192,6 +1213,137 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
 </div>
 
+<!-- GUIDE / HELP SCREEN -->
+<div class="stats-screen" id="guide-screen">
+  <div class="stats-page-header">
+    <div class="logo-img" onclick="closeGuide();showMainMenu()" style="cursor:pointer;width:40px;height:40px" title="Home">
+      <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
+    </div>
+    <h1>📖 USER GUIDE</h1>
+    <button class="stats-back" onclick="closeGuide()">← Back</button>
+  </div>
+  <div class="stats-body">
+    <div class="guide-wrap">
+
+      <div class="guide-hero">
+        <div class="guide-hero-badge">RATCHET &amp; CLANK · COLLECTION TRACKER</div>
+        <h2 class="guide-hero-title">How to use the Tracker</h2>
+        <p class="guide-hero-sub">Everything you need to manage, track and show off your collection.</p>
+        <button class="guide-pdf-btn" onclick="downloadGuidePDF()">📄 Download this guide as PDF</button>
+      </div>
+
+      <!-- USER SECTION -->
+      <div class="guide-section-label">👤 For collectors</div>
+
+      <div class="guide-card">
+        <div class="guide-card-icon">➕</div>
+        <div class="guide-card-content">
+          <h3>Add an item</h3>
+          <p>Tap the <strong>+ ADD</strong> button (bottom right). Fill in the name, type, platform, edition and region. Set its status — <strong>Owned</strong> or <strong>Wishlist</strong> — its condition (New/Sealed or Second hand), and optionally a buy price and current market value. Pick a cover from the image bank, then save.</p>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-icon">🖼️</div>
+        <div class="guide-card-content">
+          <h3>Choose a cover</h3>
+          <p>In the add/edit form, tap <strong>Image bank</strong> to browse covers sorted by folder (PS2, PS3, Figures…). Use the search box to filter by name. Tap an image then <strong>Choose</strong>. Can't find yours? Use <strong>Submit a photo</strong> to send one to the admin for review.</p>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-icon">✅</div>
+        <div class="guide-card-content">
+          <h3>Completeness</h3>
+          <p>For games, tick what you have (box, manual, disc…). The app tracks which items are complete and flags those missing pieces, so you always know what's left to find.</p>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-icon">🎯</div>
+        <div class="guide-card-content">
+          <h3>Wishlist</h3>
+          <p>Set an item's status to <strong>Wishlist</strong> for things you're hunting. They show up separately and don't count as owned, but appear in your stats and can carry a target price.</p>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-icon">📊</div>
+        <div class="guide-card-content">
+          <h3>Stats</h3>
+          <p>Open <strong>Stats</strong> from the menu to see your KPIs (owned, wishlist, invested, market value, profit/loss), your global progress toward the full R&amp;C collection, distribution by type and region, condition, your most valuable items, and item completeness.</p>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-icon">🏆</div>
+        <div class="guide-card-content">
+          <h3>Ranks</h3>
+          <p>The more you own, the higher your rank climbs — from <em>Galactic Ranger Recruit</em> all the way to <em>Insomniac Legend</em>. Your rank and progress to the next one show on your profile and the home header.</p>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-icon">📄</div>
+        <div class="guide-card-content">
+          <h3>Export to PDF</h3>
+          <p>From the menu, choose <strong>Export PDF</strong>. Pick a scope (Owned / Wishlist / Everything) then a format: <strong>Simple Table</strong> (light list) or <strong>Magazine PDF</strong> (cover, profile, full stats and your items by category with covers).</p>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <div class="guide-card-icon">🤝</div>
+        <div class="guide-card-content">
+          <h3>Trades</h3>
+          <p>The <strong>Trades</strong> section lets collectors propose items for exchange. Browse what others offer and put your own duplicates up for trade.</p>
+        </div>
+      </div>
+
+      <!-- ADMIN SECTION -->
+      <div class="guide-section-label admin">🛠️ For the admin</div>
+
+      <div class="guide-card admin">
+        <div class="guide-card-icon">☁️</div>
+        <div class="guide-card-content">
+          <h3>Import from Cloudinary</h3>
+          <p>In <strong>Admin → Image bank</strong>, hit <strong>Import from Cloudinary</strong>. It pulls every cover from your Cloudinary <em>Jaquettes</em> folders, sorts them into the right folder automatically, and fixes folders on images already imported.</p>
+        </div>
+      </div>
+
+      <div class="guide-card admin">
+        <div class="guide-card-icon">✏️</div>
+        <div class="guide-card-content">
+          <h3>Rename / fix an image</h3>
+          <p>Each image in the bank has a ✏️ button to change its name, folder or region — handy when an import didn't classify something the way you want.</p>
+        </div>
+      </div>
+
+      <div class="guide-card admin">
+        <div class="guide-card-icon">📥</div>
+        <div class="guide-card-content">
+          <h3>Photo submissions</h3>
+          <p>When a collector submits a photo, it lands in your review queue. <strong>Approve</strong> to add it to the shared bank, or <strong>Reject</strong> it.</p>
+        </div>
+      </div>
+
+      <div class="guide-card admin">
+        <div class="guide-card-icon">🌍</div>
+        <div class="guide-card-content">
+          <h3>Collection total</h3>
+          <p>Set the total number of known R&amp;C items (e.g. 2500) in the admin panel. This drives the global progress bar and the Collection stat — and it's shared for every user, updating instantly.</p>
+        </div>
+      </div>
+
+      <div class="guide-footer">
+        <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" class="guide-footer-logo"/>
+        <div>Made with 💜 by Ratchet Legacy</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
 
 </div>
 
@@ -1354,6 +1506,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
   <div class="menu-item" onclick="closeMobileMenu();openProfile()">🦊 <span id="mobile-pseudo">My profile</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 Stats</div>
+  <div class="menu-item" onclick="closeMobileMenu();openGuide()">📖 Guide</div>
   <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
   <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
   <div class="menu-item" onclick="closeMobileMenu();cycleTheme()" id="mobile-theme-btn">🌌 Theme</div>
@@ -3055,6 +3208,9 @@ function openStats(){
 }
 function closeStats(){ document.getElementById('stats-screen').classList.remove('open'); }
 
+function openGuide(){ document.getElementById('guide-screen').classList.add('open'); window.scrollTo(0,0); }
+function closeGuide(){ document.getElementById('guide-screen').classList.remove('open'); }
+
 function fmtEurS(v){ if(v==null) return '—'; return parseFloat(v).toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
 
 function renderStats(){
@@ -4185,6 +4341,97 @@ function statBar(doc, title, entries, margin, y, pageW, color, pseudo, today){
   return y+4;
 }
 
+
+
+// ══ GUIDE PDF ══
+function downloadGuidePDF(){
+  if(!window.jspdf || !window.jspdf.jsPDF){ showToast('PDF library not loaded.', 'error'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const pageW=210, pageH=297, margin=16;
+  const C_BG=[6,8,15], C_PANEL=[18,22,38], C_CYAN=[120,210,235], C_LIME=[203,217,82], C_ORANGE=[255,107,26], C_TEXT=[225,232,240], C_DIM=[150,165,185];
+  const today=new Date().toLocaleDateString();
+
+  function fill(){ doc.setFillColor(C_BG[0],C_BG[1],C_BG[2]); doc.rect(0,0,pageW,pageH,'F'); }
+  function header(title){
+    doc.setFillColor(12,16,30); doc.rect(0,0,pageW,22,'F');
+    doc.setDrawColor(C_CYAN[0],C_CYAN[1],C_CYAN[2]); doc.setLineWidth(0.5); doc.line(0,22,pageW,22); doc.setLineWidth(0.2);
+    doc.setTextColor(C_CYAN[0],C_CYAN[1],C_CYAN[2]); doc.setFont('helvetica','bold'); doc.setFontSize(12);
+    doc.text('RATCHET & CLANK COLLECTION', margin, 10);
+    doc.setTextColor(C_LIME[0],C_LIME[1],C_LIME[2]); doc.setFontSize(8);
+    doc.text(title, margin, 16);
+    doc.setTextColor(C_DIM[0],C_DIM[1],C_DIM[2]); doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.text('User Guide  ·  '+today, pageW-margin, 12, {align:'right'});
+  }
+
+  // Page 1 — cover
+  fill();
+  try { if(typeof PDF_COVER_B64!=='undefined') doc.addImage(PDF_COVER_B64,'JPEG',0,0,pageW,pageH); } catch(e){}
+  doc.setTextColor(C_CYAN[0],C_CYAN[1],C_CYAN[2]); doc.setFont('helvetica','bold'); doc.setFontSize(20);
+  doc.text('USER GUIDE', pageW/2, 200, {align:'center'});
+  doc.setTextColor(C_TEXT[0],C_TEXT[1],C_TEXT[2]); doc.setFont('helvetica','normal'); doc.setFontSize(11);
+  doc.text('How to use the Collection Tracker', pageW/2, 210, {align:'center'});
+  doc.setTextColor(C_DIM[0],C_DIM[1],C_DIM[2]); doc.setFontSize(9);
+  doc.text(today, pageW/2, 280, {align:'center'});
+
+  // Content
+  const sections = [
+    { label:'FOR COLLECTORS', color:C_CYAN, items:[
+      ['Add an item','Tap + ADD (bottom right). Fill in name, type, platform, edition and region. Set status (Owned or Wishlist), condition, and optional buy price and market value. Pick a cover, then save.'],
+      ['Choose a cover','In the form tap Image bank to browse covers by folder (PS2, PS3, Figures...). Search by name, tap an image, then Choose. Missing one? Use Submit a photo to send it to the admin.'],
+      ['Completeness','For games, tick what you have (box, manual, disc...). The app tracks complete vs incomplete items and flags what is missing.'],
+      ['Wishlist','Set status to Wishlist for items you are hunting. They show separately, do not count as owned, but appear in your stats.'],
+      ['Stats','Open Stats for your KPIs (owned, wishlist, invested, market value, profit/loss), global collection progress, distribution by type and region, condition, most valuable items and completeness.'],
+      ['Ranks','The more you own, the higher your rank, from Galactic Ranger Recruit up to Insomniac Legend. Rank and progress show on your profile and the home header.'],
+      ['Export to PDF','From the menu choose Export PDF. Pick a scope (Owned / Wishlist / Everything) then Simple Table or Magazine PDF (cover, profile, full stats and items by category with covers).'],
+      ['Trades','The Trades section lets collectors propose items for exchange and browse what others offer.'],
+    ]},
+    { label:'FOR THE ADMIN', color:C_ORANGE, items:[
+      ['Import from Cloudinary','In Admin > Image bank, hit Import from Cloudinary. It pulls every cover from your Cloudinary Jaquettes folders, sorts them into the right folder, and fixes folders on images already imported.'],
+      ['Rename / fix an image','Each bank image has a pencil button to change its name, folder or region when an import did not classify it correctly.'],
+      ['Photo submissions','Collector photos land in your review queue. Approve to add to the shared bank, or Reject.'],
+      ['Collection total','Set the total number of known R&C items (e.g. 2500) in the admin panel. It drives the global progress bar and the Collection stat, shared for all users and updated instantly.'],
+    ]},
+  ];
+
+  let y;
+  function newPage(title){ doc.addPage(); fill(); header(title); y=32; }
+  newPage('GUIDE');
+
+  sections.forEach(sec=>{
+    if(y > pageH-40){ newPage('GUIDE'); }
+    // section label
+    doc.setTextColor(sec.color[0],sec.color[1],sec.color[2]); doc.setFont('helvetica','bold'); doc.setFontSize(12);
+    doc.text(sec.label, margin, y); y+=3;
+    doc.setDrawColor(sec.color[0],sec.color[1],sec.color[2]); doc.setLineWidth(0.4); doc.line(margin,y,pageW-margin,y); doc.setLineWidth(0.2);
+    y+=8;
+    sec.items.forEach(([title,body])=>{
+      const bodyLines = doc.splitTextToSize(body, pageW-margin*2-4);
+      const blockH = 8 + bodyLines.length*4.6 + 6;
+      if(y + blockH > pageH-16){ newPage('GUIDE'); }
+      // card bg
+      doc.setFillColor(C_PANEL[0],C_PANEL[1],C_PANEL[2]);
+      doc.roundedRect(margin, y, pageW-margin*2, blockH, 2.5,2.5,'F');
+      doc.setFillColor(sec.color[0],sec.color[1],sec.color[2]);
+      doc.roundedRect(margin, y, 2, blockH, 1,1,'F');
+      // title
+      doc.setTextColor(C_TEXT[0],C_TEXT[1],C_TEXT[2]); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+      doc.text(title, margin+6, y+7);
+      // body
+      doc.setTextColor(C_DIM[0],C_DIM[1],C_DIM[2]); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+      doc.text(bodyLines, margin+6, y+13);
+      y += blockH + 5;
+    });
+    y += 4;
+  });
+
+  // page numbers
+  const total = doc.internal.getNumberOfPages();
+  for(let p=2;p<=total;p++){ doc.setPage(p); doc.setTextColor(110,125,145); doc.setFontSize(7); doc.text(p+' / '+total, pageW-margin, pageH-8, {align:'right'}); }
+
+  doc.save('RC_Tracker_Guide.pdf');
+  showToast('Guide PDF downloaded!', 'success');
+}
 
 async function boot(){
   const config=PRESET_CONFIG;
