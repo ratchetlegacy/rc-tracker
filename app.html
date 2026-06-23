@@ -1463,7 +1463,7 @@ async function doAuth(){
     else{
       result=await sbClient.auth.signUp({email,password});
       if(!result.error&&result.data.user&&!result.data.session){
-        msgEl.innerHTML='<div class="auth-success">Compte créé ! Vérifie ton email puis connecte-toi.</div>';
+        msgEl.innerHTML='<div class="auth-success">Account created! Check your email then sign in.</div>';
         switchTab('login'); return;
       }
     }
@@ -1753,20 +1753,20 @@ async function deleteItem(id){
 const RANKS=[
   {min:0,    max:49,   name:'Galactic Ranger Recruit',    icon:'🌱', color:'#7EC8A0'},
   {min:50,   max:99,   name:'Gadgetron Apprentice',        icon:'🔧', color:'#CD7F32'},
-  {min:100,  max:149,  name:'Technicien Gadgetron',      icon:'⚙️', color:'#A0A0A0'},
+  {min:100,  max:149,  name:'Gadgetron Technician',      icon:'⚙️', color:'#A0A0A0'},
   {min:150,  max:249,  name:'Star Explorer',             icon:'🚀', color:'#6AB4FF'},
-  {min:250,  max:349,  name:'Gardien de Polaris',        icon:'🌌', color:'#9B6FF4'},
-  {min:350,  max:499,  name:'Agent Megacorp',            icon:'⚡', color:'#FFD447'},
-  {min:500,  max:649,  name:'Héritier Lombax',           icon:'🔮', color:'#C084FC'},
-  {min:650,  max:799,  name:'Ranger de Fastoon',         icon:'🛡️', color:'#60A5FA'},
-  {min:800,  max:999,  name:'Rival de Nefarious',        icon:'🤖', color:'#F87171'},
-  {min:1000, max:1199, name:'Capitaine Qwark',           icon:'👑', color:'#FBBF24'},
-  {min:1200, max:1399, name:'Gardien de la Grande Horloge', icon:'🕰️', color:'#34D399'},
-  {min:1400, max:1599, name:'Maître du Dimensionateur',  icon:'🌀', color:'#818CF8'},
-  {min:1600, max:1799, name:'Héros de Solana',           icon:'⭐', color:'#FDE68A'},
-  {min:1800, max:1999, name:'Protecteur de Polaris',     icon:'🌠', color:'#A78BFA'},
-  {min:2000, max:2249, name:'Dernier Lombax',            icon:'🚀', color:'#FF6B1A'},
-  {min:2250, max:2499, name:'Légende Insomniac',         icon:'🏆', color:'#FFD700'},
+  {min:250,  max:349,  name:'Guardian of Polaris',        icon:'🌌', color:'#9B6FF4'},
+  {min:350,  max:499,  name:'Megacorp Agent',            icon:'⚡', color:'#FFD447'},
+  {min:500,  max:649,  name:'Lombax Heir',           icon:'🔮', color:'#C084FC'},
+  {min:650,  max:799,  name:'Ranger of Fastoon',         icon:'🛡️', color:'#60A5FA'},
+  {min:800,  max:999,  name:'Nefarious Rival',        icon:'🤖', color:'#F87171'},
+  {min:1000, max:1199, name:'Captain Qwark',           icon:'👑', color:'#FBBF24'},
+  {min:1200, max:1399, name:'Keeper of the Great Clock', icon:'🕰️', color:'#34D399'},
+  {min:1400, max:1599, name:'Master of the Dimensionator',  icon:'🌀', color:'#818CF8'},
+  {min:1600, max:1799, name:'Hero of Solana',           icon:'⭐', color:'#FDE68A'},
+  {min:1800, max:1999, name:'Protector of Polaris',     icon:'🌠', color:'#A78BFA'},
+  {min:2000, max:2249, name:'The Last Lombax',            icon:'🚀', color:'#FF6B1A'},
+  {min:2250, max:2499, name:'Insomniac Legend',         icon:'🏆', color:'#FFD700'},
   {min:2500, max:99999,name:'Ratchet Legacy',            icon:'✨', color:'#B9F2FF'},
 ];
 // Collection total — shared value loaded from Supabase app_settings (key 'rc_total')
@@ -2009,7 +2009,7 @@ function render(){
       html += "<div class=\"card-actions\" onclick=\"event.stopPropagation()\">";
       html += "<button class=\"action-btn set-owned\" data-id=\""+item.id+"\" data-status=\"owned\" onclick=\"setStatus(this.dataset.id,this.dataset.status)\">✅</button>";
       html += "<button class=\"action-btn set-wish\" data-id=\""+item.id+"\" data-status=\"wishlist\" onclick=\"setStatus(this.dataset.id,this.dataset.status)\">🎯</button>";
-      if(item.status==='owned') html += "<button class=\"action-btn exchange-btn\" data-id=\""+item.id+"\" onclick=\"openExchangeModal(this.dataset.id)\" title=\"Proposer en échange\">🤝</button>";
+      if(item.status==='owned') html += "<button class=\"action-btn exchange-btn\" data-id=\""+item.id+"\" onclick=\"openExchangeModal(this.dataset.id)\" title=\"Propose for trade\">🤝</button>";
       html += "<button class=\"action-btn edit-btn\" data-id=\""+item.id+"\" onclick=\"openModal(this.dataset.id)\">✏️</button>";
       html += "<button class=\"action-btn del-btn\" data-id=\""+item.id+"\" onclick=\"deleteItem(this.dataset.id)\">🗑</button>";
       html += '</div>';
@@ -2070,7 +2070,7 @@ function openDetail(id){
       return `<div class="comp-chip ${cls}">${c.i} ${c.l}</div>`;
     }).join('');
     gridHTML+=`<div class="detail-block full"><div class="dblabel">Completeness</div>
-      <div class="detail-completeness">${compHtml||'<span style="color:var(--text-dim);font-size:.75rem">Non renseignée — cliquez sur Modifier</span>'}</div></div>`;
+      <div class="detail-completeness">${compHtml||'<span style="color:var(--text-dim);font-size:.75rem">Not set — click Edit</span>'}</div></div>`;
   }
 
   // prices
@@ -2244,7 +2244,7 @@ function openProfile(){
     +'<div class="stat-card"><div class="sicon">📦</div><div class="svalue">'+total+'</div><div class="slabel">Total</div></div>'
     +'<div class="stat-card"><div class="sicon">📈</div><div class="svalue">'+pct+'%</div><div class="slabel">Completeness</div></div>'
     +'<div class="stat-card"><div class="sicon">💸</div><div class="svalue">'+fmtEur(totalInvested)+'</div><div class="slabel">Investi</div></div>'
-    +'<div class="stat-card"><div class="sicon">💰</div><div class="svalue" style="color:var(--purple-light)">'+fmtEur(totalValue)+'</div><div class="slabel">Valeur marché</div></div>'
+    +'<div class="stat-card"><div class="sicon">💰</div><div class="svalue" style="color:var(--purple-light)">'+fmtEur(totalValue)+'</div><div class="slabel">Market value</div></div>'
     +'<div class="stat-card"><div class="sicon">'+(delta>=0?'📈':'📉')+'</div><div class="svalue" style="color:'+(delta>=0?'var(--profit)':'var(--loss)')+'">'+( delta>=0?'+':'')+fmtEur(delta)+'</div><div class="slabel">Plus-value</div></div>';
 
   // Top 5 most valuable
@@ -2386,7 +2386,7 @@ function selectGalleryImg(url){
   gallerySelectedUrl = url;
   document.querySelectorAll('.gallery-item').forEach(el => el.classList.toggle('selected', el.dataset.url === url));
   const preview = document.getElementById('gallery-preview');
-  if(preview) preview.innerHTML = '<img src="'+url+'" style="width:32px;height:40px;object-fit:contain;border-radius:4px;border:1px solid rgba(255,255,255,.1)"/><span>Image sélectionnée</span>';
+  if(preview) preview.innerHTML = '<img src="'+url+'" style="width:32px;height:40px;object-fit:contain;border-radius:4px;border:1px solid rgba(255,255,255,.1)"/><span>Image selected</span>';
 }
 
 function confirmGallery(){
@@ -2628,7 +2628,7 @@ async function importFromCloudinary(){
     );
     const result = await res.json();
     if(result.success){
-      showToast('✅ ' + result.added + ' nouvelles images importées sur ' + result.total + ' trouvées !', 'success');
+      showToast('✅ ' + result.added + ' new images imported out of ' + result.total + ' found!', 'success');
       await loadAdminImages();
     } else {
       throw new Error(result.error || 'Erreur inconnue');
@@ -2684,7 +2684,7 @@ const T = {
     // Completeness
     'comp_present':'✅ Présent','comp_absent':'❌ Manquant','comp_na':'— N/A',
     'comp_complete':'✅ Complet','comp_complete_blister':'✅ Complet (blister)',
-    'comp_missing':'❌ Manque : ','comp_not_set':'Non renseignée — cliquez sur Modifier',
+    'comp_missing':'❌ Manque : ','comp_not_set':'Not set — click Edit',
     // Progress
     'rank_progression':'PROGRESSION VERS LE RANG SUIVANT',
     'collection_rc':'COLLECTION R&C','objects_known':'connus',
@@ -2777,7 +2777,7 @@ const T = {
     'stat_ratings':'⭐ Personal ratings',
     'stat_completeness':'✅ Item completeness',
     'stat_complete':'Complets','stat_incomplete':'Incomplets','stat_rate':'Taux',
-    'stat_missing_items':'🚨 Objets avec éléments manquants :',
+    'stat_missing_items':'🚨 Items with missing elements:',
     'stat_no_comp':'Fill in completeness to see stats.',
     // KPI labels
     'kpi_total':'Total','kpi_owned':'Possédés','kpi_wishlist':'Souhaités',
@@ -3170,7 +3170,7 @@ function renderStats(){
 
   // TOP 10
   if(top10.length){
-    html += '<div class="stat-widget"><div class="stat-widget-title">💎 Top '+top10.length+' objets les plus précieux</div><div class="top-list">';
+    html += '<div class="stat-widget"><div class="stat-widget-title">💎 Top '+top10.length+' most valuable items</div><div class="top-list">';
     top10.forEach((item,i)=>{
       html += '<div class="top-list-item"><div class="top-list-rank">#'+(i+1)+'</div><div class="top-list-icon">'+getIcon(item.type)+'</div><div class="top-list-name">'+escHtml(item.name)+'</div><div class="top-list-val">'+fmtEurS(parseFloat(item.cur_value))+'</div></div>';
     });
@@ -3211,7 +3211,7 @@ function renderStats(){
     html += '<div class="comp-badge"><div class="cv" style="color:var(--orange)">'+compPct+'%</div><div class="cl">Rate</div></div>';
     html += '</div>';
     if(incomplete.length){
-      html += '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:8px;font-weight:600">🚨 Objets avec éléments manquants :</div>';
+      html += '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:8px;font-weight:600">🚨 Items with missing elements:</div>';
       html += '<div class="comp-alert-list">';
       incomplete.forEach(item=>{
         const fields = COMPLETENESS_CONFIG[item.type]||[];
@@ -3221,7 +3221,7 @@ function renderStats(){
       html += '</div>';
     }
   } else {
-    html += '<div style="color:var(--text-dim);font-size:.82rem">Renseignez la complétude de vos objets pour voir les stats.</div>';
+    html += '<div style="color:var(--text-dim);font-size:.82rem">Fill in completeness to see stats.</div>';
   }
   html += '</div>';
 
@@ -3239,10 +3239,10 @@ function renderStats(){
 
   let notifHtml = '';
   if(outdated.length>0){
-    notifHtml += '<div class="price-notif"><div class="price-notif-icon">⏰</div><div class="price-notif-text"><div class="price-notif-title">'+outdated.length+' objet'+(outdated.length>1?'s':'')+' à mettre à jour</div><div class="price-notif-sub">La valeur marché de ces objets n\'a pas été mise à jour depuis plus de 30 jours.</div></div><button class="price-notif-btn" onclick="showOutdatedPrices()">Voir la liste</button></div>';
+    notifHtml += '<div class="price-notif"><div class="price-notif-icon">⏰</div><div class="price-notif-text"><div class="price-notif-title">'+outdated.length+' item'+(outdated.length>1?'s':'')+' to update</div><div class="price-notif-sub">The market value of these items has not been updated in over 30 days.</div></div><button class="price-notif-btn" onclick="showOutdatedPrices()">See list</button></div>';
   }
   if(noValue.length>0){
-    notifHtml += '<div class="price-notif" style="border-color:rgba(123,79,212,.25);background:rgba(123,79,212,.06)"><div class="price-notif-icon">💰</div><div class="price-notif-text"><div class="price-notif-title" style="color:var(--purple-light)">'+noValue.length+' objet'+(noValue.length>1?'s':'')+' sans valeur marché</div><div class="price-notif-sub">Ajoute une valeur actuelle pour suivre l\'évolution de ta collection.</div></div><button class="price-notif-btn" style="border-color:rgba(123,79,212,.3);color:var(--purple-light);background:rgba(123,79,212,.1)" onclick="showNoValueItems()">Voir la liste</button></div>';
+    notifHtml += '<div class="price-notif" style="border-color:rgba(123,79,212,.25);background:rgba(123,79,212,.06)"><div class="price-notif-icon">💰</div><div class="price-notif-text"><div class="price-notif-title" style="color:var(--purple-light)">'+noValue.length+' item'+(noValue.length>1?'s':'')+' without market value</div><div class="price-notif-sub">Add a current value to track your collection.</div></div><button class="price-notif-btn" style="border-color:rgba(123,79,212,.3);color:var(--purple-light);background:rgba(123,79,212,.1)" onclick="showNoValueItems()">See list</button></div>';
   }
 
   if(notifHtml) body.innerHTML = notifHtml + html;
@@ -3261,7 +3261,7 @@ function renderStats(){
 function showOutdatedPrices(){
   const items = window._statsOutdated||[];
   if(!items.length) return;
-  let html = '<div style="margin-bottom:16px"><strong style="color:var(--wishlist)">⏰ Objets à mettre à jour (valeur > 30 jours) :</strong></div>';
+  let html = '<div style="margin-bottom:16px"><strong style="color:var(--wishlist)">⏰ Items to update (value > 30 days):</strong></div>';
   html += '<div class="top-list">';
   items.forEach(item=>{
     const lastUpdate = localStorage.getItem('price_updated_'+item.id);
@@ -3279,7 +3279,7 @@ function showOutdatedPrices(){
 function showNoValueItems(){
   const items = window._statsNoValue||[];
   if(!items.length) return;
-  let html = '<div style="margin-bottom:16px"><strong style="color:var(--purple-light)">💰 Objets sans valeur marché :</strong></div>';
+  let html = '<div style="margin-bottom:16px"><strong style="color:var(--purple-light)">💰 Items without market value:</strong></div>';
   html += '<div class="top-list">';
   items.forEach(item=>{
     html += '<div class="top-list-item" style="cursor:pointer" data-id="'+item.id+'" onclick="closeStats();openModal(this.dataset.id)">'
@@ -3403,7 +3403,7 @@ async function checkPublicProfile(){
   try {
     // Get profile data
     const {data:profile, error} = await sbClient.from('public_profiles').select('*').eq('token',token).eq('is_active',true).single();
-    if(error||!profile){ document.getElementById('public-content').innerHTML='<div style="text-align:center;padding:60px;color:var(--text-dim)">😔 Ce profil est introuvable ou désactivé.</div>'; return true; }
+    if(error||!profile){ document.getElementById('public-content').innerHTML='<div style="text-align:center;padding:60px;color:var(--text-dim)">😔 This profile cannot be found or is disabled.</div>'; return true; }
 
     // Get items (without prices)
     const {data:publicItems} = await sbClient.from('items').select('id,name,type,status,condition,lang,region,img_url,rating,has_box,has_manual,has_disc,has_sleeve,has_docs,edition,platform,manufacturer').eq('user_id',profile.user_id).order('created_at');
@@ -3445,14 +3445,14 @@ async function checkPublicProfile(){
 
     // Collection grid - owned items
     if(owned.length){
-      html += '<div class="public-section-title">✅ Collection possédée ('+owned.length+')</div>';
+      html += '<div class="public-section-title">✅ Owned collection ('+owned.length+')</div>';
       html += '<div class="public-grid">';
       owned.forEach(item=>{
         html += '<div class="public-card owned">';
         if(item.img_url) html += '<img class="public-card-img" src="'+escHtml(item.img_url)+'" referrerpolicy="no-referrer" onerror="this.style.display=&quot;none&quot;"/>'
         html += '<div class="public-card-body"><div class="public-card-name">'+escHtml(item.name)+'</div>';
         html += '<div class="public-card-meta">'+(item.platform?escHtml(item.platform):'')+(item.region?' · '+item.region:'')+'</div>';
-        html += '<div class="public-card-badges"><span class="badge owned" style="font-size:.58rem;padding:2px 6px;border-radius:4px;background:rgba(61,214,140,.15);color:var(--owned)">Possédé</span>'+(item.edition?'<span class="badge platform" style="font-size:.58rem;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,.07);color:var(--chrome)">'+escHtml(item.edition)+'</span>':'')+'</div>';
+        html += '<div class="public-card-badges"><span class="badge owned" style="font-size:.58rem;padding:2px 6px;border-radius:4px;background:rgba(61,214,140,.15);color:var(--owned)">Owned</span>'+(item.edition?'<span class="badge platform" style="font-size:.58rem;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,.07);color:var(--chrome)">'+escHtml(item.edition)+'</span>':'')+'</div>';
         if(item.rating) html += '<div style="font-size:.8rem;margin-top:4px">'+'⭐'.repeat(item.rating)+'</div>';
         html += '</div></div>';
       });
@@ -3468,7 +3468,7 @@ async function checkPublicProfile(){
         if(item.img_url) html += '<img class="public-card-img" src="'+escHtml(item.img_url)+'" referrerpolicy="no-referrer" onerror="this.style.display=&quot;none&quot;"/>'
         html += '<div class="public-card-body"><div class="public-card-name">'+escHtml(item.name)+'</div>';
         html += '<div class="public-card-meta">'+(item.platform?escHtml(item.platform):'')+'</div>';
-        html += '<div class="public-card-badges"><span style="font-size:.58rem;padding:2px 6px;border-radius:4px;background:rgba(255,212,71,.15);color:var(--wishlist)">Souhaité</span></div>';
+        html += '<div class="public-card-badges"><span style="font-size:.58rem;padding:2px 6px;border-radius:4px;background:rgba(255,212,71,.15);color:var(--wishlist)">Wishlist</span></div>';
         html += '</div></div>';
       });
       html += '</div>';
