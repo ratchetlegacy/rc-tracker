@@ -4166,10 +4166,11 @@ async function exportFancyPDF(){
   doc.addPage(); fillPage();
   innerHeader(doc, 'PROFILE', pseudo, today);
   let y = 42;
-  // avatar + pseudo
+  // avatar (pseudo initial — emojis don't render in PDF) + pseudo
+  const initial = (pseudo||'?').trim().charAt(0).toUpperCase() || '?';
   doc.setFillColor(C_CYAN[0],C_CYAN[1],C_CYAN[2]); doc.circle(margin+13, y+6, 11, 'F');
-  doc.setTextColor(6,8,15); doc.setFontSize(15); doc.setFont('helvetica','bold');
-  doc.text(avatar, margin+13, y+9, {align:'center'});
+  doc.setTextColor(6,8,15); doc.setFontSize(16); doc.setFont('helvetica','bold');
+  doc.text(initial, margin+13, y+10, {align:'center'});
   doc.setTextColor(C_TEXT[0],C_TEXT[1],C_TEXT[2]); doc.setFontSize(20);
   doc.text(pseudo, margin+32, y+4);
   doc.setTextColor(C_DIM[0],C_DIM[1],C_DIM[2]); doc.setFont('helvetica','normal'); doc.setFontSize(10);
@@ -4360,6 +4361,35 @@ function statBar(doc, title, entries, margin, y, pageW, color, pseudo, today){
 
 // ══ GUIDE PDF ══
 // Shared closing page (back cover) for both Magazine and Guide PDFs
+// Loads the logo and renders it into a CIRCLE with transparent corners (no white square)
+function loadLogoCircular(url, size){
+  return new Promise((resolve)=>{
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function(){
+      try {
+        const s = size || 240;
+        const canvas = document.createElement('canvas');
+        canvas.width = s; canvas.height = s;
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(s/2, s/2, s/2, 0, Math.PI*2);
+        ctx.closePath();
+        ctx.clip();
+        // cover-fit the image into the circle
+        const ratio = Math.max(s/img.naturalWidth, s/img.naturalHeight);
+        const dw = img.naturalWidth*ratio, dh = img.naturalHeight*ratio;
+        ctx.drawImage(img, (s-dw)/2, (s-dh)/2, dw, dh);
+        ctx.restore();
+        resolve(canvas.toDataURL('image/png'));
+      } catch(e){ resolve(null); }
+    };
+    img.onerror = function(){ resolve(null); };
+    img.src = url;
+  });
+}
+
 async function pdfBackCover(doc){
   const pageW=210, pageH=297;
   const C_CYAN=[120,210,235], C_LIME=[203,217,82], C_TEXT=[225,232,240], C_DIM=[150,165,185];
@@ -4374,11 +4404,11 @@ async function pdfBackCover(doc){
   doc.setFillColor(200,210,230);
   const stars=[[30,40],[180,55],[55,90],[150,120],[40,160],[170,200],[90,230],[140,250],[25,210],[185,150],[70,60],[120,35]];
   stars.forEach(([x,y],k)=>{ const r=(k%3===0)?0.6:0.3; doc.circle(x,y,r,'F'); });
-  // logo
-  const logo = await loadImageAsDataURL('https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg');
+  // logo (circular, transparent corners — no white square)
+  const logo = await loadLogoCircular('https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg', 240);
   const ls=42, lx=(pageW-ls)/2, ly=72;
   doc.setDrawColor(255,200,60); doc.setLineWidth(1.2); doc.circle(pageW/2, ly+ls/2, ls/2+4, 'S'); doc.setLineWidth(0.2);
-  if(logo){ try{ doc.addImage(logo.data,'JPEG',lx,ly,ls,ls); }catch(e){} }
+  if(logo){ try{ doc.addImage(logo,'PNG',lx,ly,ls,ls); }catch(e){} }
   // thank-you message
   doc.setTextColor(C_CYAN[0],C_CYAN[1],C_CYAN[2]); doc.setFont('helvetica','bold'); doc.setFontSize(20);
   doc.text('THANK YOU', pageW/2, 140, {align:'center'});
