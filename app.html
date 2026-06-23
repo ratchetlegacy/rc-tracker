@@ -569,6 +569,25 @@
     }
     .footer-legal:hover{color:var(--text)}
     /* Add bottom padding to all screens */
+    /* CATALOG */
+    .catalog-wrap{max-width:900px;margin:0 auto}
+    .catalog-intro{color:var(--text-dim);font-size:.88rem;text-align:center;margin-bottom:18px}
+    .catalog-cats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
+    .catalog-cat-btn{padding:7px 14px;border-radius:20px;background:var(--bg3);border:1px solid rgba(255,255,255,.1);color:var(--text-dim);font-size:.74rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .catalog-cat-btn.active{background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border-color:transparent}
+    .catalog-group{margin-bottom:26px}
+    .catalog-group-title{font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:700;color:var(--cyan,#78D2EB);letter-spacing:.08em;margin:0 0 12px;padding-bottom:6px;border-bottom:1px solid rgba(120,210,235,.2)}
+    .catalog-list{display:flex;flex-direction:column;gap:0}
+    .catalog-row{display:flex;gap:14px;align-items:center;background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;margin-bottom:8px;transition:border-color .2s}
+    .catalog-row:hover{border-color:rgba(120,210,235,.3)}
+    .catalog-row.admin-clickable{cursor:pointer}
+    .catalog-thumb{width:54px;height:54px;flex-shrink:0;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .catalog-thumb img{max-width:100%;max-height:100%;object-fit:contain}
+    .catalog-thumb-icon{font-size:1.5rem;opacity:.5}
+    .catalog-info{flex:1;min-width:0}
+    .catalog-name{font-weight:600;font-size:.9rem;color:var(--text);overflow:hidden;text-overflow:ellipsis}
+    .catalog-meta{font-size:.72rem;color:var(--text-dim);margin-top:2px}
+    .catalog-year{flex-shrink:0;font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--purple-light);font-weight:700}
     .app-content,.stats-body,.admin-body,.market-body,.public-body{padding-bottom:50px}
     /* GUIDE */
     .guide-wrap{max-width:840px;margin:0 auto}
@@ -1369,7 +1388,57 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
+<!-- CATALOG SCREEN -->
+<div class="stats-screen" id="catalog-screen">
+  <div class="stats-page-header">
+    <div class="logo-img" onclick="closeCatalog();showMainMenu()" style="cursor:pointer;width:40px;height:40px" title="Home">
+      <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
+    </div>
+    <h1>📚 CATALOG</h1>
+    <button class="stats-back" onclick="closeCatalog()">← Back</button>
+  </div>
+  <div class="stats-body">
+    <div class="catalog-wrap">
+      <p class="catalog-intro">The full reference list of Ratchet &amp; Clank items. Browse everything that exists in the universe.</p>
+      <div id="catalog-cats" class="catalog-cats"></div>
+      <div id="catalog-admin-bar" style="display:none;text-align:right;margin:10px 0">
+        <button class="add-btn" onclick="openCatalogEdit()">+ ADD ENTRY</button>
+      </div>
+      <div id="catalog-list" class="catalog-list">
+        <div style="text-align:center;padding:50px;color:var(--text-dim)"><span style="font-size:1.6rem;display:block;animation:spin 1s linear infinite">⚙️</span>Loading catalog...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CATALOG EDIT MODAL (admin) -->
+<div class="modal-overlay" id="catalog-edit-overlay">
+  <div class="modal" style="max-width:460px">
+    <button class="modal-close" onclick="closeCatalogEdit()">✕</button>
+    <h2 id="catalog-edit-title">➕ Add catalog entry</h2>
+    <input type="hidden" id="cat-edit-id"/>
+    <div class="form-group"><label>Name</label><input type="text" id="cat-edit-name" placeholder="e.g. Ratchet & Clank 2"/></div>
+    <div class="form-group"><label>Category</label>
+      <select id="cat-edit-category">
+        <option>Game</option><option>Figure</option><option>Plush</option><option>Statue</option>
+        <option>Music</option><option>Artbook</option><option>Print</option><option>Clothing</option>
+        <option>Comic</option><option>Manga</option><option>Movie</option><option>Misc</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Platform</label><input type="text" id="cat-edit-platform" placeholder="PS2, PS3, - ..."/></div>
+    <div class="form-group"><label>Year</label><input type="number" id="cat-edit-year" placeholder="2004"/></div>
+    <div class="form-group"><label>Region</label><input type="text" id="cat-edit-region" placeholder="PAL, NTSC-U..."/></div>
+    <div class="form-group"><label>Image URL</label><input type="text" id="cat-edit-image" placeholder="https://res.cloudinary.com/..."/></div>
+    <div class="form-group"><label>Description</label><textarea id="cat-edit-desc" rows="2"></textarea></div>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="add-btn" style="flex:1" onclick="saveCatalogEntry()">💾 Save</button>
+      <button class="modal-close-btn" id="cat-delete-btn" style="display:none;flex:1;padding:11px;background:rgba(255,77,106,.15);border:1px solid rgba(255,77,106,.4);border-radius:10px;color:var(--missing);cursor:pointer" onclick="deleteCatalogEntry()">🗑️ Delete</button>
+    </div>
+  </div>
+</div>
+
 <!-- PROFILE SCREEN -->
+
 <div class="admin-screen" id="profile-screen">
   <div class="admin-header">
     <div id="profile-avatar-big" style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--orange));border:2px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0">🦊</div>
@@ -1529,6 +1598,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openProfile()">🦊 <span id="mobile-pseudo">My profile</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 Stats</div>
   <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
+  <div class="menu-item" onclick="closeMobileMenu();openCatalog()">📚 Catalog</div>
   <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
   <div class="menu-item" onclick="closeMobileMenu();openGuide()">📖 How to use</div>
   <div class="menu-item" onclick="closeMobileMenu();cycleTheme()" id="mobile-theme-btn">🌌 Theme</div>
@@ -4545,6 +4615,149 @@ async function downloadGuidePDF(){
 
   doc.save('RC_Tracker_Guide.pdf');
   showToast('Guide PDF downloaded!', 'success');
+}
+
+
+// ══ CATALOG ══
+let catalogData = [];
+let catalogFilter = 'all';
+
+async function openCatalog(){
+  document.getElementById('catalog-screen').classList.add('open');
+  const bar = document.getElementById('catalog-admin-bar');
+  if(bar) bar.style.display = isAdmin() ? 'block' : 'none';
+  window.scrollTo(0,0);
+  await loadCatalog();
+}
+function closeCatalog(){ document.getElementById('catalog-screen').classList.remove('open'); }
+
+async function loadCatalog(){
+  const list = document.getElementById('catalog-list');
+  try {
+    const { data, error } = await sbClient.from('catalog').select('*').order('sort_order').order('year');
+    if(error) throw error;
+    catalogData = data || [];
+    buildCatalogCats();
+    renderCatalog();
+  } catch(e){
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--missing)">❌ '+e.message+'<br><small style="color:var(--text-dim)">Did you run the catalog SQL in Supabase?</small></div>';
+  }
+}
+
+function buildCatalogCats(){
+  const cats = [...new Set(catalogData.map(c=>c.category).filter(Boolean))].sort();
+  const wrap = document.getElementById('catalog-cats');
+  let html = '<button class="catalog-cat-btn'+(catalogFilter==='all'?' active':'')+'" onclick="setCatalogFilter(\'all\')">All</button>';
+  cats.forEach(c=>{
+    html += '<button class="catalog-cat-btn'+(catalogFilter===c?' active':'')+'" onclick="setCatalogFilter(\''+c.replace(/'/g,"\\'")+'\')">'+escHtml(c)+'</button>';
+  });
+  wrap.innerHTML = html;
+}
+
+function setCatalogFilter(cat){
+  catalogFilter = cat;
+  buildCatalogCats();
+  renderCatalog();
+}
+
+function catalogIcon(cat){
+  const m = {Game:'🎮',Figure:'🤖',Plush:'🧸',Statue:'🗿',Music:'🎵',Artbook:'📖',Print:'🖼️',Clothing:'👕',Comic:'📚',Manga:'📕',Movie:'🎬',Misc:'📦'};
+  return m[cat]||'📦';
+}
+
+function renderCatalog(){
+  const list = document.getElementById('catalog-list');
+  let items = catalogData;
+  if(catalogFilter!=='all') items = items.filter(c=>c.category===catalogFilter);
+  if(!items.length){ list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)">No entries yet.</div>'; return; }
+
+  // group by category (when showing all), else flat
+  let html = '';
+  if(catalogFilter==='all'){
+    const cats = [...new Set(items.map(c=>c.category))];
+    cats.forEach(cat=>{
+      const group = items.filter(c=>c.category===cat);
+      html += '<div class="catalog-group"><div class="catalog-group-title">'+catalogIcon(cat)+' '+escHtml(cat)+' ('+group.length+')</div>';
+      group.forEach(c=>{ html += catalogRow(c); });
+      html += '</div>';
+    });
+  } else {
+    items.forEach(c=>{ html += catalogRow(c); });
+  }
+  list.innerHTML = html;
+}
+
+function catalogRow(c){
+  const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.region].filter(Boolean).join(' · ');
+  const thumb = c.image_url
+    ? '<div class="catalog-thumb"><img src="'+escHtml(c.image_url)+'" loading="lazy" onerror="this.parentNode.innerHTML=\'<span class=&quot;catalog-thumb-icon&quot;>'+catalogIcon(c.category)+'</span>\'"/></div>'
+    : '<div class="catalog-thumb"><span class="catalog-thumb-icon">'+catalogIcon(c.category)+'</span></div>';
+  const adminClick = isAdmin() ? ' admin-clickable" onclick="openCatalogEdit('+c.id+')"' : '"';
+  return '<div class="catalog-row'+adminClick+'>'
+    + thumb
+    + '<div class="catalog-info"><div class="catalog-name">'+escHtml(c.name)+'</div>'
+    + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
+    + (c.description?'<div class="catalog-meta">'+escHtml(c.description)+'</div>':'')
+    + '</div>'
+    + (c.year?'<div class="catalog-year">'+c.year+'</div>':'')
+    + '</div>';
+}
+
+// ---- Admin: add / edit / delete ----
+function openCatalogEdit(id){
+  if(!isAdmin()) return;
+  const entry = id ? catalogData.find(c=>String(c.id)===String(id)) : null;
+  document.getElementById('catalog-edit-title').textContent = entry ? '✏️ Edit catalog entry' : '➕ Add catalog entry';
+  document.getElementById('cat-edit-id').value = entry ? entry.id : '';
+  document.getElementById('cat-edit-name').value = entry ? (entry.name||'') : '';
+  document.getElementById('cat-edit-category').value = entry ? (entry.category||'Game') : 'Game';
+  document.getElementById('cat-edit-platform').value = entry ? (entry.platform||'') : '';
+  document.getElementById('cat-edit-year').value = entry ? (entry.year||'') : '';
+  document.getElementById('cat-edit-region').value = entry ? (entry.region||'') : '';
+  document.getElementById('cat-edit-image').value = entry ? (entry.image_url||'') : '';
+  document.getElementById('cat-edit-desc').value = entry ? (entry.description||'') : '';
+  document.getElementById('cat-delete-btn').style.display = entry ? 'block' : 'none';
+  document.getElementById('catalog-edit-overlay').classList.add('open');
+}
+function closeCatalogEdit(){ document.getElementById('catalog-edit-overlay').classList.remove('open'); }
+
+async function saveCatalogEntry(){
+  if(!isAdmin()){ showToast('Admins only', 'error'); return; }
+  const id = document.getElementById('cat-edit-id').value;
+  const name = document.getElementById('cat-edit-name').value.trim();
+  if(!name){ showToast('Name required', 'error'); return; }
+  const payload = {
+    name,
+    category: document.getElementById('cat-edit-category').value,
+    platform: document.getElementById('cat-edit-platform').value.trim() || null,
+    year: parseInt(document.getElementById('cat-edit-year').value) || null,
+    region: document.getElementById('cat-edit-region').value.trim() || null,
+    image_url: document.getElementById('cat-edit-image').value.trim() || null,
+    description: document.getElementById('cat-edit-desc').value.trim() || null,
+  };
+  try {
+    let error;
+    if(id){ ({ error } = await sbClient.from('catalog').update(payload).eq('id', id)); }
+    else  { ({ error } = await sbClient.from('catalog').insert([payload])); }
+    if(error) throw error;
+    showToast(id?'Entry updated!':'Entry added!', 'success');
+    closeCatalogEdit();
+    await loadCatalog();
+  } catch(e){ showToast('Error: '+e.message, 'error'); }
+}
+
+async function deleteCatalogEntry(){
+  if(!isAdmin()) return;
+  const id = document.getElementById('cat-edit-id').value;
+  if(!id) return;
+  if(!confirm('Delete this catalog entry?')) return;
+  try {
+    const { error } = await sbClient.from('catalog').delete().eq('id', id);
+    if(error) throw error;
+    showToast('Entry deleted', 'success');
+    closeCatalogEdit();
+    await loadCatalog();
+  } catch(e){ showToast('Error: '+e.message, 'error'); }
 }
 
 async function boot(){
