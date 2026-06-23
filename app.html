@@ -1300,7 +1300,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         </div>
       </div>
 
-      <!-- ADMIN SECTION -->
+      <!-- ADMIN SECTION (admins only) -->
+      <div id="guide-admin-section" style="display:none">
       <div class="guide-section-label admin">🛠️ For the admin</div>
 
       <div class="guide-card admin">
@@ -1334,6 +1335,9 @@ CREATE POLICY "Users see own items" ON items FOR ALL
           <p>Set the total number of known R&amp;C items (e.g. 2500) in the admin panel. This drives the global progress bar and the Collection stat — and it's shared for every user, updating instantly.</p>
         </div>
       </div>
+
+      </div>
+      <!-- end admin section -->
 
       <div class="guide-footer">
         <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" class="guide-footer-logo"/>
@@ -3205,7 +3209,12 @@ function openStats(){
 }
 function closeStats(){ document.getElementById('stats-screen').classList.remove('open'); }
 
-function openGuide(){ document.getElementById('guide-screen').classList.add('open'); window.scrollTo(0,0); }
+function openGuide(){
+  document.getElementById('guide-screen').classList.add('open');
+  const adminSec = document.getElementById('guide-admin-section');
+  if(adminSec) adminSec.style.display = isAdmin() ? 'block' : 'none';
+  window.scrollTo(0,0);
+}
 function closeGuide(){ document.getElementById('guide-screen').classList.remove('open'); }
 
 function fmtEurS(v){ if(v==null) return '—'; return parseFloat(v).toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
@@ -4014,10 +4023,10 @@ function hideExportProgress(){
   const p=document.getElementById('export-progress');
   if(p) p.style.display='none';
 }
-function exportFileName(ext){
+function exportFileName(ext, suffix){
   const pseudo = (localStorage.getItem('rc_pseudo_'+currentUser.id)||'collection').replace(/[^a-z0-9]/gi,'_');
   const d = new Date().toISOString().slice(0,10);
-  return 'RC_'+pseudo+'_'+d+'.'+ext;
+  return 'RC_'+pseudo+'_'+d+(suffix?'_'+suffix:'')+'.'+ext;
 }
 
 // --- SIMPLE TABLE PDF ---
@@ -4106,6 +4115,10 @@ async function exportFancyPDF(){
   const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
   const avatar = localStorage.getItem('rc_avatar_'+currentUser.id)||'🦊';
   const today = new Date().toLocaleDateString();
+  // Per-user edition number: increments each time this user exports a magazine
+  const editionKey = 'rc_edition_'+currentUser.id;
+  const editionNo = (parseInt(localStorage.getItem(editionKey)||'0') || 0) + 1;
+  localStorage.setItem(editionKey, String(editionNo));
 
   // PALETTE (from splash screen)
   const C_BG    = [6,8,15];        // deep night
@@ -4142,9 +4155,11 @@ async function exportFancyPDF(){
   // scope + count
   doc.setTextColor(C_TEXT[0],C_TEXT[1],C_TEXT[2]); doc.setFont('helvetica','normal'); doc.setFontSize(11);
   doc.text(exportScopeLabel() + '  ·  ' + list.length + ' items', pageW/2, 216, {align:'center'});
-  // date bottom
-  doc.setTextColor(C_DIM[0],C_DIM[1],C_DIM[2]); doc.setFontSize(9);
-  doc.text(today, pageW/2, 280, {align:'center'});
+  // edition number + date bottom (magazine style)
+  doc.setTextColor(C_GOLD[0],C_GOLD[1],C_GOLD[2]); doc.setFont('helvetica','bold'); doc.setFontSize(12);
+  doc.text('EDITION #'+editionNo, pageW/2, 274, {align:'center'});
+  doc.setTextColor(C_DIM[0],C_DIM[1],C_DIM[2]); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.text(today, pageW/2, 281, {align:'center'});
 
   // ════════ PAGE 2 — PROFILE ════════
   showExportProgress('Building profile page...');
@@ -4297,7 +4312,10 @@ async function exportFancyPDF(){
     doc.text(p+' / '+total, pageW-margin, pageH-8, {align:'right'});
   }
 
-  doc.save(exportFileName('pdf'));
+  // closing page (no page number)
+  await pdfBackCover(doc);
+
+  doc.save(exportFileName('pdf', 'ed'+editionNo));
   hideExportProgress();
   showToast('Magazine PDF exported!', 'success');
   closeExportModal();
@@ -4341,7 +4359,45 @@ function statBar(doc, title, entries, margin, y, pageW, color, pseudo, today){
 
 
 // ══ GUIDE PDF ══
-function downloadGuidePDF(){
+// Shared closing page (back cover) for both Magazine and Guide PDFs
+async function pdfBackCover(doc){
+  const pageW=210, pageH=297;
+  const C_CYAN=[120,210,235], C_LIME=[203,217,82], C_TEXT=[225,232,240], C_DIM=[150,165,185];
+  doc.addPage();
+  // dark starfield background (same vibe as cover)
+  for(let i=0;i<pageH;i+=2){
+    const t=i/pageH;
+    doc.setFillColor(Math.round(6+t*10), Math.round(8+t*7), Math.round(15+t*26));
+    doc.rect(0,i,pageW,2.2,'F');
+  }
+  // a few stars
+  doc.setFillColor(200,210,230);
+  const stars=[[30,40],[180,55],[55,90],[150,120],[40,160],[170,200],[90,230],[140,250],[25,210],[185,150],[70,60],[120,35]];
+  stars.forEach(([x,y],k)=>{ const r=(k%3===0)?0.6:0.3; doc.circle(x,y,r,'F'); });
+  // logo
+  const logo = await loadImageAsDataURL('https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg');
+  const ls=42, lx=(pageW-ls)/2, ly=72;
+  doc.setDrawColor(255,200,60); doc.setLineWidth(1.2); doc.circle(pageW/2, ly+ls/2, ls/2+4, 'S'); doc.setLineWidth(0.2);
+  if(logo){ try{ doc.addImage(logo.data,'JPEG',lx,ly,ls,ls); }catch(e){} }
+  // thank-you message
+  doc.setTextColor(C_CYAN[0],C_CYAN[1],C_CYAN[2]); doc.setFont('helvetica','bold'); doc.setFontSize(20);
+  doc.text('THANK YOU', pageW/2, 140, {align:'center'});
+  doc.setTextColor(C_TEXT[0],C_TEXT[1],C_TEXT[2]); doc.setFont('helvetica','normal'); doc.setFontSize(11);
+  const msg = doc.splitTextToSize('Thanks for being part of the adventure and for sharing the passion for collecting Ratchet & Clank. Keep hunting, keep completing, and may your collection grow ever bigger!', 150);
+  doc.text(msg, pageW/2, 154, {align:'center'});
+  // divider
+  doc.setDrawColor(255,107,26); doc.setLineWidth(0.5); doc.line(pageW/2-26,182,pageW/2+26,182); doc.setLineWidth(0.2);
+  // links
+  doc.setTextColor(C_LIME[0],C_LIME[1],C_LIME[2]); doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('ratchetlegacy.github.io/rc-tracker', pageW/2, 198, {align:'center'});
+  doc.setTextColor(C_DIM[0],C_DIM[1],C_DIM[2]); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.text('Instagram @ratchetlegacy   ·   ko-fi.com/ratchetlegacy', pageW/2, 207, {align:'center'});
+  // footer
+  doc.setTextColor(C_DIM[0],C_DIM[1],C_DIM[2]); doc.setFontSize(9);
+  doc.text('Made with love by Ratchet Legacy', pageW/2, pageH-16, {align:'center'});
+}
+
+async function downloadGuidePDF(){
   if(!window.jspdf || !window.jspdf.jsPDF){ showToast('PDF library not loaded.', 'error'); return; }
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
@@ -4391,11 +4447,14 @@ function downloadGuidePDF(){
     ]},
   ];
 
+  // Non-admins don't get the admin section in their PDF
+  const visibleSections = isAdmin() ? sections : sections.filter(s=>s.label!=='FOR THE ADMIN');
+
   let y;
   function newPage(title){ doc.addPage(); fill(); header(title); y=32; }
   newPage('GUIDE');
 
-  sections.forEach(sec=>{
+  visibleSections.forEach(sec=>{
     if(y > pageH-40){ newPage('GUIDE'); }
     // section label
     doc.setTextColor(sec.color[0],sec.color[1],sec.color[2]); doc.setFont('helvetica','bold'); doc.setFontSize(12);
@@ -4422,9 +4481,12 @@ function downloadGuidePDF(){
     y += 4;
   });
 
-  // page numbers
+  // page numbers (content pages only)
   const total = doc.internal.getNumberOfPages();
   for(let p=2;p<=total;p++){ doc.setPage(p); doc.setTextColor(110,125,145); doc.setFontSize(7); doc.text(p+' / '+total, pageW-margin, pageH-8, {align:'right'}); }
+
+  // closing page (no page number)
+  await pdfBackCover(doc);
 
   doc.save('RC_Tracker_Guide.pdf');
   showToast('Guide PDF downloaded!', 'success');
