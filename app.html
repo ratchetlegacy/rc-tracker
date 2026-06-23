@@ -1789,6 +1789,7 @@ async function saveRcTotalValue(val){
     rcCollectionTotal = val;
     showToast('Total updated: ' + val + ' items!', 'success');
     render();
+    if(typeof refreshStatsIfOpen === 'function') refreshStatsIfOpen();
   } catch(e){ showToast('Error: ' + e.message, 'error'); }
 }
 function getRank(n){
@@ -2774,7 +2775,7 @@ const T = {
     'stat_top10':'💎 Top objets les plus précieux',
     'stat_by_region':'🌍 By region',
     'stat_ratings':'⭐ Personal ratings',
-    'stat_completeness':'✅ Completeeness des objets',
+    'stat_completeness':'✅ Item completeness',
     'stat_complete':'Complets','stat_incomplete':'Incomplets','stat_rate':'Taux',
     'stat_missing_items':'🚨 Objets avec éléments manquants :',
     'stat_no_comp':'Fill in completeness to see stats.',
@@ -3100,7 +3101,9 @@ function renderStats(){
   html += kpi('📦','Total','total',total);
   html += kpi('✅','Owned','owned',owned.length);
   html += kpi('🎯','Wishlist','wish',wish.length);
-  html += kpi('📈','Completeness','pct',total?Math.round(owned.length/total*100)+'%':'0%');
+  const rcTotal = getCollectionTotal();
+  const collPct = rcTotal > 0 ? Math.min(100, Math.round(owned.length/rcTotal*100)) : 0;
+  html += kpi('🌍','Collection','coll', rcTotal>0 ? (collPct+'%') : '—');
   html += kpi('💸','Invested','inv',hasBuy?fmtEurS(invested):'—');
   html += kpi('💰','Value','val',hasCur?fmtEurS(market):'—');
   html += kpi(delta>=0?'📈':'📉','Profit/Loss','delta',(hasBuy&&hasCur)?((delta>=0?'+':'')+fmtEurS(delta)):'—',hasBuy&&hasCur?(delta>=0?'var(--profit)':'var(--loss)'):'');
@@ -3199,7 +3202,7 @@ function renderStats(){
   html += '</div></div>';
 
   // COMPLETENESS
-  html += '<div class="stat-widget"><div class="stat-widget-title">✅ Completeeness des objets</div>';
+  html += '<div class="stat-widget"><div class="stat-widget-title">✅ Item completeness</div>';
   if(compItems.length){
     const compPct = Math.round(fullComplete/compItems.length*100);
     html += '<div class="comp-summary">';
@@ -3525,7 +3528,14 @@ async function saveRcTotal(){
     document.getElementById('admin-rc-total-current').textContent = 'Current: ' + val;
     updateRcProgressBar(val);
     if(typeof render === 'function') render();
+    refreshStatsIfOpen();
   } catch(e){ showToast('Error: ' + e.message, 'error'); }
+}
+
+// Re-render the Stats page if it is currently open
+function refreshStatsIfOpen(){
+  const st = document.getElementById('stats-screen');
+  if(st && st.classList.contains('open') && typeof renderStats === 'function') renderStats();
 }
 
 async function loadRcTotal(){
