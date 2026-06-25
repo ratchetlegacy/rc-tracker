@@ -1953,11 +1953,11 @@ function updateCompleteness(){
     const label = document.createElement('label');
     label.style.cssText = 'display:flex;align-items:center;gap:6px;cursor:pointer;flex:1';
 
-    // Tri-state: present / absent / na
+    // Tri-state: default to N/A (not pre-filled). User chooses Present/Missing actively.
     const sel = document.createElement('select');
     sel.id = 'comp_'+f.k;
     sel.style.cssText = 'background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 6px;color:var(--text);font-family:Inter,sans-serif;font-size:.75rem;outline:none';
-    sel.innerHTML = '<option value="present">✅ Present</option><option value="absent">❌ Missing</option><option value="na">— N/A</option>';
+    sel.innerHTML = '<option value="na">— Not set</option><option value="present">✅ Present</option><option value="absent">❌ Missing</option>';
 
     const span = document.createElement('span');
     span.style.cssText = 'font-size:.75rem;color:var(--text-dim);font-weight:500';
@@ -4945,8 +4945,8 @@ async function lookupBarcode(){
     const { data, error } = await sbClient.from('barcodes').select('*').eq('code', code).maybeSingle();
     if(error) throw error;
     if(!data){
-      hint.style.color='var(--text-dim)';
-      hint.innerHTML='🆕 Unknown barcode — fill the form and it will be shared for the next collector. Thanks!';
+      hint.style.color='var(--purple-light)';
+      hint.innerHTML='🆕 <strong>New barcode!</strong> Fill in this item below — when you save, it\'ll be shared so the next collector who scans it gets everything pre-filled. You\'re helping build the community database! 💜';
       return;
     }
     // pre-fill the form (only empty fields, don't overwrite what user typed)
