@@ -570,6 +570,14 @@
     .footer-legal:hover{color:var(--text)}
     /* Add bottom padding to all screens */
     /* CATALOG */
+    .catalog-suggest-btn{padding:8px 18px;border-radius:20px;background:rgba(255,255,255,.06);border:1px dashed rgba(120,210,235,.4);color:var(--cyan,#78D2EB);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .catalog-suggest-btn:hover{background:rgba(120,210,235,.12);border-style:solid}
+    .sg-review-row{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:12px;margin-bottom:10px}
+    .sg-review-row .sg-r-name{font-weight:600;color:var(--text);font-size:.9rem}
+    .sg-review-row .sg-r-meta{font-size:.74rem;color:var(--text-dim);margin:3px 0}
+    .sg-review-actions{display:flex;gap:8px;margin-top:8px}
+    .sg-btn-approve{flex:1;padding:8px;background:rgba(120,217,82,.15);border:1px solid rgba(120,217,82,.4);border-radius:8px;color:#9ee05a;cursor:pointer;font-size:.78rem;font-weight:600}
+    .sg-btn-reject{flex:1;padding:8px;background:rgba(255,77,106,.12);border:1px solid rgba(255,77,106,.35);border-radius:8px;color:var(--missing);cursor:pointer;font-size:.78rem;font-weight:600}
     .catalog-wrap{max-width:900px;margin:0 auto}
     .catalog-intro{color:var(--text-dim);font-size:.88rem;text-align:center;margin-bottom:18px}
     .catalog-cats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
@@ -847,6 +855,14 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <!-- Infos générales -->
     <div class="form-section">
       <div class="form-section-title" data-i18n="section_general">📋 General information</div>
+      <div class="form-group">
+        <label>📷 Barcode <span style="color:var(--text-dim);font-weight:400;font-size:.72rem">(optional — helps the community)</span></label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="inp-barcode" placeholder="e.g. 711719417286" style="flex:1" inputmode="numeric"/>
+          <button type="button" class="add-btn" style="padding:9px 14px;animation:none" onclick="lookupBarcode()">🔍 Look up</button>
+        </div>
+        <div id="barcode-hint" style="font-size:.74rem;margin-top:5px;color:var(--text-dim)"></div>
+      </div>
       <div class="form-group">
         <label data-i18n="lbl_name">Name *</label>
         <input type="text" id="inp-name" placeholder="ex: Ratchet &amp; Clank"/>
@@ -1401,8 +1417,12 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="catalog-wrap">
       <p class="catalog-intro">The full reference list of Ratchet &amp; Clank items. Browse everything that exists in the universe.</p>
       <div id="catalog-cats" class="catalog-cats"></div>
+      <div style="text-align:center;margin:4px 0 14px">
+        <button class="catalog-suggest-btn" onclick="openSuggest()">💡 Suggest an addition</button>
+      </div>
       <div id="catalog-admin-bar" style="display:none;text-align:right;margin:10px 0">
         <button class="add-btn" onclick="openCatalogEdit()">+ ADD ENTRY</button>
+        <button class="add-btn" style="background:linear-gradient(135deg,#2a9d8f,#264653)" onclick="openSuggestionsReview()">📥 Review suggestions <span id="suggest-count-badge"></span></button>
       </div>
       <div id="catalog-list" class="catalog-list">
         <div style="text-align:center;padding:50px;color:var(--text-dim)"><span style="font-size:1.6rem;display:block;animation:spin 1s linear infinite">⚙️</span>Loading catalog...</div>
@@ -1436,6 +1456,39 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
   </div>
 </div>
+
+<!-- SUGGEST ADDITION MODAL (everyone) -->
+<div class="modal-overlay" id="suggest-overlay" style="z-index:500">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" onclick="closeSuggest()">✕</button>
+    <h2>💡 Suggest an addition</h2>
+    <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:14px">Spotted something missing from the catalog? Let the admin know!</p>
+    <div class="form-group"><label>Item name *</label><input type="text" id="sg-name" placeholder="e.g. Ratchet plush 2021"/></div>
+    <div class="form-group"><label>Category</label>
+      <select id="sg-category">
+        <option>Game</option><option>Figure</option><option>Plush</option><option>Statue</option>
+        <option>Music</option><option>Artbook</option><option>Print</option><option>Clothing</option>
+        <option>Comic</option><option>Manga</option><option>Movie</option><option>Misc</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Platform / year (optional)</label><input type="text" id="sg-platform" placeholder="PS3 · 2009"/></div>
+    <div class="form-group"><label>Note / link (optional)</label><textarea id="sg-note" rows="2" placeholder="A link or any detail that helps identify it"></textarea></div>
+    <div class="form-group"><label>Your name (optional)</label><input type="text" id="sg-by" placeholder="So the admin can thank you"/></div>
+    <button class="add-btn" style="width:100%;margin-top:6px" onclick="submitSuggestion()">📨 Send suggestion</button>
+  </div>
+</div>
+
+<!-- SUGGESTIONS REVIEW MODAL (admin) -->
+<div class="modal-overlay" id="suggest-review-overlay" style="z-index:500">
+  <div class="modal" style="max-width:560px">
+    <button class="modal-close" onclick="closeSuggestionsReview()">✕</button>
+    <h2>📥 Pending suggestions</h2>
+    <div id="suggest-review-list" style="margin-top:14px;max-height:60vh;overflow-y:auto">
+      <div style="text-align:center;padding:30px;color:var(--text-dim)">Loading...</div>
+    </div>
+  </div>
+</div>
+
 
 <!-- PROFILE SCREEN -->
 
@@ -1748,6 +1801,8 @@ function openModal(id){
   editingId=id||null;
   const item=id?items.find(i=>i.id===id):null;
   document.getElementById('modal-title').textContent=item?t('modal_edit'):t('modal_new');
+  const bcEl=document.getElementById('inp-barcode'); if(bcEl) bcEl.value='';
+  const bcHint=document.getElementById('barcode-hint'); if(bcHint) bcHint.textContent='';
   document.getElementById('inp-name').value=item?item.name:'';
 
   // Type
@@ -1920,6 +1975,8 @@ function resetRating(v){ currentRating=v||0; document.querySelectorAll('#rating-
 async function saveItem(){
   const name=document.getElementById('inp-name').value.trim();
   if(!name){ document.getElementById('inp-name').focus(); return; }
+  const barcodeEl=document.getElementById('inp-barcode');
+  const barcodeVal=barcodeEl?barcodeEl.value.trim():'';
   const buy=document.getElementById('inp-buy').value;
   const val=document.getElementById('inp-val').value;
   // Get type - handle custom
@@ -1982,6 +2039,8 @@ async function saveItem(){
       const {data:fullItem} = await sbClient.from('items').select('*').eq('id',newItem.id).single();
       items.push(fullItem||newItem);
       showToast('Item added!','success');
+      // Best-effort: share this barcode→info mapping with the community
+      if(barcodeVal){ shareBarcode(barcodeVal, {name, type:typeVal, platform:pfVal, region:payload.region, edition:edVal, img_url:payload.img_url}); }
     }
     closeModal(); render();
   }catch(e){ showToast('Error: '+e.message,'error'); }
@@ -4626,6 +4685,7 @@ async function openCatalog(){
   document.getElementById('catalog-screen').classList.add('open');
   const bar = document.getElementById('catalog-admin-bar');
   if(bar) bar.style.display = isAdmin() ? 'block' : 'none';
+  if(isAdmin()) refreshSuggestBadge();
   window.scrollTo(0,0);
   await loadCatalog();
 }
@@ -4758,6 +4818,189 @@ async function deleteCatalogEntry(){
     closeCatalogEdit();
     await loadCatalog();
   } catch(e){ showToast('Error: '+e.message, 'error'); }
+}
+
+
+// ══ CATALOG SUGGESTIONS ══
+function openSuggest(){
+  ['sg-name','sg-platform','sg-note','sg-by'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('sg-category').value='Game';
+  document.getElementById('suggest-overlay').classList.add('open');
+}
+function closeSuggest(){ document.getElementById('suggest-overlay').classList.remove('open'); }
+
+async function submitSuggestion(){
+  const name = document.getElementById('sg-name').value.trim();
+  if(!name){ showToast('Please enter an item name', 'error'); return; }
+  if(name.length > 120){ showToast('Name too long', 'error'); return; }
+
+  // Anti-spam guard: cooldown + per-session cap (localStorage)
+  const now = Date.now();
+  const last = parseInt(localStorage.getItem('rc_last_suggest')||'0');
+  if(now - last < 30000){ showToast('Please wait a moment before suggesting again 🙂', 'error'); return; }
+  const count = parseInt(localStorage.getItem('rc_suggest_count')||'0');
+  if(count >= 10){ showToast('Thanks! You have reached the suggestion limit for now.', 'error'); return; }
+
+  const platform = document.getElementById('sg-platform').value.trim();
+  const payload = {
+    name,
+    category: document.getElementById('sg-category').value,
+    platform: platform || null,
+    note: document.getElementById('sg-note').value.trim() || null,
+    suggested_by: document.getElementById('sg-by').value.trim() || (currentUser&&currentUser.email) || null,
+    status: 'pending',
+  };
+  try {
+    const { error } = await sbClient.from('catalog_suggestions').insert([payload]);
+    if(error) throw error;
+    localStorage.setItem('rc_last_suggest', String(now));
+    localStorage.setItem('rc_suggest_count', String(count+1));
+    showToast('Thanks! Your suggestion was sent 💜', 'success');
+    closeSuggest();
+  } catch(e){ showToast('Error: '+e.message, 'error'); }
+}
+
+// ---- Admin review ----
+async function refreshSuggestBadge(){
+  if(!isAdmin()) return;
+  try {
+    const { data, error } = await sbClient.from('catalog_suggestions').select('id').eq('status','pending');
+    if(error) return;
+    const badge = document.getElementById('suggest-count-badge');
+    if(badge) badge.textContent = (data&&data.length) ? '('+data.length+')' : '';
+  } catch(e){}
+}
+
+async function openSuggestionsReview(){
+  if(!isAdmin()) return;
+  document.getElementById('suggest-review-overlay').classList.add('open');
+  const list = document.getElementById('suggest-review-list');
+  list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim)">Loading...</div>';
+  try {
+    const { data, error } = await sbClient.from('catalog_suggestions').select('*').eq('status','pending').order('created_at',{ascending:false});
+    if(error) throw error;
+    if(!data || !data.length){ list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim)">No pending suggestions 🎉</div>'; return; }
+    let html = '';
+    data.forEach(s=>{
+      const meta = [s.category, s.platform, s.suggested_by?('by '+s.suggested_by):''].filter(Boolean).join(' · ');
+      html += '<div class="sg-review-row">'
+        + '<div class="sg-r-name">'+escHtml(s.name)+'</div>'
+        + (meta?'<div class="sg-r-meta">'+escHtml(meta)+'</div>':'')
+        + (s.note?'<div class="sg-r-meta">📝 '+escHtml(s.note)+'</div>':'')
+        + '<div class="sg-review-actions">'
+        + '<button class="sg-btn-approve" onclick="approveSuggestion('+s.id+')">✅ Approve &amp; add</button>'
+        + '<button class="sg-btn-reject" onclick="rejectSuggestion('+s.id+')">✕ Reject</button>'
+        + '</div></div>';
+    });
+    list.innerHTML = html;
+  } catch(e){
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--missing)">❌ '+e.message+'<br><small style="color:var(--text-dim)">Did you run the suggestions SQL?</small></div>';
+  }
+}
+function closeSuggestionsReview(){ document.getElementById('suggest-review-overlay').classList.remove('open'); }
+
+async function approveSuggestion(id){
+  if(!isAdmin()) return;
+  try {
+    const { data, error } = await sbClient.from('catalog_suggestions').select('*').eq('id', id).single();
+    if(error) throw error;
+    // create the catalog entry from the suggestion
+    const entry = {
+      name: data.name,
+      category: data.category || 'Misc',
+      platform: data.platform || null,
+      year: data.year || null,
+    };
+    const { error: insErr } = await sbClient.from('catalog').insert([entry]);
+    if(insErr) throw insErr;
+    // mark as approved
+    await sbClient.from('catalog_suggestions').update({status:'approved'}).eq('id', id);
+    showToast('Added to catalog!', 'success');
+    openSuggestionsReview();
+    refreshSuggestBadge();
+  } catch(e){ showToast('Error: '+e.message, 'error'); }
+}
+
+async function rejectSuggestion(id){
+  if(!isAdmin()) return;
+  try {
+    const { error } = await sbClient.from('catalog_suggestions').update({status:'rejected'}).eq('id', id);
+    if(error) throw error;
+    showToast('Suggestion rejected', 'success');
+    openSuggestionsReview();
+    refreshSuggestBadge();
+  } catch(e){ showToast('Error: '+e.message, 'error'); }
+}
+
+
+// ══ SHARED BARCODES (crowdsourced) ══
+// Look up a barcode in the shared table and pre-fill the add form if found.
+async function lookupBarcode(){
+  const code = (document.getElementById('inp-barcode').value||'').trim();
+  const hint = document.getElementById('barcode-hint');
+  if(!code){ hint.textContent=''; return; }
+  if(!/^[0-9]{6,14}$/.test(code)){ hint.style.color='var(--missing)'; hint.textContent='A barcode is usually 8–13 digits.'; return; }
+  hint.style.color='var(--text-dim)'; hint.textContent='Searching…';
+  try {
+    const { data, error } = await sbClient.from('barcodes').select('*').eq('code', code).maybeSingle();
+    if(error) throw error;
+    if(!data){
+      hint.style.color='var(--text-dim)';
+      hint.innerHTML='🆕 Unknown barcode — fill the form and it will be shared for the next collector. Thanks!';
+      return;
+    }
+    // pre-fill the form (only empty fields, don't overwrite what user typed)
+    const setIf = (id, v)=>{ const el=document.getElementById(id); if(el && v && !el.value) el.value=v; };
+    setIf('inp-name', data.name);
+    setIf('inp-region', data.region);
+    setIf('inp-img', data.img_url);
+    // type & platform are selects with possible custom option
+    if(data.type) prefillSelectOrCustom('inp-type','inp-type-custom', data.type);
+    if(data.platform) prefillSelectOrCustom('inp-platform','inp-platform-custom', data.platform);
+    if(data.edition) prefillSelectOrCustom('inp-edition','inp-edition-custom', data.edition);
+    if(typeof updateCompleteness==='function') updateCompleteness();
+    hint.style.color='#9ee05a';
+    hint.innerHTML='✅ Found: <strong>'+escHtml(data.name)+'</strong> — fields pre-filled ('+(data.uses||1)+' collector'+((data.uses||1)>1?'s':'')+').';
+  } catch(e){
+    hint.style.color='var(--missing)';
+    hint.textContent='Lookup error: '+e.message;
+  }
+}
+
+// Helper: set a <select> value, or switch it to its custom field if the value isn't an option
+function prefillSelectOrCustom(selId, customId, value){
+  const sel=document.getElementById(selId); if(!sel) return;
+  const opt=[...sel.options].find(o=>o.value.toLowerCase()===String(value).toLowerCase());
+  if(opt){ sel.value=opt.value; }
+  else {
+    const customOpt=[...sel.options].find(o=>o.value==='__custom__');
+    if(customOpt){ sel.value='__custom__'; if(typeof toggleCustomField==='function') toggleCustomField(selId,customId); const c=document.getElementById(customId); if(c && !c.value) c.value=value; }
+  }
+}
+
+// Save the barcode→info mapping to the shared table (called after an item is added).
+async function shareBarcode(code, info){
+  code=(code||'').trim();
+  if(!code || !/^[0-9]{6,14}$/.test(code)) return;
+  try {
+    const { data } = await sbClient.from('barcodes').select('code,uses').eq('code', code).maybeSingle();
+    if(data){
+      // already known → just bump the counter
+      await sbClient.from('barcodes').update({ uses:(data.uses||1)+1, updated_at:new Date().toISOString() }).eq('code', code);
+    } else {
+      await sbClient.from('barcodes').insert([{
+        code,
+        name: info.name,
+        type: info.type||null,
+        platform: info.platform||null,
+        region: info.region||null,
+        edition: info.edition||null,
+        img_url: info.img_url||null,
+        added_by: (currentUser&&currentUser.email)||null,
+        uses: 1,
+      }]);
+    }
+  } catch(e){ /* silent — barcode sharing is best-effort, never blocks saving */ }
 }
 
 async function boot(){
