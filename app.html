@@ -2035,14 +2035,14 @@ async function saveItem(){
       else if(idx!==-1) items[idx]={...items[idx],...payload};
       showToast('Item updated!','success');
       // Share the barcode mapping too (e.g. when adding a barcode to an existing item)
-      if(barcodeVal){ shareBarcode(barcodeVal, {name, type:typeVal, platform:pfVal, region:payload.region, edition:edVal, img_url:payload.img_url}); }
+      if(barcodeVal){ shareBarcode(barcodeVal, {name, type:typeVal, platform:pfVal, region:payload.region, edition:edVal, manufacturer:mfVal, img_url:payload.img_url}); }
     }else{
       const newItem=await dbInsert(payload);
       const {data:fullItem} = await sbClient.from('items').select('*').eq('id',newItem.id).single();
       items.push(fullItem||newItem);
       showToast('Item added!','success');
       // Best-effort: share this barcode→info mapping with the community
-      if(barcodeVal){ shareBarcode(barcodeVal, {name, type:typeVal, platform:pfVal, region:payload.region, edition:edVal, img_url:payload.img_url}); }
+      if(barcodeVal){ shareBarcode(barcodeVal, {name, type:typeVal, platform:pfVal, region:payload.region, edition:edVal, manufacturer:mfVal, img_url:payload.img_url}); }
     }
     closeModal(); render();
   }catch(e){ showToast('Error: '+e.message,'error'); }
@@ -4960,6 +4960,7 @@ async function lookupBarcode(){
     if(data.type) prefillSelectOrCustom('inp-type','inp-type-custom', data.type);
     if(data.platform) prefillSelectOrCustom('inp-platform','inp-platform-custom', data.platform);
     if(data.edition) prefillSelectOrCustom('inp-edition','inp-edition-custom', data.edition);
+    if(data.manufacturer) prefillSelectOrCustom('inp-manufacturer','inp-manufacturer-custom', data.manufacturer);
     if(typeof updateCompleteness==='function') updateCompleteness();
     hint.style.color='#9ee05a';
     hint.innerHTML='✅ Found: <strong>'+escHtml(data.name)+'</strong> — fields pre-filled ('+(data.uses||1)+' collector'+((data.uses||1)>1?'s':'')+').';
@@ -4999,6 +5000,7 @@ async function shareBarcode(code, info){
         platform: info.platform||null,
         region: info.region||null,
         edition: info.edition||null,
+        manufacturer: info.manufacturer||null,
         img_url: info.img_url||null,
         added_by: (currentUser&&currentUser.email)||null,
         uses: 1,
