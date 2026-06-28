@@ -5064,13 +5064,11 @@ async function maybeSubmitUserImage(imgUrl, name, type){
   if(!imgUrl || !/^https?:\/\//i.test(imgUrl)) return;        // need a real URL
   try {
     // Skip if this URL is already in the shared image bank
-    const { data: inBank } = await sbClient.from('images').select('id').eq('url', imgUrl).limit(1);
-    if(inBank && inBank.length) return;
-    // Skip if it's already been submitted (avoid duplicates)
-    const { data: already } = await sbClient.from('photo_submissions').select('id').eq('img_url', imgUrl).limit(1);
-    if(already && already.length) return;
+    const { data: inBank, error: bankErr } = await sbClient.from('images').select('id').eq('url', imgUrl).limit(1);
+    if(bankErr) throw bankErr;
+    if(inBank && inBank.length){ return; }   // already in the bank, nothing to do
     // Queue it for review
-    await sbClient.from('photo_submissions').insert([{
+    const { error: insErr } = await sbClient.from('photo_submissions').insert([{
       user_id: currentUser.id,
       user_email: currentUser.email,
       item_name: name,
@@ -5079,7 +5077,11 @@ async function maybeSubmitUserImage(imgUrl, name, type){
       comment: 'Auto-submitted from a collection item',
       status: 'pending'
     }]);
-  } catch(e){ /* best-effort, never blocks saving */ }
+    if(insErr) throw insErr;
+    showToast('🖼️ Image sent to the bank for review!', 'success');
+  } catch(e){
+    showToast('Image not queued: '+e.message, 'error');
+  }
 }
 
 async function boot(){
