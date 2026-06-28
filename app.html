@@ -2915,7 +2915,17 @@ async function adminDeleteImage(id){
 
 async function loadAdminSubmissions(){
   const list = document.getElementById('admin-sub-list');
-  const { data, error } = await sbClient.from('photo_submissions').select('*').eq('status','pending').order('created_at',{ascending:false});
+  if(list) list.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem">Loading submissions…</div>';
+  // Timeout guard: if the query hangs (e.g. RLS recursion), don't stay stuck forever
+  const timeout = new Promise((_,rej)=>setTimeout(()=>rej(new Error('Request timed out (10s). Possible RLS/policy issue on photo_submissions.')), 10000));
+  let data, error;
+  try {
+    const res = await Promise.race([
+      sbClient.from('photo_submissions').select('*').eq('status','pending').order('created_at',{ascending:false}),
+      timeout
+    ]);
+    data = res.data; error = res.error;
+  } catch(e){ error = e; }
   if(error){
     if(list) list.innerHTML = '<div style="color:var(--missing);font-size:.82rem">❌ '+escHtml(error.message)+'<br><small style="color:var(--text-dim)">Check the photo_submissions table / policies in Supabase.</small></div>';
     const cnt=document.getElementById('admin-sub-count'); if(cnt) cnt.textContent='!';
