@@ -2820,9 +2820,10 @@ let adminImages = [];
 async function openAdmin(){
   if(!isAdmin()){ showToast('Access denied', 'error'); return; }
   document.getElementById('admin-screen').classList.add('open');
-  await loadAdminImages();
-  await loadAdminSubmissions();
-  await loadRcTotal();
+  // Run each loader independently — a failure in one must not block the others
+  try { await loadAdminImages(); } catch(e){ console.error('loadAdminImages failed', e); }
+  try { await loadAdminSubmissions(); } catch(e){ console.error('loadAdminSubmissions failed', e); }
+  try { await loadRcTotal(); } catch(e){ console.error('loadRcTotal failed', e); }
 }
 function closeAdmin(){ document.getElementById('admin-screen').classList.remove('open'); }
 
@@ -2913,11 +2914,15 @@ async function adminDeleteImage(id){
 }
 
 async function loadAdminSubmissions(){
+  const list = document.getElementById('admin-sub-list');
   const { data, error } = await sbClient.from('photo_submissions').select('*').eq('status','pending').order('created_at',{ascending:false});
-  if(error) return;
+  if(error){
+    if(list) list.innerHTML = '<div style="color:var(--missing);font-size:.82rem">❌ '+escHtml(error.message)+'<br><small style="color:var(--text-dim)">Check the photo_submissions table / policies in Supabase.</small></div>';
+    const cnt=document.getElementById('admin-sub-count'); if(cnt) cnt.textContent='!';
+    return;
+  }
   const subs = data || [];
   document.getElementById('admin-sub-count').textContent = subs.length;
-  const list = document.getElementById('admin-sub-list');
   if(!subs.length){ list.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem">No pending submissions.</div>'; return; }
   list.innerHTML = '';
   subs.forEach(sub => {
