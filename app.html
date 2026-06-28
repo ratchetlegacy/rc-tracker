@@ -830,6 +830,12 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <button class="filter-btn active" data-type="all">All</button>
       </div>
     </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap" id="platform-filter-row">
+      <span class="filter-label">Platform</span>
+      <div class="filter-group" id="platform-filters">
+        <button class="filter-btn active" data-platform="all">All</button>
+      </div>
+    </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span class="filter-label" data-i18n="lbl_status">Status</span>
       <div class="filter-group" id="status-filters">
@@ -1473,6 +1479,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
     <div class="form-group"><label>Platform / year (optional)</label><input type="text" id="sg-platform" placeholder="PS3 · 2009"/></div>
     <div class="form-group"><label>Note / link (optional)</label><textarea id="sg-note" rows="2" placeholder="A link or any detail that helps identify it"></textarea></div>
+    <div class="form-group"><label>Image URL (optional)</label><input type="text" id="sg-image" placeholder="https://... a photo or cover of the item"/></div>
     <div class="form-group"><label>Your name (optional)</label><input type="text" id="sg-by" placeholder="So the admin can thank you"/></div>
     <button class="add-btn" style="width:100%;margin-top:6px" onclick="submitSuggestion()">📨 Send suggestion</button>
   </div>
@@ -1775,7 +1782,7 @@ async function doAuth(){
 async function doSignOut(){ await sbClient.auth.signOut(); currentUser=null; items=[]; show('auth-screen'); }
 
 // ══ STATE ══
-let items=[], activeType='all', activeStatus=null, editingId=null, currentRating=0;
+let items=[], activeType='all', activeStatus=null, activePlatform='all', editingId=null, currentRating=0;
 
 // ══ DB ══
 // Legacy FR option values -> EN (display migration; persisted on next save of the item)
@@ -2036,6 +2043,7 @@ async function saveItem(){
       showToast('Item updated!','success');
       // Share the barcode mapping too (e.g. when adding a barcode to an existing item)
       if(barcodeVal){ shareBarcode(barcodeVal, {name, type:typeVal, platform:pfVal, region:payload.region, edition:edVal, manufacturer:mfVal, img_url:payload.img_url}); }
+      if(payload.img_url){ maybeSubmitUserImage(payload.img_url, name, typeVal); }
     }else{
       const newItem=await dbInsert(payload);
       const {data:fullItem} = await sbClient.from('items').select('*').eq('id',newItem.id).single();
@@ -2043,6 +2051,7 @@ async function saveItem(){
       showToast('Item added!','success');
       // Best-effort: share this barcode→info mapping with the community
       if(barcodeVal){ shareBarcode(barcodeVal, {name, type:typeVal, platform:pfVal, region:payload.region, edition:edVal, manufacturer:mfVal, img_url:payload.img_url}); }
+      if(payload.img_url){ maybeSubmitUserImage(payload.img_url, name, typeVal); }
     }
     closeModal(); render();
   }catch(e){ showToast('Error: '+e.message,'error'); }
@@ -2155,6 +2164,25 @@ function renderCompleteness(item){
 
 function getTypes(){ return [...new Set(items.map(i=>i.type).filter(Boolean))].sort(); }
 
+function getPlatforms(){ return [...new Set(items.map(i=>i.platform).filter(Boolean))].sort(); }
+
+function buildPlatformFilters(){
+  const container=document.getElementById('platform-filters');
+  if(!container) return;
+  const platforms=getPlatforms();
+  // Hide the whole row if there are no platforms at all
+  const row=document.getElementById('platform-filter-row');
+  if(row) row.style.display = platforms.length ? 'flex' : 'none';
+  container.innerHTML=`<button class="filter-btn ${activePlatform==='all'?'active':''}" data-platform="all">All</button>`;
+  platforms.forEach(p=>{
+    const btn=document.createElement('button');
+    btn.className=`filter-btn ${activePlatform===p?'active':''}`;
+    btn.dataset.platform=p;
+    btn.textContent=p;
+    container.appendChild(btn);
+  });
+}
+
 function buildTypeFilters(){
   const container=document.getElementById('type-filters');
   const types=getTypes();
@@ -2211,11 +2239,13 @@ function render(){
   renderRank(owned);
 
   buildTypeFilters();
+  buildPlatformFilters();
 
   // filter
   let filtered=items;
   if(activeType!=='all') filtered=filtered.filter(i=>i.type===activeType);
   if(activeStatus) filtered=filtered.filter(i=>i.status===activeStatus);
+  if(activePlatform!=='all') filtered=filtered.filter(i=>(i.platform||'')===activePlatform);
 
   const container=document.getElementById('grid-container');
   container.innerHTML='';
@@ -2484,6 +2514,12 @@ document.getElementById('status-filters').addEventListener('click',e=>{
   if(activeStatus===s){ activeStatus=null; btn.classList.remove('active'); }
   else{ activeStatus=s; document.querySelectorAll('#status-filters .filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
   render();
+});
+document.getElementById('platform-filters').addEventListener('click',e=>{
+  const btn=e.target.closest('.filter-btn'); if(!btn) return;
+  activePlatform=btn.dataset.platform;
+  document.querySelectorAll('#platform-filters .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); render();
 });
 document.getElementById('modal-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
 document.getElementById('detail-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeDetail(); });
@@ -4825,7 +4861,7 @@ async function deleteCatalogEntry(){
 
 // ══ CATALOG SUGGESTIONS ══
 function openSuggest(){
-  ['sg-name','sg-platform','sg-note','sg-by'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+  ['sg-name','sg-platform','sg-note','sg-by','sg-image'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
   document.getElementById('sg-category').value='Game';
   document.getElementById('suggest-overlay').classList.add('open');
 }
@@ -4844,11 +4880,13 @@ async function submitSuggestion(){
   if(count >= 10){ showToast('Thanks! You have reached the suggestion limit for now.', 'error'); return; }
 
   const platform = document.getElementById('sg-platform').value.trim();
+  const imgEl = document.getElementById('sg-image');
   const payload = {
     name,
     category: document.getElementById('sg-category').value,
     platform: platform || null,
     note: document.getElementById('sg-note').value.trim() || null,
+    image_url: (imgEl && imgEl.value.trim()) || null,
     suggested_by: document.getElementById('sg-by').value.trim() || (currentUser&&currentUser.email) || null,
     status: 'pending',
   };
@@ -4889,6 +4927,7 @@ async function openSuggestionsReview(){
         + '<div class="sg-r-name">'+escHtml(s.name)+'</div>'
         + (meta?'<div class="sg-r-meta">'+escHtml(meta)+'</div>':'')
         + (s.note?'<div class="sg-r-meta">📝 '+escHtml(s.note)+'</div>':'')
+        + (s.image_url?'<div style="margin:6px 0"><img src="'+escHtml(s.image_url)+'" style="max-height:90px;max-width:100%;border-radius:6px;border:1px solid rgba(255,255,255,.1)" onerror="this.style.display=\'none\'"/></div>':'')
         + '<div class="sg-review-actions">'
         + '<button class="sg-btn-approve" onclick="approveSuggestion('+s.id+')">✅ Approve &amp; add</button>'
         + '<button class="sg-btn-reject" onclick="rejectSuggestion('+s.id+')">✕ Reject</button>'
@@ -4912,6 +4951,8 @@ async function approveSuggestion(id){
       category: data.category || 'Misc',
       platform: data.platform || null,
       year: data.year || null,
+      image_url: data.image_url || null,
+      description: data.note || null,
     };
     const { error: insErr } = await sbClient.from('catalog').insert([entry]);
     if(insErr) throw insErr;
@@ -5012,6 +5053,33 @@ async function shareBarcode(code, info){
     // Don't block the item save, but let the user know sharing failed
     showToast('Barcode not shared: '+e.message, 'error');
   }
+}
+
+
+// ══ AUTO-SUBMIT USER IMAGE TO BANK (pending review) ══
+// When a user saves an item with a manually-pasted image link (not already in the
+// shared bank), queue it as a photo_submission so the admin can review & approve it.
+async function maybeSubmitUserImage(imgUrl, name, type){
+  imgUrl=(imgUrl||'').trim();
+  if(!imgUrl || !/^https?:\/\//i.test(imgUrl)) return;        // need a real URL
+  try {
+    // Skip if this URL is already in the shared image bank
+    const { data: inBank } = await sbClient.from('images').select('id').eq('url', imgUrl).limit(1);
+    if(inBank && inBank.length) return;
+    // Skip if it's already been submitted (avoid duplicates)
+    const { data: already } = await sbClient.from('photo_submissions').select('id').eq('img_url', imgUrl).limit(1);
+    if(already && already.length) return;
+    // Queue it for review
+    await sbClient.from('photo_submissions').insert([{
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      item_name: name,
+      item_type: type||null,
+      img_url: imgUrl,
+      comment: 'Auto-submitted from a collection item',
+      status: 'pending'
+    }]);
+  } catch(e){ /* best-effort, never blocks saving */ }
 }
 
 async function boot(){
