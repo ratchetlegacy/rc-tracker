@@ -801,15 +801,16 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <!-- Progress bars only -->
     <div style="margin-top:10px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-        <span data-i18n="rank_progression" style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)">PROGRESSION TO NEXT RANK</span>
+        <span style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)"><span data-i18n="rank_progression">PROGRESSION TO NEXT RANK</span> · <span id="rank-name-inline" style="color:var(--orange);font-family:'Orbitron',sans-serif;font-weight:700"></span></span>
         <span id="pct-display" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--orange)">0%</span>
       </div>
       <div class="energy-bar-bg" style="margin-bottom:6px"><div class="energy-bar-fill" id="energy-bar" style="width:0%"></div></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
         <span data-i18n="collection_rc" style="font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim)">R&C COLLECTION</span>
         <span>
-          <span id="collection-pct" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--orange)">0%</span>
-          <span onclick="editCollectionTotal()" style="font-size:.6rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">(<span id="collection-total-display">2500</span> <span data-i18n="objects_known">known</span>)</span>
+          <span id="collection-count" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--gold)">0 / 2500</span>
+          <span id="collection-pct" style="font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700;color:var(--orange)">0%</span>
+          <span onclick="editCollectionTotal()" style="font-size:.6rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">✎</span>
         </span>
       </div>
       <div class="energy-bar-bg" style="margin-bottom:6px"><div class="energy-bar-fill" id="collection-bar" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--gold))"></div></div>
@@ -2245,13 +2246,16 @@ function render(){
   document.getElementById('pct-display').textContent=rankPct+'%';
   document.getElementById('energy-bar').style.width=rankPct+'%';
   document.getElementById('energy-bar').style.background='linear-gradient(90deg,'+rankObj.color+','+( nextRankObj?nextRankObj.color:rankObj.color)+')';
+  const rankInline=document.getElementById('rank-name-inline');
+  if(rankInline){ rankInline.textContent=rankObj.name; rankInline.style.color=rankObj.color; }
 
   // Collection % bar
   const collectionTotal = getCollectionTotal();
   const collectionPct = collectionTotal > 0 ? Math.min(100, Math.round((owned/collectionTotal)*100)) : 0;
   document.getElementById('collection-pct').textContent=collectionPct+'%';
   document.getElementById('collection-bar').style.width=collectionPct+'%';
-  document.getElementById('collection-total-display').textContent=collectionTotal||'?';
+  const collCount=document.getElementById('collection-count');
+  if(collCount) collCount.textContent = owned+' / '+(collectionTotal||'?');
 
   renderRank(owned);
 
@@ -4013,10 +4017,10 @@ function updateRcProgressBar(total){
   const pct = total > 0 ? Math.round((owned/total)*100) : 0;
   const bar = document.getElementById('collection-bar');
   const label = document.getElementById('collection-pct');
-  const totalLabel = document.getElementById('collection-total-display');
+  const countLabel = document.getElementById('collection-count');
   if(bar) bar.style.width = pct + '%';
   if(label) label.textContent = pct + '%';
-  if(totalLabel) totalLabel.textContent = total;
+  if(countLabel) countLabel.textContent = owned + ' / ' + (total||'?');
 }
 
 // ══ TRANSLATIONS ══
