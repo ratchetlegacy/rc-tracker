@@ -2916,6 +2916,13 @@ async function adminDeleteImage(id){
 async function loadAdminSubmissions(){
   const list = document.getElementById('admin-sub-list');
   if(list) list.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem">Loading submissions…</div>';
+  // Load the existing bank folders so the admin can pick a destination on approval
+  let folders = [];
+  try {
+    const { data: fdata } = await sbClient.from('images').select('folder');
+    folders = [...new Set((fdata||[]).map(r=>(r.folder||'').trim()).filter(Boolean))].sort();
+  } catch(e){}
+  window._bankFolders = folders;
   // Timeout guard: if the query hangs (e.g. RLS recursion), don't stay stuck forever
   const timeout = new Promise((_,rej)=>setTimeout(()=>rej(new Error('Request timed out (10s). Possible RLS/policy issue on photo_submissions.')), 10000));
   let data, error;
@@ -2937,6 +2944,7 @@ async function loadAdminSubmissions(){
   if(!list){ return; }
   if(!subs.length){ list.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem">No pending submissions.</div>'; return; }
   list.innerHTML = '';
+  const folderOpts = (window._bankFolders||[]).map(f=>'<option value="'+escHtml(f)+'">'+escHtml(f)+'</option>').join('');
   subs.forEach(sub => {
     const card = document.createElement('div');
     card.className = 'admin-sub-card';
@@ -2945,20 +2953,33 @@ async function loadAdminSubmissions(){
       +'<div class="admin-sub-name">'+escHtml(sub.item_name)+'</div>'
       +'<div class="admin-sub-meta">'+escHtml(sub.item_type||'')+' · Soumis par '+escHtml(sub.user_email||'')+'</div>'
       +(sub.comment?'<div class="admin-sub-meta" style="font-style:italic">'+escHtml(sub.comment)+'</div>':'')
+      +'<div style="margin:6px 0"><label style="font-size:.72rem;color:var(--text-dim);margin-right:6px">Folder:</label>'
+      +'<select id="sub-folder-'+sub.id+'" style="background:var(--bg2);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:4px 8px;color:var(--text);font-size:.78rem">'
+      +'<option value="">— Choose —</option>'+folderOpts
+      +'<option value="__new__">+ New folder…</option>'
+      +'</select></div>'
       +'<div class="admin-sub-actions">'
-      +'<button class="admin-sub-btn approve" data-id="'+sub.id+'" data-name="'+escHtml(sub.item_name)+'" data-url="'+escHtml(sub.img_url)+'" data-type="'+escHtml(sub.item_type||'')+'" onclick="approveSubmission(this.dataset.id,this.dataset.name,this.dataset.url,this.dataset.type)">✅ Approve</button>'
+      +'<button class="admin-sub-btn approve" data-id="'+sub.id+'" data-name="'+escHtml(sub.item_name)+'" data-url="'+escHtml(sub.img_url)+'" onclick="approveSubmission(this.dataset.id,this.dataset.name,this.dataset.url)">✅ Approve</button>'
       +'<button class="admin-sub-btn reject" data-id="'+sub.id+'" onclick="rejectSubmission(this.dataset.id)">❌ Reject</button>'
       +'</div></div>';
     list.appendChild(card);
   });
 }
 
-async function approveSubmission(id, name, imgUrl, type){
+async function approveSubmission(id, name, imgUrl){
+  // Read the folder chosen in the dropdown for this submission
+  const sel = document.getElementById('sub-folder-'+id);
+  let folder = sel ? sel.value : '';
+  if(folder === '__new__'){
+    folder = (prompt('New folder name:')||'').trim();
+    if(!folder){ showToast('Folder required', 'error'); return; }
+  }
+  if(!folder){ showToast('Please choose a folder first', 'error'); if(sel) sel.focus(); return; }
   try {
     const thumbUrl = imgUrl.includes('/upload/') ? imgUrl.replace('/upload/', '/upload/w_200,h_260,c_fit,q_auto/') : imgUrl;
-    await sbClient.from('images').insert([{ name, url: imgUrl, thumb_url: thumbUrl, folder: type||'Others', added_by: 'user_submission' }]);
+    await sbClient.from('images').insert([{ name, url: imgUrl, thumb_url: thumbUrl, folder: folder, added_by: 'user_submission' }]);
     await sbClient.from('photo_submissions').update({status:'approved'}).eq('id',id);
-    showToast('Photo approved and added!', 'success');
+    showToast('Photo approved and added to '+folder+'!', 'success');
     await loadAdminSubmissions();
     await loadAdminImages();
   } catch(e){ showToast('Error: '+e.message,'error'); }
