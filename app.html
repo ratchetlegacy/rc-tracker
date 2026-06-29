@@ -1497,6 +1497,23 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 </div>
 
 
+<!-- IMAGE EDIT MODAL (admin) -->
+<div class="modal-overlay" id="img-edit-overlay" style="z-index:500">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeImgEdit()">✕</button>
+    <h2>✏️ Edit image</h2>
+    <input type="hidden" id="img-edit-id"/>
+    <div id="img-edit-preview" style="text-align:center;margin-bottom:12px"></div>
+    <div class="form-group"><label>Name</label><input type="text" id="img-edit-name" placeholder="Image name"/></div>
+    <div class="form-group"><label>Folder</label>
+      <select id="img-edit-folder"></select>
+    </div>
+    <div class="form-group" id="img-edit-newfolder-group" style="display:none"><label>New folder name</label><input type="text" id="img-edit-newfolder" placeholder="e.g. PS2"/></div>
+    <div class="form-group"><label>Region (optional)</label><input type="text" id="img-edit-region" placeholder="PAL, NTSC-U, NTSC-J, Worldwide"/></div>
+    <button class="add-btn" style="width:100%;margin-top:6px;animation:none" onclick="saveImgEdit()">💾 Save</button>
+  </div>
+</div>
+
 <!-- PROFILE SCREEN -->
 
 <div class="admin-screen" id="profile-screen">
@@ -2859,25 +2876,50 @@ function renderAdminImages(imgs){
   });
 }
 
-async function adminEditImage(id){
+function adminEditImage(id){
   const img = adminImages.find(i=>String(i.id)===String(id));
   if(!img){ showToast('Image not found', 'error'); return; }
-  const newName = prompt('Image name:', img.name||'');
-  if(newName===null) return; // cancelled
-  const trimmed = newName.trim();
-  if(!trimmed){ showToast('Name cannot be empty', 'error'); return; }
-  const newFolder = prompt('Folder (PS2, PS3, PS4, PS5, PSP, Figures, Others):', img.folder||'');
-  if(newFolder===null) return;
-  const newRegion = prompt('Region (PAL, NTSC-U, NTSC-J, Worldwide) — optional:', img.region||'');
-  if(newRegion===null) return;
+  document.getElementById('img-edit-id').value = img.id;
+  document.getElementById('img-edit-name').value = img.name || '';
+  document.getElementById('img-edit-region').value = img.region || '';
+  // preview
+  const prev = document.getElementById('img-edit-preview');
+  prev.innerHTML = '<img src="'+escHtml(img.thumb_url||img.url)+'" style="max-height:120px;max-width:100%;border-radius:8px;border:1px solid rgba(255,255,255,.1)" onerror="this.style.display=&quot;none&quot;"/>';
+  // folder dropdown from existing folders
+  const folders = [...new Set((adminImages||[]).map(i=>(i.folder||'').trim()).filter(Boolean))].sort();
+  const sel = document.getElementById('img-edit-folder');
+  let opts = folders.map(f=>'<option value="'+escHtml(f)+'"'+(f===(img.folder||'')?' selected':'')+'>'+escHtml(f)+'</option>').join('');
+  opts += '<option value="__new__">+ New folder…</option>';
+  sel.innerHTML = opts;
+  // if current folder isn't in the list, add it selected
+  if(img.folder && !folders.includes(img.folder)){
+    const o=document.createElement('option'); o.value=img.folder; o.textContent=img.folder; o.selected=true;
+    sel.insertBefore(o, sel.firstChild);
+  }
+  document.getElementById('img-edit-newfolder-group').style.display='none';
+  document.getElementById('img-edit-newfolder').value='';
+  sel.onchange = function(){
+    document.getElementById('img-edit-newfolder-group').style.display = (this.value==='__new__') ? 'block' : 'none';
+  };
+  document.getElementById('img-edit-overlay').classList.add('open');
+}
+function closeImgEdit(){ document.getElementById('img-edit-overlay').classList.remove('open'); }
+
+async function saveImgEdit(){
+  const id = document.getElementById('img-edit-id').value;
+  const name = document.getElementById('img-edit-name').value.trim();
+  if(!name){ showToast('Name cannot be empty', 'error'); return; }
+  let folder = document.getElementById('img-edit-folder').value;
+  if(folder==='__new__'){
+    folder = document.getElementById('img-edit-newfolder').value.trim();
+    if(!folder){ showToast('Enter the new folder name', 'error'); return; }
+  }
+  const region = document.getElementById('img-edit-region').value.trim();
   try {
-    const { error } = await sbClient.from('images').update({
-      name: trimmed,
-      folder: newFolder.trim(),
-      region: newRegion.trim()
-    }).eq('id', id);
+    const { error } = await sbClient.from('images').update({ name, folder, region }).eq('id', id);
     if(error) throw error;
     showToast('Image updated!', 'success');
+    closeImgEdit();
     await loadAdminImages();
   } catch(e){ showToast('Error: '+e.message, 'error'); }
 }
