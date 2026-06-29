@@ -2871,7 +2871,7 @@ function renderAdminImages(imgs){
       +'<div class="admin-img-meta">'+escHtml(img.folder||'')+(img.region?' · '+img.region:'')+'</div>'
       +'</div>'
       +'<button class="admin-img-edit" data-id="'+img.id+'" onclick="adminEditImage(this.dataset.id)" title="Rename / edit">✏️</button>'
-      +'<button class="admin-img-del" data-id="'+img.id+'" onclick="adminDeleteImage(this.dataset.id)" title="Delete">✕</button>';
+      +'<button class="admin-img-del" data-id="'+img.id+'" onclick="adminDeleteImage(this.dataset.id, this)" title="Delete">✕</button>';
     grid.appendChild(card);
   });
 }
@@ -2947,8 +2947,16 @@ async function adminAddImage(){
   } catch(e){ showToast('Error: '+e.message, 'error'); }
 }
 
-async function adminDeleteImage(id){
-  if(!confirm('Delete this image from the bank?')) return;
+async function adminDeleteImage(id, btn){
+  // Two-click confirm (confirm() is blocked in installed PWAs)
+  if(btn && btn.dataset.confirm !== '1'){
+    btn.dataset.confirm = '1';
+    btn.textContent = '✓?';
+    btn.title = 'Click again to confirm delete';
+    btn.style.background = 'rgba(255,77,106,1)';
+    setTimeout(()=>{ if(btn){ btn.dataset.confirm='0'; btn.textContent='✕'; btn.title='Delete'; btn.style.background=''; } }, 3000);
+    return;
+  }
   const { error } = await sbClient.from('images').delete().eq('id', id);
   if(error){ showToast('Error: '+error.message,'error'); return; }
   showToast('Image deleted.', 'success');
