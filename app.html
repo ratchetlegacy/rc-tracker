@@ -2932,7 +2932,9 @@ async function loadAdminSubmissions(){
     return;
   }
   const subs = data || [];
-  document.getElementById('admin-sub-count').textContent = subs.length;
+  const cntEl = document.getElementById('admin-sub-count');
+  if(cntEl) cntEl.textContent = subs.length;
+  if(!list){ return; }
   if(!subs.length){ list.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem">No pending submissions.</div>'; return; }
   list.innerHTML = '';
   subs.forEach(sub => {
