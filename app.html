@@ -376,7 +376,7 @@
     .type-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--purple),var(--orange));transition:width .6s}
     .type-bar-count{font-size:.72rem;color:var(--text);font-weight:600;width:30px;text-align:right;flex-shrink:0}
     /* CLOUDINARY GALLERY */
-    .gallery-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+    .gallery-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
     .gallery-overlay.open{display:flex}
     .gallery-modal{background:var(--bg2);border:1px solid rgba(123,79,212,.3);border-radius:18px;width:100%;max-width:1000px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
     .gallery-header{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:12px}
@@ -745,7 +745,8 @@
       <p style="margin-bottom:10px">✨ The Tracker opens in its own window and gets an icon on your desktop / taskbar, just like a native app!</p>
       <p style="margin-top:12px;font-size:.8rem;color:var(--text-dim)">No install icon? Open the browser menu (⋮) → <b>Cast, save and share</b> → <b>Install page as app</b>.</p>
     </div>
-    <button onclick="closeDesktopInstall()" style="margin-top:16px;width:100%;background:linear-gradient(135deg,var(--purple,#9B6FF4),var(--orange,#FF6B1A));color:#fff;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer">Got it!</button>
+    <button id="desktop-install-now-btn" onclick="desktopInstallNow()" style="display:none;margin-top:16px;width:100%;background:linear-gradient(135deg,#3DD68C,#1E9E63);color:#06140d;border:none;border-radius:12px;padding:13px;font-weight:800;cursor:pointer">⬇️ Install now</button>
+    <button onclick="closeDesktopInstall()" style="margin-top:10px;width:100%;background:linear-gradient(135deg,var(--purple,#9B6FF4),var(--orange,#FF6B1A));color:#fff;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer">Got it!</button>
   </div>
 </div>
 
@@ -1115,7 +1116,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <label>Image</label>
         <div style="display:flex;gap:8px;align-items:center">
           <input type="url" id="inp-img" placeholder="URL or choose from gallery..." style="flex:1"/>
-          <button type="button" onclick="openGallery()" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Gallery</button>
+          <button type="button" onclick="openGallery('inp-img')" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Gallery</button>
         </div>
         <div class="price-hint">Paste a link or choose from gallery</div>
         <button type="button" onclick="openSubmitPhoto()" style="margin-top:8px;padding:6px 12px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif" data-i18n="btn_submit_photo">📸 Submit a missing photo</button>
@@ -1516,7 +1517,13 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="form-group"><label>Platform</label><input type="text" id="cat-edit-platform" placeholder="PS2, PS3, - ..."/></div>
     <div class="form-group"><label>Year</label><input type="number" id="cat-edit-year" placeholder="2004"/></div>
     <div class="form-group"><label>Region</label><input type="text" id="cat-edit-region" placeholder="PAL, NTSC-U..."/></div>
-    <div class="form-group"><label>Image URL</label><input type="text" id="cat-edit-image" placeholder="https://res.cloudinary.com/..."/></div>
+    <div class="form-group"><label>Image</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="cat-edit-image" placeholder="URL or choose from gallery..." style="flex:1" oninput="updateCatImagePreview()"/>
+        <button type="button" onclick="openGallery('cat-edit-image')" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Gallery</button>
+      </div>
+      <div id="cat-image-preview" style="margin-top:8px"></div>
+    </div>
     <div class="form-group"><label>Description</label><textarea id="cat-edit-desc" rows="2"></textarea></div>
     <div style="display:flex;gap:10px;margin-top:8px">
       <button class="add-btn" style="flex:1" onclick="saveCatalogEntry()">💾 Save</button>
@@ -2748,8 +2755,12 @@ let galleryImages = [];
 let galleryFiltered = [];
 let gallerySelectedUrl = '';
 
-async function openGallery(){
-  gallerySelectedUrl = document.getElementById('inp-img').value || '';
+// Which input the gallery should fill ('inp-img' for items, 'cat-edit-image' for catalog)
+let galleryTargetInput = 'inp-img';
+async function openGallery(targetId){
+  galleryTargetInput = targetId || 'inp-img';
+  const srcEl = document.getElementById(galleryTargetInput);
+  gallerySelectedUrl = srcEl ? (srcEl.value || '') : '';
   document.getElementById('gallery-overlay').classList.add('open');
   await buildGalleryFolders();
   await loadGalleryImages();
@@ -2845,7 +2856,14 @@ function selectGalleryImg(url){
 
 function confirmGallery(){
   if(gallerySelectedUrl){
-    document.getElementById('inp-img').value = gallerySelectedUrl;
+    const target = document.getElementById(galleryTargetInput) || document.getElementById('inp-img');
+    if(target){
+      target.value = gallerySelectedUrl;
+      // If filling the catalog form, refresh its image preview
+      if(galleryTargetInput === 'cat-edit-image' && typeof updateCatImagePreview === 'function'){
+        updateCatImagePreview();
+      }
+    }
     showToast('Image selected!', 'success');
   }
   closeGallery();
@@ -5036,9 +5054,19 @@ function openCatalogEdit(id){
   document.getElementById('cat-edit-image').value = entry ? (entry.image_url||'') : '';
   document.getElementById('cat-edit-desc').value = entry ? (entry.description||'') : '';
   document.getElementById('cat-delete-btn').style.display = entry ? 'block' : 'none';
+  updateCatImagePreview();
   document.getElementById('catalog-edit-overlay').classList.add('open');
 }
 function closeCatalogEdit(){ document.getElementById('catalog-edit-overlay').classList.remove('open'); }
+
+// Live thumbnail preview of the catalog entry's image
+function updateCatImagePreview(){
+  const box = document.getElementById('cat-image-preview');
+  if(!box) return;
+  const url = (document.getElementById('cat-edit-image').value||'').trim();
+  if(!url){ box.innerHTML=''; return; }
+  box.innerHTML = '<img src="'+escHtml(url)+'" style="max-height:90px;border-radius:8px;border:1px solid rgba(255,255,255,.12);object-fit:contain" onerror="this.style.display=\'none\'"/>';
+}
 
 async function saveCatalogEntry(){
   if(!isAdmin()){ showToast('Admins only', 'error'); return; }
@@ -5372,13 +5400,18 @@ function updateMenuInstallButton(){
 async function triggerInstall(){
   // Native prompt available (Chrome/Edge desktop or Android) → use it directly
   if(deferredInstallPrompt){
-    deferredInstallPrompt.prompt();
-    const { outcome } = await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = null;
-    const banner = document.getElementById('install-banner');
-    if(banner) banner.style.display = 'none';
-    updateMenuInstallButton();
-    if(outcome === 'accepted'){ showToast('App installed! 🎮', 'success'); }
+    try {
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      const banner = document.getElementById('install-banner');
+      if(banner) banner.style.display = 'none';
+      updateMenuInstallButton();
+      if(outcome === 'accepted'){ showToast('App installed! 🎮', 'success'); }
+    } catch(e){
+      // prompt() can throw if called twice — fall back to instructions
+      if(isDesktop()) openDesktopInstall();
+    }
     return;
   }
   // iOS → manual instructions modal
@@ -5386,8 +5419,7 @@ async function triggerInstall(){
     document.getElementById('ios-install-overlay').classList.add('open');
     return;
   }
-  // Desktop without a ready prompt (already installable but event not fired yet,
-  // or already installed) → show desktop instructions modal
+  // Desktop without a ready prompt (already installed, or event not fired yet)
   if(isDesktop()){
     openDesktopInstall();
     return;
@@ -5404,10 +5436,31 @@ function installFromMenu(){
 
 function openDesktopInstall(){
   const ov = document.getElementById('desktop-install-overlay');
-  if(ov) ov.classList.add('open');
-  else showToast('In Chrome/Edge, click the install icon (⊕) in the address bar.', 'info');
+  if(ov){
+    // If a native prompt is actually available, show the "Install now" button
+    const tryBtn = document.getElementById('desktop-install-now-btn');
+    if(tryBtn) tryBtn.style.display = deferredInstallPrompt ? 'block' : 'none';
+    ov.classList.add('open');
+  } else {
+    showToast('In Chrome/Edge, click the install icon (⊕) in the address bar.', 'info');
+  }
 }
 function closeDesktopInstall(){ const ov=document.getElementById('desktop-install-overlay'); if(ov) ov.classList.remove('open'); }
+// Retry the native prompt from inside the desktop modal (user gesture)
+async function desktopInstallNow(){
+  closeDesktopInstall();
+  if(deferredInstallPrompt){
+    try {
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      updateMenuInstallButton();
+      if(outcome === 'accepted'){ showToast('App installed! 🎮', 'success'); }
+    } catch(e){ showToast('Use the install icon (⊕) in the address bar.', 'info'); }
+  } else {
+    showToast('Use the install icon (⊕) in the address bar.', 'info');
+  }
+}
 
 function dismissInstall(){
   document.getElementById('install-banner').style.display = 'none';
