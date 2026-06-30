@@ -596,6 +596,24 @@
     .catalog-name{font-weight:600;font-size:.9rem;color:var(--text);overflow:hidden;text-overflow:ellipsis}
     .catalog-meta{font-size:.72rem;color:var(--text-dim);margin-top:2px}
     .catalog-year{flex-shrink:0;font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--purple-light);font-weight:700}
+    .catalog-chevron{flex-shrink:0;font-size:1.4rem;color:var(--text-dim);opacity:.5;margin-left:4px}
+    .catalog-row:hover .catalog-chevron{opacity:1;color:var(--cyan,#78D2EB)}
+    /* CATALOG DETAIL CARD */
+    .catalog-detail-modal{text-align:center}
+    .cd-img{width:100%;max-width:280px;margin:6px auto 16px;border-radius:14px;overflow:hidden;background:var(--bg);min-height:180px;display:flex;align-items:center;justify-content:center}
+    .cd-img img{width:100%;height:auto;display:block;object-fit:contain;max-height:340px}
+    .cd-noimg{font-size:4rem;opacity:.4;padding:50px 0}
+    .cd-cat{display:inline-block;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan,#78D2EB);background:rgba(120,210,235,.1);padding:4px 12px;border-radius:20px;margin-bottom:8px}
+    .cd-name{font-size:1.25rem;margin:0 0 6px;line-height:1.25}
+    .cd-meta{font-family:'Orbitron',sans-serif;font-size:.82rem;color:var(--purple-light);font-weight:600;margin-bottom:10px}
+    .cd-desc{font-size:.88rem;color:var(--text-dim);line-height:1.5;margin:0 0 18px;text-align:left}
+    .cd-actions{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+    .cd-btn{border:none;border-radius:12px;padding:14px;font-weight:800;font-size:.92rem;cursor:pointer;transition:transform .12s,filter .12s}
+    .cd-btn:hover{transform:translateY(-1px);filter:brightness(1.08)}
+    .cd-btn:active{transform:translateY(0)}
+    .cd-btn-owned{background:linear-gradient(135deg,#3DD68C,#1E9E63);color:#06140d}
+    .cd-btn-wish{background:linear-gradient(135deg,#FFD447,#FF9D2E);color:#1a1200}
+    .cd-admin-edit{margin-top:14px;width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px;color:var(--text-dim);cursor:pointer;font-size:.82rem}
     .app-content,.stats-body,.admin-body,.market-body,.public-body{padding-bottom:50px}
     /* GUIDE */
     .guide-wrap{max-width:840px;margin:0 auto}
@@ -711,6 +729,23 @@
       <p style="margin-bottom:10px">4️⃣ Tap <b>Add</b> — the R&amp;C Tracker icon appears on your home screen and opens full-screen like a real app! 🎮</p>
     </div>
     <button onclick="closeIosInstall()" style="margin-top:16px;width:100%;background:linear-gradient(135deg,var(--purple,#9B6FF4),var(--orange,#FF6B1A));color:#fff;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer">Got it!</button>
+  </div>
+</div>
+
+<!-- DESKTOP INSTALL INSTRUCTIONS MODAL -->
+<div class="modal-overlay" id="desktop-install-overlay" style="z-index:700">
+  <div class="modal" style="max-width:420px;text-align:center">
+    <button class="modal-close" onclick="closeDesktopInstall()">✕</button>
+    <div style="font-size:2.4rem;margin-bottom:8px">🖥️</div>
+    <h2 style="margin-bottom:14px">Install on your computer</h2>
+    <div style="text-align:left;font-size:.9rem;line-height:1.6;color:var(--text)">
+      <p style="margin-bottom:10px">1️⃣ Look at the <b>right end of the address bar</b> (where the URL is).</p>
+      <p style="margin-bottom:10px">2️⃣ Click the <b>install icon</b> — a small screen with a ⊕ (Chrome) or ⊞ (Edge).</p>
+      <p style="margin-bottom:10px">3️⃣ Click <b>Install</b> in the popup.</p>
+      <p style="margin-bottom:10px">✨ The Tracker opens in its own window and gets an icon on your desktop / taskbar, just like a native app!</p>
+      <p style="margin-top:12px;font-size:.8rem;color:var(--text-dim)">No install icon? Open the browser menu (⋮) → <b>Cast, save and share</b> → <b>Install page as app</b>.</p>
+    </div>
+    <button onclick="closeDesktopInstall()" style="margin-top:16px;width:100%;background:linear-gradient(135deg,var(--purple,#9B6FF4),var(--orange,#FF6B1A));color:#fff;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer">Got it!</button>
   </div>
 </div>
 
@@ -1490,6 +1525,14 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
+<!-- CATALOG DETAIL CARD (everyone) -->
+<div class="modal-overlay" id="catalog-detail-overlay" style="z-index:520">
+  <div class="modal catalog-detail-modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeCatalogDetail()">✕</button>
+    <div id="catalog-detail-body"></div>
+  </div>
+</div>
+
 <!-- SUGGEST ADDITION MODAL (everyone) -->
 <div class="modal-overlay" id="suggest-overlay" style="z-index:500">
   <div class="modal" style="max-width:440px">
@@ -1705,6 +1748,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openCatalog()">📚 Catalog</div>
   <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
   <div class="menu-item" onclick="closeMobileMenu();openGuide()">📖 How to use</div>
+  <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)">📲 Install the app</div>
   <div class="menu-item" onclick="closeMobileMenu();cycleTheme()" id="mobile-theme-btn">🌌 Theme</div>
   <a href="https://ko-fi.com/ratchetlegacy" target="_blank" class="menu-item" style="color:#FF8C42;border-color:rgba(255,140,66,.2)">☕ Fuel the collection!</a>
   <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin</div>
@@ -2274,6 +2318,11 @@ function render(){
   document.getElementById('energy-bar').style.background='linear-gradient(90deg,'+rankObj.color+','+( nextRankObj?nextRankObj.color:rankObj.color)+')';
   const rankInline=document.getElementById('rank-name-inline');
   if(rankInline){ rankInline.textContent=rankObj.name; rankInline.style.color=rankObj.color; }
+  // Header rank icon + name (these were never updated → badge stayed frozen on 🌱)
+  const rankIconEl=document.getElementById('rank-icon');
+  if(rankIconEl) rankIconEl.textContent=rankObj.icon;
+  const rankNameEl=document.getElementById('rank-name');
+  if(rankNameEl){ rankNameEl.textContent=rankObj.name; rankNameEl.style.color=rankObj.color; }
 
   // Collection % bar
   const collectionTotal = getCollectionTotal();
@@ -4908,15 +4957,69 @@ function catalogRow(c){
   const thumb = c.image_url
     ? '<div class="catalog-thumb"><img src="'+escHtml(c.image_url)+'" loading="lazy" onerror="this.parentNode.innerHTML=\'<span class=&quot;catalog-thumb-icon&quot;>'+catalogIcon(c.category)+'</span>\'"/></div>'
     : '<div class="catalog-thumb"><span class="catalog-thumb-icon">'+catalogIcon(c.category)+'</span></div>';
-  const adminClick = isAdmin() ? ' admin-clickable" onclick="openCatalogEdit('+c.id+')"' : '"';
-  return '<div class="catalog-row'+adminClick+'>'
+  // Whole row opens the detail card. Admins get a small edit pencil instead of row-edit.
+  return '<div class="catalog-row admin-clickable" onclick="openCatalogDetail('+c.id+')">'
     + thumb
     + '<div class="catalog-info"><div class="catalog-name">'+escHtml(c.name)+'</div>'
     + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
     + (c.description?'<div class="catalog-meta">'+escHtml(c.description)+'</div>':'')
     + '</div>'
     + (c.year?'<div class="catalog-year">'+c.year+'</div>':'')
+    + '<span class="catalog-chevron">›</span>'
     + '</div>';
+}
+
+// ---- Catalog detail card (everyone) ----
+function openCatalogDetail(id){
+  const c = catalogData.find(x=>String(x.id)===String(id));
+  if(!c) return;
+  const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.region, c.year].filter(Boolean).join(' · ');
+  const img = c.image_url
+    ? '<img src="'+escHtml(c.image_url)+'" alt="" onerror="this.parentNode.innerHTML=\'<div class=&quot;cd-noimg&quot;>'+catalogIcon(c.category)+'</div>\'"/>'
+    : '<div class="cd-noimg">'+catalogIcon(c.category)+'</div>';
+  const body = document.getElementById('catalog-detail-body');
+  body.innerHTML =
+    '<div class="cd-img">'+img+'</div>'
+    + '<div class="cd-cat">'+catalogIcon(c.category)+' '+escHtml(c.category||'Misc')+'</div>'
+    + '<h2 class="cd-name">'+escHtml(c.name)+'</h2>'
+    + (meta?'<div class="cd-meta">'+escHtml(meta)+'</div>':'')
+    + (c.description?'<p class="cd-desc">'+escHtml(c.description)+'</p>':'')
+    + '<div class="cd-actions">'
+    +   '<button class="cd-btn cd-btn-owned" onclick="addCatalogToCollection('+c.id+',\'owned\')">✓ Add to my collection</button>'
+    +   '<button class="cd-btn cd-btn-wish" onclick="addCatalogToCollection('+c.id+',\'wishlist\')">★ Add to my wishlist</button>'
+    + '</div>'
+    + (isAdmin()?'<button class="cd-admin-edit" onclick="closeCatalogDetail();openCatalogEdit('+c.id+')">✏️ Edit entry (admin)</button>':'');
+  document.getElementById('catalog-detail-overlay').classList.add('open');
+}
+function closeCatalogDetail(){ document.getElementById('catalog-detail-overlay').classList.remove('open'); }
+
+// Add a catalog entry straight into the user's collection or wishlist
+async function addCatalogToCollection(id, status){
+  if(!currentUser){ showToast('Please sign in first', 'error'); return; }
+  const c = catalogData.find(x=>String(x.id)===String(id));
+  if(!c) return;
+  // Map catalog category → item type (best effort)
+  const typeMap = {Game:'Game',Figure:'Figure',Plush:'Plush',Statue:'Statue',Music:'Music',Artbook:'Artbook',Print:'Print',Clothing:'Clothing',Comic:'Comic',Manga:'Manga',Movie:'Movie',Misc:'Misc'};
+  const payload = {
+    user_id: currentUser.id,
+    name: c.name,
+    type: typeMap[c.category] || c.category || 'Misc',
+    platform: (c.platform && c.platform!=='-') ? c.platform : null,
+    region: c.region || null,
+    img_url: c.image_url || '',
+    status: status,                       // 'owned' or 'wishlist'
+    condition: 'used',
+    lang: 'FR',
+    grade: 'excellent',
+  };
+  try {
+    const newItem = await dbInsert(payload);
+    const { data:fullItem } = await sbClient.from('items').select('*').eq('id',newItem.id).single();
+    items.push(fullItem || newItem);
+    render();
+    closeCatalogDetail();
+    showToast(status==='owned' ? '✓ Added to your collection!' : '★ Added to your wishlist!', 'success');
+  } catch(e){ showToast('Error: '+e.message, 'error'); }
 }
 
 // ---- Admin: add / edit / delete ----
@@ -5203,23 +5306,46 @@ async function maybeSubmitUserImage(imgUrl, name, type){
 }
 
 
-// ══ PWA INSTALL (banner + native prompt + iOS instructions) ══
+// ══ PWA INSTALL (service worker + banner + native prompt + iOS/desktop instructions) ══
 let deferredInstallPrompt = null;
+
+// Register the service worker — REQUIRED for Chrome/Edge to fire
+// `beforeinstallprompt`, including on desktop. Without it, the Install button
+// never becomes active on PC.
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{ /* non-fatal */ });
+  });
+}
 
 // Detect iOS
 function isIosDevice(){
   return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+}
+// Detect desktop (no touch / not a phone UA)
+function isDesktop(){
+  return !/iphone|ipad|ipod|android|mobile/i.test(navigator.userAgent);
 }
 // Detect if already installed/standalone
 function isStandalone(){
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 
-// Android/Chrome fires this when the app is installable
+// Chrome/Edge (Android AND desktop) fire this when the app is installable
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
   maybeShowInstallBanner();
+  updateMenuInstallButton();
+});
+
+// When the app gets installed, hide everything install-related
+window.addEventListener('appinstalled', ()=>{
+  deferredInstallPrompt = null;
+  const banner = document.getElementById('install-banner');
+  if(banner) banner.style.display = 'none';
+  updateMenuInstallButton();
+  showToast('App installed! 🎮', 'success');
 });
 
 function maybeShowInstallBanner(){
@@ -5234,23 +5360,54 @@ function maybeShowInstallBanner(){
   }
 }
 
+// Show/hide the "Install the app" entry in the side menu depending on state
+function updateMenuInstallButton(){
+  const btn = document.getElementById('menu-install-item');
+  if(!btn) return;
+  if(isStandalone()){ btn.style.display = 'none'; return; }
+  // Always show on iOS and desktop (manual fallback). On Android, show when prompt ready.
+  btn.style.display = (isIosDevice() || isDesktop() || deferredInstallPrompt) ? 'block' : 'none';
+}
+
 async function triggerInstall(){
-  if(isIosDevice()){
-    // iOS can't auto-install — show instructions
-    document.getElementById('ios-install-overlay').classList.add('open');
-    return;
-  }
+  // Native prompt available (Chrome/Edge desktop or Android) → use it directly
   if(deferredInstallPrompt){
     deferredInstallPrompt.prompt();
     const { outcome } = await deferredInstallPrompt.userChoice;
     deferredInstallPrompt = null;
-    document.getElementById('install-banner').style.display = 'none';
+    const banner = document.getElementById('install-banner');
+    if(banner) banner.style.display = 'none';
+    updateMenuInstallButton();
     if(outcome === 'accepted'){ showToast('App installed! 🎮', 'success'); }
-  } else {
-    // No native prompt (e.g. desktop or unsupported) — show a hint
-    showToast('Use your browser menu → "Add to Home Screen / Install"', 'info');
+    return;
   }
+  // iOS → manual instructions modal
+  if(isIosDevice()){
+    document.getElementById('ios-install-overlay').classList.add('open');
+    return;
+  }
+  // Desktop without a ready prompt (already installable but event not fired yet,
+  // or already installed) → show desktop instructions modal
+  if(isDesktop()){
+    openDesktopInstall();
+    return;
+  }
+  // Android fallback
+  showToast('Open your browser menu → "Install app / Add to Home screen"', 'info');
 }
+
+// Called from the side menu
+function installFromMenu(){
+  if(typeof closeMobileMenu === 'function') closeMobileMenu();
+  triggerInstall();
+}
+
+function openDesktopInstall(){
+  const ov = document.getElementById('desktop-install-overlay');
+  if(ov) ov.classList.add('open');
+  else showToast('In Chrome/Edge, click the install icon (⊕) in the address bar.', 'info');
+}
+function closeDesktopInstall(){ const ov=document.getElementById('desktop-install-overlay'); if(ov) ov.classList.remove('open'); }
 
 function dismissInstall(){
   document.getElementById('install-banner').style.display = 'none';
@@ -5258,8 +5415,8 @@ function dismissInstall(){
 }
 function closeIosInstall(){ document.getElementById('ios-install-overlay').classList.remove('open'); }
 
-// On load: show the banner for iOS users (no beforeinstallprompt on iOS)
-window.addEventListener('load', ()=>{ setTimeout(maybeShowInstallBanner, 1200); });
+// On load: show the banner + refresh the menu button
+window.addEventListener('load', ()=>{ setTimeout(()=>{ maybeShowInstallBanner(); updateMenuInstallButton(); }, 1200); });
 
 async function boot(){
   const config=PRESET_CONFIG;
