@@ -688,6 +688,32 @@
 </head>
 <body>
 
+<!-- PWA INSTALL BANNER -->
+<div id="install-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:600;
+  background:linear-gradient(135deg,var(--purple,#9B6FF4),var(--orange,#FF6B1A));
+  color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.4)">
+  <span style="font-size:1.3rem">📲</span>
+  <span style="flex:1;font-size:.84rem;font-weight:600;line-height:1.2">Install the app on your phone for full-screen, app-like access!</span>
+  <button onclick="triggerInstall()" style="background:#fff;color:#7b2ff4;border:none;border-radius:10px;padding:8px 14px;font-weight:800;font-size:.8rem;cursor:pointer;white-space:nowrap">Install</button>
+  <button onclick="dismissInstall()" style="background:transparent;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 6px">✕</button>
+</div>
+
+<!-- iOS INSTALL INSTRUCTIONS MODAL -->
+<div class="modal-overlay" id="ios-install-overlay" style="z-index:700">
+  <div class="modal" style="max-width:380px;text-align:center">
+    <button class="modal-close" onclick="closeIosInstall()">✕</button>
+    <div style="font-size:2.4rem;margin-bottom:8px">📲</div>
+    <h2 style="margin-bottom:14px">Install on iPhone / iPad</h2>
+    <div style="text-align:left;font-size:.9rem;line-height:1.6;color:var(--text)">
+      <p style="margin-bottom:10px">1️⃣ Open this page in <b>Safari</b>.</p>
+      <p style="margin-bottom:10px">2️⃣ Tap the <b>Share</b> button <span style="opacity:.7">(square with an arrow ⬆️, at the bottom of the screen)</span>.</p>
+      <p style="margin-bottom:10px">3️⃣ Scroll down and tap <b>Add to Home Screen</b>.</p>
+      <p style="margin-bottom:10px">4️⃣ Tap <b>Add</b> — the R&amp;C Tracker icon appears on your home screen and opens full-screen like a real app! 🎮</p>
+    </div>
+    <button onclick="closeIosInstall()" style="margin-top:16px;width:100%;background:linear-gradient(135deg,var(--purple,#9B6FF4),var(--orange,#FF6B1A));color:#fff;border:none;border-radius:12px;padding:12px;font-weight:700;cursor:pointer">Got it!</button>
+  </div>
+</div>
+
 <!-- SETUP -->
 <div id="setup-screen" style="display:none">
   <div class="setup-box">
@@ -5175,6 +5201,65 @@ async function maybeSubmitUserImage(imgUrl, name, type){
     showToast('Image not queued: '+e.message, 'error');
   }
 }
+
+
+// ══ PWA INSTALL (banner + native prompt + iOS instructions) ══
+let deferredInstallPrompt = null;
+
+// Detect iOS
+function isIosDevice(){
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+}
+// Detect if already installed/standalone
+function isStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+// Android/Chrome fires this when the app is installable
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  maybeShowInstallBanner();
+});
+
+function maybeShowInstallBanner(){
+  // Don't show if already installed, or user dismissed it before
+  if(isStandalone()) return;
+  if(localStorage.getItem('rc_install_dismissed') === '1') return;
+  const banner = document.getElementById('install-banner');
+  if(!banner) return;
+  // Show on iOS (manual instructions) OR when we have a native prompt ready
+  if(isIosDevice() || deferredInstallPrompt){
+    banner.style.display = 'flex';
+  }
+}
+
+async function triggerInstall(){
+  if(isIosDevice()){
+    // iOS can't auto-install — show instructions
+    document.getElementById('ios-install-overlay').classList.add('open');
+    return;
+  }
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    document.getElementById('install-banner').style.display = 'none';
+    if(outcome === 'accepted'){ showToast('App installed! 🎮', 'success'); }
+  } else {
+    // No native prompt (e.g. desktop or unsupported) — show a hint
+    showToast('Use your browser menu → "Add to Home Screen / Install"', 'info');
+  }
+}
+
+function dismissInstall(){
+  document.getElementById('install-banner').style.display = 'none';
+  localStorage.setItem('rc_install_dismissed', '1');
+}
+function closeIosInstall(){ document.getElementById('ios-install-overlay').classList.remove('open'); }
+
+// On load: show the banner for iOS users (no beforeinstallprompt on iOS)
+window.addEventListener('load', ()=>{ setTimeout(maybeShowInstallBanner, 1200); });
 
 async function boot(){
   const config=PRESET_CONFIG;
