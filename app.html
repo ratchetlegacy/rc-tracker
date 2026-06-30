@@ -657,6 +657,37 @@
     /* PUBLIC PROFILE */
     .public-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;overflow-y:auto}
     .public-screen.open{display:block}
+    /* FRIENDS + COMPARE SCREENS */
+    .friends-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:510;overflow-y:auto}
+    .friends-screen.open{display:block}
+    .friends-header{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;background:var(--bg);z-index:2}
+    .friends-header h1{font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:.08em;flex:1}
+    .friends-body{padding:18px 16px;max-width:600px;margin:0 auto}
+    .fr-section-title{font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase;margin:18px 0 10px}
+    .fr-card{display:flex;align-items:center;gap:12px;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px;margin-bottom:8px}
+    .fr-av{font-size:1.8rem;width:46px;height:46px;display:flex;align-items:center;justify-content:center;background:rgba(123,79,212,.12);border-radius:50%;flex-shrink:0}
+    .fr-info{flex:1;min-width:0}
+    .fr-name{font-weight:700;font-size:.92rem}
+    .fr-rank{font-size:.74rem;color:var(--text-dim)}
+    .fr-actions{display:flex;gap:6px;flex-shrink:0}
+    .fr-btn{border:none;border-radius:9px;padding:8px 12px;font-weight:700;font-size:.74rem;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap}
+    .fr-compare{background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff}
+    .fr-accept{background:linear-gradient(135deg,#3DD68C,#1E9E63);color:#06140d}
+    .fr-decline{background:rgba(255,77,106,.15);color:var(--missing)}
+    .fr-ghost{background:rgba(255,255,255,.07);color:var(--text-dim)}
+    /* COMPARE */
+    .cmp-header{display:flex;align-items:stretch;gap:10px;margin-bottom:18px}
+    .cmp-col{flex:1;text-align:center;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 8px}
+    .cmp-av{font-size:2.4rem;margin-bottom:6px}
+    .cmp-name{font-weight:700;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cmp-rank{font-size:.72rem;margin:4px 0 10px;font-weight:600}
+    .cmp-count{font-family:'Orbitron',sans-serif;font-size:1.8rem;font-weight:800;line-height:1}
+    .cmp-count-label{font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em}
+    .cmp-vs{display:flex;align-items:center;font-family:'Orbitron',sans-serif;font-weight:800;color:var(--text-dim);font-size:.9rem}
+    .cmp-overlap{display:flex;gap:8px;margin-bottom:8px}
+    .cmp-stat{flex:1;text-align:center;background:var(--bg3);border-radius:12px;padding:14px 6px}
+    .cmp-stat-v{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:800;color:var(--owned)}
+    .cmp-stat-l{font-size:.64rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
     .public-header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 50%,#0D1520 100%);border-bottom:1px solid rgba(123,79,212,.3);padding:32px;text-align:center;position:relative}
     .public-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--orange));border:3px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin:0 auto 12px}
     .public-pseudo{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;background:linear-gradient(90deg,#fff 40%,var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
@@ -1679,6 +1710,26 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
+<!-- FRIENDS SCREEN -->
+<div class="friends-screen" id="friends-screen">
+  <div class="friends-header">
+    <div style="font-size:1.5rem">🤝</div>
+    <h1>FRIENDS</h1>
+    <button class="admin-back" onclick="closeFriends()">← Back</button>
+  </div>
+  <div class="friends-body" id="friends-content"></div>
+</div>
+
+<!-- COMPARE SCREEN -->
+<div class="friends-screen" id="compare-screen">
+  <div class="friends-header">
+    <div style="font-size:1.5rem">⚔️</div>
+    <h1>COMPARE</h1>
+    <button class="admin-back" onclick="closeCompare()">← Back</button>
+  </div>
+  <div class="friends-body" id="compare-content"></div>
+</div>
+
 <!-- MARKETPLACE SCREEN -->
 <div class="market-screen" id="market-screen">
   <div class="market-header">
@@ -1754,6 +1805,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
   <div class="menu-item" onclick="closeMobileMenu();openCatalog()">📚 Catalog</div>
   <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
+  <div class="menu-item" onclick="openFriends()">🤝 Friends <span id="friends-badge" style="display:none;background:var(--missing);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700;margin-left:4px">0</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openGuide()">📖 How to use</div>
   <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)">📲 Install the app</div>
   <div class="menu-item" onclick="closeMobileMenu();cycleTheme()" id="mobile-theme-btn">🌌 Theme</div>
@@ -2586,6 +2638,8 @@ async function launchApp(){
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>'+t('loading')+'</div>';
   await fetchItems(); render(); loadProfile(); loadTheme(); loadRcTotal(); loadLang(); setTimeout(applyTranslations, 300);
+  refreshFriendBadge();
+  setInterval(refreshFriendBadge, 60000);
   const _ff = document.getElementById('fixed-footer'); if(_ff) _ff.style.display = 'flex';
   // Sync mobile header
   function syncMobileHeader(){
@@ -3980,7 +4034,10 @@ async function checkPublicProfile(){
     html += '<div class="public-stat"><div class="public-stat-val">'+owned.length+'</div><div class="public-stat-label">Owned</div></div>';
     html += '<div class="public-stat"><div class="public-stat-val">'+wish.length+'</div><div class="public-stat-label">Wishlist</div></div>';
     html += '<div class="public-stat"><div class="public-stat-val">'+pItems.length+'</div><div class="public-stat-label">Total</div></div>';
-    html += '</div></div>';
+    html += '</div>';
+    // Friend action button (filled in after we know the relationship)
+    html += '<div id="public-friend-action" data-uid="'+profile.user_id+'" style="margin-top:6px"></div>';
+    html += '</div>';
 
     html += '<div class="public-body">';
 
@@ -4026,10 +4083,242 @@ async function checkPublicProfile(){
 
     html += '</div>';
     document.getElementById('public-content').innerHTML = html;
+    renderPublicFriendAction(profile.user_id);
   } catch(e){
     document.getElementById('public-content').innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-dim)">❌ Error: '+e.message+'</div>';
   }
   return true;
+}
+
+// ══════════════════════════════════════════════════════════
+//  FRIENDS SYSTEM
+// ══════════════════════════════════════════════════════════
+
+// Fetch all friendships involving the current user
+async function fetchFriendships(){
+  if(!currentUser) return [];
+  const { data, error } = await sbClient.from('friendships')
+    .select('*')
+    .or('requester_id.eq.'+currentUser.id+',addressee_id.eq.'+currentUser.id);
+  if(error){ console.log('friendships fetch error:', error.message); return []; }
+  return data || [];
+}
+
+// Look up public profiles (pseudo/avatar/rank) for a list of user ids
+async function fetchProfilesFor(userIds){
+  if(!userIds.length) return {};
+  const { data } = await sbClient.from('public_profiles')
+    .select('user_id,pseudo,avatar,rank_name,rank_icon')
+    .in('user_id', userIds);
+  const map = {};
+  (data||[]).forEach(p=>{ map[p.user_id]=p; });
+  return map;
+}
+
+// Determine relationship status between current user and another user
+function relationStatus(friendships, otherId){
+  const f = friendships.find(r =>
+    (r.requester_id===currentUser.id && r.addressee_id===otherId) ||
+    (r.addressee_id===currentUser.id && r.requester_id===otherId)
+  );
+  if(!f) return {state:'none'};
+  if(f.status==='accepted') return {state:'friends', row:f};
+  // pending: am I the one who sent it, or the one who received it?
+  if(f.requester_id===currentUser.id) return {state:'sent', row:f};
+  return {state:'received', row:f};
+}
+
+// Render the friend button on a public profile
+async function renderPublicFriendAction(otherId){
+  const box = document.getElementById('public-friend-action');
+  if(!box) return;
+  if(!currentUser){
+    box.innerHTML = '<div style="font-size:.72rem;color:var(--text-dim)">Sign in to add this collector as a friend</div>';
+    return;
+  }
+  if(otherId === currentUser.id){
+    box.innerHTML = '<div style="font-size:.72rem;color:var(--text-dim)">This is your own profile 🦊</div>';
+    return;
+  }
+  const friendships = await fetchFriendships();
+  const rel = relationStatus(friendships, otherId);
+  const bStyle = 'border:none;border-radius:10px;padding:11px 18px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:Inter,sans-serif';
+  if(rel.state==='none'){
+    box.innerHTML = '<button onclick="sendFriendRequest(\''+otherId+'\')" style="'+bStyle+';background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff">➕ Add as friend</button>';
+  } else if(rel.state==='sent'){
+    box.innerHTML = '<button onclick="cancelFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:rgba(255,255,255,.08);color:var(--text-dim)">⏳ Request sent · Cancel</button>';
+  } else if(rel.state==='received'){
+    box.innerHTML = '<button onclick="acceptFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:linear-gradient(135deg,#3DD68C,#1E9E63);color:#06140d;margin-right:6px">✓ Accept</button>'
+      + '<button onclick="cancelFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:rgba(255,77,106,.15);color:var(--missing)">✕ Decline</button>';
+  } else if(rel.state==='friends'){
+    box.innerHTML = '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">'
+      + '<button onclick="compareWithFriend(\''+otherId+'\')" style="'+bStyle+';background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff">⚔️ Compare</button>'
+      + '<button onclick="cancelFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:rgba(255,255,255,.08);color:var(--text-dim)">✓ Friends</button>'
+      + '</div>';
+  }
+}
+
+async function sendFriendRequest(otherId){
+  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  try {
+    // Make sure my own public profile exists so my friend can see my name
+    await savePublicProfile();
+    await sbClient.from('friendships').insert([{ requester_id: currentUser.id, addressee_id: otherId, status:'pending' }]);
+    showToast('Friend request sent! 🤝','success');
+    renderPublicFriendAction(otherId);
+  } catch(e){
+    if((e.message||'').includes('duplicate')) showToast('Request already exists','info');
+    else showToast('Error: '+e.message,'error');
+  }
+}
+async function acceptFriend(rowId){
+  try {
+    await savePublicProfile();
+    await sbClient.from('friendships').update({status:'accepted'}).eq('id',rowId);
+    showToast('You are now friends! 🎉','success');
+    if(document.getElementById('friends-screen').classList.contains('open')) openFriends();
+    const box=document.getElementById('public-friend-action');
+    if(box && box.dataset.uid) renderPublicFriendAction(box.dataset.uid);
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function cancelFriend(rowId){
+  try {
+    await sbClient.from('friendships').delete().eq('id',rowId);
+    showToast('Done','info');
+    if(document.getElementById('friends-screen').classList.contains('open')) openFriends();
+    const box=document.getElementById('public-friend-action');
+    if(box && box.dataset.uid) renderPublicFriendAction(box.dataset.uid);
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+// ── Friends screen (list + requests) ──
+async function openFriends(){
+  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  if(typeof closeMobileMenu==='function') closeMobileMenu();
+  document.getElementById('friends-screen').classList.add('open');
+  const body = document.getElementById('friends-content');
+  body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)">Loading…</div>';
+  await savePublicProfile(); // keep my profile fresh
+  const friendships = await fetchFriendships();
+  // Collect the "other" user id for each row
+  const otherIds = friendships.map(f => f.requester_id===currentUser.id ? f.addressee_id : f.requester_id);
+  const profiles = await fetchProfilesFor([...new Set(otherIds)]);
+
+  const accepted = friendships.filter(f=>f.status==='accepted');
+  const received = friendships.filter(f=>f.status==='pending' && f.addressee_id===currentUser.id);
+  const sent     = friendships.filter(f=>f.status==='pending' && f.requester_id===currentUser.id);
+
+  function card(f, kind){
+    const otherId = f.requester_id===currentUser.id ? f.addressee_id : f.requester_id;
+    const p = profiles[otherId] || {};
+    const name = escHtml(p.pseudo||'Collector');
+    const av = escHtml(p.avatar||'🦊');
+    const rank = (p.rank_icon?escHtml(p.rank_icon)+' ':'')+escHtml(p.rank_name||'');
+    let actions='';
+    if(kind==='friend'){
+      actions = '<button onclick="compareWithFriend(\''+otherId+'\')" class="fr-btn fr-compare">⚔️ Compare</button>'
+              + '<button onclick="cancelFriend(\''+f.id+'\')" class="fr-btn fr-ghost">Remove</button>';
+    } else if(kind==='received'){
+      actions = '<button onclick="acceptFriend(\''+f.id+'\')" class="fr-btn fr-accept">✓ Accept</button>'
+              + '<button onclick="cancelFriend(\''+f.id+'\')" class="fr-btn fr-decline">✕</button>';
+    } else {
+      actions = '<button onclick="cancelFriend(\''+f.id+'\')" class="fr-btn fr-ghost">⏳ Cancel</button>';
+    }
+    return '<div class="fr-card"><div class="fr-av">'+av+'</div>'
+      + '<div class="fr-info"><div class="fr-name">'+name+'</div><div class="fr-rank">'+rank+'</div></div>'
+      + '<div class="fr-actions">'+actions+'</div></div>';
+  }
+
+  let html='';
+  if(received.length){
+    html += '<div class="fr-section-title">📥 Friend requests ('+received.length+')</div>';
+    received.forEach(f=> html += card(f,'received'));
+  }
+  html += '<div class="fr-section-title">🤝 My friends ('+accepted.length+')</div>';
+  if(accepted.length) accepted.forEach(f=> html += card(f,'friend'));
+  else html += '<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:.82rem">No friends yet. Share your profile link to connect with other collectors! 🌌</div>';
+  if(sent.length){
+    html += '<div class="fr-section-title">⏳ Pending ('+sent.length+')</div>';
+    sent.forEach(f=> html += card(f,'sent'));
+  }
+  body.innerHTML = html;
+}
+function closeFriends(){ document.getElementById('friends-screen').classList.remove('open'); }
+
+// ── Compare collections side by side ──
+async function compareWithFriend(friendId){
+  if(!currentUser) return;
+  document.getElementById('friends-screen').classList.remove('open');
+  document.getElementById('public-screen').classList.remove('open');
+  const screen = document.getElementById('compare-screen');
+  screen.classList.add('open');
+  const body = document.getElementById('compare-content');
+  body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)">Loading comparison…</div>';
+  try {
+    const profiles = await fetchProfilesFor([currentUser.id, friendId]);
+    const me = profiles[currentUser.id] || {pseudo:'You', avatar:'🦊'};
+    const fr = profiles[friendId] || {pseudo:'Friend', avatar:'🦊'};
+    // My items are already in `items`; fetch friend's items (RLS allows it now)
+    const myOwned = items.filter(i=>i.status==='owned');
+    const { data:frItems } = await sbClient.from('items').select('name,type,status').eq('user_id',friendId);
+    const frOwned = (frItems||[]).filter(i=>i.status==='owned');
+    const myRank = getRank(myOwned.length);
+    const frRank = getRank(frOwned.length);
+
+    // Build name sets for overlap
+    const norm = s => (s||'').trim().toLowerCase();
+    const mySet = new Set(myOwned.map(i=>norm(i.name)));
+    const frSet = new Set(frOwned.map(i=>norm(i.name)));
+    const common = [...mySet].filter(n=>frSet.has(n)).length;
+    const onlyMine = myOwned.length - common;
+    const onlyFriend = frOwned.length - common;
+
+    function col(p, rank, count, color){
+      return '<div class="cmp-col"><div class="cmp-av">'+escHtml(p.avatar||'🦊')+'</div>'
+        + '<div class="cmp-name">'+escHtml(p.pseudo||'Collector')+'</div>'
+        + '<div class="cmp-rank" style="color:'+rank.color+'">'+rank.icon+' '+rank.name+'</div>'
+        + '<div class="cmp-count" style="color:'+color+'">'+count+'</div>'
+        + '<div class="cmp-count-label">owned</div></div>';
+    }
+    let html = '<div class="cmp-header">';
+    html += col(me, myRank, myOwned.length, 'var(--owned)');
+    html += '<div class="cmp-vs">VS</div>';
+    html += col(fr, frRank, frOwned.length, 'var(--purple-light)');
+    html += '</div>';
+
+    // Overlap bar
+    html += '<div class="cmp-overlap">';
+    html += '<div class="cmp-stat"><div class="cmp-stat-v">'+onlyMine+'</div><div class="cmp-stat-l">Only you</div></div>';
+    html += '<div class="cmp-stat"><div class="cmp-stat-v" style="color:var(--chrome)">'+common+'</div><div class="cmp-stat-l">In common</div></div>';
+    html += '<div class="cmp-stat"><div class="cmp-stat-v" style="color:var(--purple-light)">'+onlyFriend+'</div><div class="cmp-stat-l">Only them</div></div>';
+    html += '</div>';
+
+    // Items the friend has that you don't (wishlist inspiration!)
+    const missingFromMe = frOwned.filter(i=>!mySet.has(norm(i.name)));
+    if(missingFromMe.length){
+      html += '<div class="fr-section-title">💡 They own, you don\'t ('+missingFromMe.length+')</div>';
+      html += '<div style="display:flex;flex-direction:column;gap:6px">';
+      missingFromMe.slice(0,40).forEach(i=>{
+        html += '<div style="display:flex;justify-content:space-between;background:var(--bg3);border-radius:8px;padding:8px 12px"><span style="font-size:.82rem">'+escHtml(i.name)+'</span><span style="font-size:.7rem;color:var(--text-dim)">'+escHtml(i.type||'')+'</span></div>';
+      });
+      html += '</div>';
+    }
+    body.innerHTML = html;
+  } catch(e){
+    body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)">❌ '+e.message+'</div>';
+  }
+}
+function closeCompare(){ document.getElementById('compare-screen').classList.remove('open'); }
+
+// Badge count of pending received requests (for the menu)
+async function refreshFriendBadge(){
+  if(!currentUser) return;
+  try {
+    const { data } = await sbClient.from('friendships').select('id').eq('addressee_id',currentUser.id).eq('status','pending');
+    const n = (data||[]).length;
+    const badge = document.getElementById('friends-badge');
+    if(badge){ badge.textContent = n; badge.style.display = n>0 ? 'inline-block':'none'; }
+  } catch(e){}
 }
 
 // ══ THEMES ══
