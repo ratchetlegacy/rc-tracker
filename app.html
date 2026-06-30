@@ -4140,21 +4140,26 @@ async function renderPublicFriendAction(otherId){
     box.innerHTML = '<div style="font-size:.72rem;color:var(--text-dim)">This is your own profile 🦊</div>';
     return;
   }
-  const friendships = await fetchFriendships();
-  const rel = relationStatus(friendships, otherId);
   const bStyle = 'border:none;border-radius:10px;padding:11px 18px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:Inter,sans-serif';
-  if(rel.state==='none'){
+  try {
+    const friendships = await fetchFriendships();
+    const rel = relationStatus(friendships, otherId);
+    if(rel.state==='none'){
+      box.innerHTML = '<button onclick="sendFriendRequest(\''+otherId+'\')" style="'+bStyle+';background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff">➕ Add as friend</button>';
+    } else if(rel.state==='sent'){
+      box.innerHTML = '<button onclick="cancelFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:rgba(255,255,255,.08);color:var(--text-dim)">⏳ Request sent · Cancel</button>';
+    } else if(rel.state==='received'){
+      box.innerHTML = '<button onclick="acceptFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:linear-gradient(135deg,#3DD68C,#1E9E63);color:#06140d;margin-right:6px">✓ Accept</button>'
+        + '<button onclick="cancelFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:rgba(255,77,106,.15);color:var(--missing)">✕ Decline</button>';
+    } else if(rel.state==='friends'){
+      box.innerHTML = '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">'
+        + '<button onclick="compareWithFriend(\''+otherId+'\')" style="'+bStyle+';background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff">⚔️ Compare</button>'
+        + '<button onclick="cancelFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:rgba(255,255,255,.08);color:var(--text-dim)">✓ Friends</button>'
+        + '</div>';
+    }
+  } catch(e){
+    // On any error, still show the add button so the feature is usable
     box.innerHTML = '<button onclick="sendFriendRequest(\''+otherId+'\')" style="'+bStyle+';background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff">➕ Add as friend</button>';
-  } else if(rel.state==='sent'){
-    box.innerHTML = '<button onclick="cancelFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:rgba(255,255,255,.08);color:var(--text-dim)">⏳ Request sent · Cancel</button>';
-  } else if(rel.state==='received'){
-    box.innerHTML = '<button onclick="acceptFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:linear-gradient(135deg,#3DD68C,#1E9E63);color:#06140d;margin-right:6px">✓ Accept</button>'
-      + '<button onclick="cancelFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:rgba(255,77,106,.15);color:var(--missing)">✕ Decline</button>';
-  } else if(rel.state==='friends'){
-    box.innerHTML = '<div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">'
-      + '<button onclick="compareWithFriend(\''+otherId+'\')" style="'+bStyle+';background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff">⚔️ Compare</button>'
-      + '<button onclick="cancelFriend(\''+rel.row.id+'\')" style="'+bStyle+';background:rgba(255,255,255,.08);color:var(--text-dim)">✓ Friends</button>'
-      + '</div>';
   }
 }
 
@@ -4170,6 +4175,34 @@ async function sendFriendRequest(otherId){
     if((e.message||'').includes('duplicate')) showToast('Request already exists','info');
     else showToast('Error: '+e.message,'error');
   }
+}
+
+// Add a friend from a pasted profile LINK or raw TOKEN
+async function addFriendByLink(){
+  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  const inp = document.getElementById('friend-link-input');
+  let val = (inp.value||'').trim();
+  if(!val){ showToast('Paste a friend\'s profile link','info'); return; }
+  // Extract the token: either from ?profil=XXXX or the raw code
+  let token = val;
+  const m = val.match(/[?&]profil=([^&\s]+)/);
+  if(m) token = m[1];
+  token = token.trim();
+  try {
+    const { data:profile, error } = await sbClient.from('public_profiles')
+      .select('user_id,pseudo').eq('token', token).eq('is_active', true).single();
+    if(error || !profile){ showToast('Profile not found. Check the link or ask them to enable their public profile.','error'); return; }
+    if(profile.user_id === currentUser.id){ showToast('That\'s your own profile 🦊','info'); return; }
+    // Already friends / pending?
+    const friendships = await fetchFriendships();
+    const rel = relationStatus(friendships, profile.user_id);
+    if(rel.state==='friends'){ showToast('You\'re already friends!','info'); inp.value=''; return; }
+    if(rel.state==='sent'){ showToast('Request already sent ⏳','info'); inp.value=''; return; }
+    if(rel.state==='received'){ showToast('They already sent YOU a request — check below!','info'); openFriends(); return; }
+    await sendFriendRequest(profile.user_id);
+    inp.value='';
+    openFriends(); // refresh the list to show it in Pending
+  } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 async function acceptFriend(rowId){
   try {
@@ -4230,6 +4263,14 @@ async function openFriends(){
   }
 
   let html='';
+  // Add-friend box
+  html += '<div style="background:var(--bg3);border:1px solid rgba(123,79,212,.25);border-radius:14px;padding:16px;margin-bottom:8px">'
+    + '<div style="font-family:\'Orbitron\',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--purple-light);margin-bottom:10px">➕ ADD A FRIEND</div>'
+    + '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:10px">Paste a collector\'s profile link to send them a friend request.</div>'
+    + '<div style="display:flex;gap:8px">'
+    + '<input type="text" id="friend-link-input" placeholder="https://ratchetlegacy.github.io/rc-tracker/?profil=..." style="flex:1;background:var(--bg);border:1px solid rgba(123,79,212,.3);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none"/>'
+    + '<button onclick="addFriendByLink()" style="border:none;border-radius:9px;padding:10px 16px;font-weight:700;font-size:.8rem;cursor:pointer;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;white-space:nowrap">Send</button>'
+    + '</div></div>';
   if(received.length){
     html += '<div class="fr-section-title">📥 Friend requests ('+received.length+')</div>';
     received.forEach(f=> html += card(f,'received'));
