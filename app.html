@@ -4129,18 +4129,38 @@ function relationStatus(friendships, otherId){
 }
 
 // Render the friend button on a public profile
-async function renderPublicFriendAction(otherId){
+async function renderPublicFriendAction(otherId, _retries){
   const box = document.getElementById('public-friend-action');
   if(!box) return;
-  if(!currentUser){
-    box.innerHTML = '<div style="font-size:.72rem;color:var(--text-dim)">Sign in to add this collector as a friend</div>';
+  const bStyle = 'border:none;border-radius:10px;padding:11px 18px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:Inter,sans-serif';
+
+  // Get the logged-in user DIRECTLY from Supabase (more reliable than the
+  // currentUser variable, which may not be loaded yet when a shared link
+  // is opened straight away).
+  let me = currentUser;
+  if(!me){
+    try {
+      const { data } = await sbClient.auth.getUser();
+      if(data && data.user){ me = data.user; currentUser = data.user; }
+    } catch(e){}
+  }
+
+  if(!me){
+    // Session might still be loading — retry a couple of times before giving up
+    const r = _retries || 0;
+    if(r < 3){
+      box.innerHTML = '<div style="font-size:.72rem;color:var(--text-dim)">Checking your session…</div>';
+      setTimeout(()=>renderPublicFriendAction(otherId, r+1), 900);
+      return;
+    }
+    box.innerHTML = '<div style="font-size:.72rem;color:var(--text-dim)">Sign in to add this collector as a friend</div>'
+      + '<button onclick="location.reload()" style="margin-top:8px;'+bStyle+';background:rgba(255,255,255,.08);color:var(--purple-light)">🔄 I\'m signed in · Refresh</button>';
     return;
   }
-  if(otherId === currentUser.id){
+  if(otherId === me.id){
     box.innerHTML = '<div style="font-size:.72rem;color:var(--text-dim)">This is your own profile 🦊</div>';
     return;
   }
-  const bStyle = 'border:none;border-radius:10px;padding:11px 18px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:Inter,sans-serif';
   try {
     const friendships = await fetchFriendships();
     const rel = relationStatus(friendships, otherId);
@@ -5804,6 +5824,12 @@ window.addEventListener('load', ()=>{ setTimeout(()=>{ maybeShowInstallBanner();
 async function boot(){
   const config=PRESET_CONFIG;
   initSupabase(config.url,config.key);
+  // Restore the logged-in session FIRST, so that when a shared profile link
+  // is opened directly, currentUser is ready and the "Add friend" button works.
+  try {
+    const {data:{session}}=await sbClient.auth.getSession();
+    if(session){ currentUser=session.user; }
+  } catch(e){}
   // Check if viewing a public profile
   const isPublic = await checkPublicProfile();
   if(isPublic) return;
