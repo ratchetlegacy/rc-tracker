@@ -4184,16 +4184,31 @@ async function renderPublicFriendAction(otherId, _retries){
 }
 
 async function sendFriendRequest(otherId){
-  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  if(!currentUser){ showToast('Please sign in first','error'); return false; }
   try {
     // Make sure my own public profile exists so my friend can see my name
     await savePublicProfile();
-    await sbClient.from('friendships').insert([{ requester_id: currentUser.id, addressee_id: otherId, status:'pending' }]);
+    // Supabase does NOT throw on RLS errors — it returns { data, error }.
+    // We must read `error` explicitly, otherwise a blocked insert looks successful.
+    const { data, error } = await sbClient.from('friendships')
+      .insert([{ requester_id: currentUser.id, addressee_id: otherId, status:'pending' }])
+      .select();
+    if(error){
+      if((error.message||'').toLowerCase().includes('duplicate')){
+        showToast('Request already exists','info');
+      } else {
+        console.log('friend insert error:', error);
+        showToast('Error: '+error.message,'error');
+      }
+      return false;
+    }
     showToast('Friend request sent! 🤝','success');
     renderPublicFriendAction(otherId);
+    return true;
   } catch(e){
-    if((e.message||'').includes('duplicate')) showToast('Request already exists','info');
-    else showToast('Error: '+e.message,'error');
+    console.log('friend insert exception:', e);
+    showToast('Error: '+e.message,'error');
+    return false;
   }
 }
 
@@ -4219,15 +4234,15 @@ async function addFriendByLink(){
     if(rel.state==='friends'){ showToast('You\'re already friends!','info'); inp.value=''; return; }
     if(rel.state==='sent'){ showToast('Request already sent ⏳','info'); inp.value=''; return; }
     if(rel.state==='received'){ showToast('They already sent YOU a request — check below!','info'); openFriends(); return; }
-    await sendFriendRequest(profile.user_id);
-    inp.value='';
-    openFriends(); // refresh the list to show it in Pending
+    const ok = await sendFriendRequest(profile.user_id);
+    if(ok){ inp.value=''; openFriends(); } // refresh only if it really worked
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 async function acceptFriend(rowId){
   try {
     await savePublicProfile();
-    await sbClient.from('friendships').update({status:'accepted'}).eq('id',rowId);
+    const { error } = await sbClient.from('friendships').update({status:'accepted'}).eq('id',rowId);
+    if(error){ console.log('accept error:', error); showToast('Error: '+error.message,'error'); return; }
     showToast('You are now friends! 🎉','success');
     if(document.getElementById('friends-screen').classList.contains('open')) openFriends();
     const box=document.getElementById('public-friend-action');
@@ -4236,7 +4251,8 @@ async function acceptFriend(rowId){
 }
 async function cancelFriend(rowId){
   try {
-    await sbClient.from('friendships').delete().eq('id',rowId);
+    const { error } = await sbClient.from('friendships').delete().eq('id',rowId);
+    if(error){ console.log('cancel error:', error); showToast('Error: '+error.message,'error'); return; }
     showToast('Done','info');
     if(document.getElementById('friends-screen').classList.contains('open')) openFriends();
     const box=document.getElementById('public-friend-action');
