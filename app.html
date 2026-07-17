@@ -5896,6 +5896,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 // When the app gets installed, hide everything install-related
 window.addEventListener('appinstalled', ()=>{
   deferredInstallPrompt = null;
+  localStorage.setItem('rc_app_installed', '1');   // remember permanently
   const banner = document.getElementById('install-banner');
   if(banner) banner.style.display = 'none';
   updateMenuInstallButton();
@@ -5903,8 +5904,9 @@ window.addEventListener('appinstalled', ()=>{
 });
 
 function maybeShowInstallBanner(){
-  // Don't show if already installed, or user dismissed it before
+  // Don't show if already installed (detected OR remembered), or dismissed before
   if(isStandalone()) return;
+  if(localStorage.getItem('rc_app_installed') === '1') return;
   if(localStorage.getItem('rc_install_dismissed') === '1') return;
   const banner = document.getElementById('install-banner');
   if(!banner) return;
@@ -5918,7 +5920,7 @@ function maybeShowInstallBanner(){
 function updateMenuInstallButton(){
   const btn = document.getElementById('menu-install-item');
   if(!btn) return;
-  if(isStandalone()){ btn.style.display = 'none'; return; }
+  if(isStandalone() || localStorage.getItem('rc_app_installed')==='1'){ btn.style.display = 'none'; return; }
   // Always show on iOS and desktop (manual fallback). On Android, show when prompt ready.
   btn.style.display = (isIosDevice() || isDesktop() || deferredInstallPrompt) ? 'block' : 'none';
 }
@@ -5993,6 +5995,61 @@ function dismissInstall(){
   localStorage.setItem('rc_install_dismissed', '1');
 }
 function closeIosInstall(){ document.getElementById('ios-install-overlay').classList.remove('open'); }
+
+// ══════════════════════════════════════════════════════════
+//  ANDROID / BROWSER BACK BUTTON HANDLING
+//  When a full-screen panel or modal is open, the hardware/browser
+//  Back button should close IT, not exit the whole app.
+// ══════════════════════════════════════════════════════════
+(function(){
+  // All the overlay/screen element ids that should be "closable" with Back
+  const CLOSABLE = [
+    'modal-overlay','detail-overlay','gallery-overlay','submit-photo-overlay',
+    'img-edit-overlay','addfriend-overlay','exchange-modal','export-overlay',
+    'ios-install-overlay','desktop-install-overlay','catalog-detail-overlay',
+    'catalog-edit-overlay','profile-screen','admin-screen','stats-screen',
+    'guide-screen','public-screen','friends-screen','compare-screen','market-screen'
+  ];
+  function anyOpen(){
+    for(const id of CLOSABLE){
+      const el=document.getElementById(id);
+      if(el && el.classList.contains('open')) return el;
+    }
+    // mobile menu counts too
+    const menu=document.getElementById('mobile-menu-panel');
+    if(menu && menu.classList.contains('open')) return menu;
+    return null;
+  }
+  function closeTop(el){
+    el.classList.remove('open');
+    // if it was the mobile menu panel, also close its overlay
+    if(el.id==='mobile-menu-panel'){
+      const ov=document.getElementById('mobile-menu-overlay'); if(ov) ov.classList.remove('open');
+    }
+  }
+  // Seed a history state so the first Back press is captured
+  let armed=false;
+  function arm(){
+    if(!armed){ history.pushState({rcScreen:true}, ''); armed=true; }
+  }
+  // Watch for any screen opening → arm the back trap
+  const obs=new MutationObserver(()=>{ if(anyOpen()) arm(); });
+  document.querySelectorAll('*').length; // no-op
+  window.addEventListener('load', ()=>{
+    // observe class changes on the whole body (cheap enough here)
+    obs.observe(document.body, {subtree:true, attributes:true, attributeFilter:['class']});
+  });
+  window.addEventListener('popstate', (e)=>{
+    const openEl=anyOpen();
+    if(openEl){
+      closeTop(openEl);
+      armed=false;
+      // Re-arm if something is still open underneath
+      if(anyOpen()) arm();
+    }
+    // if nothing was open, let the browser navigate normally (exit)
+  });
+})();
 
 // On load: show the banner + refresh the menu button
 window.addEventListener('load', ()=>{ setTimeout(()=>{ maybeShowInstallBanner(); updateMenuInstallButton(); }, 1200); });
