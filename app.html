@@ -1730,6 +1730,18 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="friends-body" id="compare-content"></div>
 </div>
 
+<!-- ADD FRIEND (with optional message) MODAL -->
+<div class="modal-overlay" id="addfriend-overlay" style="z-index:620">
+  <div class="modal" style="max-width:400px">
+    <button class="modal-close" onclick="closeAddFriendModal()">✕</button>
+    <h2 style="margin-bottom:6px">Add <span id="addfriend-name" style="color:var(--purple-light)">collector</span></h2>
+    <p style="font-size:.82rem;color:var(--text-dim);margin-bottom:14px">Add a short message so they know who you are (optional).</p>
+    <input type="hidden" id="addfriend-target"/>
+    <textarea id="addfriend-message" maxlength="200" placeholder="Hi! We talked on Instagram 🙂" style="width:100%;min-height:80px;background:var(--bg);border:1px solid rgba(123,79,212,.3);border-radius:10px;padding:12px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none;resize:vertical"></textarea>
+    <button onclick="confirmAddFriend()" style="margin-top:14px;width:100%;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border:none;border-radius:12px;padding:13px;font-weight:800;cursor:pointer">🤝 Send friend request</button>
+  </div>
+</div>
+
 <!-- MARKETPLACE SCREEN -->
 <div class="market-screen" id="market-screen">
   <div class="market-header">
@@ -4183,15 +4195,16 @@ async function renderPublicFriendAction(otherId, _retries){
   }
 }
 
-async function sendFriendRequest(otherId){
+async function sendFriendRequest(otherId, message){
   if(!currentUser){ showToast('Please sign in first','error'); return false; }
   try {
     // Make sure my own public profile exists so my friend can see my name
     await savePublicProfile();
+    const row = { requester_id: currentUser.id, addressee_id: otherId, status:'pending' };
+    if(message) row.message = message;
     // Supabase does NOT throw on RLS errors — it returns { data, error }.
-    // We must read `error` explicitly, otherwise a blocked insert looks successful.
     const { data, error } = await sbClient.from('friendships')
-      .insert([{ requester_id: currentUser.id, addressee_id: otherId, status:'pending' }])
+      .insert([row])
       .select();
     if(error){
       if((error.message||'').toLowerCase().includes('duplicate')){
@@ -4260,22 +4273,25 @@ async function cancelFriend(rowId){
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 
-// ── Friends screen (list + requests) ──
+// ── Friends screen (list + requests + directory) ──
 async function openFriends(){
   if(!currentUser){ showToast('Please sign in first','error'); return; }
   if(typeof closeMobileMenu==='function') closeMobileMenu();
   document.getElementById('friends-screen').classList.add('open');
   const body = document.getElementById('friends-content');
   body.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)">Loading…</div>';
-  await savePublicProfile(); // keep my profile fresh
+  await savePublicProfile(); // keep my profile fresh + make me appear in the directory
   const friendships = await fetchFriendships();
-  // Collect the "other" user id for each row
   const otherIds = friendships.map(f => f.requester_id===currentUser.id ? f.addressee_id : f.requester_id);
   const profiles = await fetchProfilesFor([...new Set(otherIds)]);
 
   const accepted = friendships.filter(f=>f.status==='accepted');
   const received = friendships.filter(f=>f.status==='pending' && f.addressee_id===currentUser.id);
   const sent     = friendships.filter(f=>f.status==='pending' && f.requester_id===currentUser.id);
+
+  // ids I already have a relationship with (to hide them from the directory)
+  const relatedIds = new Set(otherIds);
+  relatedIds.add(currentUser.id);
 
   function card(f, kind){
     const otherId = f.requester_id===currentUser.id ? f.addressee_id : f.requester_id;
@@ -4293,33 +4309,93 @@ async function openFriends(){
     } else {
       actions = '<button onclick="cancelFriend(\''+f.id+'\')" class="fr-btn fr-ghost">⏳ Cancel</button>';
     }
-    return '<div class="fr-card"><div class="fr-av">'+av+'</div>'
+    // Optional message shown on received requests
+    let msg='';
+    if(kind==='received' && f.message){
+      msg = '<div style="font-size:.76rem;color:var(--text);background:rgba(123,79,212,.12);border-radius:8px;padding:6px 10px;margin-top:6px;font-style:italic">💬 '+escHtml(f.message)+'</div>';
+    }
+    return '<div class="fr-card" style="flex-wrap:wrap"><div class="fr-av">'+av+'</div>'
       + '<div class="fr-info"><div class="fr-name">'+name+'</div><div class="fr-rank">'+rank+'</div></div>'
-      + '<div class="fr-actions">'+actions+'</div></div>';
+      + '<div class="fr-actions">'+actions+'</div>'
+      + (msg?'<div style="flex-basis:100%">'+msg+'</div>':'')
+      + '</div>';
   }
 
   let html='';
-  // Add-friend box
-  html += '<div style="background:var(--bg3);border:1px solid rgba(123,79,212,.25);border-radius:14px;padding:16px;margin-bottom:8px">'
-    + '<div style="font-family:\'Orbitron\',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--purple-light);margin-bottom:10px">➕ ADD A FRIEND</div>'
-    + '<div style="font-size:.78rem;color:var(--text-dim);margin-bottom:10px">Paste a collector\'s profile link to send them a friend request.</div>'
-    + '<div style="display:flex;gap:8px">'
-    + '<input type="text" id="friend-link-input" placeholder="https://ratchetlegacy.github.io/rc-tracker/?profil=..." style="flex:1;background:var(--bg);border:1px solid rgba(123,79,212,.3);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none"/>'
-    + '<button onclick="addFriendByLink()" style="border:none;border-radius:9px;padding:10px 16px;font-weight:700;font-size:.8rem;cursor:pointer;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;white-space:nowrap">Send</button>'
-    + '</div></div>';
   if(received.length){
     html += '<div class="fr-section-title">📥 Friend requests ('+received.length+')</div>';
     received.forEach(f=> html += card(f,'received'));
   }
   html += '<div class="fr-section-title">🤝 My friends ('+accepted.length+')</div>';
   if(accepted.length) accepted.forEach(f=> html += card(f,'friend'));
-  else html += '<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:.82rem">No friends yet. Share your profile link to connect with other collectors! 🌌</div>';
+  else html += '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:.82rem">No friends yet — find collectors in the directory below! 🌌</div>';
   if(sent.length){
     html += '<div class="fr-section-title">⏳ Pending ('+sent.length+')</div>';
     sent.forEach(f=> html += card(f,'sent'));
   }
+
+  // Directory placeholder — loaded after (it may be a bigger query)
+  html += '<div class="fr-section-title">🌌 Collectors directory</div>';
+  html += '<div style="font-size:.74rem;color:var(--text-dim);margin-bottom:10px">Everyone with a public profile. Send a request to connect!</div>';
+  html += '<div id="friends-directory"><div style="text-align:center;padding:20px;color:var(--text-dim)">Loading collectors…</div></div>';
+
   body.innerHTML = html;
+  loadDirectory(relatedIds);
 }
+
+// Load & render the directory of all public profiles (sorted by rank desc)
+async function loadDirectory(relatedIds){
+  const box = document.getElementById('friends-directory');
+  if(!box) return;
+  try {
+    const { data, error } = await sbClient.from('public_profiles')
+      .select('user_id,pseudo,avatar,rank_name,rank_icon,is_active')
+      .eq('is_active', true)
+      .limit(200);
+    if(error){ box.innerHTML='<div style="color:var(--text-dim);font-size:.8rem;padding:12px">Could not load directory: '+error.message+'</div>'; return; }
+    // filter out me + people I already have a relation with
+    let list = (data||[]).filter(p => !relatedIds.has(p.user_id));
+    // sort by rank (using the RANKS order index; higher rank first)
+    const rankOrder = {};
+    RANKS.forEach((r,i)=>{ rankOrder[r.name]=i; });
+    list.sort((a,b)=> (rankOrder[b.rank_name]??-1) - (rankOrder[a.rank_name]??-1));
+    if(!list.length){
+      box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:.82rem">No other collectors yet. Invite your friends to join! 🚀</div>';
+      return;
+    }
+    let h='';
+    list.forEach(p=>{
+      const name=escHtml(p.pseudo||'Collector');
+      const av=escHtml(p.avatar||'🦊');
+      const rank=(p.rank_icon?escHtml(p.rank_icon)+' ':'')+escHtml(p.rank_name||'');
+      h += '<div class="fr-card"><div class="fr-av">'+av+'</div>'
+        + '<div class="fr-info"><div class="fr-name">'+name+'</div><div class="fr-rank">'+rank+'</div></div>'
+        + '<div class="fr-actions"><button onclick="openAddFriendModal(\''+p.user_id+'\',\''+encodeURIComponent(p.pseudo||'Collector')+'\')" class="fr-btn fr-compare">➕ Add</button></div>'
+        + '</div>';
+    });
+    box.innerHTML = h;
+  } catch(e){
+    box.innerHTML = '<div style="color:var(--text-dim);font-size:.8rem;padding:12px">Error: '+e.message+'</div>';
+  }
+}
+
+// Modal to send a request with an optional message
+function openAddFriendModal(userId, encName){
+  const name = decodeURIComponent(encName);
+  document.getElementById('addfriend-name').textContent = name;
+  document.getElementById('addfriend-target').value = userId;
+  document.getElementById('addfriend-message').value = '';
+  document.getElementById('addfriend-overlay').classList.add('open');
+}
+function closeAddFriendModal(){ document.getElementById('addfriend-overlay').classList.remove('open'); }
+async function confirmAddFriend(){
+  const userId = document.getElementById('addfriend-target').value;
+  const message = (document.getElementById('addfriend-message').value||'').trim();
+  closeAddFriendModal();
+  const ok = await sendFriendRequest(userId, message);
+  if(ok && document.getElementById('friends-screen').classList.contains('open')) openFriends();
+}
+
 function closeFriends(){ document.getElementById('friends-screen').classList.remove('open'); }
 
 // ── Compare collections side by side ──
@@ -4374,9 +4450,17 @@ async function compareWithFriend(friendId){
     const missingFromMe = frOwned.filter(i=>!mySet.has(norm(i.name)));
     if(missingFromMe.length){
       html += '<div class="fr-section-title">💡 They own, you don\'t ('+missingFromMe.length+')</div>';
+      html += '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:8px">Tap the ★ to add an item to your wishlist</div>';
       html += '<div style="display:flex;flex-direction:column;gap:6px">';
-      missingFromMe.slice(0,40).forEach(i=>{
-        html += '<div style="display:flex;justify-content:space-between;background:var(--bg3);border-radius:8px;padding:8px 12px"><span style="font-size:.82rem">'+escHtml(i.name)+'</span><span style="font-size:.7rem;color:var(--text-dim)">'+escHtml(i.type||'')+'</span></div>';
+      missingFromMe.slice(0,60).forEach((i,idx)=>{
+        const nm = escHtml(i.name);
+        const tp = escHtml(i.type||'');
+        html += '<div id="cmp-miss-'+idx+'" style="display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:8px;padding:8px 12px">'
+          + '<div style="flex:1;min-width:0"><div style="font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nm+'</div>'
+          + (tp?'<div style="font-size:.66rem;color:var(--text-dim)">'+tp+'</div>':'')+'</div>'
+          + '<button onclick="addToWishlistFromCompare('+idx+',\''+encodeURIComponent(i.name)+'\',\''+encodeURIComponent(i.type||'')+'\')" '
+          + 'style="border:none;border-radius:8px;padding:8px 12px;font-weight:700;font-size:.72rem;cursor:pointer;background:linear-gradient(135deg,#FFD447,#FF9D2E);color:#1a1200;white-space:nowrap;flex-shrink:0">★ Wishlist</button>'
+          + '</div>';
       });
       html += '</div>';
     }
@@ -4386,6 +4470,31 @@ async function compareWithFriend(friendId){
   }
 }
 function closeCompare(){ document.getElementById('compare-screen').classList.remove('open'); }
+
+// Add an item seen in a friend's collection straight to my wishlist
+async function addToWishlistFromCompare(idx, encName, encType){
+  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  const name = decodeURIComponent(encName);
+  const type = decodeURIComponent(encType) || 'Misc';
+  try {
+    const { data, error } = await sbClient.from('items').insert([{
+      user_id: currentUser.id, name: name, type: type,
+      status: 'wishlist', condition: 'used', lang: 'FR', grade: 'excellent'
+    }]).select();
+    if(error){ console.log('wishlist add error:', error); showToast('Error: '+error.message,'error'); return; }
+    // add to local list so it counts immediately
+    if(data && data[0]) items.push(data[0]);
+    render();
+    // Visually mark the row as added
+    const row = document.getElementById('cmp-miss-'+idx);
+    if(row){
+      row.style.opacity = '0.5';
+      const btn = row.querySelector('button');
+      if(btn){ btn.textContent='✓ Added'; btn.disabled=true; btn.style.background='rgba(255,255,255,.12)'; btn.style.color='var(--text-dim)'; btn.style.cursor='default'; }
+    }
+    showToast('★ Added to your wishlist!','success');
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
 
 // Badge count of pending received requests (for the menu)
 async function refreshFriendBadge(){
