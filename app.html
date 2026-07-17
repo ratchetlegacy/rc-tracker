@@ -863,6 +863,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')" data-i18n="auth_register">Create account</button>
     </div>
     <div class="auth-form">
+      <input type="text" id="auth-pseudo" placeholder="Your nickname (shown to friends)" style="display:none"/>
       <input type="email" id="auth-email" placeholder="email@exemple.com"/>
       <input type="password" id="auth-password" placeholder="Password"/>
       <div id="auth-msg"></div>
@@ -874,6 +875,13 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
 <!-- APP -->
 <div id="app-screen">
+  <!-- PSEUDO REMINDER -->
+  <div id="pseudo-reminder" style="display:none;align-items:center;gap:12px;background:linear-gradient(135deg,var(--purple),var(--orange));padding:12px 16px;color:#fff">
+    <div style="font-size:1.4rem">🦊</div>
+    <div style="flex:1;font-size:.86rem;font-weight:600;line-height:1.3">Choose your nickname so friends can recognize you!</div>
+    <button onclick="goToPseudoSetup()" style="background:#fff;color:var(--purple);border:none;border-radius:10px;padding:9px 14px;font-weight:800;font-size:.8rem;cursor:pointer;white-space:nowrap">Set it</button>
+    <button onclick="dismissPseudoReminder()" style="background:transparent;border:none;color:rgba(255,255,255,.8);font-size:1.2rem;cursor:pointer;padding:0 4px">✕</button>
+  </div>
   <header>
     <div class="header-top">
       <div class="logo-img" title="R&C Tracker">
@@ -1666,8 +1674,9 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
 
     <!-- PSEUDO -->
-    <div class="profile-section" style="margin-bottom:20px">
-      <div class="profile-section-title" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase;margin-bottom:12px">✏️ Pseudo</div>
+    <div class="profile-section" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(123,79,212,.12),rgba(255,138,42,.08));border:1px solid rgba(123,79,212,.35);border-radius:14px;padding:16px">
+      <div class="profile-section-title" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.08em;color:var(--purple-light);text-transform:uppercase;margin-bottom:6px">✏️ Your nickname</div>
+      <div style="font-size:.76rem;color:var(--text-dim);margin-bottom:12px">This is the name other collectors see. Pick a cool one! 🦊</div>
       <div class="pseudo-edit">
         <input type="text" class="pseudo-input" id="pseudo-input" placeholder="Ton pseudo..."/>
         <button class="pseudo-save" onclick="savePseudo()">SAVE</button>
@@ -1917,25 +1926,39 @@ function switchTab(mode){
   document.getElementById('tab-signup').classList.toggle('active',mode==='signup');
   document.getElementById('auth-btn').textContent=mode==='login'?'SIGN IN':'CRÉER LE COMPTE';
   document.getElementById('auth-msg').innerHTML='';
+  // Show the nickname field only when creating an account
+  const pf=document.getElementById('auth-pseudo');
+  if(pf) pf.style.display = (mode==='signup') ? 'block' : 'none';
 }
 async function doAuth(){
   const email=document.getElementById('auth-email').value.trim();
   const password=document.getElementById('auth-password').value;
+  const pseudo=(document.getElementById('auth-pseudo').value||'').trim();
   const msgEl=document.getElementById('auth-msg');
   if(!email||!password){ msgEl.innerHTML='<div class="auth-error">Remplis email et mot de passe.</div>'; return; }
+  if(authMode==='signup' && !pseudo){ msgEl.innerHTML='<div class="auth-error">Choisis un pseudo pour ton profil.</div>'; return; }
   msgEl.innerHTML='';
   try{
     let result;
     if(authMode==='login'){ result=await sbClient.auth.signInWithPassword({email,password}); }
     else{
       result=await sbClient.auth.signUp({email,password});
+      // Remember the chosen pseudo (stored per-user once we know the id)
+      if(!result.error && result.data.user){
+        localStorage.setItem('rc_pseudo_'+result.data.user.id, pseudo);
+        localStorage.setItem('rc_pending_pseudo', pseudo);
+      }
       if(!result.error&&result.data.user&&!result.data.session){
         msgEl.innerHTML='<div class="auth-success">Account created! Check your email then sign in.</div>';
         switchTab('login'); return;
       }
     }
     if(result.error) throw result.error;
-    currentUser=result.data.user; launchApp();
+    currentUser=result.data.user;
+    // Apply the pending pseudo (covers the case where signup logs in directly)
+    const pend=localStorage.getItem('rc_pending_pseudo');
+    if(pend){ localStorage.setItem('rc_pseudo_'+currentUser.id, pend); localStorage.removeItem('rc_pending_pseudo'); }
+    launchApp();
   }catch(e){ msgEl.innerHTML=`<div class="auth-error">${e.message}</div>`; }
 }
 async function doSignOut(){ await sbClient.auth.signOut(); currentUser=null; items=[]; show('auth-screen'); }
@@ -2668,6 +2691,29 @@ async function launchApp(){
     if(banner) banner.style.display='none';
   }
   if(isAdmin()){ const _ab = document.getElementById('mobile-admin-btn'); if(_ab) _ab.style.display='flex'; }
+  maybeShowPseudoReminder();
+}
+
+// Show a reminder if the user still has no real nickname (default "Collector")
+function maybeShowPseudoReminder(){
+  const pseudo = (localStorage.getItem('rc_pseudo_'+currentUser.id)||'').trim();
+  const needs = !pseudo || pseudo.toLowerCase()==='collector' || pseudo==='R&C';
+  const banner = document.getElementById('pseudo-reminder');
+  if(!banner) return;
+  if(needs && localStorage.getItem('rc_pseudo_reminder_dismissed')!=='1'){
+    banner.style.display='flex';
+  } else {
+    banner.style.display='none';
+  }
+}
+function goToPseudoSetup(){
+  document.getElementById('pseudo-reminder').style.display='none';
+  if(typeof openProfile==='function') openProfile();
+  setTimeout(()=>{ const inp=document.getElementById('pseudo-input'); if(inp){ inp.focus(); inp.scrollIntoView({behavior:'smooth',block:'center'}); } }, 300);
+}
+function dismissPseudoReminder(){
+  document.getElementById('pseudo-reminder').style.display='none';
+  localStorage.setItem('rc_pseudo_reminder_dismissed','1');
 }
 
 // ══ FILTER LISTENERS ══
@@ -2803,9 +2849,14 @@ function closeProfile(){
 function savePseudo(){
   const pseudo = document.getElementById('pseudo-input').value.trim();
   if(!pseudo){ showToast('Enter a username!','error'); return; }
+  if(pseudo.toLowerCase()==='collector'){ showToast('Pick something more original than "Collector" 🦊','info'); return; }
   localStorage.setItem('rc_pseudo_'+currentUser.id, pseudo);
   document.getElementById('profile-pseudo-display').textContent = pseudo;
   const _hp = document.getElementById('header-pseudo'); if(_hp) _hp.textContent = pseudo;
+  const _hpm = document.getElementById('header-pseudo-mobile'); if(_hpm) _hpm.textContent = pseudo;
+  // Hide the reminder + push the new name to the public directory
+  const banner=document.getElementById('pseudo-reminder'); if(banner) banner.style.display='none';
+  if(typeof savePublicProfile==='function') savePublicProfile();
   showToast('Username saved!','success');
 }
 
