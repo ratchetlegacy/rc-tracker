@@ -657,6 +657,23 @@
     /* PUBLIC PROFILE */
     .public-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;overflow-y:auto}
     .public-screen.open{display:block}
+    /* WIKI */
+    .wiki-list{display:flex;flex-direction:column;gap:12px}
+    .wiki-card{display:flex;gap:14px;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px;cursor:pointer;transition:transform .12s,border-color .12s;position:relative;overflow:hidden}
+    .wiki-card:hover{transform:translateY(-2px);border-color:var(--purple)}
+    .wiki-card-thumb{width:80px;height:80px;flex-shrink:0;border-radius:10px;overflow:hidden;background:var(--bg2);display:flex;align-items:center;justify-content:center}
+    .wiki-card-thumb img{width:100%;height:100%;object-fit:cover}
+    .wiki-card-thumb .wiki-noimg{font-size:2rem;opacity:.4}
+    .wiki-card-info{flex:1;min-width:0}
+    .wiki-card-cat{display:inline-block;font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan,#78D2EB);background:rgba(120,210,235,.1);padding:2px 8px;border-radius:10px;margin-bottom:6px}
+    .wiki-card-title{font-weight:700;font-size:.98rem;line-height:1.25;margin-bottom:4px}
+    .wiki-card-date{font-family:'Orbitron',sans-serif;font-size:.72rem;color:var(--purple-light);font-weight:600}
+    .wiki-card-excerpt{font-size:.78rem;color:var(--text-dim);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .wiki-d-img{width:100%;max-height:280px;object-fit:contain;border-radius:12px;margin-bottom:14px;background:var(--bg)}
+    .wiki-d-cat{display:inline-block;font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan,#78D2EB);background:rgba(120,210,235,.1);padding:4px 12px;border-radius:12px;margin-bottom:8px}
+    .wiki-d-title{font-size:1.4rem;margin:0 0 4px;line-height:1.2}
+    .wiki-d-date{font-family:'Orbitron',sans-serif;font-size:.82rem;color:var(--purple-light);font-weight:600;margin-bottom:14px}
+    .wiki-d-body{font-size:.92rem;line-height:1.7;color:var(--text);white-space:pre-wrap}
     /* FRIENDS + COMPARE SCREENS */
     .friends-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:510;overflow-y:auto}
     .friends-screen.open{display:block}
@@ -1539,6 +1556,106 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
+<!-- WIKI SCREEN -->
+<div class="stats-screen" id="wiki-screen">
+  <div class="stats-page-header">
+    <div class="logo-img" onclick="closeWiki();showMainMenu()" style="cursor:pointer;width:40px;height:40px" title="Home">
+      <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
+    </div>
+    <h1>📖 WIKI</h1>
+    <button class="stats-back" onclick="closeWiki()">← Back</button>
+  </div>
+  <div class="stats-body">
+    <div class="catalog-wrap">
+      <p class="catalog-intro">The story of Ratchet &amp; Clank — timeline, lore and more. Written by the community. 🌌</p>
+      <div id="wiki-cats" class="catalog-cats"></div>
+      <div style="text-align:center;margin:4px 0 14px">
+        <button class="catalog-suggest-btn" onclick="openWikiSuggest()">💡 Suggest an article</button>
+      </div>
+      <div id="wiki-admin-bar" style="display:none;text-align:right;margin:10px 0">
+        <button class="add-btn" onclick="openWikiEdit()">+ ADD ARTICLE</button>
+        <button class="add-btn" style="background:linear-gradient(135deg,#2a9d8f,#264653)" onclick="openWikiReview()">📥 Review suggestions <span id="wiki-suggest-badge"></span></button>
+      </div>
+      <div id="wiki-list" class="wiki-list">
+        <div style="text-align:center;padding:50px;color:var(--text-dim)"><span style="font-size:1.6rem;display:block;animation:spin 1s linear infinite">⚙️</span>Loading…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WIKI ARTICLE DETAIL -->
+<div class="modal-overlay" id="wiki-detail-overlay" style="z-index:520">
+  <div class="modal" style="max-width:520px;max-height:88vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeWikiDetail()">✕</button>
+    <div id="wiki-detail-body"></div>
+  </div>
+</div>
+
+<!-- WIKI EDIT MODAL (admin) -->
+<div class="modal-overlay" id="wiki-edit-overlay" style="z-index:540">
+  <div class="modal" style="max-width:520px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeWikiEdit()">✕</button>
+    <h2 id="wiki-edit-title" style="margin-bottom:16px">New article</h2>
+    <input type="hidden" id="wiki-edit-id"/>
+    <div class="form-group"><label>Title</label><input type="text" id="wiki-f-title" placeholder="e.g. Ratchet &amp; Clank (2002)"/></div>
+    <div class="form-group"><label>Category</label>
+      <select id="wiki-f-cat">
+        <option value="History">History / Timeline</option>
+        <option value="Character">Character</option>
+        <option value="Lore">Lore</option>
+        <option value="Guide">Guide</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Date / Year (optional)</label><input type="text" id="wiki-f-date" placeholder="e.g. 2002 · PS2"/></div>
+    <div class="form-group"><label>Image URL (optional)</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="wiki-f-image" placeholder="URL or gallery..." style="flex:1" oninput="updateWikiImgPreview()"/>
+        <button type="button" onclick="openGallery('wiki-f-image')" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Gallery</button>
+      </div>
+      <div id="wiki-img-preview" style="margin-top:8px"></div>
+    </div>
+    <div class="form-group"><label>Text</label><textarea id="wiki-f-body" style="min-height:160px" placeholder="Write the article..."></textarea></div>
+    <div class="form-group"><label>Sort order (lower = first)</label><input type="number" id="wiki-f-sort" value="0"/></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="add-btn" style="flex:1" onclick="saveWikiEntry()">💾 Save</button>
+      <button id="wiki-delete-btn" style="display:none;flex:1;padding:11px;background:rgba(255,77,106,.15);border:1px solid rgba(255,77,106,.4);border-radius:10px;color:var(--missing);cursor:pointer" onclick="deleteWikiEntry()">🗑️ Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- WIKI SUGGEST MODAL (users) -->
+<div class="modal-overlay" id="wiki-suggest-overlay" style="z-index:540">
+  <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeWikiSuggest()">✕</button>
+    <h2 style="margin-bottom:6px">💡 Suggest an article</h2>
+    <p style="font-size:.82rem;color:var(--text-dim);margin-bottom:14px">Share something about the R&amp;C universe. An admin will review it before it's published.</p>
+    <div class="form-group"><label>Title</label><input type="text" id="wiki-s-title" placeholder="Article title"/></div>
+    <div class="form-group"><label>Category</label>
+      <select id="wiki-s-cat">
+        <option value="History">History / Timeline</option>
+        <option value="Character">Character</option>
+        <option value="Lore">Lore</option>
+        <option value="Guide">Guide</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Date / Year (optional)</label><input type="text" id="wiki-s-date" placeholder="e.g. 2002"/></div>
+    <div class="form-group"><label>Your text</label><textarea id="wiki-s-body" style="min-height:140px" placeholder="Write your suggestion..."></textarea></div>
+    <button class="add-btn" style="width:100%" onclick="submitWikiSuggestion()">📤 Send suggestion</button>
+  </div>
+</div>
+
+<!-- WIKI REVIEW MODAL (admin) -->
+<div class="modal-overlay" id="wiki-review-overlay" style="z-index:540">
+  <div class="modal" style="max-width:520px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeWikiReview()">✕</button>
+    <h2 style="margin-bottom:16px">📥 Pending suggestions</h2>
+    <div id="wiki-review-body"></div>
+  </div>
+</div>
+
+
 <!-- CATALOG EDIT MODAL (admin) -->
 <div class="modal-overlay" id="catalog-edit-overlay" style="z-index:500">
   <div class="modal" style="max-width:460px">
@@ -1825,6 +1942,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 Stats</div>
   <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
   <div class="menu-item" onclick="closeMobileMenu();openCatalog()">📚 Catalog</div>
+  <div class="menu-item" onclick="closeMobileMenu();openWiki()">📖 Wiki</div>
   <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
   <div class="menu-item" onclick="openFriends()">🤝 Friends <span id="friends-badge" style="display:none;background:var(--missing);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700;margin-left:4px">0</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openGuide()">📖 How to use</div>
@@ -4449,6 +4567,229 @@ async function confirmAddFriend(){
 
 function closeFriends(){ document.getElementById('friends-screen').classList.remove('open'); }
 
+// ══════════════════════════════════════════════════════════
+//  WIKI SYSTEM
+// ══════════════════════════════════════════════════════════
+let wikiData = [];
+let wikiActiveCat = 'all';
+const WIKI_CATS = ['History','Character','Lore','Guide','Other'];
+const WIKI_CAT_ICON = {History:'📜',Character:'👤',Lore:'🌌',Guide:'🗺️',Other:'✨',all:'📖'};
+
+async function openWiki(){
+  if(typeof closeMobileMenu==='function') closeMobileMenu();
+  if(typeof showMainMenu==='function'){} // no-op guard
+  document.getElementById('wiki-screen').classList.add('open');
+  // admin bar
+  const bar=document.getElementById('wiki-admin-bar');
+  if(bar) bar.style.display = isAdmin()?'block':'none';
+  if(isAdmin()) refreshWikiSuggestBadge();
+  await loadWiki();
+}
+function closeWiki(){ document.getElementById('wiki-screen').classList.remove('open'); }
+
+async function loadWiki(){
+  const list=document.getElementById('wiki-list');
+  list.innerHTML='<div style="text-align:center;padding:50px;color:var(--text-dim)"><span style="font-size:1.6rem;display:block;animation:spin 1s linear infinite">⚙️</span>Loading…</div>';
+  try {
+    const { data, error } = await sbClient.from('wiki_entries')
+      .select('*').order('sort_order',{ascending:true}).order('created_at',{ascending:true});
+    if(error){ list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim)">Error: '+error.message+'</div>'; return; }
+    wikiData = data||[];
+    renderWikiCats();
+    renderWikiList();
+  } catch(e){ list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim)">Error: '+e.message+'</div>'; }
+}
+
+function renderWikiCats(){
+  const box=document.getElementById('wiki-cats');
+  const cats = ['all', ...WIKI_CATS.filter(c=> wikiData.some(w=>w.category===c))];
+  box.innerHTML = cats.map(c=>{
+    const active = c===wikiActiveCat ? ' active':'';
+    const label = c==='all'?'All':c;
+    return '<button class="catalog-cat'+active+'" onclick="setWikiCat(\''+c+'\')">'+(WIKI_CAT_ICON[c]||'')+' '+label+'</button>';
+  }).join('');
+}
+function setWikiCat(c){ wikiActiveCat=c; renderWikiCats(); renderWikiList(); }
+
+function renderWikiList(){
+  const list=document.getElementById('wiki-list');
+  let entries = wikiActiveCat==='all' ? wikiData : wikiData.filter(w=>w.category===wikiActiveCat);
+  if(!entries.length){
+    list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">No articles yet.'+(isAdmin()?' Add the first one! 📝':' Come back soon! 🌌')+'</div>';
+    return;
+  }
+  list.innerHTML = entries.map(w=>{
+    const thumb = w.image_url
+      ? '<div class="wiki-card-thumb"><img src="'+escHtml(w.image_url)+'" loading="lazy" onerror="this.parentNode.innerHTML=\'<span class=&quot;wiki-noimg&quot;>'+(WIKI_CAT_ICON[w.category]||'📖')+'</span>\'"/></div>'
+      : '<div class="wiki-card-thumb"><span class="wiki-noimg">'+(WIKI_CAT_ICON[w.category]||'📖')+'</span></div>';
+    const excerpt = (w.body||'').slice(0,120);
+    return '<div class="wiki-card" onclick="openWikiDetail(\''+w.id+'\')">'
+      + thumb
+      + '<div class="wiki-card-info">'
+      + '<span class="wiki-card-cat">'+(WIKI_CAT_ICON[w.category]||'')+' '+escHtml(w.category||'')+'</span>'
+      + '<div class="wiki-card-title">'+escHtml(w.title)+'</div>'
+      + (w.game_date?'<div class="wiki-card-date">'+escHtml(w.game_date)+'</div>':'')
+      + '<div class="wiki-card-excerpt">'+escHtml(excerpt)+'</div>'
+      + '</div></div>';
+  }).join('');
+}
+
+function openWikiDetail(id){
+  const w = wikiData.find(x=>String(x.id)===String(id));
+  if(!w) return;
+  const body=document.getElementById('wiki-detail-body');
+  const img = w.image_url ? '<img class="wiki-d-img" src="'+escHtml(w.image_url)+'" onerror="this.style.display=\'none\'"/>' : '';
+  body.innerHTML = img
+    + '<span class="wiki-d-cat">'+(WIKI_CAT_ICON[w.category]||'')+' '+escHtml(w.category||'')+'</span>'
+    + '<h2 class="wiki-d-title">'+escHtml(w.title)+'</h2>'
+    + (w.game_date?'<div class="wiki-d-date">'+escHtml(w.game_date)+'</div>':'')
+    + '<div class="wiki-d-body">'+escHtml(w.body||'')+'</div>'
+    + (isAdmin()?'<button onclick="closeWikiDetail();openWikiEdit(\''+w.id+'\')" style="margin-top:18px;width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px;color:var(--text-dim);cursor:pointer;font-size:.82rem">✏️ Edit (admin)</button>':'');
+  document.getElementById('wiki-detail-overlay').classList.add('open');
+}
+function closeWikiDetail(){ document.getElementById('wiki-detail-overlay').classList.remove('open'); }
+
+// ── Admin: create / edit ──
+function openWikiEdit(id){
+  if(!isAdmin()){ showToast('Admin only','error'); return; }
+  const w = id ? wikiData.find(x=>String(x.id)===String(id)) : null;
+  document.getElementById('wiki-edit-title').textContent = w?'Edit article':'New article';
+  document.getElementById('wiki-edit-id').value = w?w.id:'';
+  document.getElementById('wiki-f-title').value = w?w.title:'';
+  document.getElementById('wiki-f-cat').value = w?(w.category||'History'):'History';
+  document.getElementById('wiki-f-date').value = w?(w.game_date||''):'';
+  document.getElementById('wiki-f-image').value = w?(w.image_url||''):'';
+  document.getElementById('wiki-f-body').value = w?(w.body||''):'';
+  document.getElementById('wiki-f-sort').value = w?(w.sort_order||0):0;
+  document.getElementById('wiki-delete-btn').style.display = w?'block':'none';
+  updateWikiImgPreview();
+  document.getElementById('wiki-edit-overlay').classList.add('open');
+}
+function closeWikiEdit(){ document.getElementById('wiki-edit-overlay').classList.remove('open'); }
+function updateWikiImgPreview(){
+  const box=document.getElementById('wiki-img-preview'); if(!box) return;
+  const url=(document.getElementById('wiki-f-image').value||'').trim();
+  box.innerHTML = url ? '<img src="'+escHtml(url)+'" style="max-height:90px;border-radius:8px;border:1px solid rgba(255,255,255,.12);object-fit:contain" onerror="this.style.display=\'none\'"/>' : '';
+}
+async function saveWikiEntry(){
+  if(!isAdmin()){ showToast('Admin only','error'); return; }
+  const id=document.getElementById('wiki-edit-id').value;
+  const payload={
+    title: document.getElementById('wiki-f-title').value.trim(),
+    category: document.getElementById('wiki-f-cat').value,
+    game_date: document.getElementById('wiki-f-date').value.trim()||null,
+    image_url: document.getElementById('wiki-f-image').value.trim()||null,
+    body: document.getElementById('wiki-f-body').value.trim(),
+    sort_order: parseInt(document.getElementById('wiki-f-sort').value)||0,
+    updated_at: new Date().toISOString()
+  };
+  if(!payload.title||!payload.body){ showToast('Title and text are required','error'); return; }
+  try {
+    let error;
+    if(id){ ({error} = await sbClient.from('wiki_entries').update(payload).eq('id',id)); }
+    else  { ({error} = await sbClient.from('wiki_entries').insert([payload])); }
+    if(error){ console.log('wiki save error:',error); showToast('Error: '+error.message,'error'); return; }
+    showToast('Article saved! 📖','success');
+    closeWikiEdit();
+    loadWiki();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function deleteWikiEntry(){
+  const id=document.getElementById('wiki-edit-id').value;
+  if(!id) return;
+  if(!confirm('Delete this article?')) return;
+  try {
+    const { error } = await sbClient.from('wiki_entries').delete().eq('id',id);
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast('Deleted','info'); closeWikiEdit(); loadWiki();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+// ── Users: suggest an article ──
+function openWikiSuggest(){
+  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  document.getElementById('wiki-s-title').value='';
+  document.getElementById('wiki-s-cat').value='History';
+  document.getElementById('wiki-s-date').value='';
+  document.getElementById('wiki-s-body').value='';
+  document.getElementById('wiki-suggest-overlay').classList.add('open');
+}
+function closeWikiSuggest(){ document.getElementById('wiki-suggest-overlay').classList.remove('open'); }
+async function submitWikiSuggestion(){
+  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  const title=document.getElementById('wiki-s-title').value.trim();
+  const body=document.getElementById('wiki-s-body').value.trim();
+  if(!title||!body){ showToast('Title and text are required','error'); return; }
+  const author = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
+  try {
+    const { error } = await sbClient.from('wiki_suggestions').insert([{
+      user_id: currentUser.id, author_name: author, title,
+      category: document.getElementById('wiki-s-cat').value,
+      game_date: document.getElementById('wiki-s-date').value.trim()||null,
+      body, status:'pending'
+    }]);
+    if(error){ console.log('wiki suggest error:',error); showToast('Error: '+error.message,'error'); return; }
+    showToast('Suggestion sent! Thanks 🙌','success');
+    closeWikiSuggest();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+// ── Admin: review suggestions ──
+async function refreshWikiSuggestBadge(){
+  if(!isAdmin()) return;
+  try {
+    const { data } = await sbClient.from('wiki_suggestions').select('id').eq('status','pending');
+    const n=(data||[]).length;
+    const badge=document.getElementById('wiki-suggest-badge');
+    if(badge) badge.textContent = n>0?('('+n+')'):'';
+  } catch(e){}
+}
+async function openWikiReview(){
+  if(!isAdmin()){ showToast('Admin only','error'); return; }
+  const body=document.getElementById('wiki-review-body');
+  body.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-dim)">Loading…</div>';
+  document.getElementById('wiki-review-overlay').classList.add('open');
+  try {
+    const { data, error } = await sbClient.from('wiki_suggestions')
+      .select('*').eq('status','pending').order('created_at',{ascending:true});
+    if(error){ body.innerHTML='<div style="padding:20px;color:var(--text-dim)">Error: '+error.message+'</div>'; return; }
+    if(!data||!data.length){ body.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-dim);font-size:.85rem">No pending suggestions 🎉</div>'; return; }
+    body.innerHTML = data.map(s=>{
+      return '<div style="background:var(--bg3);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;margin-bottom:12px">'
+        + '<div style="font-size:.68rem;color:var(--text-dim);margin-bottom:4px">by '+escHtml(s.author_name||'?')+' · '+escHtml(s.category||'')+(s.game_date?' · '+escHtml(s.game_date):'')+'</div>'
+        + '<div style="font-weight:700;margin-bottom:6px">'+escHtml(s.title)+'</div>'
+        + '<div style="font-size:.82rem;color:var(--text-dim);white-space:pre-wrap;max-height:120px;overflow-y:auto;margin-bottom:10px">'+escHtml(s.body)+'</div>'
+        + '<div style="display:flex;gap:8px">'
+        + '<button onclick="approveWikiSuggestion(\''+s.id+'\')" class="fr-btn fr-accept" style="flex:1">✓ Approve &amp; publish</button>'
+        + '<button onclick="rejectWikiSuggestion(\''+s.id+'\')" class="fr-btn fr-decline">✕ Reject</button>'
+        + '</div></div>';
+    }).join('');
+  } catch(e){ body.innerHTML='<div style="padding:20px;color:var(--text-dim)">Error: '+e.message+'</div>'; }
+}
+function closeWikiReview(){ document.getElementById('wiki-review-overlay').classList.remove('open'); }
+async function approveWikiSuggestion(id){
+  try {
+    // fetch the suggestion, publish it as an entry, then mark approved
+    const { data:s, error:e1 } = await sbClient.from('wiki_suggestions').select('*').eq('id',id).single();
+    if(e1||!s){ showToast('Error loading suggestion','error'); return; }
+    const { error:e2 } = await sbClient.from('wiki_entries').insert([{
+      title:s.title, body:s.body, category:s.category||'History', game_date:s.game_date||null, sort_order:0
+    }]);
+    if(e2){ showToast('Error publishing: '+e2.message,'error'); return; }
+    await sbClient.from('wiki_suggestions').update({status:'approved'}).eq('id',id);
+    showToast('Published! 📖','success');
+    refreshWikiSuggestBadge(); openWikiReview(); loadWiki();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function rejectWikiSuggestion(id){
+  try {
+    const { error } = await sbClient.from('wiki_suggestions').update({status:'rejected'}).eq('id',id);
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast('Rejected','info'); refreshWikiSuggestBadge(); openWikiReview();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+
 // ── Compare collections side by side ──
 async function compareWithFriend(friendId){
   if(!currentUser) return;
@@ -6008,7 +6349,8 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'img-edit-overlay','addfriend-overlay','exchange-modal','export-overlay',
     'ios-install-overlay','desktop-install-overlay','catalog-detail-overlay',
     'catalog-edit-overlay','profile-screen','admin-screen','stats-screen',
-    'guide-screen','public-screen','friends-screen','compare-screen','market-screen'
+    'guide-screen','public-screen','friends-screen','compare-screen','market-screen',
+    'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay'
   ];
   function anyOpen(){
     for(const id of CLOSABLE){
