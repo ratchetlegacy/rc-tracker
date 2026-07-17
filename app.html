@@ -2814,8 +2814,9 @@ async function launchApp(){
 
 // Show a reminder if the user still has no real nickname (default "Collector")
 function maybeShowPseudoReminder(){
+  if(!currentUser) return;
   const pseudo = (localStorage.getItem('rc_pseudo_'+currentUser.id)||'').trim();
-  const needs = !pseudo || pseudo.toLowerCase()==='collector' || pseudo==='R&C';
+  const needs = !pseudo || pseudo.toLowerCase()==='collector' || pseudo==='R&C' || pseudo==='Collector';
   const banner = document.getElementById('pseudo-reminder');
   if(!banner) return;
   if(needs && localStorage.getItem('rc_pseudo_reminder_dismissed')!=='1'){
@@ -6221,9 +6222,22 @@ function isIosDevice(){
 function isDesktop(){
   return !/iphone|ipad|ipod|android|mobile/i.test(navigator.userAgent);
 }
-// Detect if already installed/standalone
+// Detect if already installed/standalone — check every known signal
 function isStandalone(){
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  return window.matchMedia('(display-mode: standalone)').matches
+      || window.matchMedia('(display-mode: fullscreen)').matches
+      || window.matchMedia('(display-mode: minimal-ui)').matches
+      || window.navigator.standalone === true
+      || document.referrer.startsWith('android-app://')
+      || localStorage.getItem('rc_app_installed') === '1';
+}
+
+// If we're running inside the installed PWA, remember it permanently.
+// This covers apps that were installed BEFORE this update (no appinstalled event).
+if(window.matchMedia('(display-mode: standalone)').matches
+   || window.matchMedia('(display-mode: fullscreen)').matches
+   || window.navigator.standalone === true){
+  localStorage.setItem('rc_app_installed', '1');
 }
 
 // Chrome/Edge (Android AND desktop) fire this when the app is installable
