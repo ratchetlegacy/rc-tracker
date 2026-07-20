@@ -1037,6 +1037,16 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
+<!-- PHOTO MODERATION MODAL (admin) -->
+<div class="modal-overlay" id="photomod-overlay" style="z-index:560">
+  <div class="modal" style="max-width:520px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closePhotoMod()">✕</button>
+    <h2 style="margin-bottom:6px">📷 Photo moderation</h2>
+    <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:14px">Photos users took with their camera. Keep them or remove any that don't belong.</p>
+    <div id="photomod-body"></div>
+  </div>
+</div>
+
 <!-- APP -->
 <div id="app-screen">
   <!-- PSEUDO REMINDER -->
@@ -1320,6 +1330,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <div style="display:flex;gap:8px;align-items:center">
           <input type="url" id="inp-img" placeholder="URL or choose from gallery..." style="flex:1"/>
           <button type="button" onclick="openGallery('inp-img')" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Gallery</button>
+          <button type="button" onclick="takePhotoFor('inp-img','item','inp-name')" style="padding:8px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">📷 Photo</button>
         </div>
         <div class="price-hint">Paste a link or choose from gallery</div>
         <button type="button" onclick="openSubmitPhoto()" style="margin-top:8px;padding:6px 12px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif" data-i18n="btn_submit_photo">📸 Submit a missing photo</button>
@@ -1775,6 +1786,13 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="form-group" style="width:110px"><label>Price (€)</label><input type="number" step="0.01" id="other-f-price" placeholder="0.00"/></div>
     </div>
     <div class="form-group"><label>Notes</label><textarea id="other-f-notes" rows="2" placeholder="Any personal note..."></textarea></div>
+    <div class="form-group"><label>Photo (optional)</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="other-f-image" placeholder="URL or take a photo..." style="flex:1" oninput="updateOtherImgPreview()"/>
+        <button type="button" onclick="takePhotoFor('other-f-image','other','other-f-name')" style="padding:8px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">📷 Photo</button>
+      </div>
+      <div id="other-img-preview" style="margin-top:8px"></div>
+    </div>
     <div class="form-group">
       <label>Completeness</label>
       <select id="other-f-complete" onchange="toggleMissingNote()">
@@ -2210,6 +2228,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openCatalog()">📚 Catalog</div>
   <div class="menu-item" onclick="closeMobileMenu();openWiki()">📖 Wiki</div>
   <div class="menu-item" onclick="closeMobileMenu();openOther()">📦 My other collections</div>
+  <div class="menu-item" id="menu-photomod" onclick="openPhotoMod()" style="display:none;color:var(--owned)">📷 Photo moderation <span id="photomod-badge"></span></div>
   <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
   <div class="menu-item" onclick="openFriends()">🤝 Friends <span id="friends-badge" style="display:none;background:var(--missing);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700;margin-left:4px">0</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openGuide()">📖 How to use</div>
@@ -3060,6 +3079,7 @@ async function launchApp(){
   await fetchItems(); await syncPseudoFromDb(); render(); loadProfile(); loadTheme(); loadRcTotal(); loadLang(); setTimeout(applyTranslations, 300);
   refreshFriendBadge();
   setInterval(refreshFriendBadge, 60000);
+  if(isAdmin()) refreshPhotoModBadge();
   const _ff = document.getElementById('fixed-footer'); if(_ff) _ff.style.display = 'flex';
   // Sync mobile header
   function syncMobileHeader(){
@@ -3255,6 +3275,47 @@ function savePseudo(){
 // ══ CLOUDINARY GALLERY ══
 const CLD_CLOUD = 'dmfq8hkvu';
 const CLD_API_KEY = '487377232434179';
+const CLD_UPLOAD_PRESET = 'rc-jaquettes';   // unsigned preset for user camera photos
+
+// Take/pick a photo → upload to Cloudinary (unsigned) → fill target input.
+// Also logs the photo to the moderation queue so an admin can review it.
+function takePhotoFor(targetInputId, contextLabel, nameInputId){
+  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.setAttribute('capture','environment'); // prefer the rear camera on mobile
+  input.onchange = async () => {
+    const file = input.files && input.files[0];
+    if(!file) return;
+    const targetEl = document.getElementById(targetInputId);
+    showToast('Uploading photo… 📤','info');
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      form.append('upload_preset', CLD_UPLOAD_PRESET);
+      const res = await fetch('https://api.cloudinary.com/v1_1/'+CLD_CLOUD+'/image/upload', { method:'POST', body:form });
+      const data = await res.json();
+      if(!data.secure_url){ console.log('cloudinary resp:',data); showToast('Upload failed'+(data.error?': '+data.error.message:''),'error'); return; }
+      const url = data.secure_url;
+      if(targetEl){ targetEl.value = url; }
+      // refresh any preview linked to that input
+      if(targetInputId==='inp-img' && typeof updateImgPreviewInp==='function'){ /* optional */ }
+      if(targetInputId==='wiki-f-image' && typeof updateWikiImgPreview==='function'){ updateWikiImgPreview(); }
+      if(targetInputId==='other-f-image' && typeof updateOtherImgPreview==='function'){ updateOtherImgPreview(); }
+      if(targetInputId==='cat-edit-image' && typeof updateCatImagePreview==='function'){ updateCatImagePreview(); }
+      // log to moderation queue (non-blocking)
+      const author = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
+      const itemName = (nameInputId && document.getElementById(nameInputId)) ? document.getElementById(nameInputId).value.trim() : null;
+      sbClient.from('photo_moderation').insert([{
+        user_id: currentUser.id, author_name: author, image_url: url,
+        context: contextLabel||'item', item_name: itemName||null, status:'pending'
+      }]).then(()=>{}).catch(()=>{});
+      showToast('Photo added! 📸','success');
+    } catch(e){ showToast('Error: '+e.message,'error'); }
+  };
+  input.click();
+}
 // Cloudinary API SECRET must NEVER live in client code. It belongs only in the
 // Supabase Edge Function (cloudinary-import) as an environment secret.
 const CLD_FOLDERS = [];
@@ -5108,6 +5169,69 @@ async function rejectWikiSuggestion(id){
 }
 
 // ══════════════════════════════════════════════════════════
+//  CAMERA PHOTO MODERATION (admin)
+// ══════════════════════════════════════════════════════════
+async function openPhotoMod(){
+  if(!isAdmin()){ showToast('Admin only','error'); return; }
+  if(typeof closeMobileMenu==='function') closeMobileMenu();
+  document.getElementById('photomod-overlay').classList.add('open');
+  const body=document.getElementById('photomod-body');
+  body.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-dim)">Loading…</div>';
+  try {
+    const { data, error } = await sbClient.from('photo_moderation')
+      .select('*').eq('status','pending').order('created_at',{ascending:false});
+    if(error){ body.innerHTML='<div style="padding:20px;color:var(--text-dim)">Error: '+error.message+'</div>'; return; }
+    if(!data||!data.length){ body.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-dim);font-size:.85rem">No photos to review 🎉</div>'; return; }
+    body.innerHTML = data.map(p=>{
+      return '<div style="background:var(--bg3);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:12px;margin-bottom:12px">'
+        + '<div style="display:flex;gap:12px">'
+        + '<img src="'+escHtml(p.image_url)+'" style="width:90px;height:90px;object-fit:cover;border-radius:8px;flex-shrink:0" onerror="this.style.opacity=.3"/>'
+        + '<div style="flex:1;min-width:0"><div style="font-size:.7rem;color:var(--text-dim)">by '+escHtml(p.author_name||'?')+' · '+escHtml(p.context||'')+'</div>'
+        + '<div style="font-weight:700;font-size:.9rem;margin:2px 0">'+escHtml(p.item_name||'(no name)')+'</div>'
+        + '<a href="'+escHtml(p.image_url)+'" target="_blank" style="font-size:.7rem;color:var(--purple-light)">Open full size ↗</a></div>'
+        + '</div>'
+        + '<div style="display:flex;gap:8px;margin-top:10px">'
+        + '<button onclick="approvePhoto(\''+p.id+'\')" class="fr-btn fr-accept" style="flex:1">✓ Keep</button>'
+        + '<button onclick="removePhoto(\''+p.id+'\')" class="fr-btn fr-decline" style="flex:1">🗑️ Remove</button>'
+        + '</div></div>';
+    }).join('');
+  } catch(e){ body.innerHTML='<div style="padding:20px;color:var(--text-dim)">Error: '+e.message+'</div>'; }
+}
+function closePhotoMod(){ document.getElementById('photomod-overlay').classList.remove('open'); }
+async function approvePhoto(id){
+  try {
+    await sbClient.from('photo_moderation').update({status:'approved'}).eq('id',id);
+    showToast('Kept ✓','success'); refreshPhotoModBadge(); openPhotoMod();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function removePhoto(id){
+  if(!confirm('Remove this photo? It will be cleared from the item it illustrates.')) return;
+  try {
+    // get the url so we can clear it from items/other_items
+    const { data:rec } = await sbClient.from('photo_moderation').select('image_url,context').eq('id',id).single();
+    if(rec && rec.image_url){
+      // clear the image wherever it was used
+      await sbClient.from('items').update({img_url:''}).eq('img_url', rec.image_url);
+      await sbClient.from('other_items').update({image_url:null}).eq('image_url', rec.image_url);
+    }
+    await sbClient.from('photo_moderation').update({status:'removed'}).eq('id',id);
+    showToast('Photo removed','info'); refreshPhotoModBadge(); openPhotoMod();
+    if(typeof render==='function') { await fetchItems(); render(); }
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function refreshPhotoModBadge(){
+  if(!isAdmin()) return;
+  try {
+    const { data } = await sbClient.from('photo_moderation').select('id').eq('status','pending');
+    const n=(data||[]).length;
+    const badge=document.getElementById('photomod-badge');
+    if(badge){ badge.textContent = n>0?('('+n+')'):''; }
+    const menuItem=document.getElementById('menu-photomod');
+    if(menuItem) menuItem.style.display = isAdmin()?'block':'none';
+  } catch(e){}
+}
+
+// ══════════════════════════════════════════════════════════
 //  MY OTHER COLLECTIONS (private, non-Ratchet items)
 // ══════════════════════════════════════════════════════════
 let otherData = [];
@@ -5172,7 +5296,9 @@ function renderOtherList(){
       ? ' <span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(255,138,42,.18);color:#FF8A2A">⚠️ Incomplete</span>'
       : '';
     return '<div class="catalog-row" onclick="openOtherDetail(\''+i.id+'\')">'
-      + '<div class="catalog-thumb"><span class="catalog-thumb-icon">'+(OTHER_CAT_ICON[i.category]||'📦')+'</span></div>'
+      + (i.image_url
+          ? '<div class="catalog-thumb"><img src="'+escHtml(i.image_url)+'" loading="lazy" onerror="this.parentNode.innerHTML=\'<span class=&quot;catalog-thumb-icon&quot;>'+(OTHER_CAT_ICON[i.category]||'📦')+'</span>\'"/></div>'
+          : '<div class="catalog-thumb"><span class="catalog-thumb-icon">'+(OTHER_CAT_ICON[i.category]||'📦')+'</span></div>')
       + '<div class="catalog-info"><div class="catalog-name">'+escHtml(i.name)+'</div>'
       + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
       + '<div style="margin-top:4px">'+statusBadge+incompleteBadge+'</div>'
@@ -5189,7 +5315,7 @@ function openOtherDetail(id){
   const meta=[i.platform, i.year, i.edition].filter(Boolean).join(' · ');
   const body=document.getElementById('other-detail-body');
   body.innerHTML =
-    '<div style="text-align:center;font-size:3rem;margin-bottom:8px">'+(OTHER_CAT_ICON[i.category]||'📦')+'</div>'
+    (i.image_url ? '<img src="'+escHtml(i.image_url)+'" style="width:100%;max-height:240px;object-fit:contain;border-radius:12px;margin-bottom:10px;background:var(--bg)" onerror="this.style.display=\'none\'"/>' : '<div style="text-align:center;font-size:3rem;margin-bottom:8px">'+(OTHER_CAT_ICON[i.category]||'📦')+'</div>')
     + '<div style="text-align:center" class="cd-cat">'+escHtml(i.category||'Other')+'</div>'
     + '<h2 style="text-align:center;margin:6px 0">'+escHtml(i.name)+'</h2>'
     + (meta?'<div style="text-align:center;font-family:\'Orbitron\',sans-serif;font-size:.8rem;color:var(--purple-light);margin-bottom:10px">'+escHtml(meta)+'</div>':'')
@@ -5219,6 +5345,8 @@ function openOtherEdit(id){
   document.getElementById('other-f-status').value = i?(i.status||'owned'):'owned';
   document.getElementById('other-f-price').value = i?(i.price||''):'';
   document.getElementById('other-f-notes').value = i?(i.notes||''):'';
+  document.getElementById('other-f-image').value = i?(i.image_url||''):'';
+  updateOtherImgPreview();
   const complete = i ? (i.is_complete!==false) : true;
   document.getElementById('other-f-complete').value = complete ? '1' : '0';
   document.getElementById('other-f-missing').value = i?(i.missing_note||''):'';
@@ -5229,6 +5357,11 @@ function openOtherEdit(id){
 function toggleMissingNote(){
   const incomplete = document.getElementById('other-f-complete').value==='0';
   document.getElementById('other-missing-wrap').style.display = incomplete ? 'block' : 'none';
+}
+function updateOtherImgPreview(){
+  const box=document.getElementById('other-img-preview'); if(!box) return;
+  const url=(document.getElementById('other-f-image').value||'').trim();
+  box.innerHTML = url ? '<img src="'+escHtml(url)+'" style="max-height:100px;border-radius:8px;border:1px solid rgba(255,255,255,.12);object-fit:contain" onerror="this.style.display=\'none\'"/>' : '';
 }
 function closeOtherEdit(){ document.getElementById('other-edit-overlay').classList.remove('open'); }
 
@@ -5252,7 +5385,8 @@ async function saveOtherItem(){
     price: isNaN(priceVal)?null:priceVal,
     notes: document.getElementById('other-f-notes').value.trim()||null,
     is_complete: isComplete,
-    missing_note: isComplete ? null : (document.getElementById('other-f-missing').value.trim()||null)
+    missing_note: isComplete ? null : (document.getElementById('other-f-missing').value.trim()||null),
+    image_url: document.getElementById('other-f-image').value.trim()||null
   };
   try {
     let error;
@@ -7065,7 +7199,8 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'catalog-edit-overlay','profile-screen','admin-screen','stats-screen',
     'guide-screen','public-screen','friends-screen','compare-screen','market-screen',
     'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
-    'other-screen','other-edit-overlay','other-detail-overlay','themes-screen'
+    'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
+    'news-edit-overlay','photomod-overlay'
   ];
   function anyOpen(){
     for(const id of CLOSABLE){
