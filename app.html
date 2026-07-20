@@ -93,12 +93,88 @@
       --profit:#8FD44A;--loss:#FF5A6A;--neutral:#B0A080;
       --text:#F4ECDC;--text-dim:#AC9B7F;
     }
-    /* Robotic themes: sharp cut corners instead of rounded */
-    [data-theme="clank"] .catalog-row,[data-theme="clank"] .fr-card,[data-theme="clank"] .stat-widget,
-    [data-theme="kit"] .catalog-row,[data-theme="kit"] .fr-card,[data-theme="kit"] .stat-widget,
-    [data-theme="nefarious"] .catalog-row,[data-theme="nefarious"] .fr-card,[data-theme="nefarious"] .stat-widget{
-      clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    /* ══ STRONG PER-THEME CARD STYLING ══ */
+    /* Shared card selector list for convenience */
+
+    /* ── CLANK: hard tech panels, sharp cut corners, bolt dots, metal sheen ── */
+    [data-theme="clank"] .card,[data-theme="clank"] .item-card,[data-theme="clank"] .catalog-row,
+    [data-theme="clank"] .fr-card,[data-theme="clank"] .wiki-card,[data-theme="clank"] .home-tile,
+    [data-theme="clank"] .home-stat,[data-theme="clank"] .public-card,[data-theme="clank"] .theme-card{
+      clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);
       border-radius:0 !important;
+      border:1px solid rgba(95,205,232,.35) !important;
+      background:linear-gradient(160deg, rgba(19,32,48,.95), rgba(10,16,22,.95)) !important;
+      box-shadow:inset 0 1px 0 rgba(120,200,230,.15), 0 2px 8px rgba(0,0,0,.4);
+      position:relative;
+    }
+    [data-theme="clank"] .card::after,[data-theme="clank"] .item-card::after,[data-theme="clank"] .catalog-row::after{
+      content:'';position:absolute;left:8px;bottom:6px;width:14px;height:2px;background:rgba(95,205,232,.5);box-shadow:0 -4px 0 rgba(95,205,232,.3);
+    }
+
+    /* ── KIT: brass warbot panels, cut corners, warm rivets ── */
+    [data-theme="kit"] .card,[data-theme="kit"] .item-card,[data-theme="kit"] .catalog-row,
+    [data-theme="kit"] .fr-card,[data-theme="kit"] .wiki-card,[data-theme="kit"] .home-tile,
+    [data-theme="kit"] .home-stat,[data-theme="kit"] .public-card,[data-theme="kit"] .theme-card{
+      clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+      border-radius:0 !important;
+      border:1px solid rgba(240,176,84,.4) !important;
+      background:linear-gradient(160deg, rgba(38,29,19,.95), rgba(16,12,8,.95)) !important;
+      box-shadow:inset 0 1px 0 rgba(240,176,84,.2), 0 2px 8px rgba(0,0,0,.4);
+    }
+
+    /* ── NEFARIOUS: angular villain plates, glowing edge, corner rivets ── */
+    [data-theme="nefarious"] .card,[data-theme="nefarious"] .item-card,[data-theme="nefarious"] .catalog-row,
+    [data-theme="nefarious"] .fr-card,[data-theme="nefarious"] .wiki-card,[data-theme="nefarious"] .home-tile,
+    [data-theme="nefarious"] .home-stat,[data-theme="nefarious"] .public-card,[data-theme="nefarious"] .theme-card{
+      clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px));
+      border-radius:0 !important;
+      border:1px solid rgba(255,106,26,.45) !important;
+      background:linear-gradient(160deg, rgba(30,24,56,.95), rgba(12,10,26,.95)) !important;
+      box-shadow:0 0 14px rgba(90,58,212,.25), inset 0 0 20px rgba(255,106,26,.06);
+    }
+
+    /* ── NEBULA: soft rounded glassy cards with cyan glow ── */
+    [data-theme="nebula"] .card,[data-theme="nebula"] .item-card,[data-theme="nebula"] .catalog-row,
+    [data-theme="nebula"] .fr-card,[data-theme="nebula"] .wiki-card,[data-theme="nebula"] .home-tile,
+    [data-theme="nebula"] .home-stat,[data-theme="nebula"] .public-card,[data-theme="nebula"] .theme-card{
+      border-radius:20px !important;
+      border:1px solid rgba(43,212,196,.3) !important;
+      background:linear-gradient(160deg, rgba(19,37,56,.85), rgba(10,16,24,.85)) !important;
+      backdrop-filter:blur(4px);
+      box-shadow:0 4px 20px rgba(43,212,196,.12);
+    }
+
+    /* ── QWARK: heroic bold cards, thick top accent bar, big radius ── */
+    [data-theme="qwark"] .card,[data-theme="qwark"] .item-card,[data-theme="qwark"] .catalog-row,
+    [data-theme="qwark"] .fr-card,[data-theme="qwark"] .wiki-card,[data-theme="qwark"] .home-tile,
+    [data-theme="qwark"] .home-stat,[data-theme="qwark"] .public-card,[data-theme="qwark"] .theme-card{
+      border-radius:14px !important;
+      border:1px solid rgba(70,214,255,.25) !important;
+      border-top:3px solid var(--purple) !important;
+      background:linear-gradient(160deg, rgba(19,40,64,.9), rgba(10,20,34,.9)) !important;
+      box-shadow:0 4px 16px rgba(70,214,255,.15);
+    }
+
+    /* ── GADGETRON: industrial, thick left hazard border, boxy ── */
+    [data-theme="gadgetron"] .card,[data-theme="gadgetron"] .item-card,[data-theme="gadgetron"] .catalog-row,
+    [data-theme="gadgetron"] .fr-card,[data-theme="gadgetron"] .wiki-card,[data-theme="gadgetron"] .home-tile,
+    [data-theme="gadgetron"] .home-stat,[data-theme="gadgetron"] .public-card,[data-theme="gadgetron"] .theme-card{
+      border-radius:6px !important;
+      border:1px solid rgba(255,176,32,.3) !important;
+      border-left:5px solid var(--purple) !important;
+      background:linear-gradient(160deg, rgba(42,33,19,.92), rgba(20,16,10,.92)) !important;
+      box-shadow:0 2px 8px rgba(0,0,0,.4);
+    }
+
+    /* ── RIVET: rugged, slightly slanted accent, warm rust border ── */
+    [data-theme="rivet"] .card,[data-theme="rivet"] .item-card,[data-theme="rivet"] .catalog-row,
+    [data-theme="rivet"] .fr-card,[data-theme="rivet"] .wiki-card,[data-theme="rivet"] .home-tile,
+    [data-theme="rivet"] .home-stat,[data-theme="rivet"] .public-card,[data-theme="rivet"] .theme-card{
+      border-radius:10px !important;
+      border:1px solid rgba(224,112,58,.35) !important;
+      border-bottom:3px solid var(--orange) !important;
+      background:linear-gradient(160deg, rgba(42,33,28,.92), rgba(20,16,12,.92)) !important;
+      box-shadow:0 3px 12px rgba(155,111,244,.12);
     }
 
     /* ══ IMMERSIVE PER-THEME STYLING ══ */
