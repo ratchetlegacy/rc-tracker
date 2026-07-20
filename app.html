@@ -2790,7 +2790,7 @@ async function launchApp(){
   // email display handled by profile
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>'+t('loading')+'</div>';
-  await fetchItems(); render(); loadProfile(); loadTheme(); loadRcTotal(); loadLang(); setTimeout(applyTranslations, 300);
+  await fetchItems(); await syncPseudoFromDb(); render(); loadProfile(); loadTheme(); loadRcTotal(); loadLang(); setTimeout(applyTranslations, 300);
   refreshFriendBadge();
   setInterval(refreshFriendBadge, 60000);
   const _ff = document.getElementById('fixed-footer'); if(_ff) _ff.style.display = 'flex';
@@ -2894,6 +2894,9 @@ function openProfile(){
       const _ha = document.getElementById('header-avatar'); if(_ha) _ha.textContent = a;
       grid.querySelectorAll('.avatar-opt').forEach(o => o.classList.remove('selected'));
       el.classList.add('selected');
+      // Persist avatar to DB too (only if a real pseudo already exists)
+      const _p = localStorage.getItem('rc_pseudo_'+currentUser.id)||'';
+      if(_p && _p.toLowerCase()!=='collector') savePseudoToDb(_p, a);
       showToast('Avatar updated!', 'success');
     };
     grid.appendChild(el);
@@ -2973,9 +2976,11 @@ function savePseudo(){
   document.getElementById('profile-pseudo-display').textContent = pseudo;
   const _hp = document.getElementById('header-pseudo'); if(_hp) _hp.textContent = pseudo;
   const _hpm = document.getElementById('header-pseudo-mobile'); if(_hpm) _hpm.textContent = pseudo;
-  // Hide the reminder + push the new name to the public directory
+  // Hide the reminder
   const banner=document.getElementById('pseudo-reminder'); if(banner) banner.style.display='none';
-  if(typeof savePublicProfile==='function') savePublicProfile();
+  // Persist to the DATABASE (source of truth, survives device changes)
+  const avatar = localStorage.getItem('rc_avatar_'+currentUser.id)||'🦊';
+  savePseudoToDb(pseudo, avatar);
   showToast('Username saved!','success');
 }
 
@@ -4160,6 +4165,50 @@ async function removePublicProfile(){
   try {
     await sbClient.from('public_profiles').update({is_active:false}).eq('user_id', currentUser.id);
   } catch(e){ console.log('Public profile remove error:', e.message); }
+}
+
+// ── Pseudo persistence in the DATABASE (source of truth) ──
+// Writes just the pseudo/avatar without forcing the public profile ON.
+async function savePseudoToDb(pseudo, avatar){
+  if(!currentUser) return;
+  const rank = getRank(items.filter(i=>i.status==='owned').length);
+  try {
+    // Preserve current is_active if a row already exists
+    let active = false;
+    const { data:existing } = await sbClient.from('public_profiles')
+      .select('is_active').eq('user_id', currentUser.id).maybeSingle();
+    if(existing && typeof existing.is_active==='boolean') active = existing.is_active;
+    await sbClient.from('public_profiles').upsert([{
+      user_id: currentUser.id,
+      token: getPublicToken(),
+      pseudo: pseudo,
+      avatar: avatar,
+      rank_name: rank.name,
+      rank_icon: rank.icon,
+      is_active: active,               // don't change the public toggle
+      updated_at: new Date().toISOString()
+    }], {onConflict:'user_id'});
+  } catch(e){ console.log('savePseudoToDb error:', e.message); }
+}
+
+// Reads the pseudo/avatar from the DB at startup and caches them locally.
+// If the DB has nothing but localStorage does (old users), it migrates up.
+async function syncPseudoFromDb(){
+  if(!currentUser) return;
+  try {
+    const { data } = await sbClient.from('public_profiles')
+      .select('pseudo,avatar').eq('user_id', currentUser.id).maybeSingle();
+    const localPseudo = (localStorage.getItem('rc_pseudo_'+currentUser.id)||'').trim();
+    const localAvatar = localStorage.getItem('rc_avatar_'+currentUser.id)||'🦊';
+    if(data && data.pseudo && data.pseudo.toLowerCase()!=='collector'){
+      // DB is the source of truth → refresh local cache
+      localStorage.setItem('rc_pseudo_'+currentUser.id, data.pseudo);
+      if(data.avatar) localStorage.setItem('rc_avatar_'+currentUser.id, data.avatar);
+    } else if(localPseudo && localPseudo.toLowerCase()!=='collector'){
+      // Old user: pseudo only exists locally → push it to the DB
+      await savePseudoToDb(localPseudo, localAvatar);
+    }
+  } catch(e){ console.log('syncPseudoFromDb error:', e.message); }
 }
 
 function copyPublicLink(){
