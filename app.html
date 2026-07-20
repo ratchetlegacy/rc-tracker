@@ -728,6 +728,33 @@
     .theme-card-desc{font-size:.76rem;color:var(--text-dim);line-height:1.4}
     .theme-lock{margin-top:8px;font-size:.72rem;color:var(--wishlist);font-weight:600}
     .theme-current{margin-top:8px;font-size:.72rem;color:var(--owned);font-weight:700}
+    /* HOME DASHBOARD */
+    #home-screen{min-height:100vh;background:var(--bg);max-width:640px;margin:0 auto}
+    .home-topbar{display:flex;align-items:center;gap:12px;padding:16px 18px}
+    .home-menu-btn{background:var(--bg3);border:none;color:var(--text);font-size:1.3rem;width:44px;height:44px;border-radius:12px;cursor:pointer}
+    .home-body{padding:8px 18px 40px}
+    .home-welcome{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,rgba(123,79,212,.15),rgba(255,138,42,.08));border:1px solid rgba(123,79,212,.25);border-radius:18px;padding:18px;margin-bottom:16px}
+    .home-avatar{font-size:2.6rem;width:64px;height:64px;display:flex;align-items:center;justify-content:center;background:rgba(123,79,212,.15);border-radius:50%;flex-shrink:0}
+    .home-hi{font-size:1.15rem;font-weight:800;margin-bottom:4px}
+    .home-rank{font-size:.82rem;color:var(--purple-light);font-weight:600;margin-bottom:8px}
+    .home-rank-bar{height:8px;background:var(--bg);border-radius:6px;overflow:hidden;margin-bottom:4px}
+    .home-rank-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--orange));border-radius:6px;transition:width .5s}
+    .home-rank-next{font-size:.68rem;color:var(--text-dim)}
+    .home-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+    @media(max-width:420px){.home-stats{grid-template-columns:1fr 1fr}}
+    .home-stat{background:var(--bg3);border-radius:14px;padding:14px 8px;text-align:center}
+    .home-stat-v{font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:800;line-height:1}
+    .home-stat-l{font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+    .home-news{background:var(--bg3);border:1px solid rgba(255,212,71,.25);border-radius:16px;padding:16px;margin-bottom:16px}
+    .home-news-head{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.82rem;color:var(--wishlist);margin-bottom:8px}
+    .home-news-body{font-size:.88rem;color:var(--text);line-height:1.5;white-space:pre-wrap}
+    .home-cta{width:100%;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border:none;border-radius:14px;padding:16px;font-weight:800;font-size:1rem;cursor:pointer;margin-bottom:18px;box-shadow:0 6px 20px rgba(123,79,212,.35)}
+    .home-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    @media(max-width:420px){.home-grid{grid-template-columns:1fr 1fr}}
+    .home-tile{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 8px;text-align:center;cursor:pointer;transition:transform .12s,border-color .12s;font-size:.8rem;font-weight:600}
+    .home-tile:hover{transform:translateY(-2px);border-color:var(--purple)}
+    .home-tile-ic{font-size:1.7rem;margin-bottom:6px}
+    .home-kofi{background:linear-gradient(135deg,#FF7A1A,#FFB020);color:#1a1200;border:none;border-radius:12px;padding:12px 22px;font-weight:800;cursor:pointer}
     /* FRIENDS + COMPARE SCREENS */
     .friends-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:510;overflow-y:auto}
     .friends-screen.open{display:block}
@@ -941,6 +968,72 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <button class="auth-submit" id="auth-btn" onclick="doAuth()">SIGN IN</button>
     </div>
     <button onclick="resetSetup()" style="margin-top:14px;background:transparent;border:none;color:var(--text-dim);font-size:.7rem;cursor:pointer;text-decoration:underline">⚙️ Reconfigure Supabase</button>
+  </div>
+</div>
+
+<!-- HOME DASHBOARD -->
+<div id="home-screen" style="display:none">
+  <div class="home-topbar">
+    <div class="logo-img" style="width:38px;height:38px"><img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:9px"/><div class="logo-fallback">🔧</div></div>
+    <div style="flex:1"></div>
+    <button class="home-menu-btn" onclick="openMobileMenu()">☰</button>
+  </div>
+  <div class="home-body">
+    <!-- Welcome -->
+    <div class="home-welcome">
+      <div class="home-avatar" id="home-avatar">🦊</div>
+      <div style="flex:1;min-width:0">
+        <div class="home-hi">Hi <span id="home-pseudo">Collector</span>! 🦊</div>
+        <div class="home-rank" id="home-rank">🌱 Rookie</div>
+        <div class="home-rank-bar"><div class="home-rank-fill" id="home-rank-fill"></div></div>
+        <div class="home-rank-next" id="home-rank-next"></div>
+      </div>
+    </div>
+
+    <!-- Key stats -->
+    <div class="home-stats">
+      <div class="home-stat"><div class="home-stat-v" id="home-owned" style="color:var(--owned)">0</div><div class="home-stat-l">Owned</div></div>
+      <div class="home-stat"><div class="home-stat-v" id="home-wish" style="color:var(--wishlist)">0</div><div class="home-stat-l">Wishlist</div></div>
+      <div class="home-stat"><div class="home-stat-v" id="home-completion" style="color:var(--purple-light)">0%</div><div class="home-stat-l">R&C done</div></div>
+      <div class="home-stat"><div class="home-stat-v" id="home-value" style="color:var(--chrome)">—</div><div class="home-stat-l">Value</div></div>
+    </div>
+
+    <!-- News (admin editable) -->
+    <div class="home-news" id="home-news-card" style="display:none">
+      <div class="home-news-head">
+        <span>📣 What's new</span>
+        <button id="home-news-edit" style="display:none;background:transparent;border:none;color:var(--purple-light);cursor:pointer;font-size:.75rem" onclick="openNewsEdit()">✏️ Edit</button>
+      </div>
+      <div class="home-news-body" id="home-news-body"></div>
+    </div>
+
+    <!-- Primary CTA -->
+    <button class="home-cta" onclick="goToCollection()">📚 View my collection</button>
+
+    <!-- Shortcuts -->
+    <div class="home-grid">
+      <div class="home-tile" onclick="goToCollection()"><div class="home-tile-ic">🗂️</div><div>Collection</div></div>
+      <div class="home-tile" onclick="closeHome();openCatalog()"><div class="home-tile-ic">📚</div><div>Catalog</div></div>
+      <div class="home-tile" onclick="closeHome();openFriends()"><div class="home-tile-ic">🤝</div><div>Friends</div></div>
+      <div class="home-tile" onclick="closeHome();openWiki()"><div class="home-tile-ic">📖</div><div>Wiki</div></div>
+      <div class="home-tile" onclick="closeHome();openOther()"><div class="home-tile-ic">📦</div><div>Others</div></div>
+      <div class="home-tile" onclick="closeHome();openThemes()"><div class="home-tile-ic">🎨</div><div>Themes</div></div>
+    </div>
+
+    <div style="text-align:center;margin-top:20px">
+      <button class="home-kofi" onclick="window.open('https://ko-fi.com/ratchetlegacy','_blank')">☕ Support the project</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEWS EDIT MODAL (admin) -->
+<div class="modal-overlay" id="news-edit-overlay" style="z-index:560">
+  <div class="modal" style="max-width:460px">
+    <button class="modal-close" onclick="closeNewsEdit()">✕</button>
+    <h2 style="margin-bottom:8px">📣 Edit "What's new"</h2>
+    <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px">Shown to everyone on the home screen. Leave empty to hide the card.</p>
+    <textarea id="news-edit-text" rows="5" style="width:100%;background:var(--bg);border:1px solid rgba(123,79,212,.3);border-radius:10px;padding:12px;color:var(--text);font-family:Inter,sans-serif;font-size:.88rem;outline:none;resize:vertical" placeholder="e.g. 🎨 New themes are here! Unlock them as your collection grows."></textarea>
+    <button class="add-btn" style="width:100%;margin-top:12px" onclick="saveNews()">💾 Save</button>
   </div>
 </div>
 
@@ -2110,6 +2203,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div class="mobile-menu-overlay" id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
 <div class="mobile-menu-panel" id="mobile-menu-panel">
   <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
+  <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome()">🏠 Home</div>
   <div class="menu-item" onclick="closeMobileMenu();openProfile()">🦊 <span id="mobile-pseudo">My profile</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 Stats</div>
   <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
@@ -2983,6 +3077,7 @@ async function launchApp(){
   }
   if(isAdmin()){ const _ab = document.getElementById('mobile-admin-btn'); if(_ab) _ab.style.display='flex'; }
   maybeShowPseudoReminder();
+  showHome();  // land on the dashboard first
 }
 
 // Show a reminder if the user still has no real nickname (default "Collector")
@@ -5312,6 +5407,7 @@ function kofiUnlocked(themeId){
   return localStorage.getItem('rc_kofi_theme_'+themeId)==='1';
 }
 function isThemeUnlocked(t){
+  if(isAdmin()) return true;          // admin gets every theme 😎
   if(t.unlock==='free') return true;
   if(t.unlock==='rank') return ownedCount() >= t.req;
   if(t.unlock==='kofi') return kofiUnlocked(t.id);
@@ -5441,6 +5537,102 @@ function showMainMenu(){
   document.querySelectorAll('.admin-screen.open, .stats-screen.open, .public-screen.open').forEach(s => s.classList.remove('open'));
   document.getElementById('profile-screen').classList.remove('open');
   show('app-screen');
+}
+
+// ══════════════════════════════════════════════════════════
+//  HOME DASHBOARD
+// ══════════════════════════════════════════════════════════
+function showHome(){
+  document.getElementById('app-screen').style.display='none';
+  const h=document.getElementById('home-screen');
+  h.style.display='block';
+  renderHome();
+  loadNews();
+}
+function closeHome(){ document.getElementById('home-screen').style.display='none'; }
+function closeAllScreensToHome(){
+  document.querySelectorAll('.stats-screen.open, .admin-screen.open, .public-screen.open, .friends-screen.open, .modal-overlay.open').forEach(s=>s.classList.remove('open'));
+  const pr=document.getElementById('profile-screen'); if(pr) pr.classList.remove('open');
+  showHome();
+}
+function goToCollection(){
+  closeHome();
+  show('app-screen');
+}
+
+function renderHome(){
+  // pseudo + avatar
+  const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id) || 'Collector';
+  const avatar = localStorage.getItem('rc_avatar_'+currentUser.id) || '🦊';
+  document.getElementById('home-pseudo').textContent = pseudo;
+  document.getElementById('home-avatar').textContent = avatar;
+  // rank + progression
+  const owned = items.filter(i=>i.status==='owned').length;
+  const rank = getRank(owned);
+  const idx = RANKS.indexOf(rank);
+  const next = RANKS[idx+1];
+  document.getElementById('home-rank').textContent = rank.icon+' '+rank.name;
+  document.getElementById('home-rank').style.color = rank.color;
+  const fill=document.getElementById('home-rank-fill');
+  const nextTxt=document.getElementById('home-rank-next');
+  if(next){
+    const span = next.min - rank.min;
+    const prog = Math.min(100, Math.round(((owned - rank.min)/span)*100));
+    fill.style.width = prog+'%';
+    nextTxt.textContent = (next.min - owned)+' more to '+next.icon+' '+next.name;
+  } else {
+    fill.style.width='100%';
+    nextTxt.textContent = 'Max rank reached! 🏆';
+  }
+  // stats
+  const wish = items.filter(i=>i.status==='wishlist').length;
+  document.getElementById('home-owned').textContent = owned;
+  document.getElementById('home-wish').textContent = wish;
+  const pct = (rcCollectionTotal>0) ? Math.round((owned/rcCollectionTotal)*100) : 0;
+  document.getElementById('home-completion').textContent = pct+'%';
+  // total value
+  const val = items.filter(i=>i.status==='owned').reduce((s,i)=>s+(parseFloat(i.cur_value)||0),0);
+  document.getElementById('home-value').textContent = val>0 ? fmtEurS(val) : '—';
+}
+
+// News card (stored in app_settings key 'home_news')
+async function loadNews(){
+  const card=document.getElementById('home-news-card');
+  const bodyEl=document.getElementById('home-news-body');
+  const editBtn=document.getElementById('home-news-edit');
+  if(editBtn) editBtn.style.display = isAdmin()?'block':'none';
+  try {
+    const { data } = await sbClient.from('app_settings').select('value').eq('key','home_news').maybeSingle();
+    const txt = (data && data.value) ? data.value.trim() : '';
+    if(txt){
+      bodyEl.textContent = txt;
+      card.style.display='block';
+    } else {
+      // hide for users, but keep visible+empty hint for admin so they can add one
+      if(isAdmin()){ bodyEl.textContent='(No news yet — tap Edit to add one)'; card.style.display='block'; }
+      else card.style.display='none';
+    }
+  } catch(e){
+    if(isAdmin()){ bodyEl.textContent='(No news yet — tap Edit to add one)'; card.style.display='block'; }
+    else card.style.display='none';
+  }
+}
+function openNewsEdit(){
+  if(!isAdmin()) return;
+  const cur=document.getElementById('home-news-body').textContent;
+  document.getElementById('news-edit-text').value = cur.startsWith('(No news')?'':cur;
+  document.getElementById('news-edit-overlay').classList.add('open');
+}
+function closeNewsEdit(){ document.getElementById('news-edit-overlay').classList.remove('open'); }
+async function saveNews(){
+  if(!isAdmin()){ showToast('Admin only','error'); return; }
+  const txt=document.getElementById('news-edit-text').value.trim();
+  try {
+    const { error } = await sbClient.from('app_settings').upsert([{key:'home_news', value:txt}], {onConflict:'key'});
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast('News updated! 📣','success');
+    closeNewsEdit(); loadNews();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 
 async function saveRcTotal(){
