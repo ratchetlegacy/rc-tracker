@@ -100,6 +100,131 @@
       clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
       border-radius:0 !important;
     }
+
+    /* ══ IMMERSIVE PER-THEME STYLING ══ */
+    /* Background textures (subtle, non-distracting) */
+    [data-theme="clank"] body, [data-theme="kit"] body, [data-theme="nefarious"] body{
+      background-image:
+        repeating-linear-gradient(90deg, rgba(255,255,255,.015) 0 1px, transparent 1px 40px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.015) 0 1px, transparent 1px 40px);
+    }
+    [data-theme="nebula"] body{
+      background-image:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.4), transparent),
+        radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,.3), transparent),
+        radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,.35), transparent),
+        radial-gradient(1px 1px at 85% 15%, rgba(255,255,255,.25), transparent),
+        radial-gradient(2px 2px at 55% 45%, rgba(120,210,235,.3), transparent);
+      background-attachment:fixed;
+    }
+    [data-theme="gadgetron"] body{
+      background-image: repeating-linear-gradient(45deg, rgba(255,176,32,.03) 0 12px, transparent 12px 24px);
+    }
+    [data-theme="qwark"] body{
+      background-image: radial-gradient(circle at 50% 0%, rgba(70,214,255,.08), transparent 60%);
+      background-attachment:fixed;
+    }
+
+    /* Heading fonts per family */
+    [data-theme="clank"] h1,[data-theme="clank"] h2,[data-theme="kit"] h1,[data-theme="kit"] h2,
+    [data-theme="nefarious"] h1,[data-theme="nefarious"] h2,[data-theme="gadgetron"] h1,[data-theme="gadgetron"] h2{
+      font-family:'Orbitron',sans-serif !important; letter-spacing:.04em;
+    }
+
+    /* Signature glow on key elements */
+    [data-theme="qwark"] .add-btn,[data-theme="nebula"] .add-btn{
+      box-shadow:0 0 18px rgba(70,214,255,.35);
+    }
+    [data-theme="nefarious"] .add-btn{
+      box-shadow:0 0 18px rgba(255,106,26,.4);
+    }
+    [data-theme="clank"] .rank-badge,[data-theme="kit"] .rank-badge{
+      text-shadow:0 0 10px currentColor;
+    }
+    /* Robotic themes: rivet-like corner dots on cards */
+    [data-theme="clank"] .catalog-row::before,[data-theme="kit"] .catalog-row::before,[data-theme="nefarious"] .catalog-row::before{
+      content:'';position:absolute;top:6px;right:6px;width:4px;height:4px;border-radius:50%;
+      background:var(--purple-light);opacity:.6;box-shadow:0 0 4px var(--purple-light);
+    }
+    /* Nebula & Qwark: rounded, soft, glowing cards */
+    [data-theme="nebula"] .catalog-row,[data-theme="qwark"] .catalog-row{border-radius:16px}
+    [data-theme="nebula"] .home-cta,[data-theme="qwark"] .home-cta{
+      box-shadow:0 6px 24px rgba(70,214,255,.4);
+    }
+    /* Gadgetron: bold industrial borders */
+    [data-theme="gadgetron"] .catalog-row,[data-theme="gadgetron"] .fr-card,[data-theme="gadgetron"] .home-tile{
+      border-left:3px solid var(--purple) !important;
+    }
+    /* Rivet: diagonal accent */
+    [data-theme="rivet"] .add-btn,[data-theme="rivet"] .home-cta{
+      background:linear-gradient(115deg,var(--purple),var(--orange)) !important;
+    }
+    /* Animated shimmer for the confirm/apply button in robotic themes */
+    @keyframes metalSweep{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    [data-theme="nefarious"] .home-cta,[data-theme="clank"] .home-cta,[data-theme="kit"] .home-cta{
+      background-image:linear-gradient(110deg, var(--purple) 0%, var(--purple-light) 45%, var(--orange) 55%, var(--purple) 100%);
+      background-size:200% 100%; animation:metalSweep 4s linear infinite;
+    }
+
+    /* ══ IMMERSIVE THEME BACKGROUNDS ══ */
+    #theme-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;transition:opacity .4s;background-color:var(--bg)}
+    #theme-bg{
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(123,79,212,.20), transparent 45%),
+        radial-gradient(circle at 85% 75%, rgba(255,138,42,.14), transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(60,30,90,.10), transparent 70%);
+    }
+    [data-theme="clank"] #theme-bg{
+      background-image:
+        radial-gradient(circle at 50% 30%, rgba(70,224,140,.14), transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(63,169,201,.16), transparent 50%),
+        repeating-linear-gradient(90deg, rgba(120,180,200,.05) 0 1px, transparent 1px 48px),
+        repeating-linear-gradient(0deg, rgba(120,180,200,.05) 0 1px, transparent 1px 48px);
+    }
+    [data-theme="gadgetron"] #theme-bg{
+      background-image:
+        radial-gradient(circle at 20% 20%, rgba(255,176,32,.16), transparent 45%),
+        radial-gradient(circle at 75% 70%, rgba(255,122,26,.14), transparent 50%),
+        repeating-linear-gradient(45deg, rgba(255,176,32,.04) 0 14px, transparent 14px 28px);
+    }
+    [data-theme="qwark"] #theme-bg{
+      background-image:
+        radial-gradient(ellipse at 50% -10%, rgba(70,214,255,.20), transparent 55%),
+        radial-gradient(circle at 30% 80%, rgba(63,181,74,.14), transparent 50%);
+    }
+    [data-theme="nebula"] #theme-bg{
+      background-image:
+        radial-gradient(circle at 25% 30%, rgba(43,212,196,.16), transparent 45%),
+        radial-gradient(circle at 75% 65%, rgba(90,122,168,.16), transparent 50%),
+        radial-gradient(1px 1px at 10% 20%, #fff, transparent),
+        radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,.7), transparent),
+        radial-gradient(1px 1px at 60% 40%, #fff, transparent),
+        radial-gradient(1px 1px at 80% 25%, rgba(255,255,255,.6), transparent),
+        radial-gradient(2px 2px at 45% 85%, rgba(120,210,235,.6), transparent),
+        radial-gradient(1px 1px at 90% 80%, #fff, transparent);
+      animation:nebulaTwinkle 6s ease-in-out infinite alternate;
+    }
+    @keyframes nebulaTwinkle{0%{opacity:.75}100%{opacity:1}}
+    [data-theme="rivet"] #theme-bg{
+      background-image:
+        radial-gradient(circle at 20% 25%, rgba(224,112,58,.18), transparent 48%),
+        radial-gradient(circle at 80% 75%, rgba(155,111,244,.16), transparent 50%),
+        repeating-linear-gradient(115deg, rgba(224,112,58,.04) 0 20px, transparent 20px 42px);
+    }
+    [data-theme="nefarious"] #theme-bg{
+      background-image:
+        radial-gradient(circle at 50% 40%, rgba(90,58,212,.22), transparent 50%),
+        radial-gradient(circle at 50% 40%, rgba(255,106,26,.12), transparent 35%),
+        repeating-linear-gradient(90deg, rgba(180,160,255,.04) 0 1px, transparent 1px 40px);
+      animation:nefPulse 5s ease-in-out infinite alternate;
+    }
+    @keyframes nefPulse{0%{filter:brightness(.9)}100%{filter:brightness(1.15)}}
+    [data-theme="kit"] #theme-bg{
+      background-image:
+        radial-gradient(circle at 25% 25%, rgba(216,144,48,.18), transparent 48%),
+        radial-gradient(circle at 78% 72%, rgba(90,200,224,.16), transparent 50%),
+        repeating-linear-gradient(0deg, rgba(216,144,48,.04) 0 1px, transparent 1px 44px);
+    }
     @media(max-width:480px){
       .header-titles h1{font-size:.75rem}
       .header-titles span{display:none}
@@ -110,7 +235,8 @@
       .header-profile-avatar{width:32px;height:32px;font-size:1.05rem}
       .header-top{gap:8px}
     }
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    body{font-family:'Inter',sans-serif;background:transparent;color:var(--text);min-height:100vh}
+    html{background:var(--bg)}
 
     /* AUTH */
     #auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;
@@ -618,7 +744,7 @@
     .catalog-group{margin-bottom:26px}
     .catalog-group-title{font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:700;color:var(--cyan,#78D2EB);letter-spacing:.08em;margin:0 0 12px;padding-bottom:6px;border-bottom:1px solid rgba(120,210,235,.2)}
     .catalog-list{display:flex;flex-direction:column;gap:0}
-    .catalog-row{display:flex;gap:14px;align-items:center;background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;margin-bottom:8px;transition:border-color .2s}
+    .catalog-row{display:flex;gap:14px;align-items:center;background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;margin-bottom:8px;transition:border-color .2s;position:relative}
     .catalog-row:hover{border-color:rgba(120,210,235,.3)}
     .catalog-row.admin-clickable{cursor:pointer}
     .catalog-thumb{width:54px;height:54px;flex-shrink:0;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -834,6 +960,7 @@
   </style>
 </head>
 <body>
+<div id="theme-bg"></div>
 
 <!-- PWA INSTALL BANNER -->
 <div id="install-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:600;
@@ -5193,7 +5320,9 @@ async function openPhotoMod(){
         + '<div style="display:flex;gap:8px;margin-top:10px">'
         + '<button onclick="approvePhoto(\''+p.id+'\')" class="fr-btn fr-accept" style="flex:1">✓ Keep</button>'
         + '<button onclick="removePhoto(\''+p.id+'\')" class="fr-btn fr-decline" style="flex:1">🗑️ Remove</button>'
-        + '</div></div>';
+        + '</div>'
+        + '<button onclick="promoteToGallery(\''+p.id+'\',\''+encodeURIComponent(p.image_url)+'\',\''+encodeURIComponent(p.item_name||'')+'\')" style="width:100%;margin-top:8px;background:rgba(123,79,212,.15);border:1px solid rgba(123,79,212,.4);border-radius:9px;padding:9px;color:var(--purple-light);font-weight:700;font-size:.78rem;cursor:pointer">➕ Add to image gallery</button>'
+        + '</div>';
     }).join('');
   } catch(e){ body.innerHTML='<div style="padding:20px;color:var(--text-dim)">Error: '+e.message+'</div>'; }
 }
@@ -5229,6 +5358,25 @@ async function refreshPhotoModBadge(){
     const menuItem=document.getElementById('menu-photomod');
     if(menuItem) menuItem.style.display = isAdmin()?'block':'none';
   } catch(e){}
+}
+
+// Promote a user photo into the shared image gallery (admin only)
+async function promoteToGallery(id, encUrl, encName){
+  if(!isAdmin()){ showToast('Admin only','error'); return; }
+  const url = decodeURIComponent(encUrl);
+  const suggestedName = decodeURIComponent(encName)||'';
+  const name = prompt('Name for this gallery image:', suggestedName);
+  if(name===null) return; // cancelled
+  const folder = prompt('Folder (e.g. PS2, Figures, Goodies) — leave empty for none:', '');
+  if(folder===null) return;
+  try {
+    await addImageToBank(name.trim()||suggestedName||'Photo', url, folder.trim(), '', '', '');
+    // also mark the moderation entry as kept so it leaves the queue
+    await sbClient.from('photo_moderation').update({status:'approved'}).eq('id',id);
+    showToast('Added to the gallery! 🖼️','success');
+    refreshPhotoModBadge();
+    openPhotoMod();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -5525,9 +5673,9 @@ const THEMES = [
   {id:'',          icon:'🦊', name:'Lombax',    unlock:'free', desc:'The classic Ratchet look — purple & orange.'},
   {id:'clank',     icon:'🤖', name:'Clank',     unlock:'free', desc:'Metallic blue & emerald green, robotic edges.'},
   {id:'gadgetron', icon:'🔧', name:'Gadgetron', unlock:'rank', req:50,  desc:'Industrial yellow & orange.'},
-  {id:'nebula',    icon:'🌌', name:'Nebula',    unlock:'rank', req:150, desc:'Deep teal station lights & asteroid grey.'},
-  {id:'qwark',     icon:'⚡', name:'Qwark',     unlock:'rank', req:350, desc:'Heroic green & sky blue cape.'},
-  {id:'rivet',     icon:'🔩', name:'Rivet',     unlock:'rank', req:500, desc:'Rust orange, violet & metal.'},
+  {id:'nebula',    icon:'🌌', name:'Nebula',    unlock:'rank', req:100, desc:'Deep teal station lights & asteroid grey.'},
+  {id:'qwark',     icon:'⚡', name:'Qwark',     unlock:'rank', req:150, desc:'Heroic green & sky blue cape.'},
+  {id:'rivet',     icon:'🔩', name:'Rivet',     unlock:'rank', req:200, desc:'Rust orange, violet & metal.'},
   {id:'nefarious', icon:'👑', name:'Nefarious', unlock:'kofi', tier:'GOLD',     desc:'Villain purple & orange glow. Robotic edges.'},
   {id:'kit',       icon:'✨', name:'Kit',       unlock:'kofi', tier:'PLATINUM', desc:'Brass warbot gold & cyan. Robotic edges.'},
 ];
