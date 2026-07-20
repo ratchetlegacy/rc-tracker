@@ -1556,6 +1556,93 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
+<!-- OTHER COLLECTIONS SCREEN -->
+<div class="stats-screen" id="other-screen">
+  <div class="stats-page-header">
+    <div class="logo-img" onclick="closeOther();showMainMenu()" style="cursor:pointer;width:40px;height:40px" title="Home">
+      <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
+    </div>
+    <h1>📦 MY OTHER COLLECTIONS</h1>
+    <button class="stats-back" onclick="closeOther()">← Back</button>
+  </div>
+  <div class="stats-body">
+    <div class="catalog-wrap">
+      <p class="catalog-intro">Everything outside Ratchet &amp; Clank — other games, movies, comics, music… Private to you. 🔒</p>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="flex:1;background:var(--bg3);border-radius:10px;padding:10px 12px;text-align:center"><div id="other-count-owned" style="font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:800;color:var(--owned)">0</div><div style="font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">Owned</div></div>
+        <div style="flex:1;background:var(--bg3);border-radius:10px;padding:10px 12px;text-align:center"><div id="other-count-wish" style="font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:800;color:var(--wishlist)">0</div><div style="font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">Wishlist</div></div>
+        <div style="flex:1;background:var(--bg3);border-radius:10px;padding:10px 12px;text-align:center"><div id="other-count-total" style="font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:800;color:var(--purple-light)">0</div><div style="font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em">Total</div></div>
+      </div>
+      <div id="other-cats" class="catalog-cats"></div>
+      <div style="text-align:right;margin:6px 0 12px">
+        <button class="add-btn" onclick="openOtherEdit()">+ ADD ITEM</button>
+      </div>
+      <div id="other-list" class="catalog-list">
+        <div style="text-align:center;padding:50px;color:var(--text-dim)"><span style="font-size:1.6rem;display:block;animation:spin 1s linear infinite">⚙️</span>Loading…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OTHER ITEM EDIT MODAL -->
+<div class="modal-overlay" id="other-edit-overlay" style="z-index:540">
+  <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeOtherEdit()">✕</button>
+    <h2 id="other-edit-title" style="margin-bottom:16px">Add item</h2>
+    <input type="hidden" id="other-f-id"/>
+    <div class="form-group"><label>Name *</label><input type="text" id="other-f-name" placeholder="e.g. Spyro the Dragon"/></div>
+    <div class="form-group"><label>Category</label>
+      <select id="other-f-cat">
+        <option value="Game">🎮 Game</option>
+        <option value="Movie">🎬 Movie</option>
+        <option value="Series">📺 Series</option>
+        <option value="Comic">💥 Comic</option>
+        <option value="Manga">📚 Manga</option>
+        <option value="Book">📖 Book</option>
+        <option value="Music">🎵 Music</option>
+        <option value="Other">✨ Other</option>
+      </select>
+    </div>
+    <div class="form-row" style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1"><label>Platform / Support</label><input type="text" id="other-f-platform" placeholder="PS1, DVD, publisher..."/></div>
+      <div class="form-group" style="width:90px"><label>Year</label><input type="number" id="other-f-year" placeholder="1998"/></div>
+    </div>
+    <div class="form-row" style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1"><label>Edition</label><input type="text" id="other-f-edition" placeholder="Standard, Collector..."/></div>
+      <div class="form-group" style="flex:1"><label>Condition</label>
+        <select id="other-f-condition">
+          <option value="new">New</option>
+          <option value="used" selected>Used</option>
+          <option value="sealed">Sealed</option>
+          <option value="loose">Loose</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row" style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1"><label>Status</label>
+        <select id="other-f-status">
+          <option value="owned">✓ Owned</option>
+          <option value="wishlist">★ Wishlist</option>
+        </select>
+      </div>
+      <div class="form-group" style="width:110px"><label>Price (€)</label><input type="number" step="0.01" id="other-f-price" placeholder="0.00"/></div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="other-f-notes" rows="2" placeholder="Any personal note..."></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="add-btn" style="flex:1" onclick="saveOtherItem()">💾 Save</button>
+      <button id="other-delete-btn" style="display:none;flex:1;padding:11px;background:rgba(255,77,106,.15);border:1px solid rgba(255,77,106,.4);border-radius:10px;color:var(--missing);cursor:pointer" onclick="deleteOtherItem()">🗑️ Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- OTHER ITEM DETAIL -->
+<div class="modal-overlay" id="other-detail-overlay" style="z-index:520">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeOtherDetail()">✕</button>
+    <div id="other-detail-body"></div>
+  </div>
+</div>
+
 <!-- WIKI SCREEN -->
 <div class="stats-screen" id="wiki-screen">
   <div class="stats-page-header">
@@ -1943,6 +2030,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
   <div class="menu-item" onclick="closeMobileMenu();openCatalog()">📚 Catalog</div>
   <div class="menu-item" onclick="closeMobileMenu();openWiki()">📖 Wiki</div>
+  <div class="menu-item" onclick="closeMobileMenu();openOther()">📦 My other collections</div>
   <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
   <div class="menu-item" onclick="openFriends()">🤝 Friends <span id="friends-badge" style="display:none;background:var(--missing);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700;margin-left:4px">0</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openGuide()">📖 How to use</div>
@@ -4839,6 +4927,159 @@ async function rejectWikiSuggestion(id){
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 
+// ══════════════════════════════════════════════════════════
+//  MY OTHER COLLECTIONS (private, non-Ratchet items)
+// ══════════════════════════════════════════════════════════
+let otherData = [];
+let otherActiveCat = 'all';
+const OTHER_CAT_ICON = {Game:'🎮',Movie:'🎬',Series:'📺',Comic:'💥',Manga:'📚',Book:'📖',Music:'🎵',Other:'✨',all:'📦'};
+
+async function openOther(){
+  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  if(typeof closeMobileMenu==='function') closeMobileMenu();
+  document.getElementById('other-screen').classList.add('open');
+  await loadOther();
+}
+function closeOther(){ document.getElementById('other-screen').classList.remove('open'); }
+
+async function loadOther(){
+  const list=document.getElementById('other-list');
+  list.innerHTML='<div style="text-align:center;padding:50px;color:var(--text-dim)"><span style="font-size:1.6rem;display:block;animation:spin 1s linear infinite">⚙️</span>Loading…</div>';
+  try {
+    const { data, error } = await sbClient.from('other_items')
+      .select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+    if(error){ list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim)">Error: '+error.message+'</div>'; return; }
+    otherData = data||[];
+    renderOtherStats();
+    renderOtherCats();
+    renderOtherList();
+  } catch(e){ list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim)">Error: '+e.message+'</div>'; }
+}
+
+function renderOtherStats(){
+  const owned = otherData.filter(i=>i.status==='owned').length;
+  const wish = otherData.filter(i=>i.status==='wishlist').length;
+  document.getElementById('other-count-owned').textContent = owned;
+  document.getElementById('other-count-wish').textContent = wish;
+  document.getElementById('other-count-total').textContent = otherData.length;
+}
+
+function renderOtherCats(){
+  const box=document.getElementById('other-cats');
+  const present = [...new Set(otherData.map(i=>i.category).filter(Boolean))];
+  const cats = ['all', ...present];
+  box.innerHTML = cats.map(c=>{
+    const active = c===otherActiveCat ? ' active':'';
+    const label = c==='all'?'All':c;
+    return '<button class="catalog-cat'+active+'" onclick="setOtherCat(\''+c+'\')">'+(OTHER_CAT_ICON[c]||'')+' '+label+'</button>';
+  }).join('');
+}
+function setOtherCat(c){ otherActiveCat=c; renderOtherCats(); renderOtherList(); }
+
+function renderOtherList(){
+  const list=document.getElementById('other-list');
+  let entries = otherActiveCat==='all' ? otherData : otherData.filter(i=>i.category===otherActiveCat);
+  if(!entries.length){
+    list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">Nothing here yet. Tap “+ ADD ITEM” to start! 📦</div>';
+    return;
+  }
+  list.innerHTML = entries.map(i=>{
+    const meta=[i.platform, i.year, i.edition].filter(Boolean).join(' · ');
+    const statusBadge = i.status==='wishlist'
+      ? '<span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(255,212,71,.15);color:var(--wishlist)">★ Wishlist</span>'
+      : '<span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(61,214,140,.15);color:var(--owned)">✓ Owned</span>';
+    return '<div class="catalog-row" onclick="openOtherDetail(\''+i.id+'\')">'
+      + '<div class="catalog-thumb"><span class="catalog-thumb-icon">'+(OTHER_CAT_ICON[i.category]||'📦')+'</span></div>'
+      + '<div class="catalog-info"><div class="catalog-name">'+escHtml(i.name)+'</div>'
+      + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
+      + '<div style="margin-top:4px">'+statusBadge+'</div>'
+      + '</div>'
+      + (i.price?'<div class="catalog-year">'+fmtEurS(parseFloat(i.price))+'</div>':'')
+      + '<span class="catalog-chevron">›</span>'
+      + '</div>';
+  }).join('');
+}
+
+function openOtherDetail(id){
+  const i = otherData.find(x=>String(x.id)===String(id));
+  if(!i) return;
+  const meta=[i.platform, i.year, i.edition].filter(Boolean).join(' · ');
+  const body=document.getElementById('other-detail-body');
+  body.innerHTML =
+    '<div style="text-align:center;font-size:3rem;margin-bottom:8px">'+(OTHER_CAT_ICON[i.category]||'📦')+'</div>'
+    + '<div style="text-align:center" class="cd-cat">'+escHtml(i.category||'Other')+'</div>'
+    + '<h2 style="text-align:center;margin:6px 0">'+escHtml(i.name)+'</h2>'
+    + (meta?'<div style="text-align:center;font-family:\'Orbitron\',sans-serif;font-size:.8rem;color:var(--purple-light);margin-bottom:10px">'+escHtml(meta)+'</div>':'')
+    + '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px">'
+    +   '<span class="badge '+(i.status)+'">'+(i.status==='wishlist'?'★ Wishlist':'✓ Owned')+'</span>'
+    +   (i.condition?'<span class="badge">'+escHtml(i.condition)+'</span>':'')
+    +   (i.price?'<span class="badge platform">'+fmtEurS(parseFloat(i.price))+'</span>':'')
+    + '</div>'
+    + (i.notes?'<p style="font-size:.86rem;color:var(--text-dim);line-height:1.5;background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:14px">'+escHtml(i.notes)+'</p>':'')
+    + '<button onclick="closeOtherDetail();openOtherEdit(\''+i.id+'\')" style="width:100%;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border:none;border-radius:12px;padding:12px;font-weight:800;cursor:pointer">✏️ Edit</button>';
+  document.getElementById('other-detail-overlay').classList.add('open');
+}
+function closeOtherDetail(){ document.getElementById('other-detail-overlay').classList.remove('open'); }
+
+function openOtherEdit(id){
+  const i = id ? otherData.find(x=>String(x.id)===String(id)) : null;
+  document.getElementById('other-edit-title').textContent = i?'Edit item':'Add item';
+  document.getElementById('other-f-id').value = i?i.id:'';
+  document.getElementById('other-f-name').value = i?i.name:'';
+  document.getElementById('other-f-cat').value = i?(i.category||'Game'):'Game';
+  document.getElementById('other-f-platform').value = i?(i.platform||''):'';
+  document.getElementById('other-f-year').value = i?(i.year||''):'';
+  document.getElementById('other-f-edition').value = i?(i.edition||''):'';
+  document.getElementById('other-f-condition').value = i?(i.condition||'used'):'used';
+  document.getElementById('other-f-status').value = i?(i.status||'owned'):'owned';
+  document.getElementById('other-f-price').value = i?(i.price||''):'';
+  document.getElementById('other-f-notes').value = i?(i.notes||''):'';
+  document.getElementById('other-delete-btn').style.display = i?'block':'none';
+  document.getElementById('other-edit-overlay').classList.add('open');
+}
+function closeOtherEdit(){ document.getElementById('other-edit-overlay').classList.remove('open'); }
+
+async function saveOtherItem(){
+  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  const id=document.getElementById('other-f-id').value;
+  const name=document.getElementById('other-f-name').value.trim();
+  if(!name){ showToast('Name is required','error'); return; }
+  const yearVal=parseInt(document.getElementById('other-f-year').value);
+  const priceVal=parseFloat(document.getElementById('other-f-price').value);
+  const payload={
+    user_id: currentUser.id,
+    name,
+    category: document.getElementById('other-f-cat').value,
+    platform: document.getElementById('other-f-platform').value.trim()||null,
+    year: isNaN(yearVal)?null:yearVal,
+    edition: document.getElementById('other-f-edition').value.trim()||null,
+    condition: document.getElementById('other-f-condition').value,
+    status: document.getElementById('other-f-status').value,
+    price: isNaN(priceVal)?null:priceVal,
+    notes: document.getElementById('other-f-notes').value.trim()||null
+  };
+  try {
+    let error;
+    if(id){ ({error} = await sbClient.from('other_items').update(payload).eq('id',id)); }
+    else  { ({error} = await sbClient.from('other_items').insert([payload])); }
+    if(error){ console.log('other save error:',error); showToast('Error: '+error.message,'error'); return; }
+    showToast('Saved! 📦','success');
+    closeOtherEdit();
+    loadOther();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function deleteOtherItem(){
+  const id=document.getElementById('other-f-id').value;
+  if(!id) return;
+  if(!confirm('Delete this item?')) return;
+  try {
+    const { error } = await sbClient.from('other_items').delete().eq('id',id);
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast('Deleted','info'); closeOtherEdit(); loadOther();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+
 
 // ── Compare collections side by side ──
 async function compareWithFriend(friendId){
@@ -6413,7 +6654,8 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'ios-install-overlay','desktop-install-overlay','catalog-detail-overlay',
     'catalog-edit-overlay','profile-screen','admin-screen','stats-screen',
     'guide-screen','public-screen','friends-screen','compare-screen','market-screen',
-    'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay'
+    'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
+    'other-screen','other-edit-overlay','other-detail-overlay'
   ];
   function anyOpen(){
     for(const id of CLOSABLE){
