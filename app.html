@@ -419,6 +419,11 @@
     .grid-container{padding:22px 32px}
     .category-section{margin-bottom:32px}
     .cat-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .cat-toggle{cursor:pointer;user-select:none;padding:8px 10px;border-radius:10px;transition:background .15s}
+    .cat-toggle:hover{background:rgba(255,255,255,.04)}
+    .cat-chevron{font-size:.7rem;color:var(--purple-light);transition:transform .2s;flex-shrink:0}
+    .cat-toggle.collapsed .cat-chevron{transform:rotate(-90deg)}
+    .cat-toggle .cat-count{background:var(--bg3);padding:2px 10px;border-radius:12px}
     .cat-icon{font-size:1.1rem}
     .cat-title{font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase}
     .cat-count{font-size:.7rem;color:var(--text-dim);background:rgba(255,255,255,.06);padding:2px 8px;border-radius:10px}
@@ -1319,6 +1324,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
   </div>
 
+  <div id="section-controls" style="display:none;gap:8px;padding:0 32px;margin-bottom:2px">
+    <button onclick="setAllSections(true)" style="background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 12px;color:var(--text-dim);font-size:.72rem;font-weight:600;cursor:pointer">⬇️ Expand all</button>
+    <button onclick="setAllSections(false)" style="background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 12px;color:var(--text-dim);font-size:.72rem;font-weight:600;cursor:pointer">⬆️ Collapse all</button>
+  </div>
   <div class="grid-container" id="grid-container">
     <div class="loading"><span class="spin">⚙️</span>Loading...</div>
   </div>
@@ -2978,6 +2987,34 @@ function buildTypeFilters(){
   });
 }
 
+// Collapse/expand a category section
+function toggleCatSection(headerEl, key){
+  const grid = headerEl.nextElementSibling;
+  const isCollapsed = headerEl.classList.contains('collapsed');
+  if(isCollapsed){
+    headerEl.classList.remove('collapsed');
+    grid.style.display='';
+    localStorage.setItem('rc_'+key,'open');
+  } else {
+    headerEl.classList.add('collapsed');
+    grid.style.display='none';
+    localStorage.setItem('rc_'+key,'closed');
+  }
+}
+// Expand or collapse ALL sections at once
+function setAllSections(open){
+  document.querySelectorAll('.cat-toggle').forEach(h=>{
+    const grid=h.nextElementSibling;
+    if(open){ h.classList.remove('collapsed'); grid.style.display=''; }
+    else { h.classList.add('collapsed'); grid.style.display='none'; }
+  });
+  // update stored keys for currently shown sections
+  document.querySelectorAll('.cat-toggle').forEach(h=>{
+    const m=h.getAttribute('onclick').match(/'(sec_[^']+)'/);
+    if(m) localStorage.setItem('rc_'+m[1], open?'open':'closed');
+  });
+}
+
 function render(){
   // finance
   const ownedItems=items.filter(i=>i.status==='owned');
@@ -3059,14 +3096,18 @@ function render(){
 
     const sec=document.createElement('div');
     sec.className='category-section';
+    const secKey = 'sec_'+(type||'uncat');
+    // collapsed by default; remember per-type state
+    const collapsed = localStorage.getItem('rc_'+secKey)!=='open';
     sec.innerHTML=`
-      <div class="cat-header">
+      <div class="cat-header cat-toggle${collapsed?' collapsed':''}" onclick="toggleCatSection(this,'${secKey}')">
+        <span class="cat-chevron">▼</span>
         <span class="cat-icon">${icon}</span>
         <span class="cat-title">${label}</span>
         <span class="cat-count">${ownedCat}/${totalCat}</span>
         <div class="cat-divider"></div>
       </div>
-      <div class="items-grid"></div>`;
+      <div class="items-grid"${collapsed?' style="display:none"':''}></div>`;
     container.appendChild(sec);
 
     const grid=sec.querySelector('.items-grid');
@@ -3152,6 +3193,8 @@ function render(){
         });
   });
   if(!anyItem) container.innerHTML=`<div class="empty-state"><div class="icon">🔧</div>${t('empty_state')}</div>`;
+  const secCtrl=document.getElementById('section-controls');
+  if(secCtrl) secCtrl.style.display = anyItem ? 'flex' : 'none';
 }
 
 // ══ DETAIL ══
