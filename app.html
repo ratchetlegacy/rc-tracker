@@ -93,89 +93,82 @@
       --profit:#8FD44A;--loss:#FF5A6A;--neutral:#B0A080;
       --text:#F4ECDC;--text-dim:#AC9B7F;
     }
-    /* ══ STRONG PER-THEME CARD STYLING ══ */
-    /* Shared card selector list for convenience */
+    /* ══ STRONG PER-THEME CARD STYLING (works with overflow:hidden) ══ */
 
-    /* ── CLANK: hard tech panels, sharp cut corners, bolt dots, metal sheen ── */
-    [data-theme="clank"] .card,[data-theme="clank"] .item-card,[data-theme="clank"] .catalog-row,
-    [data-theme="clank"] .fr-card,[data-theme="clank"] .wiki-card,[data-theme="clank"] .home-tile,
-    [data-theme="clank"] .home-stat,[data-theme="clank"] .public-card,[data-theme="clank"] .theme-card{
-      clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px);
+    /* CLANK — hard tech: thick cyan frame, dark metal, top scanline, cut corner via border */
+    [data-theme="clank"] .item-card,[data-theme="clank"] .catalog-row,[data-theme="clank"] .fr-card,
+    [data-theme="clank"] .wiki-card,[data-theme="clank"] .home-tile,[data-theme="clank"] .theme-card{
       border-radius:0 !important;
-      border:1px solid rgba(95,205,232,.35) !important;
-      background:linear-gradient(160deg, rgba(19,32,48,.95), rgba(10,16,22,.95)) !important;
-      box-shadow:inset 0 1px 0 rgba(120,200,230,.15), 0 2px 8px rgba(0,0,0,.4);
-      position:relative;
+      border:2px solid #3FA9C9 !important;
+      border-top-width:5px !important;
+      background:
+        repeating-linear-gradient(90deg, rgba(95,205,232,.06) 0 1px, transparent 1px 10px),
+        linear-gradient(160deg, #142433, #0A1016) !important;
+      box-shadow:inset 0 0 0 1px rgba(10,16,22,1), inset 0 0 24px rgba(63,169,201,.12) !important;
     }
-    [data-theme="clank"] .card::after,[data-theme="clank"] .item-card::after,[data-theme="clank"] .catalog-row::after{
-      content:'';position:absolute;left:8px;bottom:6px;width:14px;height:2px;background:rgba(95,205,232,.5);box-shadow:0 -4px 0 rgba(95,205,232,.3);
-    }
-
-    /* ── KIT: brass warbot panels, cut corners, warm rivets ── */
-    [data-theme="kit"] .card,[data-theme="kit"] .item-card,[data-theme="kit"] .catalog-row,
-    [data-theme="kit"] .fr-card,[data-theme="kit"] .wiki-card,[data-theme="kit"] .home-tile,
-    [data-theme="kit"] .home-stat,[data-theme="kit"] .public-card,[data-theme="kit"] .theme-card{
-      clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+    /* KIT — brass: thick gold frame, warm hatch texture */
+    [data-theme="kit"] .item-card,[data-theme="kit"] .catalog-row,[data-theme="kit"] .fr-card,
+    [data-theme="kit"] .wiki-card,[data-theme="kit"] .home-tile,[data-theme="kit"] .theme-card{
       border-radius:0 !important;
-      border:1px solid rgba(240,176,84,.4) !important;
-      background:linear-gradient(160deg, rgba(38,29,19,.95), rgba(16,12,8,.95)) !important;
-      box-shadow:inset 0 1px 0 rgba(240,176,84,.2), 0 2px 8px rgba(0,0,0,.4);
+      border:2px solid #D89030 !important;
+      border-left-width:6px !important;
+      background:
+        repeating-linear-gradient(45deg, rgba(240,176,84,.06) 0 6px, transparent 6px 12px),
+        linear-gradient(160deg, #261D13, #100C08) !important;
+      box-shadow:inset 0 0 24px rgba(216,144,48,.12) !important;
     }
-
-    /* ── NEFARIOUS: angular villain plates, glowing edge, corner rivets ── */
-    [data-theme="nefarious"] .card,[data-theme="nefarious"] .item-card,[data-theme="nefarious"] .catalog-row,
-    [data-theme="nefarious"] .fr-card,[data-theme="nefarious"] .wiki-card,[data-theme="nefarious"] .home-tile,
-    [data-theme="nefarious"] .home-stat,[data-theme="nefarious"] .public-card,[data-theme="nefarious"] .theme-card{
-      clip-path:polygon(0 0,100% 0,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px));
+    /* NEFARIOUS — villain: glowing orange frame on purple, energy grid */
+    [data-theme="nefarious"] .item-card,[data-theme="nefarious"] .catalog-row,[data-theme="nefarious"] .fr-card,
+    [data-theme="nefarious"] .wiki-card,[data-theme="nefarious"] .home-tile,[data-theme="nefarious"] .theme-card{
       border-radius:0 !important;
-      border:1px solid rgba(255,106,26,.45) !important;
-      background:linear-gradient(160deg, rgba(30,24,56,.95), rgba(12,10,26,.95)) !important;
-      box-shadow:0 0 14px rgba(90,58,212,.25), inset 0 0 20px rgba(255,106,26,.06);
+      border:2px solid #FF6A1A !important;
+      background:
+        repeating-linear-gradient(0deg, rgba(180,160,255,.06) 0 1px, transparent 1px 12px),
+        linear-gradient(160deg, #1E1838, #0C0A1A) !important;
+      box-shadow:0 0 18px rgba(90,58,212,.4), inset 0 0 30px rgba(255,106,26,.10) !important;
     }
-
-    /* ── NEBULA: soft rounded glassy cards with cyan glow ── */
-    [data-theme="nebula"] .card,[data-theme="nebula"] .item-card,[data-theme="nebula"] .catalog-row,
-    [data-theme="nebula"] .fr-card,[data-theme="nebula"] .wiki-card,[data-theme="nebula"] .home-tile,
-    [data-theme="nebula"] .home-stat,[data-theme="nebula"] .public-card,[data-theme="nebula"] .theme-card{
-      border-radius:20px !important;
-      border:1px solid rgba(43,212,196,.3) !important;
-      background:linear-gradient(160deg, rgba(19,37,56,.85), rgba(10,16,24,.85)) !important;
-      backdrop-filter:blur(4px);
-      box-shadow:0 4px 20px rgba(43,212,196,.12);
+    /* NEBULA — glassy rounded, cyan glow, blur */
+    [data-theme="nebula"] .item-card,[data-theme="nebula"] .catalog-row,[data-theme="nebula"] .fr-card,
+    [data-theme="nebula"] .wiki-card,[data-theme="nebula"] .home-tile,[data-theme="nebula"] .theme-card{
+      border-radius:22px !important;
+      border:1px solid rgba(43,212,196,.45) !important;
+      background:linear-gradient(160deg, rgba(19,37,56,.7), rgba(10,16,24,.6)) !important;
+      backdrop-filter:blur(6px);
+      box-shadow:0 6px 26px rgba(43,212,196,.22), inset 0 1px 0 rgba(120,210,235,.2) !important;
     }
-
-    /* ── QWARK: heroic bold cards, thick top accent bar, big radius ── */
-    [data-theme="qwark"] .card,[data-theme="qwark"] .item-card,[data-theme="qwark"] .catalog-row,
-    [data-theme="qwark"] .fr-card,[data-theme="qwark"] .wiki-card,[data-theme="qwark"] .home-tile,
-    [data-theme="qwark"] .home-stat,[data-theme="qwark"] .public-card,[data-theme="qwark"] .theme-card{
-      border-radius:14px !important;
-      border:1px solid rgba(70,214,255,.25) !important;
-      border-top:3px solid var(--purple) !important;
-      background:linear-gradient(160deg, rgba(19,40,64,.9), rgba(10,20,34,.9)) !important;
-      box-shadow:0 4px 16px rgba(70,214,255,.15);
+    /* QWARK — heroic: fat top accent bar, big radius, blue glow */
+    [data-theme="qwark"] .item-card,[data-theme="qwark"] .catalog-row,[data-theme="qwark"] .fr-card,
+    [data-theme="qwark"] .wiki-card,[data-theme="qwark"] .home-tile,[data-theme="qwark"] .theme-card{
+      border-radius:16px !important;
+      border:1px solid rgba(70,214,255,.35) !important;
+      border-top:6px solid #3FB54A !important;
+      background:linear-gradient(160deg, #132840, #0A1422) !important;
+      box-shadow:0 6px 20px rgba(70,214,255,.22) !important;
     }
-
-    /* ── GADGETRON: industrial, thick left hazard border, boxy ── */
-    [data-theme="gadgetron"] .card,[data-theme="gadgetron"] .item-card,[data-theme="gadgetron"] .catalog-row,
-    [data-theme="gadgetron"] .fr-card,[data-theme="gadgetron"] .wiki-card,[data-theme="gadgetron"] .home-tile,
-    [data-theme="gadgetron"] .home-stat,[data-theme="gadgetron"] .public-card,[data-theme="gadgetron"] .theme-card{
-      border-radius:6px !important;
-      border:1px solid rgba(255,176,32,.3) !important;
-      border-left:5px solid var(--purple) !important;
-      background:linear-gradient(160deg, rgba(42,33,19,.92), rgba(20,16,10,.92)) !important;
-      box-shadow:0 2px 8px rgba(0,0,0,.4);
+    /* GADGETRON — industrial: fat hazard left border, boxy, warm */
+    [data-theme="gadgetron"] .item-card,[data-theme="gadgetron"] .catalog-row,[data-theme="gadgetron"] .fr-card,
+    [data-theme="gadgetron"] .wiki-card,[data-theme="gadgetron"] .home-tile,[data-theme="gadgetron"] .theme-card{
+      border-radius:4px !important;
+      border:2px solid rgba(255,176,32,.5) !important;
+      border-left:8px solid #FFB020 !important;
+      background:
+        repeating-linear-gradient(45deg, rgba(255,176,32,.05) 0 10px, transparent 10px 20px),
+        linear-gradient(160deg, #2A2113, #14100A) !important;
+      box-shadow:0 3px 10px rgba(0,0,0,.5) !important;
     }
-
-    /* ── RIVET: rugged, slightly slanted accent, warm rust border ── */
-    [data-theme="rivet"] .card,[data-theme="rivet"] .item-card,[data-theme="rivet"] .catalog-row,
-    [data-theme="rivet"] .fr-card,[data-theme="rivet"] .wiki-card,[data-theme="rivet"] .home-tile,
-    [data-theme="rivet"] .home-stat,[data-theme="rivet"] .public-card,[data-theme="rivet"] .theme-card{
-      border-radius:10px !important;
-      border:1px solid rgba(224,112,58,.35) !important;
-      border-bottom:3px solid var(--orange) !important;
-      background:linear-gradient(160deg, rgba(42,33,28,.92), rgba(20,16,12,.92)) !important;
-      box-shadow:0 3px 12px rgba(155,111,244,.12);
+    /* RIVET — rugged: fat rust bottom border, warm */
+    [data-theme="rivet"] .item-card,[data-theme="rivet"] .catalog-row,[data-theme="rivet"] .fr-card,
+    [data-theme="rivet"] .wiki-card,[data-theme="rivet"] .home-tile,[data-theme="rivet"] .theme-card{
+      border-radius:12px !important;
+      border:1px solid rgba(224,112,58,.45) !important;
+      border-bottom:6px solid #E0703A !important;
+      background:linear-gradient(160deg, #2A211C, #14100C) !important;
+      box-shadow:0 4px 14px rgba(155,111,244,.18) !important;
     }
+    /* Lombax (default): subtle upgrade so it doesn't feel plain */
+    [data-theme=""] .item-card, :root .item-card{}
+    /* Hover lift stronger for all themed cards */
+    [data-theme] .item-card:hover{transform:translateY(-3px)}
 
     /* ══ IMMERSIVE PER-THEME STYLING ══ */
     /* Background textures (subtle, non-distracting) */
