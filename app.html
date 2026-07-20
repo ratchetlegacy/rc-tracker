@@ -1628,6 +1628,17 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="form-group" style="width:110px"><label>Price (€)</label><input type="number" step="0.01" id="other-f-price" placeholder="0.00"/></div>
     </div>
     <div class="form-group"><label>Notes</label><textarea id="other-f-notes" rows="2" placeholder="Any personal note..."></textarea></div>
+    <div class="form-group">
+      <label>Completeness</label>
+      <select id="other-f-complete" onchange="toggleMissingNote()">
+        <option value="1">✅ Complete</option>
+        <option value="0">⚠️ Incomplete</option>
+      </select>
+    </div>
+    <div class="form-group" id="other-missing-wrap" style="display:none">
+      <label>What's missing?</label>
+      <textarea id="other-f-missing" rows="2" placeholder="e.g. no manual, box damaged, disc only..."></textarea>
+    </div>
     <div style="display:flex;gap:8px;margin-top:8px">
       <button class="add-btn" style="flex:1" onclick="saveOtherItem()">💾 Save</button>
       <button id="other-delete-btn" style="display:none;flex:1;padding:11px;background:rgba(255,77,106,.15);border:1px solid rgba(255,77,106,.4);border-radius:10px;color:var(--missing);cursor:pointer" onclick="deleteOtherItem()">🗑️ Delete</button>
@@ -4988,11 +4999,14 @@ function renderOtherList(){
     const statusBadge = i.status==='wishlist'
       ? '<span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(255,212,71,.15);color:var(--wishlist)">★ Wishlist</span>'
       : '<span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(61,214,140,.15);color:var(--owned)">✓ Owned</span>';
+    const incompleteBadge = (i.is_complete===false)
+      ? ' <span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(255,138,42,.18);color:#FF8A2A">⚠️ Incomplete</span>'
+      : '';
     return '<div class="catalog-row" onclick="openOtherDetail(\''+i.id+'\')">'
       + '<div class="catalog-thumb"><span class="catalog-thumb-icon">'+(OTHER_CAT_ICON[i.category]||'📦')+'</span></div>'
       + '<div class="catalog-info"><div class="catalog-name">'+escHtml(i.name)+'</div>'
       + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
-      + '<div style="margin-top:4px">'+statusBadge+'</div>'
+      + '<div style="margin-top:4px">'+statusBadge+incompleteBadge+'</div>'
       + '</div>'
       + (i.price?'<div class="catalog-year">'+fmtEurS(parseFloat(i.price))+'</div>':'')
       + '<span class="catalog-chevron">›</span>'
@@ -5013,8 +5027,10 @@ function openOtherDetail(id){
     + '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px">'
     +   '<span class="badge '+(i.status)+'">'+(i.status==='wishlist'?'★ Wishlist':'✓ Owned')+'</span>'
     +   (i.condition?'<span class="badge">'+escHtml(i.condition)+'</span>':'')
+    +   (i.is_complete===false?'<span class="badge" style="background:rgba(255,138,42,.18);color:#FF8A2A">⚠️ Incomplete</span>':'<span class="badge owned">✓ Complete</span>')
     +   (i.price?'<span class="badge platform">'+fmtEurS(parseFloat(i.price))+'</span>':'')
     + '</div>'
+    + (i.is_complete===false && i.missing_note?'<div style="font-size:.82rem;color:#FF8A2A;background:rgba(255,138,42,.1);border:1px solid rgba(255,138,42,.25);border-radius:10px;padding:10px 12px;margin-bottom:12px"><b>⚠️ Missing:</b> '+escHtml(i.missing_note)+'</div>':'')
     + (i.notes?'<p style="font-size:.86rem;color:var(--text-dim);line-height:1.5;background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:14px">'+escHtml(i.notes)+'</p>':'')
     + '<button onclick="closeOtherDetail();openOtherEdit(\''+i.id+'\')" style="width:100%;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border:none;border-radius:12px;padding:12px;font-weight:800;cursor:pointer">✏️ Edit</button>';
   document.getElementById('other-detail-overlay').classList.add('open');
@@ -5034,8 +5050,16 @@ function openOtherEdit(id){
   document.getElementById('other-f-status').value = i?(i.status||'owned'):'owned';
   document.getElementById('other-f-price').value = i?(i.price||''):'';
   document.getElementById('other-f-notes').value = i?(i.notes||''):'';
+  const complete = i ? (i.is_complete!==false) : true;
+  document.getElementById('other-f-complete').value = complete ? '1' : '0';
+  document.getElementById('other-f-missing').value = i?(i.missing_note||''):'';
+  toggleMissingNote();
   document.getElementById('other-delete-btn').style.display = i?'block':'none';
   document.getElementById('other-edit-overlay').classList.add('open');
+}
+function toggleMissingNote(){
+  const incomplete = document.getElementById('other-f-complete').value==='0';
+  document.getElementById('other-missing-wrap').style.display = incomplete ? 'block' : 'none';
 }
 function closeOtherEdit(){ document.getElementById('other-edit-overlay').classList.remove('open'); }
 
@@ -5046,6 +5070,7 @@ async function saveOtherItem(){
   if(!name){ showToast('Name is required','error'); return; }
   const yearVal=parseInt(document.getElementById('other-f-year').value);
   const priceVal=parseFloat(document.getElementById('other-f-price').value);
+  const isComplete = document.getElementById('other-f-complete').value==='1';
   const payload={
     user_id: currentUser.id,
     name,
@@ -5056,7 +5081,9 @@ async function saveOtherItem(){
     condition: document.getElementById('other-f-condition').value,
     status: document.getElementById('other-f-status').value,
     price: isNaN(priceVal)?null:priceVal,
-    notes: document.getElementById('other-f-notes').value.trim()||null
+    notes: document.getElementById('other-f-notes').value.trim()||null,
+    is_complete: isComplete,
+    missing_note: isComplete ? null : (document.getElementById('other-f-missing').value.trim()||null)
   };
   try {
     let error;
