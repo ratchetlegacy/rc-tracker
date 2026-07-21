@@ -306,6 +306,7 @@
     /* Floating decorative elements layer */
     #theme-deco{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
     #theme-deco .deco{position:absolute;opacity:.5}
+    @media(max-width:700px){#theme-deco .deco{opacity:.3}}
     @keyframes floatUp{0%{transform:translateY(20px) rotate(0deg)}100%{transform:translateY(-20px) rotate(360deg)}}
     @keyframes floatDrift{0%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(20px,-15px) rotate(180deg)}100%{transform:translate(0,0) rotate(360deg)}}
     @keyframes twinkleDeco{0%,100%{opacity:.2}50%{opacity:.7}}
@@ -2077,6 +2078,11 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div id="other-img-preview" style="margin-top:8px"></div>
     </div>
     <div class="form-group">
+      <label>My categories (optional, multiple)</label>
+      <div id="other-cat-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+      <button type="button" onclick="openCatManager()" style="background:rgba(123,79,212,.15);border:1px solid rgba(123,79,212,.4);border-radius:8px;padding:7px 12px;color:var(--purple-light);font-size:.74rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">⚙️ Manage my categories</button>
+    </div>
+    <div class="form-group">
       <label>Completeness</label>
       <select id="other-f-complete" onchange="toggleMissingNote()">
         <option value="1">✅ Complete</option>
@@ -2099,6 +2105,32 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="modal" style="max-width:420px">
     <button class="modal-close" onclick="closeOtherDetail()">✕</button>
     <div id="other-detail-body"></div>
+  </div>
+</div>
+
+<!-- CUSTOM CATEGORY MANAGER -->
+<div class="modal-overlay" id="catmanager-overlay" style="z-index:560">
+  <div class="modal" style="max-width:460px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeCatManager()">✕</button>
+    <h2 style="margin-bottom:6px">⚙️ My categories</h2>
+    <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:14px">Create your own categories like “Pop collection”, “One Piece manga”…</p>
+    <div id="catmanager-list" style="margin-bottom:16px"></div>
+    <div style="background:var(--bg3);border-radius:12px;padding:14px">
+      <div style="font-weight:700;font-size:.82rem;margin-bottom:10px" id="catform-title">➕ New category</div>
+      <input type="hidden" id="catform-id"/>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input type="text" id="catform-icon" maxlength="2" placeholder="🎯" style="width:56px;text-align:center;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px;color:var(--text);font-size:1.1rem"/>
+        <input type="text" id="catform-name" placeholder="Category name" style="flex:1;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;outline:none"/>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:.76rem;color:var(--text-dim)">Color:</span>
+        <div id="catform-colors" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="add-btn" style="flex:1" onclick="saveCatManager()">💾 Save</button>
+        <button onclick="resetCatForm()" style="padding:11px 16px;background:rgba(255,255,255,.08);border:none;border-radius:10px;color:var(--text-dim);cursor:pointer">Clear</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -5573,6 +5605,7 @@ async function promoteToGallery(id, encUrl, encName){
 //  MY OTHER COLLECTIONS (private, non-Ratchet items)
 // ══════════════════════════════════════════════════════════
 let otherData = [];
+let otherCats = [];       // user's custom categories
 let otherActiveCat = 'all';
 const OTHER_CAT_ICON = {Game:'🎮',Movie:'🎬',Series:'📺',Comic:'💥',Manga:'📚',Book:'📖',Music:'🎵',Other:'✨',all:'📦'};
 
@@ -5584,10 +5617,20 @@ async function openOther(){
 }
 function closeOther(){ document.getElementById('other-screen').classList.remove('open'); }
 
+async function loadOtherCats(){
+  try {
+    const { data } = await sbClient.from('other_categories')
+      .select('*').eq('user_id',currentUser.id).order('name',{ascending:true});
+    otherCats = data||[];
+  } catch(e){ otherCats=[]; }
+}
+function catById(id){ return otherCats.find(c=>c.id===id); }
+
 async function loadOther(){
   const list=document.getElementById('other-list');
   list.innerHTML='<div style="text-align:center;padding:50px;color:var(--text-dim)"><span style="font-size:1.6rem;display:block;animation:spin 1s linear infinite">⚙️</span>Loading…</div>';
   try {
+    await loadOtherCats();
     const { data, error } = await sbClient.from('other_items')
       .select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
     if(error){ list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim)">Error: '+error.message+'</div>'; return; }
@@ -5608,19 +5651,36 @@ function renderOtherStats(){
 
 function renderOtherCats(){
   const box=document.getElementById('other-cats');
-  const present = [...new Set(otherData.map(i=>i.category).filter(Boolean))];
-  const cats = ['all', ...present];
-  box.innerHTML = cats.map(c=>{
-    const active = c===otherActiveCat ? ' active':'';
-    const label = c==='all'?'All':c;
-    return '<button class="catalog-cat'+active+'" onclick="setOtherCat(\''+c+'\')">'+(OTHER_CAT_ICON[c]||'')+' '+label+'</button>';
-  }).join('');
+  const presentFixed = [...new Set(otherData.map(i=>i.category).filter(Boolean))];
+  let html = '';
+  // All
+  html += '<button class="catalog-cat'+(otherActiveCat==='all'?' active':'')+'" onclick="setOtherCat(\'all\')">📦 All</button>';
+  // Custom categories first (more meaningful to the user)
+  otherCats.forEach(c=>{
+    const active = otherActiveCat==='cat:'+c.id ? ' active':'';
+    html += '<button class="catalog-cat'+active+'" style="'+(active?'':'border-color:'+c.color+'55')+'" onclick="setOtherCat(\'cat:'+c.id+'\')">'+escHtml(c.icon||'📦')+' '+escHtml(c.name)+'</button>';
+  });
+  // Fixed categories
+  presentFixed.forEach(c=>{
+    const active = otherActiveCat===c ? ' active':'';
+    html += '<button class="catalog-cat'+active+'" onclick="setOtherCat(\''+c+'\')">'+(OTHER_CAT_ICON[c]||'')+' '+c+'</button>';
+  });
+  // Manage button
+  html += '<button class="catalog-cat" style="border-style:dashed" onclick="openCatManager()">⚙️ Categories</button>';
+  box.innerHTML = html;
 }
 function setOtherCat(c){ otherActiveCat=c; renderOtherCats(); renderOtherList(); }
 
 function renderOtherList(){
   const list=document.getElementById('other-list');
-  let entries = otherActiveCat==='all' ? otherData : otherData.filter(i=>i.category===otherActiveCat);
+  let entries;
+  if(otherActiveCat==='all') entries = otherData;
+  else if(otherActiveCat.startsWith('cat:')){
+    const cid = otherActiveCat.slice(4);
+    entries = otherData.filter(i=> Array.isArray(i.category_ids) && i.category_ids.includes(cid));
+  } else {
+    entries = otherData.filter(i=>i.category===otherActiveCat);
+  }
   if(!entries.length){
     list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">Nothing here yet. Tap “+ ADD ITEM” to start! 📦</div>';
     return;
@@ -5633,13 +5693,18 @@ function renderOtherList(){
     const incompleteBadge = (i.is_complete===false)
       ? ' <span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(255,138,42,.18);color:#FF8A2A">⚠️ Incomplete</span>'
       : '';
+    // custom category chips
+    let catChips='';
+    if(Array.isArray(i.category_ids)){
+      i.category_ids.forEach(cid=>{ const c=catById(cid); if(c) catChips+=' <span style="font-size:.55rem;padding:2px 7px;border-radius:10px;background:'+c.color+'22;color:'+c.color+'">'+escHtml(c.icon||'')+' '+escHtml(c.name)+'</span>'; });
+    }
     return '<div class="catalog-row" onclick="openOtherDetail(\''+i.id+'\')">'
       + (i.image_url
           ? '<div class="catalog-thumb"><img src="'+escHtml(i.image_url)+'" loading="lazy" onerror="this.parentNode.innerHTML=\'<span class=&quot;catalog-thumb-icon&quot;>'+(OTHER_CAT_ICON[i.category]||'📦')+'</span>\'"/></div>'
           : '<div class="catalog-thumb"><span class="catalog-thumb-icon">'+(OTHER_CAT_ICON[i.category]||'📦')+'</span></div>')
       + '<div class="catalog-info"><div class="catalog-name">'+escHtml(i.name)+'</div>'
       + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
-      + '<div style="margin-top:4px">'+statusBadge+incompleteBadge+'</div>'
+      + '<div style="margin-top:4px">'+statusBadge+incompleteBadge+catChips+'</div>'
       + '</div>'
       + (i.price?'<div class="catalog-year">'+fmtEurS(parseFloat(i.price))+'</div>':'')
       + '<span class="catalog-chevron">›</span>'
@@ -5690,7 +5755,107 @@ function openOtherEdit(id){
   document.getElementById('other-f-missing').value = i?(i.missing_note||''):'';
   toggleMissingNote();
   document.getElementById('other-delete-btn').style.display = i?'block':'none';
+  // custom categories selection
+  otherSelectedCatIds = i && Array.isArray(i.category_ids) ? [...i.category_ids] : [];
+  renderOtherCatPicker();
   document.getElementById('other-edit-overlay').classList.add('open');
+}
+let otherSelectedCatIds = [];
+function renderOtherCatPicker(){
+  const box=document.getElementById('other-cat-picker');
+  if(!box) return;
+  if(!otherCats.length){
+    box.innerHTML = '<span style="font-size:.74rem;color:var(--text-dim)">No custom categories yet — create one below.</span>';
+    return;
+  }
+  box.innerHTML = otherCats.map(c=>{
+    const on = otherSelectedCatIds.includes(c.id);
+    return '<button type="button" onclick="toggleItemCat(\''+c.id+'\')" style="border:1.5px solid '+c.color+(on?'':'55')+';background:'+(on?c.color+'33':'transparent')+';color:'+c.color+';border-radius:20px;padding:6px 12px;font-size:.76rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">'+(on?'✓ ':'')+escHtml(c.icon||'')+' '+escHtml(c.name)+'</button>';
+  }).join('');
+}
+function toggleItemCat(cid){
+  const idx=otherSelectedCatIds.indexOf(cid);
+  if(idx>=0) otherSelectedCatIds.splice(idx,1);
+  else otherSelectedCatIds.push(cid);
+  renderOtherCatPicker();
+}
+
+// ── Custom category manager ──
+const CAT_COLORS = ['#7B4FD4','#FF6B1A','#3DD68C','#FFD447','#46D6FF','#FF4D6A','#E0703A','#2BD4C4','#9B6FF4','#F5C86E'];
+let catFormColor = CAT_COLORS[0];
+async function openCatManager(){
+  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  await loadOtherCats();
+  renderCatManagerList();
+  resetCatForm();
+  renderCatColorPicker();
+  document.getElementById('catmanager-overlay').classList.add('open');
+}
+function closeCatManager(){
+  document.getElementById('catmanager-overlay').classList.remove('open');
+  // refresh pickers/filters that may show categories
+  renderOtherCats(); renderOtherCatPicker();
+}
+function renderCatManagerList(){
+  const box=document.getElementById('catmanager-list');
+  if(!otherCats.length){ box.innerHTML='<div style="font-size:.8rem;color:var(--text-dim);text-align:center;padding:10px">No categories yet.</div>'; return; }
+  box.innerHTML = otherCats.map(c=>{
+    return '<div style="display:flex;align-items:center;gap:10px;background:var(--bg2);border-left:4px solid '+c.color+';border-radius:8px;padding:10px 12px;margin-bottom:8px">'
+      + '<span style="font-size:1.1rem">'+escHtml(c.icon||'📦')+'</span>'
+      + '<span style="flex:1;font-weight:600;font-size:.86rem">'+escHtml(c.name)+'</span>'
+      + '<button onclick="editCatManager(\''+c.id+'\')" style="background:transparent;border:none;color:var(--purple-light);cursor:pointer;font-size:.9rem">✏️</button>'
+      + '<button onclick="deleteCatManager(\''+c.id+'\')" style="background:transparent;border:none;color:var(--missing);cursor:pointer;font-size:.9rem">🗑️</button>'
+      + '</div>';
+  }).join('');
+}
+function renderCatColorPicker(){
+  const box=document.getElementById('catform-colors');
+  box.innerHTML = CAT_COLORS.map(col=>{
+    const on = col===catFormColor;
+    return '<button type="button" onclick="pickCatColor(\''+col+'\')" style="width:26px;height:26px;border-radius:50%;background:'+col+';border:'+(on?'3px solid #fff':'2px solid transparent')+';cursor:pointer"></button>';
+  }).join('');
+}
+function pickCatColor(col){ catFormColor=col; renderCatColorPicker(); }
+function resetCatForm(){
+  document.getElementById('catform-id').value='';
+  document.getElementById('catform-icon').value='';
+  document.getElementById('catform-name').value='';
+  document.getElementById('catform-title').textContent='➕ New category';
+  catFormColor=CAT_COLORS[0]; renderCatColorPicker();
+}
+function editCatManager(id){
+  const c=catById(id); if(!c) return;
+  document.getElementById('catform-id').value=c.id;
+  document.getElementById('catform-icon').value=c.icon||'';
+  document.getElementById('catform-name').value=c.name||'';
+  document.getElementById('catform-title').textContent='✏️ Edit category';
+  catFormColor=c.color||CAT_COLORS[0]; renderCatColorPicker();
+}
+async function saveCatManager(){
+  const id=document.getElementById('catform-id').value;
+  const name=document.getElementById('catform-name').value.trim();
+  const icon=document.getElementById('catform-icon').value.trim()||'📦';
+  if(!name){ showToast('Enter a category name','error'); return; }
+  try {
+    let error;
+    if(id){ ({error} = await sbClient.from('other_categories').update({name,icon,color:catFormColor}).eq('id',id)); }
+    else  { ({error} = await sbClient.from('other_categories').insert([{user_id:currentUser.id,name,icon,color:catFormColor}])); }
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast('Category saved! 🏷️','success');
+    await loadOtherCats();
+    renderCatManagerList(); resetCatForm();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function deleteCatManager(id){
+  if(!confirm('Delete this category? Items keep existing, they just lose this tag.')) return;
+  try {
+    const { error } = await sbClient.from('other_categories').delete().eq('id',id);
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    // remove this cat id from any selected list
+    otherSelectedCatIds = otherSelectedCatIds.filter(x=>x!==id);
+    showToast('Deleted','info');
+    await loadOtherCats(); renderCatManagerList();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 function toggleMissingNote(){
   const incomplete = document.getElementById('other-f-complete').value==='0';
@@ -5724,7 +5889,8 @@ async function saveOtherItem(){
     notes: document.getElementById('other-f-notes').value.trim()||null,
     is_complete: isComplete,
     missing_note: isComplete ? null : (document.getElementById('other-f-missing').value.trim()||null),
-    image_url: document.getElementById('other-f-image').value.trim()||null
+    image_url: document.getElementById('other-f-image').value.trim()||null,
+    category_ids: otherSelectedCatIds
   };
   try {
     let error;
@@ -5922,23 +6088,38 @@ function renderThemeDeco(themeId){
   const layer=document.getElementById('theme-deco');
   if(!layer) return;
   const recipe = DECO_THEMES[themeId||''] || DECO_THEMES[''];
+  const isMobile = window.innerWidth < 700;
   let html='';
   recipe.forEach(([type,count,size,color,anim])=>{
-    for(let i=0;i<count;i++){
+    // On phones: fewer elements and a bit smaller, to avoid clutter
+    let n = count;
+    let sz = size;
+    if(isMobile){
+      n = Math.max(1, Math.round(count * 0.45));   // ~45% as many
+      sz = Math.round(size * 0.8);                  // slightly smaller
+      // keep at most 1 flying ship on mobile
+      if(anim==='fly') n = 1;
+    }
+    for(let i=0;i<n;i++){
       const top=Math.random()*90+2;
       const left=Math.random()*92+2;
       const delay=(Math.random()*10).toFixed(1);
       const dur=(10+Math.random()*14).toFixed(1);
       const scale=(0.7+Math.random()*0.7).toFixed(2);
       const svg=(DECO_SVG[type]||DECO_SVG.star)(color);
-      // ships fly horizontally, keep them at a random vertical band
-      const style='top:'+top+'%;left:'+(anim==='fly'?'-15%':left+'%')+';width:'+size+'px;height:'+size+'px;'
+      const style='top:'+top+'%;left:'+(anim==='fly'?'-15%':left+'%')+';width:'+sz+'px;height:'+sz+'px;'
         + 'animation-delay:'+delay+'s;animation-duration:'+dur+'s;transform:scale('+scale+')';
       html+='<div class="deco '+anim+'" style="'+style+'">'+svg+'</div>';
     }
   });
   layer.innerHTML=html;
 }
+// Re-render decorations if the window is resized across the mobile breakpoint
+let _decoResizeTimer;
+window.addEventListener('resize', ()=>{
+  clearTimeout(_decoResizeTimer);
+  _decoResizeTimer=setTimeout(()=>renderThemeDeco(currentThemeId), 400);
+});
 
 function loadTheme(){
   const saved = localStorage.getItem('rc_theme_id');
@@ -7586,7 +7767,7 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'guide-screen','public-screen','friends-screen','compare-screen','market-screen',
     'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
-    'news-edit-overlay','photomod-overlay'
+    'news-edit-overlay','photomod-overlay','catmanager-overlay'
   ];
   function anyOpen(){
     for(const id of CLOSABLE){
