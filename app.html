@@ -5665,8 +5665,8 @@ function renderOtherCats(){
     const active = otherActiveCat===c ? ' active':'';
     html += '<button class="catalog-cat'+active+'" onclick="setOtherCat(\''+c+'\')">'+(OTHER_CAT_ICON[c]||'')+' '+c+'</button>';
   });
-  // Manage button
-  html += '<button class="catalog-cat" style="border-style:dashed" onclick="openCatManager()">⚙️ Categories</button>';
+  // Manage button — subtle pill that matches the theme
+  html += '<button class="catalog-cat" style="background:rgba(123,79,212,.12);border:1px solid rgba(123,79,212,.4);color:var(--purple-light)" onclick="openCatManager()">⚙️ Manage</button>';
   box.innerHTML = html;
 }
 function setOtherCat(c){ otherActiveCat=c; renderOtherCats(); renderOtherList(); }
