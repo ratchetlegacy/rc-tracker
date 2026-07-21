@@ -7868,44 +7868,61 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
     'news-edit-overlay','photomod-overlay','catmanager-overlay','logobank-overlay'
   ];
-  function anyOpen(){
+  // Return the topmost open closable element, or null
+  function topOpen(){
+    // modals/overlays take priority over full screens (they sit on top)
+    let found=null;
     for(const id of CLOSABLE){
       const el=document.getElementById(id);
-      if(el && el.classList.contains('open')) return el;
+      if(el && el.classList.contains('open')) found=el; // last match = highest in DOM order roughly
     }
-    // mobile menu counts too
     const menu=document.getElementById('mobile-menu-panel');
     if(menu && menu.classList.contains('open')) return menu;
-    return null;
+    return found;
   }
-  function closeTop(el){
+  function closeEl(el){
+    if(!el) return;
     el.classList.remove('open');
-    // if it was the mobile menu panel, also close its overlay
     if(el.id==='mobile-menu-panel'){
       const ov=document.getElementById('mobile-menu-overlay'); if(ov) ov.classList.remove('open');
     }
   }
-  // Seed a history state so the first Back press is captured
-  let armed=false;
-  function arm(){
-    if(!armed){ history.pushState({rcScreen:true}, ''); armed=true; }
+  function anythingOpen(){
+    return !!topOpen();
   }
-  // Watch for any screen opening → arm the back trap
-  const obs=new MutationObserver(()=>{ if(anyOpen()) arm(); });
-  document.querySelectorAll('*').length; // no-op
-  window.addEventListener('load', ()=>{
-    // observe class changes on the whole body (cheap enough here)
-    obs.observe(document.body, {subtree:true, attributes:true, attributeFilter:['class']});
-  });
-  window.addEventListener('popstate', (e)=>{
-    const openEl=anyOpen();
-    if(openEl){
-      closeTop(openEl);
-      armed=false;
-      // Re-arm if something is still open underneath
-      if(anyOpen()) arm();
+
+  // Keep a "depth" of pushed history states matching how many layers are open.
+  // Whenever a layer opens and we have no trap state queued, push one.
+  let trapDepth = 0;
+  function ensureTrap(){
+    // We always want at least ONE dummy state in front of the app when any layer is open.
+    if(anythingOpen() && trapDepth===0){
+      history.pushState({rcTrap:true, t:Date.now()}, '');
+      trapDepth++;
     }
-    // if nothing was open, let the browser navigate normally (exit)
+  }
+
+  // React to any open/close by (re)ensuring the trap
+  const obs=new MutationObserver(()=>{ ensureTrap(); });
+  window.addEventListener('load', ()=>{
+    obs.observe(document.body, {subtree:true, attributes:true, attributeFilter:['class']});
+    // also seed once in case something is already open
+    ensureTrap();
+  });
+
+  window.addEventListener('popstate', ()=>{
+    const openEl=topOpen();
+    if(openEl){
+      // consume this back press: close the top layer
+      closeEl(openEl);
+      trapDepth = 0;               // the state we were sitting on is now gone
+      // If more layers remain open, immediately re-arm a trap so the NEXT back closes them too
+      if(anythingOpen()){
+        history.pushState({rcTrap:true, t:Date.now()}, '');
+        trapDepth++;
+      }
+    }
+    // if nothing was open, allow normal navigation (exit / previous page)
   });
 })();
 
