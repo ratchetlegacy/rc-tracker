@@ -1116,14 +1116,12 @@
 <div id="theme-deco"></div>
 
 <!-- PWA INSTALL BANNER -->
-<div id="install-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:600;
+<button id="install-fab" onclick="triggerInstall()" style="display:none;position:fixed;bottom:18px;right:18px;z-index:600;
   background:linear-gradient(135deg,var(--purple,#9B6FF4),var(--orange,#FF6B1A));
-  color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.4)">
-  <span style="font-size:1.3rem">📲</span>
-  <span style="flex:1;font-size:.84rem;font-weight:600;line-height:1.2">Install the app on your phone for full-screen, app-like access!</span>
-  <button onclick="triggerInstall()" style="background:#fff;color:#7b2ff4;border:none;border-radius:10px;padding:8px 14px;font-weight:800;font-size:.8rem;cursor:pointer;white-space:nowrap">Install</button>
-  <button onclick="dismissInstall()" style="background:transparent;border:none;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 6px">✕</button>
-</div>
+  color:#fff;border:none;border-radius:30px;padding:11px 18px;font-weight:800;font-size:.82rem;cursor:pointer;
+  box-shadow:0 6px 20px rgba(123,79,212,.45);display:none;align-items:center;gap:8px">
+  <span style="font-size:1.05rem">📲</span> Install app
+</button>
 
 <!-- iOS INSTALL INSTRUCTIONS MODAL -->
 <div class="modal-overlay" id="ios-install-overlay" style="z-index:700">
@@ -7752,22 +7750,25 @@ window.addEventListener('beforeinstallprompt', (e) => {
 window.addEventListener('appinstalled', ()=>{
   deferredInstallPrompt = null;
   localStorage.setItem('rc_app_installed', '1');   // remember permanently
-  const banner = document.getElementById('install-banner');
-  if(banner) banner.style.display = 'none';
+  const fab = document.getElementById('install-fab');
+  if(fab) fab.style.display = 'none';
   updateMenuInstallButton();
   showToast('App installed! 🎮', 'success');
 });
 
 function maybeShowInstallBanner(){
-  // Don't show if already installed (detected OR remembered), or dismissed before
-  if(isStandalone()) return;
-  if(localStorage.getItem('rc_app_installed') === '1') return;
-  if(localStorage.getItem('rc_install_dismissed') === '1') return;
-  const banner = document.getElementById('install-banner');
-  if(!banner) return;
-  // Show on iOS (manual instructions) OR when we have a native prompt ready
+  const fab = document.getElementById('install-fab');
+  if(!fab) return;
+  // Hide if already installed (detected OR remembered)
+  if(isStandalone() || localStorage.getItem('rc_app_installed') === '1'){
+    fab.style.display = 'none';
+    return;
+  }
+  // Show the floating button on iOS (manual instructions) OR when a native prompt is ready
   if(isIosDevice() || deferredInstallPrompt){
-    banner.style.display = 'flex';
+    fab.style.display = 'flex';
+  } else {
+    fab.style.display = 'none';
   }
 }
 
@@ -7787,8 +7788,8 @@ async function triggerInstall(){
       deferredInstallPrompt.prompt();
       const { outcome } = await deferredInstallPrompt.userChoice;
       deferredInstallPrompt = null;
-      const banner = document.getElementById('install-banner');
-      if(banner) banner.style.display = 'none';
+      const fab = document.getElementById('install-fab');
+      if(fab) fab.style.display = 'none';
       updateMenuInstallButton();
       if(outcome === 'accepted'){ showToast('App installed! 🎮', 'success'); }
     } catch(e){
@@ -7846,8 +7847,8 @@ async function desktopInstallNow(){
 }
 
 function dismissInstall(){
-  document.getElementById('install-banner').style.display = 'none';
-  localStorage.setItem('rc_install_dismissed', '1');
+  const fab=document.getElementById('install-fab');
+  if(fab) fab.style.display = 'none';
 }
 function closeIosInstall(){ document.getElementById('ios-install-overlay').classList.remove('open'); }
 
