@@ -3709,6 +3709,13 @@ function takePhotoFor(targetInputId, contextLabel, nameInputId){
       if(targetInputId==='wiki-f-image' && typeof updateWikiImgPreview==='function'){ updateWikiImgPreview(); }
       if(targetInputId==='other-f-image' && typeof updateOtherImgPreview==='function'){ updateOtherImgPreview(); }
       if(targetInputId==='cat-edit-image' && typeof updateCatImagePreview==='function'){ updateCatImagePreview(); }
+      if(targetInputId==='catform-logo' && typeof updateCatLogoPreview==='function'){ updateCatLogoPreview(); }
+      // Logo uploads (admin bank / category logos) are NOT user content →
+      // don't push them to the photo moderation queue.
+      if(contextLabel==='logo'){
+        showToast('Logo uploaded! 🖼️','success');
+        return;
+      }
       // log to moderation queue (non-blocking)
       const author = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
       const itemName = (nameInputId && document.getElementById(nameInputId)) ? document.getElementById(nameInputId).value.trim() : null;
