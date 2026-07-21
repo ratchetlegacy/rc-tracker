@@ -919,6 +919,9 @@
     .catalog-wrap{max-width:900px;margin:0 auto}
     .catalog-intro{color:var(--text-dim);font-size:.88rem;text-align:center;margin-bottom:18px}
     .catalog-cats{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
+    .catalog-cat{padding:7px 14px;border-radius:20px;background:var(--bg3);border:1px solid rgba(255,255,255,.1);color:var(--text-dim);font-size:.74rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif}
+    .catalog-cat:hover{border-color:var(--purple)}
+    .catalog-cat.active{background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border-color:transparent}
     .catalog-cat-btn{padding:7px 14px;border-radius:20px;background:var(--bg3);border:1px solid rgba(255,255,255,.1);color:var(--text-dim);font-size:.74rem;font-weight:600;cursor:pointer;transition:all .2s}
     .catalog-cat-btn.active{background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border-color:transparent}
     .catalog-group{margin-bottom:26px}
@@ -1322,7 +1325,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="home-tile" onclick="closeHome();openCatalog()"><div class="home-tile-ic">📚</div><div>Catalog</div></div>
       <div class="home-tile" onclick="closeHome();openFriends()"><div class="home-tile-ic">🤝</div><div>Friends</div></div>
       <div class="home-tile" onclick="closeHome();openWiki()"><div class="home-tile-ic">📖</div><div>Wiki</div></div>
-      <div class="home-tile" onclick="closeHome();openOther()"><div class="home-tile-ic">📦</div><div>Others</div></div>
+      <div class="home-tile" onclick="closeHome();openOther()"><div class="home-tile-ic">📦</div><div>My Collections</div></div>
       <div class="home-tile" onclick="closeHome();openThemes()"><div class="home-tile-ic">🎨</div><div>Themes</div></div>
     </div>
 
@@ -5729,7 +5732,7 @@ function renderOtherCats(){
     html += '<button class="catalog-cat'+active+'" onclick="setOtherCat(\''+c+'\')">'+(OTHER_CAT_ICON[c]||'')+' '+c+'</button>';
   });
   // Manage button — subtle pill that matches the theme
-  html += '<button class="catalog-cat" style="background:rgba(123,79,212,.12);border:1px solid rgba(123,79,212,.4);color:var(--purple-light)" onclick="openCatManager()">⚙️ Manage</button>';
+  html += '<button class="catalog-cat" style="border-color:rgba(123,79,212,.5);color:var(--purple-light)" onclick="openCatManager()">⚙️ Manage</button>';
   box.innerHTML = html;
 }
 function setOtherCat(c){ otherActiveCat=c; renderOtherCats(); renderOtherList(); }
