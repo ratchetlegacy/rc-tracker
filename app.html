@@ -1050,6 +1050,15 @@
     .home-hi{font-size:1.2rem;font-weight:700;margin-bottom:5px;color:var(--text)}
     .home-rank{font-size:.8rem;color:var(--text-dim);font-weight:600}
     .home-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:22px}
+    /* Compact one-line stats */
+    .home-stats-compact{display:flex;align-items:center;justify-content:space-around;background:var(--bg2);border:1px solid rgba(255,255,255,.05);border-radius:16px;padding:14px 8px;margin-bottom:18px}
+    .home-statc{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1}
+    .home-statc b{font-size:1.15rem;font-weight:800;color:var(--text)}
+    .home-statc span{font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em}
+    .home-statc-div{width:1px;height:28px;background:rgba(255,255,255,.08)}
+    /* Featured R&C card */
+    .home-coll-featured{background:linear-gradient(135deg,rgba(123,79,212,.12),rgba(255,138,42,.06));border-color:rgba(123,79,212,.3)}
+    .home-coll-featured:hover{background:linear-gradient(135deg,rgba(123,79,212,.18),rgba(255,138,42,.1))}
     @media(max-width:420px){.home-stats{grid-template-columns:1fr 1fr}}
     .home-stat{background:var(--bg2);border:1px solid rgba(255,255,255,.04);border-radius:18px;padding:16px 8px;text-align:center}
     .home-stat-v{font-size:1.5rem;font-weight:700;line-height:1}
@@ -1314,49 +1323,51 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       </div>
     </div>
 
-    <!-- Key stats -->
-    <div class="home-stats">
-      <div class="home-stat"><div class="home-stat-v" id="home-owned" style="color:var(--owned)">0</div><div class="home-stat-l">Owned</div></div>
-      <div class="home-stat"><div class="home-stat-v" id="home-wish" style="color:var(--wishlist)">0</div><div class="home-stat-l">Wishlist</div></div>
-      <div class="home-stat"><div class="home-stat-v" id="home-completion" style="color:var(--purple-light)">0%</div><div class="home-stat-l">R&C done</div></div>
-      <div class="home-stat"><div class="home-stat-v" id="home-value" style="color:var(--chrome)">—</div><div class="home-stat-l">Value</div></div>
+    <!-- Key stats (compact one-liner) -->
+    <div class="home-stats-compact">
+      <div class="home-statc"><b id="home-owned">0</b><span>owned</span></div>
+      <div class="home-statc-div"></div>
+      <div class="home-statc"><b id="home-wish">0</b><span>wishlist</span></div>
+      <div class="home-statc-div"></div>
+      <div class="home-statc"><b id="home-completion">0%</b><span>R&C</span></div>
+      <div class="home-statc-div"></div>
+      <div class="home-statc"><b id="home-value">—</b><span>value</span></div>
     </div>
 
     <!-- News button (opens popup) -->
-    <div id="home-news-btn-wrap" style="display:none;margin-bottom:22px">
+    <div id="home-news-btn-wrap" style="display:none;margin-bottom:18px">
       <button onclick="openNewsPopup()" style="width:100%;background:var(--bg2);border:1px solid rgba(255,212,71,.2);border-radius:16px;padding:14px 16px;color:var(--wishlist);font-weight:600;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
         <span>📣 What's new</span>
         <span style="color:var(--text-dim);font-size:1.1rem">›</span>
       </button>
     </div>
-    <div id="home-news-admin-wrap" style="display:none;margin-bottom:22px;text-align:right">
-      <button onclick="openNewsEdit()" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-size:.75rem;font-weight:600">✏️ Edit news</button>
-    </div>
 
-    <!-- Primary CTA -->
-    <button class="home-cta" onclick="goToCollection()">View my Ratchet &amp; Clank collection</button>
-
-    <!-- Other collections (vignettes) -->
+    <!-- Collections hub -->
     <div class="home-section-label" style="display:flex;justify-content:space-between;align-items:center">
       <span>My collections</span>
-      <span id="home-coll-admin" style="display:none"><button onclick="openCollManager()" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-size:.7rem;font-weight:700">⚙️ Manage</button></span>
-    </div>
-    <div id="home-collections" class="home-coll-grid">
-      <div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-size:.8rem;padding:16px">Loading…</div>
-    </div>
-
-    <!-- Shortcuts -->
-    <div class="home-section-label" style="margin-top:24px">Quick access</div>
-    <div class="home-grid">
-      <div class="home-tile" onclick="goToCollection()"><div class="home-tile-ic">🗂️</div><div>Collection</div></div>
-      <div class="home-tile" onclick="closeHome();openCatalog()"><div class="home-tile-ic">📚</div><div>Catalog</div></div>
-      <div class="home-tile" onclick="closeHome();openFriends()"><div class="home-tile-ic">🤝</div><div>Friends</div></div>
-      <div class="home-tile" onclick="closeHome();openWiki()"><div class="home-tile-ic">📖</div><div>Wiki</div></div>
-      <div class="home-tile" onclick="closeHome();openThemes()"><div class="home-tile-ic">🎨</div><div>Themes</div></div>
-      <div class="home-tile" onclick="closeHome();openProfile()"><div class="home-tile-ic">🦊</div><div>Profile</div></div>
+      <span id="home-coll-admin" style="display:none">
+        <button onclick="openNewsEdit()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:.7rem;font-weight:600;margin-right:10px">✏️ News</button>
+        <button onclick="openCollManager()" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-size:.7rem;font-weight:700">⚙️ Manage</button>
+      </span>
     </div>
 
-    <div style="text-align:center;margin-top:20px">
+    <!-- Featured: Ratchet & Clank -->
+    <div class="home-coll-card home-coll-featured" onclick="goToCollection()">
+      <div class="home-coll-accent" style="background:linear-gradient(180deg,var(--purple),var(--orange))"></div>
+      <div class="home-coll-logo-ph" style="background:linear-gradient(135deg,rgba(123,79,212,.3),rgba(255,138,42,.2))">🦊</div>
+      <div class="home-coll-info">
+        <div class="home-coll-name">Ratchet &amp; Clank <span style="font-size:.62rem;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;padding:2px 8px;border-radius:10px;vertical-align:middle;margin-left:4px">MAIN</span></div>
+        <div class="home-coll-count" id="home-rc-count">My main collection</div>
+      </div>
+      <span class="home-coll-arrow">›</span>
+    </div>
+
+    <!-- Other collections -->
+    <div id="home-collections" class="home-coll-grid" style="margin-top:12px">
+      <div style="text-align:center;color:var(--text-dim);font-size:.8rem;padding:16px">Loading…</div>
+    </div>
+
+    <div style="text-align:center;margin-top:26px">
       <button class="home-kofi" onclick="window.open('https://ko-fi.com/ratchetlegacy','_blank')">☕ Support the project</button>
     </div>
   </div>
@@ -7222,6 +7233,8 @@ function renderHome(){
   // total value
   const val = items.filter(i=>i.status==='owned').reduce((s,i)=>s+(parseFloat(i.cur_value)||0),0);
   document.getElementById('home-value').textContent = val>0 ? fmtEurS(val) : '—';
+  const rcCount=document.getElementById('home-rc-count');
+  if(rcCount) rcCount.textContent = owned+' games owned';
 }
 
 // News (stored in app_settings key 'home_news') — shown as a closable popup
