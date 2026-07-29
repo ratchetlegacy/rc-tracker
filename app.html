@@ -1315,12 +1315,13 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
   <div class="home-body">
     <!-- Welcome -->
-    <div class="home-welcome">
+    <div class="home-welcome" onclick="closeHome();openProfile()" style="cursor:pointer">
       <div class="home-avatar" id="home-avatar">🦊</div>
       <div style="flex:1;min-width:0">
         <div class="home-hi">Hi <span id="home-pseudo">Collector</span>!</div>
         <div class="home-rank" id="home-rank">🌱 Rookie</div>
       </div>
+      <span style="color:var(--text-dim);font-size:1.2rem">›</span>
     </div>
 
     <!-- Key stats (compact one-liner) -->
@@ -1354,11 +1355,12 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <!-- Featured: Ratchet & Clank -->
     <div class="home-coll-card home-coll-featured" onclick="goToCollection()">
       <div class="home-coll-accent" style="background:linear-gradient(180deg,var(--purple),var(--orange))"></div>
-      <div class="home-coll-logo-ph" style="background:linear-gradient(135deg,rgba(123,79,212,.3),rgba(255,138,42,.2))">🦊</div>
+      <div id="home-rc-logo" class="home-coll-logo-ph" style="background:linear-gradient(135deg,rgba(123,79,212,.3),rgba(255,138,42,.2))">🦊</div>
       <div class="home-coll-info">
         <div class="home-coll-name">Ratchet &amp; Clank <span style="font-size:.62rem;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;padding:2px 8px;border-radius:10px;vertical-align:middle;margin-left:4px">MAIN</span></div>
         <div class="home-coll-count" id="home-rc-count">My main collection</div>
       </div>
+      <span id="home-rc-edit" style="display:none;color:var(--purple-light);font-size:.9rem;padding:0 8px" onclick="event.stopPropagation();editRcLogo()">✏️</span>
       <span class="home-coll-arrow">›</span>
     </div>
 
@@ -6247,13 +6249,22 @@ function closeCollManager(){
 function renderCollManagerList(){
   const box=document.getElementById('collmanager-list');
   if(!allCollections.length){ box.innerHTML='<div style="font-size:.8rem;color:var(--text-dim);text-align:center;padding:10px">No collections yet.</div>'; return; }
-  box.innerHTML = allCollections.map(c=>{
+  box.innerHTML = allCollections.map((c,idx)=>{
     const logo = c.logo_url
       ? '<img src="'+escHtml(c.logo_url)+'" style="width:34px;height:34px;object-fit:contain;border-radius:6px;background:var(--bg)"/>'
       : '<span style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:'+c.color+'33;border-radius:6px">🗂️</span>';
     const parent = c.parent_id ? allCollections.find(p=>p.id===c.parent_id) : null;
     const parentTag = parent ? '<span style="font-size:.62rem;color:var(--text-dim)">↳ in '+escHtml(parent.name)+'</span>' : '<span style="font-size:.62rem;color:var(--purple-light)">main</span>';
-    return '<div style="display:flex;align-items:center;gap:10px;background:var(--bg2);border-left:4px solid '+c.color+';border-radius:8px;padding:10px 12px;margin-bottom:8px">'
+    // reorder arrows only among siblings (same parent)
+    const siblings = allCollections.filter(x=>(x.parent_id||null)===(c.parent_id||null));
+    const sIdx = siblings.findIndex(x=>x.id===c.id);
+    const upDis = sIdx<=0 ? 'opacity:.25;pointer-events:none' : '';
+    const dnDis = sIdx>=siblings.length-1 ? 'opacity:.25;pointer-events:none' : '';
+    return '<div style="display:flex;align-items:center;gap:8px;background:var(--bg2);border-left:4px solid '+c.color+';border-radius:8px;padding:10px 12px;margin-bottom:8px">'
+      + '<div style="display:flex;flex-direction:column;gap:1px">'
+      +   '<button onclick="moveCollection(\''+c.id+'\',-1)" style="background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:.7rem;padding:0;line-height:1;'+upDis+'">▲</button>'
+      +   '<button onclick="moveCollection(\''+c.id+'\',1)" style="background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:.7rem;padding:0;line-height:1;'+dnDis+'">▼</button>'
+      + '</div>'
       + logo
       + '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.86rem">'+escHtml(c.name)+'</div>'+parentTag+'</div>'
       + '<button onclick="manageCatalog(\''+c.id+'\')" style="background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:7px;padding:5px 9px;color:var(--purple-light);cursor:pointer;font-size:.7rem;font-weight:600">📚</button>'
@@ -6316,6 +6327,23 @@ async function deleteCollManager(id){
     const { error } = await sbClient.from('other_collections').delete().eq('id',id);
     if(error){ showToast('Error: '+error.message,'error'); return; }
     showToast('Deleted','info');
+    await loadCollections(); renderCollManagerList();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+// Reorder a collection among its siblings (same parent) via sort_order swap
+async function moveCollection(id, dir){
+  const c = allCollections.find(x=>x.id===id); if(!c) return;
+  const siblings = allCollections.filter(x=>(x.parent_id||null)===(c.parent_id||null));
+  const idx = siblings.findIndex(x=>x.id===id);
+  const target = siblings[idx+dir];
+  if(!target) return;
+  // ensure both have a sort_order; if equal/undefined, seed by index
+  let a = (c.sort_order!=null)?c.sort_order:idx;
+  let b = (target.sort_order!=null)?target.sort_order:(idx+dir);
+  if(a===b){ a=idx; b=idx+dir; }
+  try {
+    await sbClient.from('other_collections').update({sort_order:b}).eq('id',c.id);
+    await sbClient.from('other_collections').update({sort_order:a}).eq('id',target.id);
     await loadCollections(); renderCollManagerList();
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
@@ -7235,6 +7263,34 @@ function renderHome(){
   document.getElementById('home-value').textContent = val>0 ? fmtEurS(val) : '—';
   const rcCount=document.getElementById('home-rc-count');
   if(rcCount) rcCount.textContent = owned+' games owned';
+  loadRcLogo();
+}
+async function loadRcLogo(){
+  const editBtn=document.getElementById('home-rc-edit');
+  if(editBtn) editBtn.style.display = isAdmin()?'inline':'none';
+  try {
+    const { data } = await sbClient.from('app_settings').select('value').eq('key','rc_logo').maybeSingle();
+    const url = (data && data.value) ? data.value.trim() : '';
+    const box=document.getElementById('home-rc-logo');
+    if(box && url){
+      box.innerHTML='';
+      box.style.background='var(--bg)';
+      const img=document.createElement('img');
+      img.src=url; img.className='home-coll-logo'; img.style.width='100%'; img.style.height='100%';
+      img.onerror=()=>{ box.innerHTML='🦊'; box.style.background='linear-gradient(135deg,rgba(123,79,212,.3),rgba(255,138,42,.2))'; };
+      box.appendChild(img);
+    }
+  } catch(e){}
+}
+async function editRcLogo(){
+  if(!isAdmin()) return;
+  const url = prompt('Ratchet & Clank card logo — paste an image URL (leave empty to reset to 🦊):', '');
+  if(url===null) return;
+  try {
+    await sbClient.from('app_settings').upsert([{key:'rc_logo', value:url.trim()}], {onConflict:'key'});
+    showToast('Logo updated! 🦊','success');
+    loadRcLogo();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 
 // News (stored in app_settings key 'home_news') — shown as a closable popup
