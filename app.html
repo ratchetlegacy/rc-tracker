@@ -981,10 +981,12 @@
     .mobile-menu-btn{display:none;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;color:var(--chrome);font-size:1.1rem;cursor:pointer;flex-shrink:0}
     .mobile-menu-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:800}
     .mobile-menu-overlay.open{display:block}
-    .mobile-menu-panel{position:fixed;top:0;left:0;bottom:0;width:240px;background:var(--bg2);border-right:1px solid rgba(255,255,255,.08);z-index:801;padding:20px;display:flex;flex-direction:column;gap:10px;transform:translateX(-100%);transition:transform .3s ease}
+    .mobile-menu-panel{position:fixed;top:0;left:0;bottom:0;width:250px;background:var(--bg2);border-right:1px solid rgba(255,255,255,.08);z-index:801;padding:20px 16px;display:flex;flex-direction:column;gap:7px;transform:translateX(-100%);transition:transform .3s ease;overflow-y:auto}
     .mobile-menu-panel.open{transform:translateX(0)}
-    .mobile-menu-panel .menu-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;background:var(--bg3);border:1px solid rgba(255,255,255,.07);color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;text-decoration:none;font-family:Inter,sans-serif}
+    .mobile-menu-panel .menu-item{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:10px;background:var(--bg3);border:1px solid rgba(255,255,255,.07);color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;text-decoration:none;font-family:Inter,sans-serif}
     .mobile-menu-panel .menu-item:hover{background:rgba(123,79,212,.2);border-color:rgba(123,79,212,.3)}
+    .menu-section-title{font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin:12px 6px 2px}
+    .menu-section-title:first-of-type{margin-top:4px}
     .mobile-menu-close{align-self:flex-end;background:transparent;border:none;color:var(--text-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px}
     
     /* PRICE NOTIF */
@@ -2788,21 +2790,30 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
   <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome()">🏠 Home</div>
   <div class="menu-item" onclick="closeMobileMenu();openProfile()">🦊 <span id="mobile-pseudo">My profile</span></div>
-  <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 Stats</div>
-  <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
-  <div class="menu-item" onclick="closeMobileMenu();openCatalog()">📚 Catalog</div>
-  <div class="menu-item" onclick="closeMobileMenu();openWiki()">📖 Wiki</div>
-  <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome()">📦 My collections</div>
-  <div class="menu-item" id="menu-photomod" onclick="openPhotoMod()" style="display:none;color:var(--owned)">📷 Photo moderation <span id="photomod-badge"></span></div>
+  <div class="menu-item" onclick="openFriends()">🤝 Friends <span id="friends-badge" style="display:none;background:var(--missing);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700;margin-left:4px">0</span></div>
+
+  <div class="menu-section-title">Ratchet &amp; Clank</div>
+  <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome();goToCollection()">🗂️ My R&C collection</div>
+  <div class="menu-item" onclick="closeMobileMenu();openCatalog()">📚 R&C Catalog</div>
+  <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 R&C Stats</div>
+  <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 R&C Trades</div>
+  <div class="menu-item" onclick="closeMobileMenu();openWiki()">📖 R&C Wiki</div>
+  <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export R&C (PDF)</div>
+
+  <div class="menu-section-title">My collections</div>
+  <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome()">📦 All my collections</div>
+
+  <div class="menu-section-title" id="menu-admin-title" style="display:none">Admin</div>
   <div class="menu-item" id="menu-collmanage" onclick="closeMobileMenu();openCollManager()" style="display:none;color:var(--purple-light)">🗂️ Manage collections</div>
   <div class="menu-item" id="menu-catreq" onclick="openCatReqReview()" style="display:none;color:var(--purple-light)">📥 Catalog requests <span id="catreq-badge"></span></div>
-  <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
-  <div class="menu-item" onclick="openFriends()">🤝 Friends <span id="friends-badge" style="display:none;background:var(--missing);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700;margin-left:4px">0</span></div>
-  <div class="menu-item" onclick="closeMobileMenu();openGuide()">📖 How to use</div>
-  <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)">📲 Install the app</div>
+  <div class="menu-item" id="menu-photomod" onclick="openPhotoMod()" style="display:none;color:var(--owned)">📷 Photo moderation <span id="photomod-badge"></span></div>
+  <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin panel</div>
+
+  <div class="menu-section-title">App</div>
   <div class="menu-item" onclick="closeMobileMenu();openThemes()" id="mobile-theme-btn">🎨 Themes</div>
+  <div class="menu-item" onclick="closeMobileMenu();openGuide()">❓ How to use</div>
+  <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)">📲 Install the app</div>
   <a href="https://ko-fi.com/ratchetlegacy" target="_blank" class="menu-item" style="color:#FF8C42;border-color:rgba(255,140,66,.2)">☕ Fuel the collection!</a>
-  <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin</div>
   <div class="menu-item" style="color:var(--missing);border-color:rgba(255,77,106,.2)" onclick="closeMobileMenu();doSignOut()">🚪 Sign out</div>
   <a href="legal.html" class="menu-item" style="color:var(--text-dim);font-size:.72rem">📄 Terms & Privacy</a>
 </div>
@@ -3683,6 +3694,7 @@ async function launchApp(){
   if(isAdmin()) refreshPhotoModBadge();
   if(isAdmin()){
     const mc=document.getElementById('menu-collmanage'); if(mc) mc.style.display='block';
+    const at=document.getElementById('menu-admin-title'); if(at) at.style.display='block';
     refreshCatReqBadge();
     loadCollections();
   }
