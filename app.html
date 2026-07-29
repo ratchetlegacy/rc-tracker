@@ -1057,6 +1057,19 @@
     .home-cta{width:100%;background:var(--purple);color:#fff;border:none;border-radius:18px;padding:17px;font-weight:700;font-size:1rem;cursor:pointer;margin-bottom:22px;transition:opacity .15s}
     .home-cta:hover{opacity:.9}
     .home-section-label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin:0 4px 12px}
+    .home-coll-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:420px){.home-coll-grid{grid-template-columns:1fr 1fr}}
+    .home-coll-card{background:var(--bg2);border:1px solid rgba(255,255,255,.05);border-radius:18px;padding:18px 14px;cursor:pointer;transition:transform .15s,background .15s;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;position:relative;overflow:hidden}
+    .home-coll-card:hover{transform:translateY(-2px);background:var(--bg3)}
+    .home-coll-logo{width:64px;height:64px;object-fit:contain;border-radius:12px;background:var(--bg)}
+    .home-coll-logo-ph{width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:2rem;border-radius:12px}
+    .home-coll-name{font-weight:700;font-size:.9rem;color:var(--text)}
+    .home-coll-count{font-size:.7rem;color:var(--text-dim)}
+    .home-coll-accent{position:absolute;top:0;left:0;right:0;height:4px}
+    /* Collection view tabs */
+    .cv-tabs{display:flex;gap:4px;padding:0 16px;max-width:600px;margin:0 auto;overflow-x:auto}
+    .cv-tab{flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-dim);padding:12px 6px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
+    .cv-tab.active{color:var(--purple-light);border-bottom-color:var(--purple)}
     .home-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
     @media(max-width:420px){.home-grid{grid-template-columns:1fr 1fr}}
     .home-tile{background:var(--bg2);border:1px solid rgba(255,255,255,.04);border-radius:18px;padding:20px 8px;text-align:center;cursor:pointer;transition:background .15s;font-size:.8rem;font-weight:600;color:var(--text)}
@@ -1315,22 +1328,54 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
 
     <!-- Primary CTA -->
-    <button class="home-cta" onclick="goToCollection()">View my collection</button>
+    <button class="home-cta" onclick="goToCollection()">View my Ratchet &amp; Clank collection</button>
+
+    <!-- Other collections (vignettes) -->
+    <div class="home-section-label" style="display:flex;justify-content:space-between;align-items:center">
+      <span>My collections</span>
+      <span id="home-coll-admin" style="display:none"><button onclick="openCollManager()" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-size:.7rem;font-weight:700">⚙️ Manage</button></span>
+    </div>
+    <div id="home-collections" class="home-coll-grid">
+      <div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-size:.8rem;padding:16px">Loading…</div>
+    </div>
 
     <!-- Shortcuts -->
-    <div class="home-section-label">Quick access</div>
+    <div class="home-section-label" style="margin-top:24px">Quick access</div>
     <div class="home-grid">
       <div class="home-tile" onclick="goToCollection()"><div class="home-tile-ic">🗂️</div><div>Collection</div></div>
       <div class="home-tile" onclick="closeHome();openCatalog()"><div class="home-tile-ic">📚</div><div>Catalog</div></div>
       <div class="home-tile" onclick="closeHome();openFriends()"><div class="home-tile-ic">🤝</div><div>Friends</div></div>
       <div class="home-tile" onclick="closeHome();openWiki()"><div class="home-tile-ic">📖</div><div>Wiki</div></div>
-      <div class="home-tile" onclick="closeHome();openOther()"><div class="home-tile-ic">📦</div><div>My Collections</div></div>
       <div class="home-tile" onclick="closeHome();openThemes()"><div class="home-tile-ic">🎨</div><div>Themes</div></div>
+      <div class="home-tile" onclick="closeHome();openProfile()"><div class="home-tile-ic">🦊</div><div>Profile</div></div>
     </div>
 
     <div style="text-align:center;margin-top:20px">
       <button class="home-kofi" onclick="window.open('https://ko-fi.com/ratchetlegacy','_blank')">☕ Support the project</button>
     </div>
+  </div>
+</div>
+
+<!-- COLLECTION VIEW SCREEN (a single collection's universe) -->
+<div class="stats-screen" id="collection-view-screen">
+  <div class="stats-page-header">
+    <div class="logo-img" onclick="closeCollectionView();closeAllScreensToHome()" style="cursor:pointer;width:40px;height:40px" title="Home">
+      <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
+    </div>
+    <h1 id="cv-title">COLLECTION</h1>
+    <button class="stats-back" onclick="closeCollectionView()">← Back</button>
+  </div>
+  <div class="cv-tabs">
+    <button class="cv-tab active" data-tab="list" onclick="cvSwitch('list')">🗂️ My list</button>
+    <button class="cv-tab" data-tab="catalog" onclick="cvSwitch('catalog')">📚 Catalog</button>
+    <button class="cv-tab" data-tab="stats" onclick="cvSwitch('stats')">📊 Stats</button>
+    <button class="cv-tab" data-tab="wiki" onclick="cvSwitch('wiki')">📖 Wiki</button>
+  </div>
+  <div class="stats-body">
+    <div id="cv-admin-bar" style="display:none;margin-bottom:12px">
+      <button class="add-btn" onclick="manageCatalog(currentCollView)">+ ADD TO CATALOG</button>
+    </div>
+    <div id="cv-content"><div style="text-align:center;padding:50px;color:var(--text-dim)"><span style="font-size:1.6rem;display:block;animation:spin 1s linear infinite">⚙️</span>Loading…</div></div>
   </div>
 </div>
 
@@ -6392,7 +6437,12 @@ async function saveOtherItem(){
     if(error){ console.log('other save error:',error); showToast('Error: '+error.message,'error'); return; }
     showToast('Saved! 📦','success');
     closeOtherEdit();
-    loadOther();
+    if(cvEditingFromCollection){
+      const c=cvEditingFromCollection; cvEditingFromCollection=null;
+      await loadMyCollItems(c); renderCollectionView(c);
+    } else {
+      loadOther();
+    }
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 async function deleteOtherItem(){
@@ -6402,11 +6452,53 @@ async function deleteOtherItem(){
   try {
     const { error } = await sbClient.from('other_items').delete().eq('id',id);
     if(error){ showToast('Error: '+error.message,'error'); return; }
-    showToast('Deleted','info'); closeOtherEdit(); loadOther();
+    showToast('Deleted','info'); closeOtherEdit();
+    if(cvEditingFromCollection){
+      const c=cvEditingFromCollection; cvEditingFromCollection=null;
+      await loadMyCollItems(c); renderCollectionView(c);
+    } else {
+      loadOther();
+    }
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 
 
+
+// ── User: suggest a catalog addition ──
+function openCatReq(collId){
+  document.getElementById('catreq-collection').value=collId;
+  document.getElementById('catreq-name').value='';
+  document.getElementById('catreq-platform').value='';
+  document.getElementById('catreq-year').value='';
+  document.getElementById('catreq-variant').value='';
+  document.getElementById('catreq-publisher').value='';
+  document.getElementById('catreq-image').value='';
+  document.getElementById('catreq-overlay').classList.add('open');
+}
+function closeCatReq(){ document.getElementById('catreq-overlay').classList.remove('open'); }
+async function submitCatReq(){
+  if(!currentUser){ showToast('Please sign in','error'); return; }
+  const collId=document.getElementById('catreq-collection').value;
+  const name=document.getElementById('catreq-name').value.trim();
+  if(!name){ showToast('Name is required','error'); return; }
+  const yv=parseInt(document.getElementById('catreq-year').value);
+  const author=localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
+  try {
+    const { error } = await sbClient.from('other_catalog_requests').insert([{
+      user_id: currentUser.id, author_name: author, collection_id: collId,
+      name, platform: document.getElementById('catreq-platform').value.trim()||null,
+      year: isNaN(yv)?null:yv, variant: document.getElementById('catreq-variant').value.trim()||null,
+      publisher: document.getElementById('catreq-publisher').value.trim()||null,
+      image_url: document.getElementById('catreq-image').value.trim()||null,
+      status:'pending'
+    }]);
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast('Request sent! An admin will review it 📨','success');
+    closeCatReq();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+// ── User: suggest a catalog addition ── END
 
 // ── Compare collections side by side ──
 async function compareWithFriend(friendId){
@@ -6745,13 +6837,236 @@ function showHome(){
   h.style.display='block';
   renderHome();
   loadNews();
+  renderHomeCollections();
 }
 function closeHome(){ document.getElementById('home-screen').style.display='none'; }
+
+async function renderHomeCollections(){
+  const grid=document.getElementById('home-collections');
+  if(!grid) return;
+  const adminBtn=document.getElementById('home-coll-admin');
+  if(adminBtn) adminBtn.style.display = isAdmin()?'inline':'none';
+  await loadCollections();
+  if(!allCollections.length){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-size:.8rem;padding:16px">'
+      + (isAdmin()?'No collections yet — tap ⚙️ Manage to create one!':'More collections coming soon! 🚀')
+      + '</div>';
+    return;
+  }
+  // fetch how many the user owns per collection (one query)
+  let ownedByColl = {};
+  try {
+    const { data } = await sbClient.from('other_items')
+      .select('catalog_id, other_catalog(collection_id)')
+      .eq('user_id',currentUser.id).eq('status','owned');
+    (data||[]).forEach(r=>{
+      const cid = r.other_catalog && r.other_catalog.collection_id;
+      if(cid) ownedByColl[cid] = (ownedByColl[cid]||0)+1;
+    });
+  } catch(e){}
+  grid.innerHTML = allCollections.map(c=>{
+    const logo = c.logo_url
+      ? '<img class="home-coll-logo" src="'+escHtml(c.logo_url)+'" onerror="this.outerHTML=\'<div class=&quot;home-coll-logo-ph&quot; style=&quot;background:'+c.color+'33&quot;>🗂️</div>\'"/>'
+      : '<div class="home-coll-logo-ph" style="background:'+c.color+'33">🗂️</div>';
+    const owned = ownedByColl[c.id]||0;
+    return '<div class="home-coll-card" onclick="openCollectionView(\''+c.id+'\')">'
+      + '<div class="home-coll-accent" style="background:'+c.color+'"></div>'
+      + logo
+      + '<div class="home-coll-name">'+escHtml(c.name)+'</div>'
+      + '<div class="home-coll-count">'+owned+' owned</div>'
+      + '</div>';
+  }).join('');
+}
 function closeAllScreensToHome(){
   document.querySelectorAll('.stats-screen.open, .admin-screen.open, .public-screen.open, .friends-screen.open, .modal-overlay.open').forEach(s=>s.classList.remove('open'));
   const pr=document.getElementById('profile-screen'); if(pr) pr.classList.remove('open');
   showHome();
 }
+
+// ══════════════════════════════════════════════════════════
+//  COLLECTION VIEW (one collection's universe)
+// ══════════════════════════════════════════════════════════
+let currentCollView = null;
+let cvActiveTab = 'list';
+let cvMyItems = [];   // user's other_items for this collection (joined w/ catalog)
+
+async function openCollectionView(collId){
+  currentCollView = collId;
+  cvActiveTab = 'list';
+  if(typeof closeMobileMenu==='function') closeMobileMenu();
+  await loadCollections();
+  const coll = allCollections.find(c=>c.id===collId);
+  document.getElementById('cv-title').textContent = (coll?coll.name:'COLLECTION').toUpperCase();
+  document.getElementById('cv-admin-bar').style.display = isAdmin()?'block':'none';
+  // reset tab UI
+  document.querySelectorAll('#collection-view-screen .cv-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab==='list'));
+  document.getElementById('collection-view-screen').classList.add('open');
+  await loadCatalogFor(collId);
+  await loadMyCollItems(collId);
+  renderCollectionView(collId);
+}
+function closeCollectionView(){ document.getElementById('collection-view-screen').classList.remove('open'); }
+
+function cvSwitch(tab){
+  cvActiveTab = tab;
+  document.querySelectorAll('#collection-view-screen .cv-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+  document.getElementById('cv-admin-bar').style.display = (isAdmin() && tab==='catalog')?'block':'none';
+  renderCollectionView(currentCollView);
+}
+
+async function loadMyCollItems(collId){
+  cvMyItems = [];
+  try {
+    // items the user owns/wishes that are linked to this collection's catalog
+    const { data } = await sbClient.from('other_items')
+      .select('*, other_catalog!inner(collection_id,name,platform,variant,year,publisher,image_url)')
+      .eq('user_id',currentUser.id)
+      .eq('other_catalog.collection_id',collId);
+    cvMyItems = data||[];
+  } catch(e){ cvMyItems=[]; }
+}
+
+function renderCollectionView(collId){
+  const box=document.getElementById('cv-content');
+  if(cvActiveTab==='list')      return renderCvList(box, collId);
+  if(cvActiveTab==='catalog')   return renderCvCatalog(box, collId);
+  if(cvActiveTab==='stats')     return renderCvStats(box, collId);
+  if(cvActiveTab==='wiki')      return renderCvWiki(box, collId);
+}
+
+// ── Tab: My list ──
+function renderCvList(box, collId){
+  if(!cvMyItems.length){
+    box.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">You don\'t own anything here yet.<br>Go to the <b>Catalog</b> tab to add items! 📚</div>';
+    return;
+  }
+  const owned=cvMyItems.filter(i=>i.status==='owned').length;
+  const wish=cvMyItems.filter(i=>i.status==='wishlist').length;
+  let html='<div style="display:flex;gap:8px;margin-bottom:14px">'
+    + '<div style="flex:1;background:var(--bg3);border-radius:12px;padding:12px;text-align:center"><div style="font-size:1.3rem;font-weight:800;color:var(--owned)">'+owned+'</div><div style="font-size:.62rem;color:var(--text-dim);text-transform:uppercase">Owned</div></div>'
+    + '<div style="flex:1;background:var(--bg3);border-radius:12px;padding:12px;text-align:center"><div style="font-size:1.3rem;font-weight:800;color:var(--wishlist)">'+wish+'</div><div style="font-size:.62rem;color:var(--text-dim);text-transform:uppercase">Wishlist</div></div>'
+    + '</div>';
+  html += '<div class="catalog-list">' + cvMyItems.map(i=>{
+    const cat=i.other_catalog||{};
+    const meta=[cat.platform,cat.year,cat.variant].filter(Boolean).join(' · ');
+    const badge = i.status==='wishlist'
+      ? '<span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(255,212,71,.15);color:var(--wishlist)">★ Wishlist</span>'
+      : '<span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(61,214,140,.15);color:var(--owned)">✓ Owned</span>';
+    const inc = i.is_complete===false ? ' <span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(255,138,42,.18);color:#FF8A2A">⚠️</span>':'';
+    return '<div class="catalog-row" onclick="openMyCollItem(\''+i.id+'\')">'
+      + (cat.image_url?'<div class="catalog-thumb"><img src="'+escHtml(cat.image_url)+'" loading="lazy"/></div>':'<div class="catalog-thumb"><span class="catalog-thumb-icon">📦</span></div>')
+      + '<div class="catalog-info"><div class="catalog-name">'+escHtml(cat.name||'?')+'</div>'
+      + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
+      + '<div style="margin-top:4px">'+badge+inc+'</div></div>'
+      + '<span class="catalog-chevron">›</span></div>';
+  }).join('') + '</div>';
+  box.innerHTML=html;
+}
+
+// ── Tab: Catalog ──
+function renderCvCatalog(box, collId){
+  const cat = catalogCache[collId]||[];
+  const ownedCatalogIds = new Set(cvMyItems.map(i=>i.catalog_id));
+  let html='';
+  html += '<p style="font-size:.82rem;color:var(--text-dim);margin-bottom:12px">Tap an item to add it to your collection. Missing something? '
+    + '<button onclick="openCatReq(\''+collId+'\')" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-weight:600;font-size:.82rem">Suggest an addition ✋</button></p>';
+  if(!cat.length){
+    html += '<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">Catalog is empty for now.'+(isAdmin()?' Add items above! 🛠️':'')+'</div>';
+    box.innerHTML=html; return;
+  }
+  html += '<div class="catalog-list">' + cat.map(o=>{
+    const meta=[o.platform,o.year,o.variant,o.publisher].filter(Boolean).join(' · ');
+    const has = ownedCatalogIds.has(o.id);
+    const adminEdit = isAdmin() ? '<button onclick="event.stopPropagation();openCatalogEdit(catObj(\''+o.id+'\'))" style="background:transparent;border:none;color:var(--purple-light);cursor:pointer;font-size:.85rem;padding:0 4px">✏️</button>' : '';
+    return '<div class="catalog-row" onclick="addCatalogToMine(\''+o.id+'\')">'
+      + (o.image_url?'<div class="catalog-thumb"><img src="'+escHtml(o.image_url)+'" loading="lazy"/></div>':'<div class="catalog-thumb"><span class="catalog-thumb-icon">📦</span></div>')
+      + '<div class="catalog-info"><div class="catalog-name">'+escHtml(o.name)+'</div>'
+      + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
+      + (has?'<div style="margin-top:4px"><span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(61,214,140,.15);color:var(--owned)">✓ In your collection</span></div>':'')
+      + '</div>'
+      + adminEdit
+      + (has?'<span class="catalog-chevron" style="color:var(--owned)">✓</span>':'<span class="catalog-chevron" style="color:var(--purple-light);font-size:1.2rem">＋</span>')
+      + '</div>';
+  }).join('') + '</div>';
+  box.innerHTML=html;
+}
+function catObj(id){ const c=catalogCache[currentCollView]||[]; return c.find(x=>x.id===id); }
+
+// Add a catalog entry to my collection (quick: choose owned/wishlist)
+async function addCatalogToMine(catalogId){
+  const existing = cvMyItems.find(i=>i.catalog_id===catalogId);
+  if(existing){ openMyCollItem(existing.id); return; }
+  const cat = (catalogCache[currentCollView]||[]).find(o=>o.id===catalogId);
+  if(!cat) return;
+  // simple choice
+  const wish = !confirm('Add "'+cat.name+'" to your collection?\n\nOK = I OWN it   /   Cancel = Wishlist');
+  try {
+    const payload={
+      user_id: currentUser.id,
+      catalog_id: catalogId,
+      name: cat.name,               // keep a denormalized name for safety
+      category: 'Catalog',
+      status: wish?'wishlist':'owned',
+      is_complete: true
+    };
+    const { error } = await sbClient.from('other_items').insert([payload]);
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast(wish?'Added to wishlist ★':'Added to your collection ✓','success');
+    await loadMyCollItems(currentCollView);
+    renderCollectionView(currentCollView);
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+// Open one of my items (edit personal info: status, condition, price, complete)
+function openMyCollItem(itemId){
+  const i = cvMyItems.find(x=>x.id===itemId);
+  if(!i) return;
+  const cat=i.other_catalog||{};
+  document.getElementById('other-f-id').value=i.id;
+  document.getElementById('other-f-name').value=cat.name||i.name||'';
+  // reuse the existing other-edit modal but hide catalog-managed fields
+  document.getElementById('other-f-cat').value = i.category||'Catalog';
+  document.getElementById('other-f-platform').value=cat.platform||'';
+  document.getElementById('other-f-year').value=cat.year||'';
+  document.getElementById('other-f-edition').value=cat.variant||'';
+  document.getElementById('other-f-condition').value=i.condition||'used';
+  document.getElementById('other-f-status').value=i.status||'owned';
+  document.getElementById('other-f-price').value=i.price||'';
+  document.getElementById('other-f-notes').value=i.notes||'';
+  document.getElementById('other-f-complete').value=(i.is_complete!==false)?'1':'0';
+  document.getElementById('other-f-missing').value=i.missing_note||'';
+  document.getElementById('other-f-image').value=cat.image_url||'';
+  document.getElementById('other-edit-title').textContent='Edit — '+(cat.name||'item');
+  document.getElementById('other-delete-btn').style.display='block';
+  toggleMissingNote(); updateOtherImgPreview();
+  if(typeof otherSelectedCatIds!=='undefined'){ otherSelectedCatIds=[]; if(typeof renderOtherCatPicker==='function') renderOtherCatPicker(); }
+  cvEditingFromCollection = currentCollView;
+  document.getElementById('other-edit-overlay').classList.add('open');
+}
+let cvEditingFromCollection = null;
+
+// ── Tab: Stats (placeholder for step C) ──
+function renderCvStats(box, collId){
+  const owned=cvMyItems.filter(i=>i.status==='owned').length;
+  const wish=cvMyItems.filter(i=>i.status==='wishlist').length;
+  const catTotal=(catalogCache[collId]||[]).length;
+  const pct = catTotal>0 ? Math.round((owned/catTotal)*100) : 0;
+  const val = cvMyItems.filter(i=>i.status==='owned').reduce((s,i)=>s+(parseFloat(i.price)||0),0);
+  box.innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+    + '<div style="background:var(--bg3);border-radius:14px;padding:18px;text-align:center"><div style="font-size:1.8rem;font-weight:800;color:var(--owned)">'+owned+'</div><div style="font-size:.7rem;color:var(--text-dim);text-transform:uppercase">Owned</div></div>'
+    + '<div style="background:var(--bg3);border-radius:14px;padding:18px;text-align:center"><div style="font-size:1.8rem;font-weight:800;color:var(--wishlist)">'+wish+'</div><div style="font-size:.7rem;color:var(--text-dim);text-transform:uppercase">Wishlist</div></div>'
+    + '<div style="background:var(--bg3);border-radius:14px;padding:18px;text-align:center"><div style="font-size:1.8rem;font-weight:800;color:var(--purple-light)">'+pct+'%</div><div style="font-size:.7rem;color:var(--text-dim);text-transform:uppercase">Of catalog</div></div>'
+    + '<div style="background:var(--bg3);border-radius:14px;padding:18px;text-align:center"><div style="font-size:1.8rem;font-weight:800;color:var(--chrome)">'+(val>0?fmtEurS(val):'—')+'</div><div style="font-size:.7rem;color:var(--text-dim);text-transform:uppercase">Value</div></div>'
+    + '</div>'
+    + '<p style="text-align:center;color:var(--text-dim);font-size:.78rem;margin-top:16px">'+owned+' / '+catTotal+' catalog items owned</p>';
+}
+
+// ── Tab: Wiki (placeholder for step D) ──
+function renderCvWiki(box, collId){
+  box.innerHTML='<div style="text-align:center;padding:50px;color:var(--text-dim);font-size:.85rem">📖 Wiki for this collection is coming soon!</div>';
+}
+
 function goToCollection(){
   closeHome();
   show('app-screen');
@@ -8254,7 +8569,7 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
     'news-edit-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
-    'collmanager-overlay','catalogedit-overlay','catreq-overlay','catreqreview-overlay'
+    'collmanager-overlay','catalogedit-overlay','catreq-overlay','catreqreview-overlay','collection-view-screen'
   ];
   // Return the topmost open closable element, or null
   function topOpen(){
