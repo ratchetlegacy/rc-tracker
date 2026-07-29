@@ -1060,15 +1060,16 @@
     .home-cta{width:100%;background:var(--purple);color:#fff;border:none;border-radius:18px;padding:17px;font-weight:700;font-size:1rem;cursor:pointer;margin-bottom:22px;transition:opacity .15s}
     .home-cta:hover{opacity:.9}
     .home-section-label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin:0 4px 12px}
-    .home-coll-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media(max-width:420px){.home-coll-grid{grid-template-columns:1fr 1fr}}
-    .home-coll-card{background:var(--bg2);border:1px solid rgba(255,255,255,.05);border-radius:18px;padding:18px 14px;cursor:pointer;transition:transform .15s,background .15s;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;position:relative;overflow:hidden}
-    .home-coll-card:hover{transform:translateY(-2px);background:var(--bg3)}
-    .home-coll-logo{width:64px;height:64px;object-fit:contain;border-radius:12px;background:var(--bg)}
-    .home-coll-logo-ph{width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:2rem;border-radius:12px}
-    .home-coll-name{font-weight:700;font-size:.9rem;color:var(--text)}
-    .home-coll-count{font-size:.7rem;color:var(--text-dim)}
-    .home-coll-accent{position:absolute;top:0;left:0;right:0;height:4px}
+    .home-coll-grid{display:flex;flex-direction:column;gap:12px}
+    .home-coll-card{display:flex;align-items:center;gap:16px;background:var(--bg2);border:1px solid rgba(255,255,255,.05);border-radius:16px;padding:16px 18px;cursor:pointer;transition:transform .15s,background .15s;position:relative;overflow:hidden}
+    .home-coll-card:hover{transform:translateX(3px);background:var(--bg3)}
+    .home-coll-logo{width:56px;height:56px;object-fit:contain;border-radius:12px;background:var(--bg);flex-shrink:0}
+    .home-coll-logo-ph{width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;border-radius:12px;flex-shrink:0}
+    .home-coll-info{flex:1;min-width:0}
+    .home-coll-name{font-weight:700;font-size:1rem;color:var(--text);margin-bottom:2px}
+    .home-coll-count{font-size:.78rem;color:var(--text-dim)}
+    .home-coll-accent{position:absolute;top:0;left:0;bottom:0;width:4px}
+    .home-coll-arrow{color:var(--text-dim);font-size:1.3rem;flex-shrink:0}
     /* Collection view tabs */
     .cv-tabs{display:flex;gap:4px;padding:0 16px;max-width:600px;margin:0 auto;overflow-x:auto}
     .cv-tab{flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-dim);padding:12px 6px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
@@ -1358,6 +1359,23 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div style="text-align:center;margin-top:20px">
       <button class="home-kofi" onclick="window.open('https://ko-fi.com/ratchetlegacy','_blank')">☕ Support the project</button>
     </div>
+  </div>
+</div>
+
+<!-- SUB-COLLECTIONS SCREEN (list of children, e.g. PS2/PS4 under PlayStation) -->
+<div class="stats-screen" id="subcoll-screen">
+  <div class="stats-page-header">
+    <div class="logo-img" onclick="closeSubCollections();closeAllScreensToHome()" style="cursor:pointer;width:40px;height:40px" title="Home">
+      <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
+    </div>
+    <h1 id="subcoll-title">COLLECTION</h1>
+    <button class="stats-back" onclick="closeSubCollections()">← Back</button>
+  </div>
+  <div class="stats-body">
+    <div id="subcoll-admin-bar" style="display:none;margin-bottom:12px">
+      <button class="add-btn" onclick="openCollManagerForParent(currentSubParent)">+ ADD CATEGORY</button>
+    </div>
+    <div id="subcoll-list" class="home-coll-grid"></div>
   </div>
 </div>
 
@@ -2208,6 +2226,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div style="font-weight:700;font-size:.82rem;margin-bottom:10px" id="collform-title">➕ New collection</div>
       <input type="hidden" id="collform-id"/>
       <input type="text" id="collform-name" placeholder="Collection name (e.g. PlayStation)" style="width:100%;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;outline:none;margin-bottom:8px"/>
+      <div style="margin-bottom:8px">
+        <label style="font-size:.72rem;color:var(--text-dim);display:block;margin-bottom:4px">Parent (leave empty for a main collection)</label>
+        <select id="collform-parent" style="width:100%;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;outline:none"><option value="">— None (main collection) —</option></select>
+      </div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <input type="text" id="collform-logo" placeholder="Logo URL..." style="flex:1;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:9px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none" oninput="updateCollLogoPreview()"/>
         <button type="button" onclick="openLogoBank('coll')" style="padding:9px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Bank</button>
@@ -6188,12 +6210,23 @@ async function loadCatalogFor(collId){
 // ── Admin: collections manager ──
 const COLL_COLORS = ['#7B4FD4','#FF6B1A','#3DD68C','#FFD447','#46D6FF','#FF4D6A','#E0703A','#2BD4C4','#9B6FF4','#F5C86E'];
 let collFormColor = COLL_COLORS[0];
+let collFormParent = '';
+function fillCollParentSelect(excludeId){
+  const sel=document.getElementById('collform-parent');
+  if(!sel) return;
+  // only top-level collections can be parents (one level of nesting)
+  const tops = allCollections.filter(c=>!c.parent_id && c.id!==excludeId);
+  sel.innerHTML = '<option value="">— None (main collection) —</option>'
+    + tops.map(c=>'<option value="'+c.id+'">'+escHtml(c.name)+'</option>').join('');
+  sel.value = collFormParent||'';
+}
 async function openCollManager(){
   if(!isAdmin()){ showToast('Admin only','error'); return; }
   await loadCollections();
   renderCollManagerList();
   resetCollForm();
   renderCollColorPicker();
+  fillCollParentSelect();
   document.getElementById('collmanager-overlay').classList.add('open');
 }
 function closeCollManager(){
@@ -6207,10 +6240,12 @@ function renderCollManagerList(){
     const logo = c.logo_url
       ? '<img src="'+escHtml(c.logo_url)+'" style="width:34px;height:34px;object-fit:contain;border-radius:6px;background:var(--bg)"/>'
       : '<span style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:'+c.color+'33;border-radius:6px">🗂️</span>';
+    const parent = c.parent_id ? allCollections.find(p=>p.id===c.parent_id) : null;
+    const parentTag = parent ? '<span style="font-size:.62rem;color:var(--text-dim)">↳ in '+escHtml(parent.name)+'</span>' : '<span style="font-size:.62rem;color:var(--purple-light)">main</span>';
     return '<div style="display:flex;align-items:center;gap:10px;background:var(--bg2);border-left:4px solid '+c.color+';border-radius:8px;padding:10px 12px;margin-bottom:8px">'
       + logo
-      + '<span style="flex:1;font-weight:600;font-size:.86rem">'+escHtml(c.name)+'</span>'
-      + '<button onclick="manageCatalog(\''+c.id+'\')" style="background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:7px;padding:5px 9px;color:var(--purple-light);cursor:pointer;font-size:.7rem;font-weight:600">📚 Catalog</button>'
+      + '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.86rem">'+escHtml(c.name)+'</div>'+parentTag+'</div>'
+      + '<button onclick="manageCatalog(\''+c.id+'\')" style="background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:7px;padding:5px 9px;color:var(--purple-light);cursor:pointer;font-size:.7rem;font-weight:600">📚</button>'
       + '<button onclick="editCollManager(\''+c.id+'\')" style="background:transparent;border:none;color:var(--purple-light);cursor:pointer;font-size:.9rem">✏️</button>'
       + '<button onclick="deleteCollManager(\''+c.id+'\')" style="background:transparent;border:none;color:var(--missing);cursor:pointer;font-size:.9rem">🗑️</button>'
       + '</div>';
@@ -6234,7 +6269,9 @@ function resetCollForm(){
   document.getElementById('collform-name').value='';
   document.getElementById('collform-logo').value='';
   document.getElementById('collform-title').textContent='➕ New collection';
-  collFormColor=COLL_COLORS[0]; renderCollColorPicker(); updateCollLogoPreview();
+  collFormColor=COLL_COLORS[0]; collFormParent='';
+  const sel=document.getElementById('collform-parent'); if(sel) sel.value='';
+  renderCollColorPicker(); updateCollLogoPreview();
 }
 function editCollManager(id){
   const c=allCollections.find(x=>x.id===id); if(!c) return;
@@ -6242,20 +6279,24 @@ function editCollManager(id){
   document.getElementById('collform-name').value=c.name||'';
   document.getElementById('collform-logo').value=c.logo_url||'';
   document.getElementById('collform-title').textContent='✏️ Edit collection';
-  collFormColor=c.color||COLL_COLORS[0]; renderCollColorPicker(); updateCollLogoPreview();
+  collFormColor=c.color||COLL_COLORS[0];
+  collFormParent=c.parent_id||'';
+  fillCollParentSelect(c.id);
+  renderCollColorPicker(); updateCollLogoPreview();
 }
 async function saveCollManager(){
   const id=document.getElementById('collform-id').value;
   const name=document.getElementById('collform-name').value.trim();
   const logo_url=document.getElementById('collform-logo').value.trim()||null;
+  const parent_id=document.getElementById('collform-parent').value||null;
   if(!name){ showToast('Enter a collection name','error'); return; }
   try {
     let error;
-    if(id){ ({error} = await sbClient.from('other_collections').update({name,logo_url,color:collFormColor}).eq('id',id)); }
-    else  { ({error} = await sbClient.from('other_collections').insert([{name,logo_url,color:collFormColor}])); }
+    if(id){ ({error} = await sbClient.from('other_collections').update({name,logo_url,color:collFormColor,parent_id}).eq('id',id)); }
+    else  { ({error} = await sbClient.from('other_collections').insert([{name,logo_url,color:collFormColor,parent_id}])); }
     if(error){ showToast('Error: '+error.message,'error'); return; }
     showToast('Collection saved! 🗂️','success');
-    await loadCollections(); renderCollManagerList(); resetCollForm();
+    await loadCollections(); renderCollManagerList(); resetCollForm(); fillCollParentSelect();
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 async function deleteCollManager(id){
@@ -6863,13 +6904,15 @@ async function renderHomeCollections(){
   const adminBtn=document.getElementById('home-coll-admin');
   if(adminBtn) adminBtn.style.display = isAdmin()?'inline':'none';
   await loadCollections();
-  if(!allCollections.length){
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-dim);font-size:.8rem;padding:16px">'
+  // top-level collections only (no parent)
+  const tops = allCollections.filter(c=>!c.parent_id);
+  if(!tops.length){
+    grid.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:.8rem;padding:16px">'
       + (isAdmin()?'No collections yet — tap ⚙️ Manage to create one!':'More collections coming soon! 🚀')
       + '</div>';
     return;
   }
-  // fetch how many the user owns per collection (one query)
+  // owned counts per collection (across catalog)
   let ownedByColl = {};
   try {
     const { data } = await sbClient.from('other_items')
@@ -6880,18 +6923,88 @@ async function renderHomeCollections(){
       if(cid) ownedByColl[cid] = (ownedByColl[cid]||0)+1;
     });
   } catch(e){}
-  grid.innerHTML = allCollections.map(c=>{
+  grid.innerHTML = tops.map(c=>{
+    const subs = allCollections.filter(x=>x.parent_id===c.id);
+    let count, label;
+    if(subs.length){
+      // sum owned across its sub-collections
+      let tot = 0; subs.forEach(s=>{ tot += ownedByColl[s.id]||0; });
+      count = subs.length; label = subs.length+' categories';
+    } else {
+      count = ownedByColl[c.id]||0; label = (ownedByColl[c.id]||0)+' owned';
+    }
+    const logo = c.logo_url
+      ? '<img class="home-coll-logo" src="'+escHtml(c.logo_url)+'" onerror="this.outerHTML=\'<div class=&quot;home-coll-logo-ph&quot; style=&quot;background:'+c.color+'33&quot;>🗂️</div>\'"/>'
+      : '<div class="home-coll-logo-ph" style="background:'+c.color+'33">🗂️</div>';
+    return '<div class="home-coll-card" onclick="openCollectionNode(\''+c.id+'\')">'
+      + '<div class="home-coll-accent" style="background:'+c.color+'"></div>'
+      + logo
+      + '<div class="home-coll-info"><div class="home-coll-name">'+escHtml(c.name)+'</div>'
+      + '<div class="home-coll-count">'+escHtml(label)+'</div></div>'
+      + '<span class="home-coll-arrow">›</span>'
+      + '</div>';
+  }).join('');
+}
+
+// Decide: a collection with sub-collections shows a sub-list; a leaf opens the tabs view
+function openCollectionNode(collId){
+  const subs = allCollections.filter(x=>x.parent_id===collId);
+  if(subs.length){ openSubCollections(collId); }
+  else { openCollectionView(collId); }
+}
+
+// ── Sub-collections screen ──
+let currentSubParent = null;
+async function openSubCollections(parentId){
+  currentSubParent = parentId;
+  document.body.classList.remove('on-home');
+  if(typeof closeMobileMenu==='function') closeMobileMenu();
+  await loadCollections();
+  const parent = allCollections.find(c=>c.id===parentId);
+  document.getElementById('subcoll-title').textContent = (parent?parent.name:'COLLECTION').toUpperCase();
+  document.getElementById('subcoll-admin-bar').style.display = isAdmin()?'block':'none';
+  document.getElementById('subcoll-screen').classList.add('open');
+  await renderSubCollections(parentId);
+}
+function closeSubCollections(){ document.getElementById('subcoll-screen').classList.remove('open'); }
+async function renderSubCollections(parentId){
+  const box=document.getElementById('subcoll-list');
+  const subs = allCollections.filter(c=>c.parent_id===parentId);
+  if(!subs.length){
+    box.innerHTML='<div style="text-align:center;color:var(--text-dim);font-size:.82rem;padding:20px">'+(isAdmin()?'No categories yet — tap + ADD CATEGORY':'Nothing here yet.')+'</div>';
+    return;
+  }
+  let ownedByColl = {};
+  try {
+    const { data } = await sbClient.from('other_items')
+      .select('catalog_id, other_catalog(collection_id)')
+      .eq('user_id',currentUser.id).eq('status','owned');
+    (data||[]).forEach(r=>{ const cid=r.other_catalog&&r.other_catalog.collection_id; if(cid) ownedByColl[cid]=(ownedByColl[cid]||0)+1; });
+  } catch(e){}
+  box.innerHTML = subs.map(c=>{
     const logo = c.logo_url
       ? '<img class="home-coll-logo" src="'+escHtml(c.logo_url)+'" onerror="this.outerHTML=\'<div class=&quot;home-coll-logo-ph&quot; style=&quot;background:'+c.color+'33&quot;>🗂️</div>\'"/>'
       : '<div class="home-coll-logo-ph" style="background:'+c.color+'33">🗂️</div>';
     const owned = ownedByColl[c.id]||0;
+    const adminEdit = isAdmin()?'<button onclick="event.stopPropagation();editCollManagerInline(\''+c.id+'\')" style="background:transparent;border:none;color:var(--purple-light);cursor:pointer;font-size:.9rem;padding:0 6px">✏️</button>':'';
     return '<div class="home-coll-card" onclick="openCollectionView(\''+c.id+'\')">'
       + '<div class="home-coll-accent" style="background:'+c.color+'"></div>'
       + logo
-      + '<div class="home-coll-name">'+escHtml(c.name)+'</div>'
-      + '<div class="home-coll-count">'+owned+' owned</div>'
+      + '<div class="home-coll-info"><div class="home-coll-name">'+escHtml(c.name)+'</div>'
+      + '<div class="home-coll-count">'+owned+' owned</div></div>'
+      + adminEdit
+      + '<span class="home-coll-arrow">›</span>'
       + '</div>';
   }).join('');
+}
+// Admin: open the collection manager pre-set to add a child of this parent
+function openCollManagerForParent(parentId){
+  openCollManager();
+  setTimeout(()=>{ collFormParent = parentId; const sel=document.getElementById('collform-parent'); if(sel) sel.value=parentId; }, 100);
+}
+function editCollManagerInline(id){
+  openCollManager();
+  setTimeout(()=>editCollManager(id), 100);
 }
 function closeAllScreensToHome(){
   document.querySelectorAll('.stats-screen.open, .admin-screen.open, .public-screen.open, .friends-screen.open, .modal-overlay.open').forEach(s=>s.classList.remove('open'));
@@ -8595,7 +8708,7 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
     'news-edit-overlay','news-popup-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
-    'collmanager-overlay','catalogedit-overlay','catreq-overlay','catreqreview-overlay','collection-view-screen'
+    'collmanager-overlay','catalogedit-overlay','catreq-overlay','catreqreview-overlay','collection-view-screen','subcoll-screen'
   ];
   // Return the topmost open closable element, or null
   function topOpen(){
