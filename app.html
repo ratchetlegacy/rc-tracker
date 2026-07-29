@@ -1038,7 +1038,10 @@
     .theme-lock{margin-top:8px;font-size:.72rem;color:var(--wishlist);font-weight:600}
     .theme-current{margin-top:8px;font-size:.72rem;color:var(--owned);font-weight:700}
     /* HOME DASHBOARD — soft & warm */
-    #home-screen{min-height:100vh;background:var(--bg);max-width:600px;margin:0 auto}
+    #home-screen{min-height:100vh;background:var(--bg);max-width:600px;margin:0 auto;position:relative;z-index:5}
+    /* Hide the busy theme background & floating deco while on the sober home */
+    body.on-home #theme-bg{opacity:0}
+    body.on-home #theme-deco{display:none}
     .home-topbar{display:flex;align-items:center;gap:12px;padding:20px 22px 8px}
     .home-menu-btn{background:var(--bg3);border:none;color:var(--text);font-size:1.3rem;width:44px;height:44px;border-radius:14px;cursor:pointer}
     .home-body{padding:10px 22px 48px}
@@ -1318,13 +1321,15 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="home-stat"><div class="home-stat-v" id="home-value" style="color:var(--chrome)">—</div><div class="home-stat-l">Value</div></div>
     </div>
 
-    <!-- News (admin editable) -->
-    <div class="home-news" id="home-news-card" style="display:none">
-      <div class="home-news-head">
+    <!-- News button (opens popup) -->
+    <div id="home-news-btn-wrap" style="display:none;margin-bottom:22px">
+      <button onclick="openNewsPopup()" style="width:100%;background:var(--bg2);border:1px solid rgba(255,212,71,.2);border-radius:16px;padding:14px 16px;color:var(--wishlist);font-weight:600;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
         <span>📣 What's new</span>
-        <button id="home-news-edit" style="display:none;background:transparent;border:none;color:var(--purple-light);cursor:pointer;font-size:.75rem" onclick="openNewsEdit()">✏️ Edit</button>
-      </div>
-      <div class="home-news-body" id="home-news-body"></div>
+        <span style="color:var(--text-dim);font-size:1.1rem">›</span>
+      </button>
+    </div>
+    <div id="home-news-admin-wrap" style="display:none;margin-bottom:22px;text-align:right">
+      <button onclick="openNewsEdit()" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-size:.75rem;font-weight:600">✏️ Edit news</button>
     </div>
 
     <!-- Primary CTA -->
@@ -1376,6 +1381,16 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <button class="add-btn" onclick="manageCatalog(currentCollView)">+ ADD TO CATALOG</button>
     </div>
     <div id="cv-content"><div style="text-align:center;padding:50px;color:var(--text-dim)"><span style="font-size:1.6rem;display:block;animation:spin 1s linear infinite">⚙️</span>Loading…</div></div>
+  </div>
+</div>
+
+<!-- NEWS POPUP (auto-shown, closable) -->
+<div class="modal-overlay" id="news-popup-overlay" style="z-index:600">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" onclick="closeNewsPopup()">✕</button>
+    <h2 style="margin-bottom:14px;color:var(--wishlist)">📣 What's new</h2>
+    <div id="news-popup-body" style="font-size:.92rem;line-height:1.6;color:var(--text);white-space:pre-wrap"></div>
+    <button onclick="closeNewsPopup()" style="width:100%;margin-top:18px;background:var(--purple);color:#fff;border:none;border-radius:12px;padding:13px;font-weight:700;cursor:pointer">Got it!</button>
   </div>
 </div>
 
@@ -2742,7 +2757,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openMarketplace()">🤝 Trades</div>
   <div class="menu-item" onclick="closeMobileMenu();openCatalog()">📚 Catalog</div>
   <div class="menu-item" onclick="closeMobileMenu();openWiki()">📖 Wiki</div>
-  <div class="menu-item" onclick="closeMobileMenu();openOther()">📦 My other collections</div>
+  <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome()">📦 My collections</div>
   <div class="menu-item" id="menu-photomod" onclick="openPhotoMod()" style="display:none;color:var(--owned)">📷 Photo moderation <span id="photomod-badge"></span></div>
   <div class="menu-item" id="menu-collmanage" onclick="closeMobileMenu();openCollManager()" style="display:none;color:var(--purple-light)">🗂️ Manage collections</div>
   <div class="menu-item" id="menu-catreq" onclick="openCatReqReview()" style="display:none;color:var(--purple-light)">📥 Catalog requests <span id="catreq-badge"></span></div>
@@ -6833,13 +6848,14 @@ function showMainMenu(){
 // ══════════════════════════════════════════════════════════
 function showHome(){
   document.getElementById('app-screen').style.display='none';
+  document.body.classList.add('on-home');
   const h=document.getElementById('home-screen');
   h.style.display='block';
   renderHome();
   loadNews();
   renderHomeCollections();
 }
-function closeHome(){ document.getElementById('home-screen').style.display='none'; }
+function closeHome(){ document.getElementById('home-screen').style.display='none'; document.body.classList.remove('on-home'); }
 
 async function renderHomeCollections(){
   const grid=document.getElementById('home-collections');
@@ -6893,6 +6909,7 @@ let cvMyItems = [];   // user's other_items for this collection (joined w/ catal
 async function openCollectionView(collId){
   currentCollView = collId;
   cvActiveTab = 'list';
+  document.body.classList.remove('on-home');
   if(typeof closeMobileMenu==='function') closeMobileMenu();
   await loadCollections();
   const coll = allCollections.find(c=>c.id===collId);
@@ -7094,32 +7111,40 @@ function renderHome(){
   document.getElementById('home-value').textContent = val>0 ? fmtEurS(val) : '—';
 }
 
-// News card (stored in app_settings key 'home_news')
+// News (stored in app_settings key 'home_news') — shown as a closable popup
+let currentNewsText = '';
 async function loadNews(){
-  const card=document.getElementById('home-news-card');
-  const bodyEl=document.getElementById('home-news-body');
-  const editBtn=document.getElementById('home-news-edit');
-  if(editBtn) editBtn.style.display = isAdmin()?'block':'none';
+  const btnWrap=document.getElementById('home-news-btn-wrap');
+  const adminWrap=document.getElementById('home-news-admin-wrap');
+  if(adminWrap) adminWrap.style.display = isAdmin()?'block':'none';
   try {
     const { data } = await sbClient.from('app_settings').select('value').eq('key','home_news').maybeSingle();
     const txt = (data && data.value) ? data.value.trim() : '';
+    currentNewsText = txt;
     if(txt){
-      bodyEl.textContent = txt;
-      card.style.display='block';
+      if(btnWrap) btnWrap.style.display='block';
+      // auto-show popup once per news version (based on content hash)
+      const seen = localStorage.getItem('rc_news_seen');
+      if(seen !== txt){
+        openNewsPopup();
+        localStorage.setItem('rc_news_seen', txt);
+      }
     } else {
-      // hide for users, but keep visible+empty hint for admin so they can add one
-      if(isAdmin()){ bodyEl.textContent='(No news yet — tap Edit to add one)'; card.style.display='block'; }
-      else card.style.display='none';
+      if(btnWrap) btnWrap.style.display='none';
     }
   } catch(e){
-    if(isAdmin()){ bodyEl.textContent='(No news yet — tap Edit to add one)'; card.style.display='block'; }
-    else card.style.display='none';
+    if(btnWrap) btnWrap.style.display='none';
   }
 }
+function openNewsPopup(){
+  if(!currentNewsText){ showToast('No news right now','info'); return; }
+  document.getElementById('news-popup-body').textContent = currentNewsText;
+  document.getElementById('news-popup-overlay').classList.add('open');
+}
+function closeNewsPopup(){ document.getElementById('news-popup-overlay').classList.remove('open'); }
 function openNewsEdit(){
   if(!isAdmin()) return;
-  const cur=document.getElementById('home-news-body').textContent;
-  document.getElementById('news-edit-text').value = cur.startsWith('(No news')?'':cur;
+  document.getElementById('news-edit-text').value = currentNewsText || '';
   document.getElementById('news-edit-overlay').classList.add('open');
 }
 function closeNewsEdit(){ document.getElementById('news-edit-overlay').classList.remove('open'); }
@@ -7130,6 +7155,7 @@ async function saveNews(){
     const { error } = await sbClient.from('app_settings').upsert([{key:'home_news', value:txt}], {onConflict:'key'});
     if(error){ showToast('Error: '+error.message,'error'); return; }
     showToast('News updated! 📣','success');
+    localStorage.removeItem('rc_news_seen');  // so everyone sees the new one
     closeNewsEdit(); loadNews();
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
@@ -8568,7 +8594,7 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'guide-screen','public-screen','friends-screen','compare-screen','market-screen',
     'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
-    'news-edit-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
+    'news-edit-overlay','news-popup-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
     'collmanager-overlay','catalogedit-overlay','catreq-overlay','catreqreview-overlay','collection-view-screen'
   ];
   // Return the topmost open closable element, or null
