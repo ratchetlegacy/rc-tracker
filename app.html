@@ -1347,7 +1347,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- Collections hub -->
     <div class="home-section-label" style="display:flex;justify-content:space-between;align-items:center">
-      <span>My collections</span>
+      <span>Collection Hub</span>
       <span id="home-coll-admin" style="display:none">
         <button onclick="openNewsEdit()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:.7rem;font-weight:600;margin-right:10px">✏️ News</button>
         <button onclick="openCollManager()" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-size:.7rem;font-weight:700">⚙️ Manage</button>
@@ -2125,7 +2125,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="logo-img" onclick="closeOther();showMainMenu()" style="cursor:pointer;width:40px;height:40px" title="Home">
       <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
     </div>
-    <h1>📦 MY OTHER COLLECTIONS</h1>
+    <h1>📦 COLLECTION HUB</h1>
     <button class="stats-back" onclick="closeOther()">← Back</button>
   </div>
   <div class="stats-body">
@@ -2800,8 +2800,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openWiki()">📖 R&C Wiki</div>
   <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export R&C (PDF)</div>
 
-  <div class="menu-section-title">My collections</div>
-  <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome()">📦 All my collections</div>
+  <div class="menu-section-title">Collection Hub</div>
+  <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome()">📦 Collection Hub</div>
 
   <div class="menu-section-title" id="menu-admin-title" style="display:none">Admin</div>
   <div class="menu-item" id="menu-collmanage" onclick="closeMobileMenu();openCollManager()" style="display:none;color:var(--purple-light)">🗂️ Manage collections</div>
