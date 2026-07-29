@@ -1417,6 +1417,14 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
+<!-- CATALOG ITEM DETAIL (public: add/edit to my collection) -->
+<div class="modal-overlay" id="catitem-overlay" style="z-index:530">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeCatItem()">✕</button>
+    <div id="catitem-body"></div>
+  </div>
+</div>
+
 <!-- NEWS POPUP (auto-shown, closable) -->
 <div class="modal-overlay" id="news-popup-overlay" style="z-index:600">
   <div class="modal" style="max-width:440px">
@@ -7159,22 +7167,100 @@ function renderCvCatalog(box, collId){
     const meta=[o.platform,o.year,o.variant,o.publisher].filter(Boolean).join(' · ');
     const has = ownedCatalogIds.has(o.id);
     const adminEdit = isAdmin() ? '<button onclick="event.stopPropagation();openOtherCatalogEdit(catObj(\''+o.id+'\'))" style="background:transparent;border:none;color:var(--purple-light);cursor:pointer;font-size:.85rem;padding:0 4px">✏️</button>' : '';
-    return '<div class="catalog-row" onclick="addCatalogToMine(\''+o.id+'\')">'
+    return '<div class="catalog-row" onclick="openCatItem(\''+o.id+'\')">'
       + (o.image_url?'<div class="catalog-thumb"><img src="'+escHtml(o.image_url)+'" loading="lazy"/></div>':'<div class="catalog-thumb"><span class="catalog-thumb-icon">📦</span></div>')
       + '<div class="catalog-info"><div class="catalog-name">'+escHtml(o.name)+'</div>'
       + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
       + (has?'<div style="margin-top:4px"><span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(61,214,140,.15);color:var(--owned)">✓ In your collection</span></div>':'')
       + '</div>'
       + adminEdit
-      + (has?'<span class="catalog-chevron" style="color:var(--owned)">✓</span>':'<span class="catalog-chevron" style="color:var(--purple-light);font-size:1.2rem">＋</span>')
+      + (has
+          ? '<span style="background:rgba(61,214,140,.15);color:var(--owned);border-radius:20px;padding:6px 12px;font-size:.72rem;font-weight:700;white-space:nowrap">✓ Owned</span>'
+          : '<span style="background:var(--purple);color:#fff;border-radius:20px;padding:6px 14px;font-size:.75rem;font-weight:700;white-space:nowrap">+ Add</span>')
       + '</div>';
   }).join('') + '</div>';
   box.innerHTML=html;
 }
 function catObj(id){ const c=catalogCache[currentCollView]||[]; return c.find(x=>x.id===id); }
 
-// Add a catalog entry to my collection (quick: choose owned/wishlist)
-async function addCatalogToMine(catalogId){
+// Open a clear detail modal for a catalog item (public add/edit)
+function addCatalogToMine(catalogId){ openCatItem(catalogId); }
+function openCatItem(catalogId){
+  const cat = (catalogCache[currentCollView]||[]).find(o=>o.id===catalogId);
+  if(!cat) return;
+  const mine = cvMyItems.find(i=>i.catalog_id===catalogId);
+  const meta=[cat.platform,cat.year,cat.variant,cat.publisher].filter(Boolean).join(' · ');
+  const body=document.getElementById('catitem-body');
+  let html='';
+  html += cat.image_url
+    ? '<img src="'+escHtml(cat.image_url)+'" style="width:100%;max-height:240px;object-fit:contain;border-radius:12px;margin-bottom:10px;background:var(--bg)"/>'
+    : '<div style="text-align:center;font-size:3rem;margin-bottom:8px">📦</div>';
+  html += '<h2 style="text-align:center;margin:4px 0">'+escHtml(cat.name)+'</h2>';
+  if(meta) html += '<div style="text-align:center;font-size:.82rem;color:var(--purple-light);margin-bottom:10px">'+escHtml(meta)+'</div>';
+  if(cat.description) html += '<p style="font-size:.85rem;color:var(--text-dim);line-height:1.5;text-align:center;margin-bottom:14px">'+escHtml(cat.description)+'</p>';
+
+  if(mine){
+    // already in collection → show status + manage
+    const statusLabel = mine.status==='wishlist'
+      ? '<span style="color:var(--wishlist)">★ In your wishlist</span>'
+      : '<span style="color:var(--owned)">✓ In your collection</span>';
+    html += '<div style="text-align:center;font-weight:700;font-size:.95rem;margin-bottom:14px;padding:10px;background:var(--bg3);border-radius:10px">'+statusLabel+'</div>';
+    html += '<button onclick="closeCatItem();openMyCollItem(\''+mine.id+'\')" style="width:100%;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border:none;border-radius:12px;padding:13px;font-weight:800;cursor:pointer;margin-bottom:8px">✏️ Edit my copy (condition, price…)</button>';
+    // toggle status quick buttons
+    if(mine.status==='owned')
+      html += '<button onclick="setCatItemStatus(\''+mine.id+'\',\'wishlist\')" style="width:100%;background:rgba(255,212,71,.15);border:1px solid rgba(255,212,71,.4);color:var(--wishlist);border-radius:12px;padding:11px;font-weight:600;cursor:pointer;margin-bottom:8px">★ Move to wishlist</button>';
+    else
+      html += '<button onclick="setCatItemStatus(\''+mine.id+'\',\'owned\')" style="width:100%;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);color:var(--owned);border-radius:12px;padding:11px;font-weight:600;cursor:pointer;margin-bottom:8px">✓ I own it now</button>';
+    html += '<button onclick="removeCatItem(\''+mine.id+'\')" style="width:100%;background:transparent;border:1px solid rgba(255,77,106,.3);color:var(--missing);border-radius:12px;padding:11px;font-weight:600;cursor:pointer">🗑️ Remove from my collection</button>';
+  } else {
+    // not owned → two clear buttons
+    html += '<div style="display:flex;gap:10px">'
+      + '<button onclick="quickAddCatItem(\''+catalogId+'\',\'owned\')" style="flex:1;background:linear-gradient(135deg,#3DD68C,#2BC47A);color:#062;border:none;border-radius:12px;padding:14px;font-weight:800;cursor:pointer">✓ I own it</button>'
+      + '<button onclick="quickAddCatItem(\''+catalogId+'\',\'wishlist\')" style="flex:1;background:rgba(255,212,71,.15);border:1px solid rgba(255,212,71,.4);color:var(--wishlist);border-radius:12px;padding:14px;font-weight:800;cursor:pointer">★ Wishlist</button>'
+      + '</div>';
+  }
+  body.innerHTML=html;
+  document.getElementById('catitem-overlay').classList.add('open');
+}
+function closeCatItem(){ document.getElementById('catitem-overlay').classList.remove('open'); }
+
+async function quickAddCatItem(catalogId, status){
+  const cat = (catalogCache[currentCollView]||[]).find(o=>o.id===catalogId);
+  if(!cat) return;
+  try {
+    const { error } = await sbClient.from('other_items').insert([{
+      user_id: currentUser.id, catalog_id: catalogId, name: cat.name,
+      category: 'Catalog', status: status, is_complete: true
+    }]);
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast(status==='wishlist'?'Added to wishlist ★':'Added to your collection ✓','success');
+    closeCatItem();
+    await loadMyCollItems(currentCollView);
+    renderCollectionView(currentCollView);
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function setCatItemStatus(itemId, status){
+  try {
+    await sbClient.from('other_items').update({status}).eq('id',itemId);
+    showToast(status==='wishlist'?'Moved to wishlist ★':'Marked as owned ✓','success');
+    closeCatItem();
+    await loadMyCollItems(currentCollView);
+    renderCollectionView(currentCollView);
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function removeCatItem(itemId){
+  if(!confirm('Remove this from your collection?')) return;
+  try {
+    await sbClient.from('other_items').delete().eq('id',itemId);
+    showToast('Removed','info');
+    closeCatItem();
+    await loadMyCollItems(currentCollView);
+    renderCollectionView(currentCollView);
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+// Legacy quick-add kept for compatibility (unused now)
+async function addCatalogToMineOld(catalogId){
   const existing = cvMyItems.find(i=>i.catalog_id===catalogId);
   if(existing){ openMyCollItem(existing.id); return; }
   const cat = (catalogCache[currentCollView]||[]).find(o=>o.id===catalogId);
@@ -8788,7 +8874,7 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'guide-screen','public-screen','friends-screen','compare-screen','market-screen',
     'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
-    'news-edit-overlay','news-popup-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
+    'news-edit-overlay','news-popup-overlay','catitem-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
     'collmanager-overlay','catalogedit-overlay','catreq-overlay','catreqreview-overlay','collection-view-screen','subcoll-screen'
   ];
   // Return the topmost open closable element, or null
