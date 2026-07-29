@@ -2264,7 +2264,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <!-- ADMIN: CATALOG ITEM EDITOR -->
 <div class="modal-overlay" id="catalogedit-overlay" style="z-index:565">
   <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto">
-    <button class="modal-close" onclick="closeCatalogEdit()">✕</button>
+    <button class="modal-close" onclick="closeOtherCatalogEdit()">✕</button>
     <h2 id="catalogedit-title" style="margin-bottom:14px">➕ Add to catalog</h2>
     <input type="hidden" id="cate-id"/>
     <input type="hidden" id="cate-collection"/>
@@ -6354,12 +6354,12 @@ async function manageCatalog(collId){
   currentCatalogColl = collId;
   await loadCatalogFor(collId);
   const coll = allCollections.find(c=>c.id===collId);
-  openCatalogEdit(); // opens blank add form; list is shown inside collection view for users
+  openOtherCatalogEdit(); // opens blank add form; list is shown inside collection view for users
   // Show a quick prompt list via the catalog edit modal title
   document.getElementById('catalogedit-title').textContent = '➕ Add to '+(coll?coll.name:'catalog');
   document.getElementById('cate-collection').value = collId;
 }
-function openCatalogEdit(item){
+function openOtherCatalogEdit(item){
   const collId = document.getElementById('cate-collection').value || currentCatalogColl;
   document.getElementById('cate-id').value = item?item.id:'';
   document.getElementById('cate-collection').value = item?item.collection_id:(collId||'');
@@ -6374,7 +6374,7 @@ function openCatalogEdit(item){
   updateCateImgPreview();
   document.getElementById('catalogedit-overlay').classList.add('open');
 }
-function closeCatalogEdit(){ document.getElementById('catalogedit-overlay').classList.remove('open'); }
+function closeOtherCatalogEdit(){ document.getElementById('catalogedit-overlay').classList.remove('open'); }
 function updateCateImgPreview(){
   const box=document.getElementById('cate-img-preview'); if(!box) return;
   const url=(document.getElementById('cate-image').value||'').trim();
@@ -6429,7 +6429,7 @@ async function deleteCatalogItem(){
     showToast('Deleted','info');
     const collId=document.getElementById('cate-collection').value;
     await loadCatalogFor(collId);
-    closeCatalogEdit();
+    closeOtherCatalogEdit();
     if(document.getElementById('collection-view-screen') && document.getElementById('collection-view-screen').classList.contains('open')) renderCollectionView(collId);
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
@@ -7146,7 +7146,7 @@ function renderCvCatalog(box, collId){
   html += '<div class="catalog-list">' + cat.map(o=>{
     const meta=[o.platform,o.year,o.variant,o.publisher].filter(Boolean).join(' · ');
     const has = ownedCatalogIds.has(o.id);
-    const adminEdit = isAdmin() ? '<button onclick="event.stopPropagation();openCatalogEdit(catObj(\''+o.id+'\'))" style="background:transparent;border:none;color:var(--purple-light);cursor:pointer;font-size:.85rem;padding:0 4px">✏️</button>' : '';
+    const adminEdit = isAdmin() ? '<button onclick="event.stopPropagation();openOtherCatalogEdit(catObj(\''+o.id+'\'))" style="background:transparent;border:none;color:var(--purple-light);cursor:pointer;font-size:.85rem;padding:0 4px">✏️</button>' : '';
     return '<div class="catalog-row" onclick="addCatalogToMine(\''+o.id+'\')">'
       + (o.image_url?'<div class="catalog-thumb"><img src="'+escHtml(o.image_url)+'" loading="lazy"/></div>':'<div class="catalog-thumb"><span class="catalog-thumb-icon">📦</span></div>')
       + '<div class="catalog-info"><div class="catalog-name">'+escHtml(o.name)+'</div>'
