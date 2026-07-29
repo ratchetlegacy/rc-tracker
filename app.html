@@ -1037,33 +1037,33 @@
     .theme-card-desc{font-size:.76rem;color:var(--text-dim);line-height:1.4}
     .theme-lock{margin-top:8px;font-size:.72rem;color:var(--wishlist);font-weight:600}
     .theme-current{margin-top:8px;font-size:.72rem;color:var(--owned);font-weight:700}
-    /* HOME DASHBOARD */
-    #home-screen{min-height:100vh;background:var(--bg);max-width:640px;margin:0 auto}
-    .home-topbar{display:flex;align-items:center;gap:12px;padding:16px 18px}
-    .home-menu-btn{background:var(--bg3);border:none;color:var(--text);font-size:1.3rem;width:44px;height:44px;border-radius:12px;cursor:pointer}
-    .home-body{padding:8px 18px 40px}
-    .home-welcome{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,rgba(123,79,212,.15),rgba(255,138,42,.08));border:1px solid rgba(123,79,212,.25);border-radius:18px;padding:18px;margin-bottom:16px}
-    .home-avatar{font-size:2.6rem;width:64px;height:64px;display:flex;align-items:center;justify-content:center;background:rgba(123,79,212,.15);border-radius:50%;flex-shrink:0}
-    .home-hi{font-size:1.15rem;font-weight:800;margin-bottom:4px}
-    .home-rank{font-size:.82rem;color:var(--purple-light);font-weight:600;margin-bottom:8px}
-    .home-rank-bar{height:8px;background:var(--bg);border-radius:6px;overflow:hidden;margin-bottom:4px}
-    .home-rank-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--orange));border-radius:6px;transition:width .5s}
-    .home-rank-next{font-size:.68rem;color:var(--text-dim)}
-    .home-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+    /* HOME DASHBOARD — soft & warm */
+    #home-screen{min-height:100vh;background:var(--bg);max-width:600px;margin:0 auto}
+    .home-topbar{display:flex;align-items:center;gap:12px;padding:20px 22px 8px}
+    .home-menu-btn{background:var(--bg3);border:none;color:var(--text);font-size:1.3rem;width:44px;height:44px;border-radius:14px;cursor:pointer}
+    .home-body{padding:10px 22px 48px}
+    .home-welcome{display:flex;align-items:center;gap:16px;background:var(--bg2);border:1px solid rgba(255,255,255,.05);border-radius:22px;padding:22px;margin-bottom:22px}
+    .home-avatar{font-size:2.4rem;width:60px;height:60px;display:flex;align-items:center;justify-content:center;background:var(--bg3);border-radius:50%;flex-shrink:0}
+    .home-hi{font-size:1.2rem;font-weight:700;margin-bottom:5px;color:var(--text)}
+    .home-rank{font-size:.8rem;color:var(--text-dim);font-weight:600}
+    .home-stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:22px}
     @media(max-width:420px){.home-stats{grid-template-columns:1fr 1fr}}
-    .home-stat{background:var(--bg3);border-radius:14px;padding:14px 8px;text-align:center}
-    .home-stat-v{font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:800;line-height:1}
-    .home-stat-l{font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
-    .home-news{background:var(--bg3);border:1px solid rgba(255,212,71,.25);border-radius:16px;padding:16px;margin-bottom:16px}
+    .home-stat{background:var(--bg2);border:1px solid rgba(255,255,255,.04);border-radius:18px;padding:16px 8px;text-align:center}
+    .home-stat-v{font-size:1.5rem;font-weight:700;line-height:1}
+    .home-stat-l{font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-top:5px}
+    .home-news{background:var(--bg2);border:1px solid rgba(255,212,71,.18);border-radius:20px;padding:18px;margin-bottom:22px}
     .home-news-head{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.82rem;color:var(--wishlist);margin-bottom:8px}
-    .home-news-body{font-size:.88rem;color:var(--text);line-height:1.5;white-space:pre-wrap}
-    .home-cta{width:100%;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border:none;border-radius:14px;padding:16px;font-weight:800;font-size:1rem;cursor:pointer;margin-bottom:18px;box-shadow:0 6px 20px rgba(123,79,212,.35)}
-    .home-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .home-news-body{font-size:.88rem;color:var(--text);line-height:1.55;white-space:pre-wrap}
+    .home-cta{width:100%;background:var(--purple);color:#fff;border:none;border-radius:18px;padding:17px;font-weight:700;font-size:1rem;cursor:pointer;margin-bottom:22px;transition:opacity .15s}
+    .home-cta:hover{opacity:.9}
+    .home-section-label{font-size:.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin:0 4px 12px}
+    .home-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
     @media(max-width:420px){.home-grid{grid-template-columns:1fr 1fr}}
-    .home-tile{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 8px;text-align:center;cursor:pointer;transition:transform .12s,border-color .12s;font-size:.8rem;font-weight:600}
-    .home-tile:hover{transform:translateY(-2px);border-color:var(--purple)}
-    .home-tile-ic{font-size:1.7rem;margin-bottom:6px}
-    .home-kofi{background:linear-gradient(135deg,#FF7A1A,#FFB020);color:#1a1200;border:none;border-radius:12px;padding:12px 22px;font-weight:800;cursor:pointer}
+    .home-tile{background:var(--bg2);border:1px solid rgba(255,255,255,.04);border-radius:18px;padding:20px 8px;text-align:center;cursor:pointer;transition:background .15s;font-size:.8rem;font-weight:600;color:var(--text)}
+    .home-tile:hover{background:var(--bg3)}
+    .home-tile-ic{font-size:1.6rem;margin-bottom:8px}
+    .home-kofi{background:transparent;border:1px solid rgba(255,176,32,.4);color:var(--wishlist);border-radius:14px;padding:12px 22px;font-weight:700;cursor:pointer;transition:background .15s}
+    .home-kofi:hover{background:rgba(255,176,32,.1)}
     /* FRIENDS + COMPARE SCREENS */
     .friends-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:510;overflow-y:auto}
     .friends-screen.open{display:block}
@@ -1292,10 +1292,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="home-welcome">
       <div class="home-avatar" id="home-avatar">🦊</div>
       <div style="flex:1;min-width:0">
-        <div class="home-hi">Hi <span id="home-pseudo">Collector</span>! 🦊</div>
+        <div class="home-hi">Hi <span id="home-pseudo">Collector</span>!</div>
         <div class="home-rank" id="home-rank">🌱 Rookie</div>
-        <div class="home-rank-bar"><div class="home-rank-fill" id="home-rank-fill"></div></div>
-        <div class="home-rank-next" id="home-rank-next"></div>
       </div>
     </div>
 
@@ -1317,9 +1315,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
 
     <!-- Primary CTA -->
-    <button class="home-cta" onclick="goToCollection()">📚 View my collection</button>
+    <button class="home-cta" onclick="goToCollection()">View my collection</button>
 
     <!-- Shortcuts -->
+    <div class="home-section-label">Quick access</div>
     <div class="home-grid">
       <div class="home-tile" onclick="goToCollection()"><div class="home-tile-ic">🗂️</div><div>Collection</div></div>
       <div class="home-tile" onclick="closeHome();openCatalog()"><div class="home-tile-ic">📚</div><div>Catalog</div></div>
@@ -6405,24 +6404,11 @@ function renderHome(){
   const avatar = localStorage.getItem('rc_avatar_'+currentUser.id) || '🦊';
   document.getElementById('home-pseudo').textContent = pseudo;
   document.getElementById('home-avatar').textContent = avatar;
-  // rank + progression
+  // rank label (no progress bar in the sober home)
   const owned = items.filter(i=>i.status==='owned').length;
   const rank = getRank(owned);
-  const idx = RANKS.indexOf(rank);
-  const next = RANKS[idx+1];
   document.getElementById('home-rank').textContent = rank.icon+' '+rank.name;
   document.getElementById('home-rank').style.color = rank.color;
-  const fill=document.getElementById('home-rank-fill');
-  const nextTxt=document.getElementById('home-rank-next');
-  if(next){
-    const span = next.min - rank.min;
-    const prog = Math.min(100, Math.round(((owned - rank.min)/span)*100));
-    fill.style.width = prog+'%';
-    nextTxt.textContent = (next.min - owned)+' more to '+next.icon+' '+next.name;
-  } else {
-    fill.style.width='100%';
-    nextTxt.textContent = 'Max rank reached! 🏆';
-  }
   // stats
   const wish = items.filter(i=>i.status==='wishlist').length;
   document.getElementById('home-owned').textContent = owned;
