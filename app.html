@@ -2137,6 +2137,103 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
+<!-- ADMIN: COLLECTIONS MANAGER -->
+<div class="modal-overlay" id="collmanager-overlay" style="z-index:560">
+  <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeCollManager()">✕</button>
+    <h2 style="margin-bottom:6px">🗂️ Manage collections</h2>
+    <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:14px">Create the shelves users can browse (PlayStation, Lego, Disney…).</p>
+    <div id="collmanager-list" style="margin-bottom:16px"></div>
+    <div style="background:var(--bg3);border-radius:12px;padding:14px">
+      <div style="font-weight:700;font-size:.82rem;margin-bottom:10px" id="collform-title">➕ New collection</div>
+      <input type="hidden" id="collform-id"/>
+      <input type="text" id="collform-name" placeholder="Collection name (e.g. PlayStation)" style="width:100%;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;outline:none;margin-bottom:8px"/>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input type="text" id="collform-logo" placeholder="Logo URL..." style="flex:1;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:9px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.82rem;outline:none" oninput="updateCollLogoPreview()"/>
+        <button type="button" onclick="openLogoBank('coll')" style="padding:9px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Bank</button>
+        <button type="button" onclick="takePhotoFor('collform-logo','logo',null)" style="padding:9px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.72rem;cursor:pointer">📷</button>
+      </div>
+      <div id="collform-logo-preview" style="margin-bottom:10px"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:.76rem;color:var(--text-dim)">Color:</span>
+        <div id="collform-colors" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="add-btn" style="flex:1" onclick="saveCollManager()">💾 Save</button>
+        <button onclick="resetCollForm()" style="padding:11px 16px;background:rgba(255,255,255,.08);border:none;border-radius:10px;color:var(--text-dim);cursor:pointer">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN: CATALOG ITEM EDITOR -->
+<div class="modal-overlay" id="catalogedit-overlay" style="z-index:565">
+  <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeCatalogEdit()">✕</button>
+    <h2 id="catalogedit-title" style="margin-bottom:14px">➕ Add to catalog</h2>
+    <input type="hidden" id="cate-id"/>
+    <input type="hidden" id="cate-collection"/>
+    <div class="form-group"><label>Name *</label><input type="text" id="cate-name" placeholder="e.g. God of War"/></div>
+    <div class="form-row" style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1"><label>Platform</label><input type="text" id="cate-platform" placeholder="PS4, PS5..."/></div>
+      <div class="form-group" style="width:100px"><label>Year</label><input type="number" id="cate-year" placeholder="2018"/></div>
+    </div>
+    <div class="form-row" style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1"><label>Variant</label><input type="text" id="cate-variant" placeholder="Standard, Collector..."/></div>
+      <div class="form-group" style="flex:1"><label>Publisher / Brand</label><input type="text" id="cate-publisher" placeholder="Sony, Nintendo..."/></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="cate-description" rows="2" placeholder="Short description..."></textarea></div>
+    <div class="form-group"><label>Photo</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="cate-image" placeholder="Image URL..." style="flex:1" oninput="updateCateImgPreview()"/>
+        <button type="button" onclick="openGallery('cate-image')" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Gallery</button>
+        <button type="button" onclick="takePhotoFor('cate-image','logo',null)" style="padding:8px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">📷 Photo</button>
+      </div>
+      <div id="cate-img-preview" style="margin-top:8px"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="add-btn" style="flex:1" onclick="saveCatalogItem()">💾 Save</button>
+      <button id="cate-delete-btn" style="display:none;flex:1;padding:11px;background:rgba(255,77,106,.15);border:1px solid rgba(255,77,106,.4);border-radius:10px;color:var(--missing);cursor:pointer" onclick="deleteCatalogItem()">🗑️ Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATALOG REQUEST MODAL (users propose an addition) -->
+<div class="modal-overlay" id="catreq-overlay" style="z-index:565">
+  <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeCatReq()">✕</button>
+    <h2 style="margin-bottom:6px">✋ Suggest an addition</h2>
+    <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:14px">Propose an item to add to this collection. An admin will review it.</p>
+    <input type="hidden" id="catreq-collection"/>
+    <div class="form-group"><label>Name *</label><input type="text" id="catreq-name" placeholder="Item name"/></div>
+    <div class="form-row" style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1"><label>Platform</label><input type="text" id="catreq-platform"/></div>
+      <div class="form-group" style="width:100px"><label>Year</label><input type="number" id="catreq-year"/></div>
+    </div>
+    <div class="form-row" style="display:flex;gap:10px">
+      <div class="form-group" style="flex:1"><label>Variant</label><input type="text" id="catreq-variant"/></div>
+      <div class="form-group" style="flex:1"><label>Publisher</label><input type="text" id="catreq-publisher"/></div>
+    </div>
+    <div class="form-group"><label>Photo</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="catreq-image" placeholder="Image URL..." style="flex:1"/>
+        <button type="button" onclick="takePhotoFor('catreq-image','item','catreq-name')" style="padding:8px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">📷 Photo</button>
+      </div>
+    </div>
+    <button class="add-btn" style="width:100%;margin-top:8px" onclick="submitCatReq()">📨 Send request</button>
+  </div>
+</div>
+
+<!-- ADMIN: CATALOG REQUESTS REVIEW -->
+<div class="modal-overlay" id="catreqreview-overlay" style="z-index:566">
+  <div class="modal" style="max-width:520px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeCatReqReview()">✕</button>
+    <h2 style="margin-bottom:6px">📥 Catalog requests</h2>
+    <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:14px">Approve to add to the catalog, or reject.</p>
+    <div id="catreqreview-body"></div>
+  </div>
+</div>
+
 <!-- CUSTOM CATEGORY MANAGER -->
 <div class="modal-overlay" id="catmanager-overlay" style="z-index:560">
   <div class="modal" style="max-width:460px;max-height:90vh;overflow-y:auto">
@@ -2602,6 +2699,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openWiki()">📖 Wiki</div>
   <div class="menu-item" onclick="closeMobileMenu();openOther()">📦 My other collections</div>
   <div class="menu-item" id="menu-photomod" onclick="openPhotoMod()" style="display:none;color:var(--owned)">📷 Photo moderation <span id="photomod-badge"></span></div>
+  <div class="menu-item" id="menu-collmanage" onclick="closeMobileMenu();openCollManager()" style="display:none;color:var(--purple-light)">🗂️ Manage collections</div>
+  <div class="menu-item" id="menu-catreq" onclick="openCatReqReview()" style="display:none;color:var(--purple-light)">📥 Catalog requests <span id="catreq-badge"></span></div>
   <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export PDF</div>
   <div class="menu-item" onclick="openFriends()">🤝 Friends <span id="friends-badge" style="display:none;background:var(--missing);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700;margin-left:4px">0</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openGuide()">📖 How to use</div>
@@ -3487,6 +3586,11 @@ async function launchApp(){
   refreshFriendBadge();
   setInterval(refreshFriendBadge, 60000);
   if(isAdmin()) refreshPhotoModBadge();
+  if(isAdmin()){
+    const mc=document.getElementById('menu-collmanage'); if(mc) mc.style.display='block';
+    refreshCatReqBadge();
+    loadCollections();
+  }
   const _ff = document.getElementById('fixed-footer'); if(_ff) _ff.style.display = 'flex';
   // Sync mobile header
   function syncMobileHeader(){
@@ -3712,6 +3816,8 @@ function takePhotoFor(targetInputId, contextLabel, nameInputId){
       if(targetInputId==='other-f-image' && typeof updateOtherImgPreview==='function'){ updateOtherImgPreview(); }
       if(targetInputId==='cat-edit-image' && typeof updateCatImagePreview==='function'){ updateCatImagePreview(); }
       if(targetInputId==='catform-logo' && typeof updateCatLogoPreview==='function'){ updateCatLogoPreview(); }
+      if(targetInputId==='collform-logo' && typeof updateCollLogoPreview==='function'){ updateCollLogoPreview(); }
+      if(targetInputId==='cate-image' && typeof updateCateImgPreview==='function'){ updateCateImgPreview(); }
       // Logo uploads (admin bank / category logos) are NOT user content →
       // don't push them to the photo moderation queue.
       if(contextLabel==='logo'){
@@ -5936,7 +6042,9 @@ async function deleteCatManager(id){
 
 // ── Shared logo bank ──
 let logoBankData = [];
-async function openLogoBank(){
+let logoBankTarget = 'cat';   // 'cat' (custom category) or 'coll' (admin collection)
+async function openLogoBank(target){
+  logoBankTarget = target || 'cat';
   document.getElementById('logobank-overlay').classList.add('open');
   document.getElementById('logobank-admin').style.display = isAdmin() ? 'block' : 'none';
   const grid=document.getElementById('logobank-grid');
@@ -5964,8 +6072,13 @@ function renderLogoBank(){
 }
 function pickLogoFromBank(encUrl){
   const url=decodeURIComponent(encUrl);
-  const field=document.getElementById('catform-logo');
-  if(field){ field.value=url; updateCatLogoPreview(); }
+  if(logoBankTarget==='coll'){
+    const f=document.getElementById('collform-logo');
+    if(f){ f.value=url; updateCollLogoPreview(); }
+  } else {
+    const field=document.getElementById('catform-logo');
+    if(field){ field.value=url; updateCatLogoPreview(); }
+  }
   closeLogoBank();
   showToast('Logo selected! 🖼️','success');
 }
@@ -5980,7 +6093,7 @@ async function addLogoToBank(){
     showToast('Logo added to bank! 🖼️','success');
     document.getElementById('logobank-new-name').value='';
     document.getElementById('logobank-new-url').value='';
-    openLogoBank();
+    openLogoBank(logoBankTarget);
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 async function deleteLogoFromBank(id){
@@ -5988,8 +6101,254 @@ async function deleteLogoFromBank(id){
   if(!confirm('Remove this logo from the bank?')) return;
   try {
     await sbClient.from('collection_logos').delete().eq('id',id);
-    showToast('Removed','info'); openLogoBank();
+    showToast('Removed','info'); openLogoBank(logoBankTarget);
   } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+// ══════════════════════════════════════════════════════════
+//  CENTRALIZED CATALOG — data + admin management
+// ══════════════════════════════════════════════════════════
+let allCollections = [];   // other_collections
+let catalogCache = {};     // collection_id -> [catalog items]
+
+async function loadCollections(){
+  try {
+    const { data } = await sbClient.from('other_collections').select('*').order('sort_order',{ascending:true}).order('name',{ascending:true});
+    allCollections = data||[];
+  } catch(e){ allCollections=[]; }
+}
+async function loadCatalogFor(collId){
+  try {
+    const { data } = await sbClient.from('other_catalog').select('*').eq('collection_id',collId).order('name',{ascending:true});
+    catalogCache[collId] = data||[];
+    return catalogCache[collId];
+  } catch(e){ return []; }
+}
+
+// ── Admin: collections manager ──
+const COLL_COLORS = ['#7B4FD4','#FF6B1A','#3DD68C','#FFD447','#46D6FF','#FF4D6A','#E0703A','#2BD4C4','#9B6FF4','#F5C86E'];
+let collFormColor = COLL_COLORS[0];
+async function openCollManager(){
+  if(!isAdmin()){ showToast('Admin only','error'); return; }
+  await loadCollections();
+  renderCollManagerList();
+  resetCollForm();
+  renderCollColorPicker();
+  document.getElementById('collmanager-overlay').classList.add('open');
+}
+function closeCollManager(){
+  document.getElementById('collmanager-overlay').classList.remove('open');
+  if(document.getElementById('other-screen').classList.contains('open')) loadOther();
+}
+function renderCollManagerList(){
+  const box=document.getElementById('collmanager-list');
+  if(!allCollections.length){ box.innerHTML='<div style="font-size:.8rem;color:var(--text-dim);text-align:center;padding:10px">No collections yet.</div>'; return; }
+  box.innerHTML = allCollections.map(c=>{
+    const logo = c.logo_url
+      ? '<img src="'+escHtml(c.logo_url)+'" style="width:34px;height:34px;object-fit:contain;border-radius:6px;background:var(--bg)"/>'
+      : '<span style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:'+c.color+'33;border-radius:6px">🗂️</span>';
+    return '<div style="display:flex;align-items:center;gap:10px;background:var(--bg2);border-left:4px solid '+c.color+';border-radius:8px;padding:10px 12px;margin-bottom:8px">'
+      + logo
+      + '<span style="flex:1;font-weight:600;font-size:.86rem">'+escHtml(c.name)+'</span>'
+      + '<button onclick="manageCatalog(\''+c.id+'\')" style="background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:7px;padding:5px 9px;color:var(--purple-light);cursor:pointer;font-size:.7rem;font-weight:600">📚 Catalog</button>'
+      + '<button onclick="editCollManager(\''+c.id+'\')" style="background:transparent;border:none;color:var(--purple-light);cursor:pointer;font-size:.9rem">✏️</button>'
+      + '<button onclick="deleteCollManager(\''+c.id+'\')" style="background:transparent;border:none;color:var(--missing);cursor:pointer;font-size:.9rem">🗑️</button>'
+      + '</div>';
+  }).join('');
+}
+function renderCollColorPicker(){
+  const box=document.getElementById('collform-colors');
+  box.innerHTML = COLL_COLORS.map(col=>{
+    const on = col===collFormColor;
+    return '<button type="button" onclick="pickCollColor(\''+col+'\')" style="width:26px;height:26px;border-radius:50%;background:'+col+';border:'+(on?'3px solid #fff':'2px solid transparent')+';cursor:pointer"></button>';
+  }).join('');
+}
+function pickCollColor(col){ collFormColor=col; renderCollColorPicker(); }
+function updateCollLogoPreview(){
+  const box=document.getElementById('collform-logo-preview'); if(!box) return;
+  const url=(document.getElementById('collform-logo').value||'').trim();
+  box.innerHTML = url ? '<img src="'+escHtml(url)+'" style="max-height:64px;border-radius:8px;border:1px solid rgba(255,255,255,.12);object-fit:contain;background:var(--bg)" onerror="this.style.display=\'none\'"/>' : '';
+}
+function resetCollForm(){
+  document.getElementById('collform-id').value='';
+  document.getElementById('collform-name').value='';
+  document.getElementById('collform-logo').value='';
+  document.getElementById('collform-title').textContent='➕ New collection';
+  collFormColor=COLL_COLORS[0]; renderCollColorPicker(); updateCollLogoPreview();
+}
+function editCollManager(id){
+  const c=allCollections.find(x=>x.id===id); if(!c) return;
+  document.getElementById('collform-id').value=c.id;
+  document.getElementById('collform-name').value=c.name||'';
+  document.getElementById('collform-logo').value=c.logo_url||'';
+  document.getElementById('collform-title').textContent='✏️ Edit collection';
+  collFormColor=c.color||COLL_COLORS[0]; renderCollColorPicker(); updateCollLogoPreview();
+}
+async function saveCollManager(){
+  const id=document.getElementById('collform-id').value;
+  const name=document.getElementById('collform-name').value.trim();
+  const logo_url=document.getElementById('collform-logo').value.trim()||null;
+  if(!name){ showToast('Enter a collection name','error'); return; }
+  try {
+    let error;
+    if(id){ ({error} = await sbClient.from('other_collections').update({name,logo_url,color:collFormColor}).eq('id',id)); }
+    else  { ({error} = await sbClient.from('other_collections').insert([{name,logo_url,color:collFormColor}])); }
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast('Collection saved! 🗂️','success');
+    await loadCollections(); renderCollManagerList(); resetCollForm();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function deleteCollManager(id){
+  if(!confirm('Delete this collection and its whole catalog? User items lose their link but are kept.')) return;
+  try {
+    const { error } = await sbClient.from('other_collections').delete().eq('id',id);
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast('Deleted','info');
+    await loadCollections(); renderCollManagerList();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+// ── Admin: catalog editor for a collection ──
+let currentCatalogColl = null;
+async function manageCatalog(collId){
+  currentCatalogColl = collId;
+  await loadCatalogFor(collId);
+  const coll = allCollections.find(c=>c.id===collId);
+  openCatalogEdit(); // opens blank add form; list is shown inside collection view for users
+  // Show a quick prompt list via the catalog edit modal title
+  document.getElementById('catalogedit-title').textContent = '➕ Add to '+(coll?coll.name:'catalog');
+  document.getElementById('cate-collection').value = collId;
+}
+function openCatalogEdit(item){
+  const collId = document.getElementById('cate-collection').value || currentCatalogColl;
+  document.getElementById('cate-id').value = item?item.id:'';
+  document.getElementById('cate-collection').value = item?item.collection_id:(collId||'');
+  document.getElementById('cate-name').value = item?item.name:'';
+  document.getElementById('cate-platform').value = item?(item.platform||''):'';
+  document.getElementById('cate-year').value = item?(item.year||''):'';
+  document.getElementById('cate-variant').value = item?(item.variant||''):'';
+  document.getElementById('cate-publisher').value = item?(item.publisher||''):'';
+  document.getElementById('cate-description').value = item?(item.description||''):'';
+  document.getElementById('cate-image').value = item?(item.image_url||''):'';
+  document.getElementById('cate-delete-btn').style.display = item?'block':'none';
+  updateCateImgPreview();
+  document.getElementById('catalogedit-overlay').classList.add('open');
+}
+function closeCatalogEdit(){ document.getElementById('catalogedit-overlay').classList.remove('open'); }
+function updateCateImgPreview(){
+  const box=document.getElementById('cate-img-preview'); if(!box) return;
+  const url=(document.getElementById('cate-image').value||'').trim();
+  box.innerHTML = url ? '<img src="'+escHtml(url)+'" style="max-height:100px;border-radius:8px;border:1px solid rgba(255,255,255,.12);object-fit:contain;background:var(--bg)" onerror="this.style.display=\'none\'"/>' : '';
+}
+async function saveCatalogItem(){
+  if(!isAdmin()){ showToast('Admin only','error'); return; }
+  const id=document.getElementById('cate-id').value;
+  const collId=document.getElementById('cate-collection').value;
+  const name=document.getElementById('cate-name').value.trim();
+  if(!name){ showToast('Name is required','error'); return; }
+  if(!collId){ showToast('No collection selected','error'); return; }
+  const yv=parseInt(document.getElementById('cate-year').value);
+  const payload={
+    collection_id: collId,
+    name,
+    platform: document.getElementById('cate-platform').value.trim()||null,
+    year: isNaN(yv)?null:yv,
+    variant: document.getElementById('cate-variant').value.trim()||null,
+    publisher: document.getElementById('cate-publisher').value.trim()||null,
+    description: document.getElementById('cate-description').value.trim()||null,
+    image_url: document.getElementById('cate-image').value.trim()||null
+  };
+  try {
+    let error;
+    if(id){ ({error} = await sbClient.from('other_catalog').update(payload).eq('id',id)); }
+    else  { ({error} = await sbClient.from('other_catalog').insert([payload])); }
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast('Saved to catalog! 📚','success');
+    await loadCatalogFor(collId);
+    // reset for quick multi-add
+    document.getElementById('cate-id').value='';
+    document.getElementById('cate-name').value='';
+    document.getElementById('cate-platform').value='';
+    document.getElementById('cate-year').value='';
+    document.getElementById('cate-variant').value='';
+    document.getElementById('cate-publisher').value='';
+    document.getElementById('cate-description').value='';
+    document.getElementById('cate-image').value='';
+    updateCateImgPreview();
+    document.getElementById('cate-delete-btn').style.display='none';
+    if(document.getElementById('collection-view-screen') && document.getElementById('collection-view-screen').classList.contains('open')) renderCollectionView(collId);
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function deleteCatalogItem(){
+  const id=document.getElementById('cate-id').value;
+  if(!id) return;
+  if(!confirm('Delete this catalog entry?')) return;
+  try {
+    const { error } = await sbClient.from('other_catalog').delete().eq('id',id);
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    showToast('Deleted','info');
+    const collId=document.getElementById('cate-collection').value;
+    await loadCatalogFor(collId);
+    closeCatalogEdit();
+    if(document.getElementById('collection-view-screen') && document.getElementById('collection-view-screen').classList.contains('open')) renderCollectionView(collId);
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+// ── Admin: review user catalog requests ──
+async function openCatReqReview(){
+  if(!isAdmin()){ showToast('Admin only','error'); return; }
+  if(typeof closeMobileMenu==='function') closeMobileMenu();
+  document.getElementById('catreqreview-overlay').classList.add('open');
+  const body=document.getElementById('catreqreview-body');
+  body.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-dim)">Loading…</div>';
+  try {
+    const { data, error } = await sbClient.from('other_catalog_requests').select('*').eq('status','pending').order('created_at',{ascending:false});
+    if(error){ body.innerHTML='<div style="padding:20px;color:var(--text-dim)">Error: '+error.message+'</div>'; return; }
+    if(!data||!data.length){ body.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-dim);font-size:.85rem">No requests 🎉</div>'; return; }
+    body.innerHTML = data.map(r=>{
+      const coll = allCollections.find(c=>c.id===r.collection_id);
+      const meta=[r.platform,r.year,r.variant,r.publisher].filter(Boolean).join(' · ');
+      return '<div style="background:var(--bg3);border-radius:12px;padding:12px;margin-bottom:12px">'
+        + '<div style="display:flex;gap:12px">'
+        + (r.image_url?'<img src="'+escHtml(r.image_url)+'" style="width:70px;height:70px;object-fit:cover;border-radius:8px;flex-shrink:0"/>':'<div style="width:70px;height:70px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1.5rem">📦</div>')
+        + '<div style="flex:1;min-width:0"><div style="font-size:.68rem;color:var(--text-dim)">by '+escHtml(r.author_name||'?')+' → '+escHtml(coll?coll.name:'?')+'</div>'
+        + '<div style="font-weight:700;font-size:.9rem">'+escHtml(r.name)+'</div>'
+        + (meta?'<div style="font-size:.72rem;color:var(--text-dim)">'+escHtml(meta)+'</div>':'')+'</div></div>'
+        + '<div style="display:flex;gap:8px;margin-top:10px">'
+        + '<button onclick="approveCatReq(\''+r.id+'\')" class="fr-btn fr-accept" style="flex:1">✓ Approve</button>'
+        + '<button onclick="rejectCatReq(\''+r.id+'\')" class="fr-btn fr-decline" style="flex:1">✕ Reject</button>'
+        + '</div></div>';
+    }).join('');
+  } catch(e){ body.innerHTML='<div style="padding:20px;color:var(--text-dim)">Error: '+e.message+'</div>'; }
+}
+function closeCatReqReview(){ document.getElementById('catreqreview-overlay').classList.remove('open'); }
+async function approveCatReq(id){
+  try {
+    const { data:r } = await sbClient.from('other_catalog_requests').select('*').eq('id',id).single();
+    if(r){
+      await sbClient.from('other_catalog').insert([{
+        collection_id:r.collection_id, name:r.name, platform:r.platform, year:r.year,
+        variant:r.variant, publisher:r.publisher, description:r.description, image_url:r.image_url
+      }]);
+      await sbClient.from('other_catalog_requests').update({status:'approved'}).eq('id',id);
+    }
+    showToast('Approved & added ✓','success'); refreshCatReqBadge(); openCatReqReview();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function rejectCatReq(id){
+  try {
+    await sbClient.from('other_catalog_requests').update({status:'rejected'}).eq('id',id);
+    showToast('Rejected','info'); refreshCatReqBadge(); openCatReqReview();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function refreshCatReqBadge(){
+  if(!isAdmin()) return;
+  try {
+    const { data } = await sbClient.from('other_catalog_requests').select('id').eq('status','pending');
+    const n=(data||[]).length;
+    const b=document.getElementById('catreq-badge'); if(b) b.textContent = n>0?('('+n+')'):'';
+    const mi=document.getElementById('menu-catreq'); if(mi) mi.style.display = isAdmin()?'block':'none';
+  } catch(e){}
 }
 function toggleMissingNote(){
   const incomplete = document.getElementById('other-f-complete').value==='0';
@@ -7894,7 +8253,8 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'guide-screen','public-screen','friends-screen','compare-screen','market-screen',
     'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
-    'news-edit-overlay','photomod-overlay','catmanager-overlay','logobank-overlay'
+    'news-edit-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
+    'collmanager-overlay','catalogedit-overlay','catreq-overlay','catreqreview-overlay'
   ];
   // Return the topmost open closable element, or null
   function topOpen(){
