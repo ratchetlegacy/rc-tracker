@@ -2307,8 +2307,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div class="modal-overlay" id="catreq-overlay" style="z-index:565">
   <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto">
     <button class="modal-close" onclick="closeCatReq()">✕</button>
-    <h2 style="margin-bottom:6px">✋ Suggest an addition</h2>
-    <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:14px">Propose an item to add to this collection. An admin will review it.</p>
+    <h2 style="margin-bottom:6px">➕ Add a new game</h2>
+    <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:14px">It'll be added to your collection right away. An admin reviews it to add it to the shared catalog.</p>
     <input type="hidden" id="catreq-collection"/>
     <div class="form-group"><label>Name *</label><input type="text" id="catreq-name" placeholder="Item name"/></div>
     <div class="form-row" style="display:flex;gap:10px">
@@ -2325,7 +2325,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <button type="button" onclick="takePhotoFor('catreq-image','item','catreq-name')" style="padding:8px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">📷 Photo</button>
       </div>
     </div>
-    <button class="add-btn" style="width:100%;margin-top:8px" onclick="submitCatReq()">📨 Send request</button>
+    <button class="add-btn" style="width:100%;margin-top:8px" onclick="submitCatReq()">➕ Add to my collection</button>
   </div>
 </div>
 
@@ -6486,17 +6486,25 @@ async function approveCatReq(id){
   try {
     const { data:r } = await sbClient.from('other_catalog_requests').select('*').eq('id',id).single();
     if(r){
-      await sbClient.from('other_catalog').insert([{
+      // create the official catalog entry
+      const { data:catRow } = await sbClient.from('other_catalog').insert([{
         collection_id:r.collection_id, name:r.name, platform:r.platform, year:r.year,
         variant:r.variant, publisher:r.publisher, description:r.description, image_url:r.image_url
-      }]);
+      }]).select('id').single();
+      // link the user's pending item to it (no longer pending)
+      if(catRow && r.item_id){
+        await sbClient.from('other_items').update({catalog_id:catRow.id, pending:false}).eq('id',r.item_id);
+      }
       await sbClient.from('other_catalog_requests').update({status:'approved'}).eq('id',id);
     }
-    showToast('Approved & added ✓','success'); refreshCatReqBadge(); openCatReqReview();
+    showToast('Approved & added to catalog ✓','success'); refreshCatReqBadge(); openCatReqReview();
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 async function rejectCatReq(id){
   try {
+    const { data:r } = await sbClient.from('other_catalog_requests').select('item_id').eq('id',id).single();
+    // the user keeps their item, but it's no longer "pending" (stays as a personal entry)
+    if(r && r.item_id){ await sbClient.from('other_items').update({pending:false}).eq('id',r.item_id); }
     await sbClient.from('other_catalog_requests').update({status:'rejected'}).eq('id',id);
     showToast('Rejected','info'); refreshCatReqBadge(); openCatReqReview();
   } catch(e){ showToast('Error: '+e.message,'error'); }
@@ -6598,18 +6606,27 @@ async function submitCatReq(){
   if(!name){ showToast('Name is required','error'); return; }
   const yv=parseInt(document.getElementById('catreq-year').value);
   const author=localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
+  const platform=document.getElementById('catreq-platform').value.trim()||null;
+  const variant=document.getElementById('catreq-variant').value.trim()||null;
+  const publisher=document.getElementById('catreq-publisher').value.trim()||null;
+  const image=document.getElementById('catreq-image').value.trim()||null;
   try {
+    // 1) add the item to the user's own collection right away (pending)
+    const { data:itemRows, error:itemErr } = await sbClient.from('other_items').insert([{
+      user_id: currentUser.id, collection_id: collId, name, category:'Catalog',
+      status:'owned', is_complete:true, pending:true, image_url_free:image
+    }]).select('id').single();
+    if(itemErr){ showToast('Error: '+itemErr.message,'error'); return; }
+    // 2) create the review request, linked to that item
     const { error } = await sbClient.from('other_catalog_requests').insert([{
       user_id: currentUser.id, author_name: author, collection_id: collId,
-      name, platform: document.getElementById('catreq-platform').value.trim()||null,
-      year: isNaN(yv)?null:yv, variant: document.getElementById('catreq-variant').value.trim()||null,
-      publisher: document.getElementById('catreq-publisher').value.trim()||null,
-      image_url: document.getElementById('catreq-image').value.trim()||null,
-      status:'pending'
+      name, platform, year: isNaN(yv)?null:yv, variant, publisher, image_url: image,
+      status:'pending', item_id: itemRows?itemRows.id:null
     }]);
     if(error){ showToast('Error: '+error.message,'error'); return; }
-    showToast('Request sent! An admin will review it 📨','success');
+    showToast('Added to your collection! Pending admin review 📨','success');
     closeCatReq();
+    if(currentCollView){ await loadMyCollItems(currentCollView); renderCollectionView(currentCollView); }
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 
@@ -7106,12 +7123,18 @@ function cvSwitch(tab){
 async function loadMyCollItems(collId){
   cvMyItems = [];
   try {
-    // items the user owns/wishes that are linked to this collection's catalog
-    const { data } = await sbClient.from('other_items')
+    // 1) items linked to this collection's catalog
+    const { data:linked } = await sbClient.from('other_items')
       .select('*, other_catalog!inner(collection_id,name,platform,variant,year,publisher,image_url)')
       .eq('user_id',currentUser.id)
       .eq('other_catalog.collection_id',collId);
-    cvMyItems = data||[];
+    // 2) pending items (suggested, not yet in the catalog) for this collection
+    const { data:pending } = await sbClient.from('other_items')
+      .select('*')
+      .eq('user_id',currentUser.id)
+      .eq('collection_id',collId)
+      .is('catalog_id',null);
+    cvMyItems = [...(linked||[]), ...(pending||[])];
   } catch(e){ cvMyItems=[]; }
 }
 
@@ -7137,16 +7160,19 @@ function renderCvList(box, collId){
     + '</div>';
   html += '<div class="catalog-list">' + cvMyItems.map(i=>{
     const cat=i.other_catalog||{};
+    const dispName = cat.name || i.name || '?';
+    const dispImg = cat.image_url || i.image_url_free || '';
     const meta=[cat.platform,cat.year,cat.variant].filter(Boolean).join(' · ');
     const badge = i.status==='wishlist'
       ? '<span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(255,212,71,.15);color:var(--wishlist)">★ Wishlist</span>'
       : '<span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(61,214,140,.15);color:var(--owned)">✓ Owned</span>';
     const inc = i.is_complete===false ? ' <span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(255,138,42,.18);color:#FF8A2A">⚠️</span>':'';
+    const pend = i.pending ? ' <span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(123,79,212,.2);color:var(--purple-light)">⏳ Pending review</span>':'';
     return '<div class="catalog-row" onclick="openMyCollItem(\''+i.id+'\')">'
-      + (cat.image_url?'<div class="catalog-thumb"><img src="'+escHtml(cat.image_url)+'" loading="lazy"/></div>':'<div class="catalog-thumb"><span class="catalog-thumb-icon">📦</span></div>')
-      + '<div class="catalog-info"><div class="catalog-name">'+escHtml(cat.name||'?')+'</div>'
+      + (dispImg?'<div class="catalog-thumb"><img src="'+escHtml(dispImg)+'" loading="lazy"/></div>':'<div class="catalog-thumb"><span class="catalog-thumb-icon">📦</span></div>')
+      + '<div class="catalog-info"><div class="catalog-name">'+escHtml(dispName)+'</div>'
       + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
-      + '<div style="margin-top:4px">'+badge+inc+'</div></div>'
+      + '<div style="margin-top:4px">'+badge+inc+pend+'</div></div>'
       + '<span class="catalog-chevron">›</span></div>';
   }).join('') + '</div>';
   box.innerHTML=html;
@@ -7158,7 +7184,7 @@ function renderCvCatalog(box, collId){
   const ownedCatalogIds = new Set(cvMyItems.map(i=>i.catalog_id));
   let html='';
   html += '<p style="font-size:.82rem;color:var(--text-dim);margin-bottom:12px">Tap an item to add it to your collection. Missing something? '
-    + '<button onclick="openCatReq(\''+collId+'\')" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-weight:600;font-size:.82rem">Suggest an addition ✋</button></p>';
+    + '<button onclick="openCatReq(\''+collId+'\')" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-weight:600;font-size:.82rem">+ Add a new game ✋</button></p>';
   if(!cat.length){
     html += '<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">Catalog is empty for now.'+(isAdmin()?' Add items above! 🛠️':'')+'</div>';
     box.innerHTML=html; return;
@@ -7176,7 +7202,7 @@ function renderCvCatalog(box, collId){
       + adminEdit
       + (has
           ? '<span style="background:rgba(61,214,140,.15);color:var(--owned);border-radius:20px;padding:6px 12px;font-size:.72rem;font-weight:700;white-space:nowrap">✓ Owned</span>'
-          : '<span style="background:var(--purple);color:#fff;border-radius:20px;padding:6px 14px;font-size:.75rem;font-weight:700;white-space:nowrap">+ Add</span>')
+          : '<span style="background:var(--purple);color:#fff;border-radius:20px;padding:6px 14px;font-size:.72rem;font-weight:700;white-space:nowrap">+ Add to collection</span>')
       + '</div>';
   }).join('') + '</div>';
   box.innerHTML=html;
