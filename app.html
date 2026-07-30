@@ -6515,7 +6515,10 @@ async function saveCatalogItem(){
     document.getElementById('cate-image').value='';
     updateCateImgPreview();
     document.getElementById('cate-delete-btn').style.display='none';
-    if(document.getElementById('collection-view-screen') && document.getElementById('collection-view-screen').classList.contains('open')) renderCollectionView(collId);
+    if(document.getElementById('collection-view-screen') && document.getElementById('collection-view-screen').classList.contains('open')){
+      await loadMyCollItems(collId);
+      renderCollectionView(collId);
+    }
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 async function deleteCatalogItem(){
@@ -7266,6 +7269,11 @@ function cvSwitch(tab){
 async function loadMyCollItems(collId){
   cvMyItems = [];
   try {
+    // Make sure we have the catalog for this collection loaded (for image lookup)
+    if(!catalogCache[collId]) await loadCatalogFor(collId);
+    const catList = catalogCache[collId]||[];
+    const catById = {}; catList.forEach(c=>{ catById[c.id]=c; });
+
     // 1) items linked to this collection's catalog
     const { data:linked } = await sbClient.from('other_items')
       .select('*, other_catalog!inner(collection_id,name,platform,variant,year,publisher,image_url)')
@@ -7277,7 +7285,22 @@ async function loadMyCollItems(collId){
       .eq('user_id',currentUser.id)
       .eq('collection_id',collId)
       .is('catalog_id',null);
-    cvMyItems = [...(linked||[]), ...(pending||[])];
+
+    let all = [...(linked||[]), ...(pending||[])];
+    // Ensure each item has the freshest catalog image:
+    all.forEach(it=>{
+      // if linked, refresh from the current catalog cache (catalog photo may have changed)
+      if(it.catalog_id && catById[it.catalog_id]){
+        it.other_catalog = it.other_catalog || {};
+        it.other_catalog.image_url = catById[it.catalog_id].image_url;
+        it.other_catalog.name = catById[it.catalog_id].name;
+      } else if(!it.catalog_id && it.name){
+        // pending / unlinked: try to match a catalog entry by name → borrow its image
+        const match = catList.find(c=>c.name && it.name && c.name.trim().toLowerCase()===it.name.trim().toLowerCase());
+        if(match){ it.other_catalog = {image_url:match.image_url, name:match.name, platform:match.platform, year:match.year, variant:match.variant}; }
+      }
+    });
+    cvMyItems = all;
   } catch(e){ cvMyItems=[]; }
 }
 
