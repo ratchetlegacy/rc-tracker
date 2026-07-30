@@ -2288,10 +2288,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
     <div class="form-group"><label>Description</label><textarea id="cate-description" rows="2" placeholder="Short description..."></textarea></div>
     <div class="form-group"><label>Photo</label>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input type="text" id="cate-image" placeholder="Image URL..." style="flex:1" oninput="updateCateImgPreview()"/>
-        <button type="button" onclick="openGallery('cate-image')" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Gallery</button>
-        <button type="button" onclick="takePhotoFor('cate-image','logo',null)" style="padding:8px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">📷 Photo</button>
+      <input type="text" id="cate-image" placeholder="Image URL..." style="width:100%;margin-bottom:8px" oninput="updateCateImgPreview()"/>
+      <div style="display:flex;gap:8px">
+        <button type="button" onclick="openGallery('cate-image')" style="flex:1;padding:9px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.76rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">🖼️ Gallery</button>
+        <button type="button" onclick="takePhotoFor('cate-image','logo',null)" style="flex:1;padding:9px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.76rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">📷 Take a photo</button>
       </div>
       <div id="cate-img-preview" style="margin-top:8px"></div>
     </div>
