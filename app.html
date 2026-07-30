@@ -1407,7 +1407,6 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <button class="cv-tab active" data-tab="list" onclick="cvSwitch('list')">🗂️ My list</button>
     <button class="cv-tab" data-tab="catalog" onclick="cvSwitch('catalog')">📚 Catalog</button>
     <button class="cv-tab" data-tab="stats" onclick="cvSwitch('stats')">📊 Stats</button>
-    <button class="cv-tab" data-tab="wiki" onclick="cvSwitch('wiki')">📖 Wiki</button>
   </div>
   <div class="stats-body">
     <div id="cv-admin-bar" style="display:none;margin-bottom:12px">
@@ -2303,29 +2302,45 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
+<!-- PASTE IMPORT MODAL (users bulk-add from Excel copy-paste) -->
+<div class="modal-overlay" id="pasteimport-overlay" style="z-index:566">
+  <div class="modal" style="max-width:560px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closePasteImport()">✕</button>
+    <h2 style="margin-bottom:6px">📋 Import from Excel</h2>
+    <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:10px">Copy rows from Excel and paste below. One game per line, columns separated by tabs, in this order:</p>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px;font-size:.74rem;color:var(--purple-light);margin-bottom:12px;font-family:monospace">Name  ⇥  Platform  ⇥  Year  ⇥  Image URL</div>
+    <p style="font-size:.72rem;color:var(--text-dim);margin-bottom:10px">Name, Platform and Year are required. Image URL is optional here (you can add photos later).</p>
+    <input type="hidden" id="pasteimport-collection"/>
+    <textarea id="pasteimport-text" rows="8" placeholder="Ratchet & Clank	PS2	2002	https://...&#10;Jak and Daxter	PS2	2001	https://..." style="width:100%;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px 12px;color:var(--text);font-family:monospace;font-size:.8rem;outline:none;resize:vertical"></textarea>
+    <div id="pasteimport-preview" style="margin:10px 0;font-size:.78rem;color:var(--text-dim)"></div>
+    <button class="add-btn" style="width:100%;margin-top:8px" onclick="runPasteImport()">📥 Import these games</button>
+  </div>
+</div>
+
 <!-- CATALOG REQUEST MODAL (users propose an addition) -->
 <div class="modal-overlay" id="catreq-overlay" style="z-index:565">
   <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto">
     <button class="modal-close" onclick="closeCatReq()">✕</button>
     <h2 style="margin-bottom:6px">➕ Add a new game</h2>
-    <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:14px">It'll be added to your collection right away. An admin reviews it to add it to the shared catalog.</p>
+    <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:14px">It'll be added to the shared catalog and your collection. Fields marked * are required.</p>
     <input type="hidden" id="catreq-collection"/>
     <div class="form-group"><label>Name *</label><input type="text" id="catreq-name" placeholder="Item name"/></div>
     <div class="form-row" style="display:flex;gap:10px">
-      <div class="form-group" style="flex:1"><label>Platform</label><input type="text" id="catreq-platform"/></div>
-      <div class="form-group" style="width:100px"><label>Year</label><input type="number" id="catreq-year"/></div>
+      <div class="form-group" style="flex:1"><label>Platform *</label><input type="text" id="catreq-platform" placeholder="PS2, PS4..."/></div>
+      <div class="form-group" style="width:100px"><label>Year *</label><input type="number" id="catreq-year" placeholder="2004"/></div>
     </div>
     <div class="form-row" style="display:flex;gap:10px">
-      <div class="form-group" style="flex:1"><label>Variant</label><input type="text" id="catreq-variant"/></div>
-      <div class="form-group" style="flex:1"><label>Publisher</label><input type="text" id="catreq-publisher"/></div>
+      <div class="form-group" style="flex:1"><label>Variant</label><input type="text" id="catreq-variant" placeholder="Standard..."/></div>
+      <div class="form-group" style="flex:1"><label>Publisher</label><input type="text" id="catreq-publisher" placeholder="Sony..."/></div>
     </div>
-    <div class="form-group"><label>Photo</label>
+    <div class="form-group"><label>Photo *</label>
       <div style="display:flex;gap:8px;align-items:center">
-        <input type="text" id="catreq-image" placeholder="Image URL..." style="flex:1"/>
+        <input type="text" id="catreq-image" placeholder="Image URL..." style="flex:1" oninput="updateCatreqImgPreview()"/>
         <button type="button" onclick="takePhotoFor('catreq-image','item','catreq-name')" style="padding:8px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">📷 Photo</button>
       </div>
+      <div id="catreq-img-preview" style="margin-top:8px"></div>
     </div>
-    <button class="add-btn" style="width:100%;margin-top:8px" onclick="submitCatReq()">➕ Add to my collection</button>
+    <button class="add-btn" style="width:100%;margin-top:8px" onclick="submitCatReq()">➕ Add to catalog</button>
   </div>
 </div>
 
@@ -2680,6 +2695,26 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       </div>
     </div>
 
+    <!-- DANGER ZONE -->
+    <div class="profile-section" style="margin-bottom:20px;background:rgba(255,77,106,.06);border:1px solid rgba(255,77,106,.3);border-radius:14px;padding:16px">
+      <div class="profile-section-title" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--missing);text-transform:uppercase;margin-bottom:8px">⚠️ Danger zone</div>
+      <p style="font-size:.76rem;color:var(--text-dim);margin-bottom:12px">Deleting your account permanently removes your profile and your entire collection (Ratchet &amp; Clank + all other collections). This cannot be undone.</p>
+      <button onclick="startDeleteAccount()" style="width:100%;background:transparent;border:1px solid rgba(255,77,106,.5);color:var(--missing);border-radius:10px;padding:12px;font-weight:700;cursor:pointer">🗑️ Delete my account</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- DELETE ACCOUNT CONFIRM MODAL (double check) -->
+<div class="modal-overlay" id="delacc-overlay" style="z-index:640">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeDeleteAccount()">✕</button>
+    <h2 style="margin-bottom:8px;color:var(--missing)">⚠️ Delete account</h2>
+    <p style="font-size:.85rem;color:var(--text);line-height:1.5;margin-bottom:14px">This will <b>permanently delete</b>:<br>• Your profile &amp; nickname<br>• Your whole Ratchet &amp; Clank collection<br>• All your items in every other collection</p>
+    <p style="font-size:.82rem;color:var(--text-dim);margin-bottom:8px">To confirm, type <b style="color:var(--missing)">DELETE</b> below:</p>
+    <input type="text" id="delacc-confirm-text" placeholder="Type DELETE" oninput="checkDeleteConfirm()" style="width:100%;background:var(--bg);border:1px solid rgba(255,77,106,.4);border-radius:9px;padding:11px 12px;color:var(--text);font-family:Inter,sans-serif;outline:none;margin-bottom:14px"/>
+    <button id="delacc-final-btn" onclick="confirmDeleteAccount()" disabled style="width:100%;background:rgba(255,77,106,.2);border:1px solid rgba(255,77,106,.3);color:var(--missing);border-radius:10px;padding:13px;font-weight:800;cursor:not-allowed;opacity:.5">🗑️ Permanently delete everything</button>
+    <button onclick="closeDeleteAccount()" style="width:100%;margin-top:8px;background:transparent;border:none;color:var(--text-dim);padding:10px;cursor:pointer;font-size:.85rem">Cancel</button>
   </div>
 </div>
 
@@ -2952,6 +2987,49 @@ async function doAuth(){
   }catch(e){ msgEl.innerHTML=`<div class="auth-error">${e.message}</div>`; }
 }
 async function doSignOut(){ await sbClient.auth.signOut(); currentUser=null; items=[]; show('auth-screen'); }
+
+// ── Account deletion (double confirm) ──
+function startDeleteAccount(){
+  document.getElementById('delacc-confirm-text').value='';
+  checkDeleteConfirm();
+  document.getElementById('delacc-overlay').classList.add('open');
+}
+function closeDeleteAccount(){ document.getElementById('delacc-overlay').classList.remove('open'); }
+function checkDeleteConfirm(){
+  const val=(document.getElementById('delacc-confirm-text').value||'').trim().toUpperCase();
+  const btn=document.getElementById('delacc-final-btn');
+  const ok = val==='DELETE';
+  btn.disabled=!ok;
+  btn.style.cursor = ok?'pointer':'not-allowed';
+  btn.style.opacity = ok?'1':'.5';
+  btn.style.background = ok?'var(--missing)':'rgba(255,77,106,.2)';
+  btn.style.color = ok?'#fff':'var(--missing)';
+}
+async function confirmDeleteAccount(){
+  const val=(document.getElementById('delacc-confirm-text').value||'').trim().toUpperCase();
+  if(val!=='DELETE') return;
+  if(!currentUser){ showToast('Not signed in','error'); return; }
+  const uid=currentUser.id;
+  try {
+    showToast('Deleting your data…','info');
+    // Delete all user-owned data across tables (best-effort)
+    await sbClient.from('items').delete().eq('user_id',uid);
+    await sbClient.from('other_items').delete().eq('user_id',uid);
+    try{ await sbClient.from('other_catalog_requests').delete().eq('user_id',uid); }catch(e){}
+    try{ await sbClient.from('photo_moderation').delete().eq('user_id',uid); }catch(e){}
+    try{ await sbClient.from('public_profiles').delete().eq('user_id',uid); }catch(e){}
+    try{ await sbClient.from('friendships').delete().eq('user_id',uid); }catch(e){}
+    try{ await sbClient.from('wiki_suggestions').delete().eq('user_id',uid); }catch(e){}
+    // clear local prefs
+    try{
+      Object.keys(localStorage).forEach(k=>{ if(k.includes(uid)) localStorage.removeItem(k); });
+    }catch(e){}
+    showToast('Account data deleted. Signing out…','success');
+    closeDeleteAccount();
+    // Sign out (the auth user record itself is removed server-side by Supabase policies/cascade or admin)
+    setTimeout(async ()=>{ await sbClient.auth.signOut(); currentUser=null; items=[]; location.reload(); }, 1200);
+  } catch(e){ showToast('Error: '+e.message,'error'); }
+}
 
 // ══ STATE ══
 let items=[], activeType='all', activeStatus=null, activePlatform='all', editingId=null, currentRating=0;
@@ -3933,6 +4011,7 @@ function takePhotoFor(targetInputId, contextLabel, nameInputId){
       if(targetInputId==='catform-logo' && typeof updateCatLogoPreview==='function'){ updateCatLogoPreview(); }
       if(targetInputId==='collform-logo' && typeof updateCollLogoPreview==='function'){ updateCollLogoPreview(); }
       if(targetInputId==='cate-image' && typeof updateCateImgPreview==='function'){ updateCateImgPreview(); }
+      if(targetInputId==='catreq-image' && typeof updateCatreqImgPreview==='function'){ updateCatreqImgPreview(); }
       // Logo uploads (admin bank / category logos) are NOT user content →
       // don't push them to the photo moderation queue.
       if(contextLabel==='logo'){
@@ -6596,41 +6675,105 @@ function openCatReq(collId){
   document.getElementById('catreq-variant').value='';
   document.getElementById('catreq-publisher').value='';
   document.getElementById('catreq-image').value='';
+  updateCatreqImgPreview();
   document.getElementById('catreq-overlay').classList.add('open');
+}
+function updateCatreqImgPreview(){
+  const box=document.getElementById('catreq-img-preview'); if(!box) return;
+  const url=(document.getElementById('catreq-image').value||'').trim();
+  box.innerHTML = url ? '<img src="'+escHtml(url)+'" style="max-height:90px;border-radius:8px;border:1px solid rgba(255,255,255,.12);object-fit:contain;background:var(--bg)" onerror="this.style.display=\'none\'"/>' : '';
 }
 function closeCatReq(){ document.getElementById('catreq-overlay').classList.remove('open'); }
 async function submitCatReq(){
   if(!currentUser){ showToast('Please sign in','error'); return; }
   const collId=document.getElementById('catreq-collection').value;
   const name=document.getElementById('catreq-name').value.trim();
-  if(!name){ showToast('Name is required','error'); return; }
+  const platform=document.getElementById('catreq-platform').value.trim();
   const yv=parseInt(document.getElementById('catreq-year').value);
-  const author=localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
-  const platform=document.getElementById('catreq-platform').value.trim()||null;
+  const image=document.getElementById('catreq-image').value.trim();
   const variant=document.getElementById('catreq-variant').value.trim()||null;
   const publisher=document.getElementById('catreq-publisher').value.trim()||null;
-  const image=document.getElementById('catreq-image').value.trim()||null;
+  // Required fields: Name + Platform + Year + Photo
+  const missing=[];
+  if(!name) missing.push('Name');
+  if(!platform) missing.push('Platform');
+  if(isNaN(yv)) missing.push('Year');
+  if(!image) missing.push('Photo');
+  if(missing.length){ showToast('Required: '+missing.join(', '),'error'); return; }
   try {
-    // 1) add the item to the user's own collection right away (pending)
-    const { data:itemRows, error:itemErr } = await sbClient.from('other_items').insert([{
-      user_id: currentUser.id, collection_id: collId, name, category:'Catalog',
-      status:'owned', is_complete:true, pending:true, image_url_free:image
+    // 1) create the catalog entry directly (no validation)
+    const { data:catRow, error:catErr } = await sbClient.from('other_catalog').insert([{
+      collection_id: collId, name, platform, year: yv, variant, publisher, image_url: image
     }]).select('id').single();
-    if(itemErr){ showToast('Error: '+itemErr.message,'error'); return; }
-    // 2) create the review request, linked to that item
-    const { error } = await sbClient.from('other_catalog_requests').insert([{
-      user_id: currentUser.id, author_name: author, collection_id: collId,
-      name, platform, year: isNaN(yv)?null:yv, variant, publisher, image_url: image,
-      status:'pending', item_id: itemRows?itemRows.id:null
+    if(catErr){ showToast('Error: '+catErr.message,'error'); return; }
+    // 2) add it to the user's own collection, linked to that catalog entry
+    const { error:itemErr } = await sbClient.from('other_items').insert([{
+      user_id: currentUser.id, catalog_id: catRow.id, collection_id: collId,
+      name, category:'Catalog', status:'owned', is_complete:true
     }]);
-    if(error){ showToast('Error: '+error.message,'error'); return; }
-    showToast('Added to your collection! Pending admin review 📨','success');
+    if(itemErr){ showToast('Error: '+itemErr.message,'error'); return; }
+    showToast('Added to the catalog & your collection! 🎉','success');
     closeCatReq();
-    if(currentCollView){ await loadMyCollItems(currentCollView); renderCollectionView(currentCollView); }
+    if(currentCollView){ await loadCatalogFor(currentCollView); await loadMyCollItems(currentCollView); renderCollectionView(currentCollView); }
   } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 
 // ── User: suggest a catalog addition ── END
+
+// ── User: bulk import from Excel copy-paste ──
+function openPasteImport(collId){
+  document.getElementById('pasteimport-collection').value=collId;
+  document.getElementById('pasteimport-text').value='';
+  document.getElementById('pasteimport-preview').textContent='';
+  document.getElementById('pasteimport-overlay').classList.add('open');
+}
+function closePasteImport(){ document.getElementById('pasteimport-overlay').classList.remove('open'); }
+function parsePasteLines(){
+  const raw=document.getElementById('pasteimport-text').value;
+  const lines=raw.split('\n').map(l=>l.trim()).filter(l=>l);
+  const parsed=[];
+  const errors=[];
+  lines.forEach((line,idx)=>{
+    // split by tab (Excel) or fallback to multiple spaces / semicolons
+    let cols = line.includes('\t') ? line.split('\t') : line.split(/\s{2,}|;/);
+    cols = cols.map(c=>c.trim());
+    const [name,platform,year,image] = [cols[0]||'', cols[1]||'', cols[2]||'', cols[3]||''];
+    const yv=parseInt(year);
+    if(!name || !platform || isNaN(yv)){
+      errors.push('Line '+(idx+1)+': needs Name + Platform + Year');
+      return;
+    }
+    parsed.push({name, platform, year:yv, image:image||null});
+  });
+  return {parsed, errors};
+}
+async function runPasteImport(){
+  if(!currentUser){ showToast('Please sign in','error'); return; }
+  const collId=document.getElementById('pasteimport-collection').value;
+  const {parsed, errors} = parsePasteLines();
+  if(!parsed.length){
+    document.getElementById('pasteimport-preview').innerHTML='<span style="color:var(--missing)">Nothing valid to import.'+(errors.length?' '+escHtml(errors[0]):'')+'</span>';
+    return;
+  }
+  document.getElementById('pasteimport-preview').textContent='Importing '+parsed.length+' games…';
+  let ok=0, fail=0;
+  for(const g of parsed){
+    try {
+      const { data:catRow, error:catErr } = await sbClient.from('other_catalog').insert([{
+        collection_id: collId, name:g.name, platform:g.platform, year:g.year, image_url:g.image
+      }]).select('id').single();
+      if(catErr){ fail++; continue; }
+      await sbClient.from('other_items').insert([{
+        user_id: currentUser.id, catalog_id: catRow.id, collection_id: collId,
+        name:g.name, category:'Catalog', status:'owned', is_complete:true
+      }]);
+      ok++;
+    } catch(e){ fail++; }
+  }
+  showToast('Imported '+ok+' game'+(ok>1?'s':'')+(fail?(' ('+fail+' failed)'):'')+' 🎉','success');
+  closePasteImport();
+  if(currentCollView){ await loadCatalogFor(currentCollView); await loadMyCollItems(currentCollView); renderCollectionView(currentCollView); }
+}
 
 // ── Compare collections side by side ──
 async function compareWithFriend(friendId){
@@ -7183,8 +7326,11 @@ function renderCvCatalog(box, collId){
   const cat = catalogCache[collId]||[];
   const ownedCatalogIds = new Set(cvMyItems.map(i=>i.catalog_id));
   let html='';
-  html += '<p style="font-size:.82rem;color:var(--text-dim);margin-bottom:12px">Tap an item to add it to your collection. Missing something? '
-    + '<button onclick="openCatReq(\''+collId+'\')" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-weight:600;font-size:.82rem">+ Add a new game ✋</button></p>';
+  html += '<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">'
+    + '<button onclick="openCatReq(\''+collId+'\')" style="flex:1;min-width:140px;background:var(--purple);color:#fff;border:none;border-radius:10px;padding:10px;font-weight:700;font-size:.8rem;cursor:pointer">+ Add a new game</button>'
+    + '<button onclick="openPasteImport(\''+collId+'\')" style="flex:1;min-width:140px;background:rgba(123,79,212,.15);border:1px solid rgba(123,79,212,.4);color:var(--purple-light);border-radius:10px;padding:10px;font-weight:700;font-size:.8rem;cursor:pointer">📋 Import from Excel</button>'
+    + '</div>'
+    + '<p style="font-size:.78rem;color:var(--text-dim);margin-bottom:12px">Tap an item to add it to your collection.</p>';
   if(!cat.length){
     html += '<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">Catalog is empty for now.'+(isAdmin()?' Add items above! 🛠️':'')+'</div>';
     box.innerHTML=html; return;
@@ -8901,7 +9047,7 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
     'news-edit-overlay','news-popup-overlay','catitem-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
-    'collmanager-overlay','catalogedit-overlay','catreq-overlay','catreqreview-overlay','collection-view-screen','subcoll-screen'
+    'collmanager-overlay','catalogedit-overlay','catreq-overlay','pasteimport-overlay','catreqreview-overlay','delacc-overlay','collection-view-screen','subcoll-screen'
   ];
   // Return the topmost open closable element, or null
   function topOpen(){
