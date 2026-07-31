@@ -1508,27 +1508,38 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </header>
 
     <div class="controls" style="flex-direction:column;align-items:stretch;gap:10px">
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <span class="filter-label">Type</span>
-      <div class="filter-group" id="type-filters">
-        <button class="filter-btn active" data-type="all">All</button>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap" id="platform-filter-row">
-      <span class="filter-label">Platform</span>
-      <div class="filter-group" id="platform-filters">
-        <button class="filter-btn active" data-platform="all">All</button>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <span class="filter-label" data-i18n="lbl_status">Status</span>
-      <div class="filter-group" id="status-filters">
-        <button class="filter-btn s-owned" data-status="owned">✅ Owned</button>
-        <button class="filter-btn s-wish" data-status="wishlist">🎯 Wishlist</button>
-      </div>
-      <div class="spacer"></div>
+    <!-- Filter toggle + Add button row -->
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="filters-toggle" onclick="toggleFiltersPanel()" style="flex:1;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 14px;color:var(--text);font-weight:600;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+        <span>🔍 Filters <span id="filters-active-badge" style="display:none;background:var(--purple);color:#fff;border-radius:10px;padding:1px 8px;font-size:.68rem;margin-left:6px"></span></span>
+        <span id="filters-chevron" style="color:var(--text-dim)">▾</span>
+      </button>
       <button class="add-btn" onclick="openModal()" data-i18n="btn_add">+ ADD OBJECT</button>
     </div>
+    <!-- Collapsible filter dropdowns (hidden by default) -->
+    <div id="filters-panel" style="display:none;flex-direction:column;gap:10px;background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="filter-label" style="width:70px;flex-shrink:0">Type</span>
+        <select id="type-select" onchange="onTypeSelect(this.value)" style="flex:1;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none"></select>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px" id="platform-filter-row">
+        <span class="filter-label" style="width:70px;flex-shrink:0">Platform</span>
+        <select id="platform-select" onchange="onPlatformSelect(this.value)" style="flex:1;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none"></select>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="filter-label" style="width:70px;flex-shrink:0">Status</span>
+        <select id="status-select" onchange="onStatusSelect(this.value)" style="flex:1;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none">
+          <option value="all">All</option>
+          <option value="owned">✅ Owned</option>
+          <option value="wishlist">🎯 Wishlist</option>
+        </select>
+      </div>
+      <button onclick="resetAllFilters()" style="background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:8px;color:var(--text-dim);font-size:.78rem;cursor:pointer">↺ Reset filters</button>
+    </div>
+    <!-- Hidden legacy containers (kept so old code references don't break) -->
+    <div id="type-filters" style="display:none"></div>
+    <div id="platform-filters" style="display:none"></div>
+    <div id="status-filters" style="display:none"></div>
   </div>
 
   <div id="section-controls" style="display:none;gap:8px;padding:0 32px;margin-bottom:2px">
@@ -3417,33 +3428,51 @@ function getTypes(){ return [...new Set(items.map(i=>i.type).filter(Boolean))].s
 function getPlatforms(){ return [...new Set(items.map(i=>i.platform).filter(Boolean))].sort(); }
 
 function buildPlatformFilters(){
-  const container=document.getElementById('platform-filters');
-  if(!container) return;
+  const sel=document.getElementById('platform-select');
+  if(!sel) return;
   const platforms=getPlatforms();
-  // Hide the whole row if there are no platforms at all
   const row=document.getElementById('platform-filter-row');
   if(row) row.style.display = platforms.length ? 'flex' : 'none';
-  container.innerHTML=`<button class="filter-btn ${activePlatform==='all'?'active':''}" data-platform="all">All</button>`;
-  platforms.forEach(p=>{
-    const btn=document.createElement('button');
-    btn.className=`filter-btn ${activePlatform===p?'active':''}`;
-    btn.dataset.platform=p;
-    btn.textContent=p;
-    container.appendChild(btn);
-  });
+  sel.innerHTML='<option value="all">All platforms</option>' + platforms.map(p=>'<option value="'+escHtml(p)+'"'+(activePlatform===p?' selected':'')+'>'+escHtml(p)+'</option>').join('');
+  sel.value=activePlatform||'all';
+  updateFiltersBadge();
 }
-
 function buildTypeFilters(){
-  const container=document.getElementById('type-filters');
+  const sel=document.getElementById('type-select');
+  if(!sel) return;
   const types=getTypes();
-  container.innerHTML=`<button class="filter-btn ${activeType==='all'?'active':''}" data-type="all">All</button>`;
-  types.forEach(t=>{
-    const btn=document.createElement('button');
-    btn.className=`filter-btn ${activeType===t?'active':''}`;
-    btn.dataset.type=t;
-    btn.textContent=`${getIcon(t)} ${t}`;
-    container.appendChild(btn);
-  });
+  sel.innerHTML='<option value="all">All types</option>' + types.map(t=>'<option value="'+escHtml(t)+'"'+(activeType===t?' selected':'')+'>'+getIcon(t)+' '+escHtml(t)+'</option>').join('');
+  sel.value=activeType||'all';
+  updateFiltersBadge();
+}
+// Dropdown handlers
+function onTypeSelect(v){ activeType=v; render(); updateFiltersBadge(); }
+function onPlatformSelect(v){ activePlatform=v; render(); updateFiltersBadge(); }
+function onStatusSelect(v){
+  activeStatus = (v==='all') ? null : v;
+  render(); updateFiltersBadge();
+}
+function toggleFiltersPanel(){
+  const p=document.getElementById('filters-panel');
+  const chev=document.getElementById('filters-chevron');
+  const open = p.style.display==='none';
+  p.style.display = open ? 'flex' : 'none';
+  if(chev) chev.textContent = open ? '▴' : '▾';
+}
+function resetAllFilters(){
+  activeType='all'; activePlatform='all'; activeStatus=null;
+  const ts=document.getElementById('type-select'); if(ts) ts.value='all';
+  const ps=document.getElementById('platform-select'); if(ps) ps.value='all';
+  const ss=document.getElementById('status-select'); if(ss) ss.value='all';
+  render(); updateFiltersBadge();
+}
+function updateFiltersBadge(){
+  let n=0;
+  if(activeType && activeType!=='all') n++;
+  if(activePlatform && activePlatform!=='all') n++;
+  if(activeStatus) n++;
+  const badge=document.getElementById('filters-active-badge');
+  if(badge){ badge.style.display = n>0?'inline':'none'; badge.textContent=n+' active'; }
 }
 
 // Collapse/expand a category section
