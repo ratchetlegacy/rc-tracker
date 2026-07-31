@@ -7288,18 +7288,22 @@ async function openCollectionView(collId){
 }
 function closeCollectionView(){ document.getElementById('collection-view-screen').classList.remove('open'); }
 
-function cvSwitch(tab){
+async function cvSwitch(tab){
   cvActiveTab = tab;
   document.querySelectorAll('#collection-view-screen .cv-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
   document.getElementById('cv-admin-bar').style.display = (isAdmin() && tab==='catalog')?'block':'none';
+  // Reload fresh data when entering list/stats so catalog photo changes show up
+  if(tab==='list' || tab==='stats'){
+    await loadMyCollItems(currentCollView);
+  }
   renderCollectionView(currentCollView);
 }
 
 async function loadMyCollItems(collId){
   cvMyItems = [];
   try {
-    // Make sure we have the catalog for this collection loaded (for image lookup)
-    if(!catalogCache[collId]) await loadCatalogFor(collId);
+    // Always reload the catalog fresh (photos may have just changed)
+    await loadCatalogFor(collId);
     const catList = catalogCache[collId]||[];
     const catById = {}; catList.forEach(c=>{ catById[c.id]=c; });
 
