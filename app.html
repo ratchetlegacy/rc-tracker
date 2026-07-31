@@ -2558,9 +2558,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="form-group"><label>Year</label><input type="number" id="cat-edit-year" placeholder="2004"/></div>
     <div class="form-group"><label>Region</label><input type="text" id="cat-edit-region" placeholder="PAL, NTSC-U..."/></div>
     <div class="form-group"><label>Image</label>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input type="text" id="cat-edit-image" placeholder="URL or choose from gallery..." style="flex:1" oninput="updateCatImagePreview()"/>
-        <button type="button" onclick="openGallery('cat-edit-image')" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Gallery</button>
+      <input type="text" id="cat-edit-image" placeholder="Image URL..." style="width:100%;margin-bottom:8px" oninput="updateCatImagePreview()"/>
+      <div style="display:flex;gap:8px">
+        <button type="button" onclick="openGallery('cat-edit-image')" style="flex:1;padding:9px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.76rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">🖼️ Gallery</button>
+        <button type="button" onclick="takePhotoFor('cat-edit-image','logo',null)" style="flex:1;padding:9px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.76rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">📷 Take a photo</button>
       </div>
       <div id="cat-image-preview" style="margin-top:8px"></div>
     </div>
