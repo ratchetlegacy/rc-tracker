@@ -7320,17 +7320,20 @@ async function loadMyCollItems(collId){
       .is('catalog_id',null);
 
     let all = [...(linked||[]), ...(pending||[])];
-    // Ensure each item has the freshest catalog image:
+    // Ensure each item shows the freshest catalog image (robust matching):
+    const norm = s => (s||'').toString().trim().toLowerCase();
+    const byName = {}; catList.forEach(c=>{ byName[norm(c.name)] = c; });
     all.forEach(it=>{
-      // if linked, refresh from the current catalog cache (catalog photo may have changed)
       if(it.catalog_id && catById[it.catalog_id]){
-        it.other_catalog = it.other_catalog || {};
-        it.other_catalog.image_url = catById[it.catalog_id].image_url;
-        it.other_catalog.name = catById[it.catalog_id].name;
-      } else if(!it.catalog_id && it.name){
-        // pending / unlinked: try to match a catalog entry by name → borrow its image
-        const match = catList.find(c=>c.name && it.name && c.name.trim().toLowerCase()===it.name.trim().toLowerCase());
-        if(match){ it.other_catalog = {image_url:match.image_url, name:match.name, platform:match.platform, year:match.year, variant:match.variant}; }
+        // linked → always use the current catalog image (may have just changed)
+        const c=catById[it.catalog_id];
+        it.other_catalog = Object.assign({}, it.other_catalog||{}, {image_url:c.image_url, name:c.name, platform:c.platform, year:c.year, variant:c.variant, publisher:c.publisher});
+      } else {
+        // not linked → try to borrow image from a catalog entry with the same name
+        const match = byName[norm(it.name)];
+        if(match){
+          it.other_catalog = {image_url:match.image_url, name:match.name, platform:match.platform, year:match.year, variant:match.variant, publisher:match.publisher};
+        }
       }
     });
     cvMyItems = all;
