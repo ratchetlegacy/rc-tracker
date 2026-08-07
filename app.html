@@ -1083,6 +1083,25 @@
     .home-coll-arrow{color:var(--text-dim);font-size:1.3rem;flex-shrink:0}
     /* Collection view tabs */
     .cv-tabs{display:flex;gap:4px;padding:0 16px;max-width:600px;margin:0 auto;overflow-x:auto}
+    /* Catalog card grid (Steam/Epic style) */
+    .cvcat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:380px){.cvcat-grid{grid-template-columns:1fr 1fr;gap:10px}}
+    .cvcat-card{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;transition:transform .12s,border-color .12s;cursor:pointer}
+    .cvcat-card:hover{transform:translateY(-3px);border-color:var(--purple)}
+    .cvcat-cover{width:100%;aspect-ratio:3/4;background:var(--bg3);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .cvcat-cover img{width:100%;height:100%;object-fit:cover}
+    .cvcat-cover .cvcat-ph{font-size:2.4rem;opacity:.25}
+    .cvcat-owned-flag{position:absolute;top:6px;right:6px;background:var(--owned);color:#062;font-size:.58rem;font-weight:800;padding:3px 7px;border-radius:4px;letter-spacing:.03em}
+    .cvcat-admin-edit{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);border:none;color:#fff;font-size:.8rem;width:26px;height:26px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .cvcat-body{padding:9px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
+    .cvcat-name{font-weight:700;font-size:.82rem;color:var(--text);line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .cvcat-meta{font-size:.66rem;color:var(--text-dim)}
+    .cvcat-btn{margin:0 10px 10px;border:none;border-radius:6px;padding:9px;font-weight:700;font-size:.74rem;cursor:pointer;font-family:Inter,sans-serif}
+    .cvcat-btn-add{background:var(--purple);color:#fff}
+    .cvcat-btn-add:hover{background:var(--purple-light)}
+    .cvcat-btn-owned{background:rgba(61,214,140,.15);color:var(--owned);border:1px solid rgba(61,214,140,.35)}
+    .cvcat-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .cvcat-filters select{flex:1;min-width:100px;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:9px 10px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none}
     .cv-tab{flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-dim);padding:12px 6px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
     .cv-tab.active{color:var(--purple-light);border-bottom-color:var(--purple)}
     .home-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
@@ -7407,49 +7426,64 @@ function renderCvCatalog(box, collId){
   const cat = catalogCache[collId]||[];
   const ownedCatalogIds = new Set(cvMyItems.map(i=>i.catalog_id));
   let html='';
-  // Search box first — encourage finding the game in the catalog
-  html += '<div style="margin-bottom:12px">'
-    + '<input type="text" id="cv-cat-search" placeholder="🔍 Search the catalog..." oninput="filterCvCatalog()" style="width:100%;background:var(--bg);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none"/>'
+  // Search
+  html += '<input type="text" id="cv-cat-search" placeholder="🔍 Search the catalog..." oninput="filterCvCatalog()" style="width:100%;background:var(--bg);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:11px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none;margin-bottom:12px"/>';
+  // Dropdown filters (platform, year, status)
+  const platforms=[...new Set(cat.map(o=>o.platform).filter(Boolean))].sort();
+  const years=[...new Set(cat.map(o=>o.year).filter(Boolean))].sort((a,b)=>b-a);
+  html += '<div class="cvcat-filters">'
+    + '<select id="cv-filter-platform" onchange="filterCvCatalog()"><option value="">All platforms</option>'+platforms.map(p=>'<option value="'+escHtml(p)+'">'+escHtml(p)+'</option>').join('')+'</select>'
+    + '<select id="cv-filter-year" onchange="filterCvCatalog()"><option value="">All years</option>'+years.map(y=>'<option value="'+y+'">'+y+'</option>').join('')+'</select>'
+    + '<select id="cv-filter-status" onchange="filterCvCatalog()"><option value="">All</option><option value="owned">✓ Owned</option><option value="notowned">Not owned</option></select>'
     + '</div>';
-  html += '<p style="font-size:.78rem;color:var(--text-dim);margin-bottom:12px">Find your game below and tap it to add it to your collection.</p>';
   if(!cat.length){
     html += '<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">Catalog is empty for now.</div>';
   } else {
-    html += '<div class="catalog-list" id="cv-cat-list">' + cat.map(o=>{
-      const meta=[o.platform,o.year,o.variant,o.publisher].filter(Boolean).join(' · ');
+    html += '<div class="cvcat-grid" id="cv-cat-list">' + cat.map(o=>{
+      const meta=[o.platform,o.year].filter(Boolean).join(' · ');
       const has = ownedCatalogIds.has(o.id);
-      const adminEdit = isAdmin() ? '<button onclick="event.stopPropagation();openOtherCatalogEdit(catObj(\''+o.id+'\'))" style="background:transparent;border:none;color:var(--purple-light);cursor:pointer;font-size:.85rem;padding:0 4px">✏️</button>' : '';
-      return '<div class="catalog-row cv-cat-row" data-name="'+escHtml((o.name+' '+(o.platform||'')).toLowerCase())+'" onclick="openCatItem(\''+o.id+'\')">'
-        + (o.image_url?'<div class="catalog-thumb"><img src="'+escHtml(o.image_url)+'" loading="lazy"/></div>':'<div class="catalog-thumb"><span class="catalog-thumb-icon">📦</span></div>')
-        + '<div class="catalog-info"><div class="catalog-name">'+escHtml(o.name)+'</div>'
-        + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
-        + (has?'<div style="margin-top:4px"><span style="font-size:.58rem;padding:2px 7px;border-radius:10px;background:rgba(61,214,140,.15);color:var(--owned)">✓ In your collection</span></div>':'')
+      const adminEdit = isAdmin() ? '<button class="cvcat-admin-edit" onclick="event.stopPropagation();openOtherCatalogEdit(catObj(\''+o.id+'\'))">✏️</button>' : '';
+      return '<div class="cvcat-card cv-cat-row" data-name="'+escHtml((o.name+' '+(o.platform||'')).toLowerCase())+'" data-platform="'+escHtml(o.platform||'')+'" data-year="'+(o.year||'')+'" data-owned="'+(has?'1':'0')+'" onclick="openCatItem(\''+o.id+'\')">'
+        + '<div class="cvcat-cover">'
+        +   (o.image_url?'<img src="'+escHtml(o.image_url)+'" loading="lazy"/>':'<span class="cvcat-ph">📦</span>')
+        +   (has?'<span class="cvcat-owned-flag">✓ OWNED</span>':'')
+        +   adminEdit
         + '</div>'
-        + adminEdit
+        + '<div class="cvcat-body">'
+        +   '<div class="cvcat-name">'+escHtml(o.name)+'</div>'
+        +   (meta?'<div class="cvcat-meta">'+escHtml(meta)+'</div>':'')
+        + '</div>'
         + (has
-            ? '<span style="background:rgba(61,214,140,.15);color:var(--owned);border-radius:20px;padding:6px 12px;font-size:.72rem;font-weight:700;white-space:nowrap">✓ Owned</span>'
-            : '<span style="background:var(--purple);color:#fff;border-radius:20px;padding:6px 14px;font-size:.72rem;font-weight:700;white-space:nowrap">+ Add to collection</span>')
+            ? '<button class="cvcat-btn cvcat-btn-owned" onclick="event.stopPropagation();openCatItem(\''+o.id+'\')">✓ In collection</button>'
+            : '<button class="cvcat-btn cvcat-btn-add" onclick="event.stopPropagation();quickAddCatItem(\''+o.id+'\',\'owned\')">+ Add</button>')
         + '</div>';
     }).join('') + '</div>';
-    html += '<div id="cv-cat-empty" style="display:none;text-align:center;padding:20px;color:var(--text-dim);font-size:.82rem">No match in the catalog.</div>';
+    html += '<div id="cv-cat-empty" style="display:none;text-align:center;padding:20px;color:var(--text-dim);font-size:.82rem">No match found.</div>';
   }
-  // Fallback: suggest a new game (only if it's really not in the catalog)
+  // Fallback: add a new game
   html += '<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)">'
     + '<p style="font-size:.78rem;color:var(--text-dim);margin-bottom:8px;text-align:center">Your game isn\'t in the catalog?</p>'
     + '<div style="display:flex;gap:8px;flex-wrap:wrap">'
-    + '<button onclick="openCatReq(\''+collId+'\')" style="flex:1;min-width:140px;background:rgba(123,79,212,.15);border:1px solid rgba(123,79,212,.4);color:var(--purple-light);border-radius:10px;padding:11px;font-weight:700;font-size:.8rem;cursor:pointer">+ Add a new game</button>'
-    + '<button onclick="openPasteImport(\''+collId+'\')" style="flex:1;min-width:140px;background:rgba(123,79,212,.1);border:1px solid rgba(123,79,212,.3);color:var(--purple-light);border-radius:10px;padding:11px;font-weight:700;font-size:.8rem;cursor:pointer">📋 Import from Excel</button>'
+    + '<button onclick="openCatReq(\''+collId+'\')" style="flex:1;min-width:140px;background:rgba(123,79,212,.15);border:1px solid rgba(123,79,212,.4);color:var(--purple-light);border-radius:8px;padding:11px;font-weight:700;font-size:.8rem;cursor:pointer">+ Add a new game</button>'
+    + '<button onclick="openPasteImport(\''+collId+'\')" style="flex:1;min-width:140px;background:rgba(123,79,212,.1);border:1px solid rgba(123,79,212,.3);color:var(--purple-light);border-radius:8px;padding:11px;font-weight:700;font-size:.8rem;cursor:pointer">📋 Import from Excel</button>'
     + '</div></div>';
   box.innerHTML=html;
 }
 function filterCvCatalog(){
-  const q=(document.getElementById('cv-cat-search').value||'').toLowerCase().trim();
+  const q=(document.getElementById('cv-cat-search')?.value||'').toLowerCase().trim();
+  const fp=document.getElementById('cv-filter-platform')?.value||'';
+  const fy=document.getElementById('cv-filter-year')?.value||'';
+  const fs=document.getElementById('cv-filter-status')?.value||'';
   const rows=document.querySelectorAll('.cv-cat-row');
   let shown=0;
   rows.forEach(r=>{
-    const match = !q || (r.dataset.name||'').includes(q);
-    r.style.display = match?'':'none';
-    if(match) shown++;
+    let ok = !q || (r.dataset.name||'').includes(q);
+    if(ok && fp) ok = (r.dataset.platform===fp);
+    if(ok && fy) ok = (r.dataset.year===fy);
+    if(ok && fs==='owned') ok = (r.dataset.owned==='1');
+    if(ok && fs==='notowned') ok = (r.dataset.owned==='0');
+    r.style.display = ok?'':'none';
+    if(ok) shown++;
   });
   const empty=document.getElementById('cv-cat-empty');
   if(empty) empty.style.display = shown===0?'block':'none';
