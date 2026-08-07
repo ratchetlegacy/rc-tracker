@@ -8656,13 +8656,17 @@ function catalogCard(c){
   const cover = c.image_url
     ? '<img src="'+escHtml(c.image_url)+'" loading="lazy"/>'
     : '<span class="cvcat-ph">'+catalogIcon(c.category)+'</span>';
-  return '<div class="cvcat-card rccat-row" data-name="'+escHtml((c.name+' '+(c.platform||'')).toLowerCase())+'" data-cat="'+escHtml(c.category||'')+'" data-platform="'+escHtml(c.platform||'')+'" onclick="openCatalogDetail('+c.id+')">'
-    + '<div class="cvcat-cover">'+cover+adminEdit
+  return '<div class="cvcat-card rccat-row" data-name="'+escHtml((c.name+' '+(c.platform||'')).toLowerCase())+'" data-cat="'+escHtml(c.category||'')+'" data-platform="'+escHtml(c.platform||'')+'">'
+    + '<div class="cvcat-cover" onclick="openCatalogDetail('+c.id+')" style="cursor:pointer">'+cover+adminEdit
     +   '<span style="position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.65);color:#fff;font-size:.56rem;font-weight:700;padding:2px 6px;border-radius:4px">'+catalogIcon(c.category)+' '+escHtml(c.category||'')+'</span>'
     + '</div>'
-    + '<div class="cvcat-body">'
+    + '<div class="cvcat-body" onclick="openCatalogDetail('+c.id+')" style="cursor:pointer">'
     +   '<div class="cvcat-name">'+escHtml(c.name)+'</div>'
     +   (meta?'<div class="cvcat-meta">'+escHtml(meta)+'</div>':'')
+    + '</div>'
+    + '<div style="display:flex;gap:6px;margin:0 10px 10px">'
+    +   '<button class="cvcat-btn cvcat-btn-add" style="flex:1;margin:0" onclick="event.stopPropagation();addFromCatalog('+c.id+')">+ Add</button>'
+    +   '<button class="cvcat-btn" style="flex:0 0 auto;margin:0;background:rgba(255,255,255,.06);color:var(--text-dim);border:1px solid rgba(255,255,255,.1)" onclick="event.stopPropagation();openCatalogDetail('+c.id+')">See more</button>'
     + '</div>'
     + '</div>';
 }
@@ -8700,9 +8704,10 @@ function openCatalogDetail(id){
     + (meta?'<div class="cd-meta">'+escHtml(meta)+'</div>':'')
     + (c.description?'<p class="cd-desc">'+escHtml(c.description)+'</p>':'')
     + '<div class="cd-actions">'
-    +   '<button class="cd-btn cd-btn-owned" onclick="addCatalogToCollection('+c.id+',\'owned\')">✓ Add to my collection</button>'
-    +   '<button class="cd-btn cd-btn-wish" onclick="addCatalogToCollection('+c.id+',\'wishlist\')">★ Add to my wishlist</button>'
+    +   '<button class="cd-btn cd-btn-owned" onclick="addFromCatalog('+c.id+')">✓ Add &amp; customize</button>'
+    +   '<button class="cd-btn cd-btn-wish" onclick="addCatalogToCollection('+c.id+',\'wishlist\')">★ Quick wishlist</button>'
     + '</div>'
+    + '<p style="font-size:.7rem;color:var(--text-dim);text-align:center;margin-top:8px">"Add &amp; customize" lets you set condition &amp; completeness before saving.</p>'
     + (isAdmin()?'<button class="cd-admin-edit" onclick="closeCatalogDetail();openCatalogEdit('+c.id+')">✏️ Edit entry (admin)</button>':'');
   document.getElementById('catalog-detail-overlay').classList.add('open');
 }
@@ -8735,6 +8740,40 @@ async function addCatalogToCollection(id, status){
     closeCatalogDetail();
     showToast(status==='owned' ? '✓ Added to your collection!' : '★ Added to your wishlist!', 'success');
   } catch(e){ showToast('Error: '+e.message, 'error'); }
+}
+
+// Open the full add form pre-filled from a catalog entry, so the user can
+// set condition / completeness / price BEFORE saving to their collection.
+function addFromCatalog(id){
+  if(!currentUser){ showToast('Please sign in first','error'); return; }
+  const c = catalogData.find(x=>String(x.id)===String(id));
+  if(!c) return;
+  closeCatalogDetail();
+  openModal();  // fresh add form
+  const typeMap = {Game:'Game',Figure:'Figure',Plush:'Plush',Statue:'Statue',Music:'Music',Artbook:'Artbook',Print:'Print',Clothing:'Clothing',Comic:'Comic',Manga:'Manga',Movie:'Movie',Misc:'Misc'};
+  // Prefill after the modal is open
+  setTimeout(()=>{
+    document.getElementById('inp-name').value = c.name||'';
+    // type
+    const typeSelect=document.getElementById('inp-type');
+    const typeVal = typeMap[c.category] || c.category || '';
+    let found=false;
+    for(let o of typeSelect.options){ if(o.value===typeVal){ found=true; break; } }
+    if(found){ typeSelect.value=typeVal; const tc=document.getElementById('inp-type-custom'); if(tc) tc.style.display='none'; }
+    // platform
+    if(c.platform && c.platform!=='-'){
+      const pfSel=document.getElementById('inp-platform');
+      let pf=false;
+      for(let o of pfSel.options){ if(o.value===c.platform){ pf=true; break; } }
+      if(pf){ pfSel.value=c.platform; document.getElementById('inp-platform-custom').style.display='none'; }
+      else { pfSel.value='__custom__'; const pc=document.getElementById('inp-platform-custom'); if(pc){ pc.style.display='block'; pc.value=c.platform; } }
+    }
+    if(c.region) document.getElementById('inp-region').value=c.region;
+    if(c.image_url) document.getElementById('inp-img').value=c.image_url;
+    document.getElementById('inp-status').value='owned';
+    // refresh the completeness fields for the chosen type
+    updateCompleteness();
+  }, 120);
 }
 
 // ---- Admin: add / edit / delete ----
