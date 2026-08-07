@@ -8632,39 +8632,56 @@ function renderCatalog(){
   const list = document.getElementById('catalog-list');
   let items = catalogData;
   if(catalogFilter!=='all') items = items.filter(c=>c.category===catalogFilter);
-  if(!items.length){ list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)">No entries yet.</div>'; return; }
+  if(!catalogData.length){ list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)">No entries yet.</div>'; return; }
 
-  // group by category (when showing all), else flat
+  // Dropdown filters: category + platform + search
+  const cats = [...new Set(catalogData.map(c=>c.category).filter(Boolean))].sort();
+  const platforms = [...new Set(catalogData.map(c=>c.platform).filter(p=>p&&p!=='-'))].sort();
   let html = '';
-  if(catalogFilter==='all'){
-    const cats = [...new Set(items.map(c=>c.category))];
-    cats.forEach(cat=>{
-      const group = items.filter(c=>c.category===cat);
-      html += '<div class="catalog-group"><div class="catalog-group-title">'+catalogIcon(cat)+' '+escHtml(cat)+' ('+group.length+')</div>';
-      group.forEach(c=>{ html += catalogRow(c); });
-      html += '</div>';
-    });
-  } else {
-    items.forEach(c=>{ html += catalogRow(c); });
-  }
+  html += '<input type="text" id="rccat-search" placeholder="🔍 Search the catalog..." oninput="filterRcCatalog()" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:11px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none;margin-bottom:12px"/>';
+  html += '<div class="cvcat-filters">'
+    + '<select id="rccat-filter-cat" onchange="filterRcCatalog()"><option value="">All types</option>'+cats.map(c=>'<option value="'+escHtml(c)+'">'+catalogIcon(c)+' '+escHtml(c)+'</option>').join('')+'</select>'
+    + '<select id="rccat-filter-platform" onchange="filterRcCatalog()"><option value="">All platforms</option>'+platforms.map(p=>'<option value="'+escHtml(p)+'">'+escHtml(p)+'</option>').join('')+'</select>'
+    + '</div>';
+
+  // Cards grid
+  html += '<div class="cvcat-grid" id="rccat-list">' + catalogData.map(c=>catalogCard(c)).join('') + '</div>';
+  html += '<div id="rccat-empty" style="display:none;text-align:center;padding:20px;color:var(--text-dim);font-size:.82rem">No match found.</div>';
   list.innerHTML = html;
 }
 
-function catalogRow(c){
-  const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.region].filter(Boolean).join(' · ');
-  const thumb = c.image_url
-    ? '<div class="catalog-thumb"><img src="'+escHtml(c.image_url)+'" loading="lazy" onerror="this.parentNode.innerHTML=\'<span class=&quot;catalog-thumb-icon&quot;>'+catalogIcon(c.category)+'</span>\'"/></div>'
-    : '<div class="catalog-thumb"><span class="catalog-thumb-icon">'+catalogIcon(c.category)+'</span></div>';
-  // Whole row opens the detail card. Admins get a small edit pencil instead of row-edit.
-  return '<div class="catalog-row admin-clickable" onclick="openCatalogDetail('+c.id+')">'
-    + thumb
-    + '<div class="catalog-info"><div class="catalog-name">'+escHtml(c.name)+'</div>'
-    + (meta?'<div class="catalog-meta">'+escHtml(meta)+'</div>':'')
-    + (c.description?'<div class="catalog-meta">'+escHtml(c.description)+'</div>':'')
+function catalogCard(c){
+  const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.year].filter(Boolean).join(' · ');
+  const adminEdit = isAdmin() ? '<button class="cvcat-admin-edit" onclick="event.stopPropagation();openCatalogEdit('+c.id+')">✏️</button>' : '';
+  const cover = c.image_url
+    ? '<img src="'+escHtml(c.image_url)+'" loading="lazy"/>'
+    : '<span class="cvcat-ph">'+catalogIcon(c.category)+'</span>';
+  return '<div class="cvcat-card rccat-row" data-name="'+escHtml((c.name+' '+(c.platform||'')).toLowerCase())+'" data-cat="'+escHtml(c.category||'')+'" data-platform="'+escHtml(c.platform||'')+'" onclick="openCatalogDetail('+c.id+')">'
+    + '<div class="cvcat-cover">'+cover+adminEdit
+    +   '<span style="position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.65);color:#fff;font-size:.56rem;font-weight:700;padding:2px 6px;border-radius:4px">'+catalogIcon(c.category)+' '+escHtml(c.category||'')+'</span>'
     + '</div>'
-    + (c.year?'<div class="catalog-year">'+c.year+'</div>':'')
-    + '<span class="catalog-chevron">›</span>'
+    + '<div class="cvcat-body">'
+    +   '<div class="cvcat-name">'+escHtml(c.name)+'</div>'
+    +   (meta?'<div class="cvcat-meta">'+escHtml(meta)+'</div>':'')
+    + '</div>'
     + '</div>';
+}
+
+function filterRcCatalog(){
+  const q=(document.getElementById('rccat-search')?.value||'').toLowerCase().trim();
+  const fc=document.getElementById('rccat-filter-cat')?.value||'';
+  const fp=document.getElementById('rccat-filter-platform')?.value||'';
+  const rows=document.querySelectorAll('.rccat-row');
+  let shown=0;
+  rows.forEach(r=>{
+    let ok = !q || (r.dataset.name||'').includes(q);
+    if(ok && fc) ok = (r.dataset.cat===fc);
+    if(ok && fp) ok = (r.dataset.platform===fp);
+    r.style.display = ok?'':'none';
+    if(ok) shown++;
+  });
+  const empty=document.getElementById('rccat-empty');
+  if(empty) empty.style.display = shown===0?'block':'none';
 }
 
 // ---- Catalog detail card (everyone) ----
