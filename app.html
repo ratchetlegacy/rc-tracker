@@ -449,15 +449,15 @@
 
     /* APP */
     #app-screen{display:none}
-    header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 50%,#0D1520 100%);border-bottom:1px solid rgba(123,79,212,.3);padding:16px 24px;position:relative;overflow:hidden}
+    header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 50%,#0D1520 100%);border-bottom:1px solid rgba(123,79,212,.3);padding:16px 24px;position:relative}
+    .header-top{display:flex;align-items:center;gap:14px;margin-bottom:18px;position:sticky;top:0;z-index:200;background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 60%,#0D1520 100%);margin-left:-24px;margin-right:-24px;padding:12px 24px;border-bottom:1px solid rgba(123,79,212,.2)}
     .hamburger-btn{background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 12px;color:var(--chrome);font-size:1.1rem;cursor:pointer;flex-shrink:0}
     .hamburger-btn:hover{background:rgba(255,255,255,.08)}
     .header-profile-btn{margin-left:auto;display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.05);border:1px solid rgba(123,79,212,.3);border-radius:30px;padding:5px 14px 5px 5px;cursor:pointer;transition:all .2s;flex-shrink:0}
     .header-profile-btn:hover{background:rgba(123,79,212,.18);border-color:rgba(123,79,212,.5)}
     .header-profile-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--orange));display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;box-shadow:0 2px 8px rgba(123,79,212,.4)}
     .header-profile-pseudo{font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--text);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    header::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(123,79,212,.15) 0%,transparent 70%);pointer-events:none}
-    .header-top{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+    header::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(123,79,212,.15) 0%,transparent 70%);pointer-events:none;z-index:0}
     .logo-img{width:52px;height:52px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 20px rgba(123,79,212,.4);position:relative}
     .logo-img img{width:100%;height:100%;object-fit:cover}
     .logo-img .logo-fallback{display:none;width:100%;height:100%;background:linear-gradient(135deg,var(--purple),var(--orange));align-items:center;justify-content:center;font-size:22px;position:absolute;top:0;left:0}
@@ -9178,9 +9178,16 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
   // Keep a "depth" of pushed history states matching how many layers are open.
   // Whenever a layer opens and we have no trap state queued, push one.
   let trapDepth = 0;
+  function anythingOpenOrCollection(){
+    if(anythingOpen()) return true;
+    const appScreen=document.getElementById('app-screen');
+    const homeScreen=document.getElementById('home-screen');
+    const onCollection = appScreen && appScreen.style.display!=='none';
+    const onHome = homeScreen && homeScreen.style.display!=='none';
+    return onCollection && !onHome;
+  }
   function ensureTrap(){
-    // We always want at least ONE dummy state in front of the app when any layer is open.
-    if(anythingOpen() && trapDepth===0){
+    if(anythingOpenOrCollection() && trapDepth===0){
       history.pushState({rcTrap:true, t:Date.now()}, '');
       trapDepth++;
     }
@@ -9204,10 +9211,29 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
       if(anythingOpen()){
         history.pushState({rcTrap:true, t:Date.now()}, '');
         trapDepth++;
+      } else {
+        rearmHomeTrap();
       }
+      return;
     }
-    // if nothing was open, allow normal navigation (exit / previous page)
+    // No overlay open. If we're on the main collection screen (not home), go home instead of exiting.
+    const appScreen=document.getElementById('app-screen');
+    const homeScreen=document.getElementById('home-screen');
+    const onCollection = appScreen && appScreen.style.display!=='none';
+    const onHome = homeScreen && homeScreen.style.display!=='none';
+    if(onCollection && !onHome){
+      if(typeof closeAllScreensToHome==='function') closeAllScreensToHome();
+      else if(typeof showHome==='function') showHome();
+      rearmHomeTrap();
+      return;
+    }
+    // On home (or anywhere else with nothing open): let the OS handle it (may exit).
   });
+  // Keep one trap in front of the home screen so the FIRST back press is captured
+  function rearmHomeTrap(){
+    history.pushState({rcTrap:true, t:Date.now()}, '');
+    trapDepth = 1;
+  }
 })();
 
 // On load: show the banner + refresh the menu button
