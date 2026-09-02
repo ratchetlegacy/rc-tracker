@@ -7808,22 +7808,22 @@ function renderHome(){
   // pseudo + avatar
   const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id) || 'Collector';
   const avatar = localStorage.getItem('rc_avatar_'+currentUser.id) || '🦊';
-  document.getElementById('home-pseudo').textContent = pseudo;
-  document.getElementById('home-avatar').textContent = avatar;
-  // rank label (no progress bar in the sober home)
+  const _pseudo=document.getElementById('home-pseudo'); if(_pseudo) _pseudo.textContent = pseudo;
+  const _avatar=document.getElementById('home-avatar'); if(_avatar) _avatar.textContent = avatar;
+  // rank label (optional element)
   const owned = items.filter(i=>i.status==='owned').length;
   const rank = getRank(owned);
-  document.getElementById('home-rank').textContent = rank.icon+' '+rank.name;
-  document.getElementById('home-rank').style.color = rank.color;
+  const _rank=document.getElementById('home-rank');
+  if(_rank){ _rank.textContent = rank.icon+' '+rank.name; _rank.style.color = rank.color; }
   // stats
   const wish = items.filter(i=>i.status==='wishlist').length;
-  document.getElementById('home-owned').textContent = owned;
-  document.getElementById('home-wish').textContent = wish;
+  const _owned=document.getElementById('home-owned'); if(_owned) _owned.textContent = owned;
+  const _wish=document.getElementById('home-wish'); if(_wish) _wish.textContent = wish;
   const pct = (rcCollectionTotal>0) ? Math.round((owned/rcCollectionTotal)*100) : 0;
-  document.getElementById('home-completion').textContent = pct+'%';
+  const _comp=document.getElementById('home-completion'); if(_comp) _comp.textContent = pct+'%';
   // total value
   const val = items.filter(i=>i.status==='owned').reduce((s,i)=>s+(parseFloat(i.cur_value)||0),0);
-  document.getElementById('home-value').textContent = val>0 ? fmtEurS(val) : '—';
+  const _val=document.getElementById('home-value'); if(_val) _val.textContent = val>0 ? fmtEurS(val) : '—';
   const rcCount=document.getElementById('home-rc-count');
   if(rcCount) rcCount.textContent = owned+' / '+(rcCollectionTotal||'?')+' owned';
   const rcFill=document.getElementById('home-rc-fill');
