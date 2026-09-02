@@ -7239,7 +7239,7 @@ function setNavActive(tab){
 }
 function navGo(tab){
   if(tab==='profile'){
-    closeAnyCollectionScreens();
+    closeAnyCollectionScreens('profile-screen');
     if(typeof openProfile==='function'){ openProfile(); }
     setNavActive('profile');
   } else if(tab==='search'){
@@ -7253,9 +7253,10 @@ function navGo(tab){
     setNavActive('more');
   }
 }
-function closeAnyCollectionScreens(){
+function closeAnyCollectionScreens(exceptId){
   ['collection-view-screen','subcoll-screen','catalog-screen','stats-screen','profile-screen','friends-screen','themes-screen','wiki-screen','guide-screen','compare-screen','market-screen','other-screen'].forEach(id=>{
-    const el=document.getElementById(id); if(el){ el.classList.remove('open'); el.style.display='none'; }
+    if(id===exceptId) return;
+    const el=document.getElementById(id); if(el){ el.classList.remove('open'); }
   });
 }
 // The central + button does different things depending on where you are
@@ -7277,8 +7278,35 @@ function navContextualAdd(){
   else { showToast('Open a collection to add items','info'); }
 }
 function openGlobalSearch(){
-  // lightweight: focus the R&C search if present, else toast
-  showToast('Search coming here soon 🔍','info');
+  const ov=document.getElementById('globalsearch-overlay');
+  if(ov){ ov.classList.add('open'); const inp=document.getElementById('gs-input'); if(inp){ inp.value=''; setTimeout(()=>inp.focus(),100); } document.getElementById('gs-results').innerHTML='<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:.85rem">Type to search your collection…</div>'; }
+}
+function closeGlobalSearch(){ const ov=document.getElementById('globalsearch-overlay'); if(ov) ov.classList.remove('open'); setNavActive('profile'); }
+async function runGlobalSearch(){
+  const q=(document.getElementById('gs-input').value||'').trim().toLowerCase();
+  const box=document.getElementById('gs-results');
+  if(q.length<2){ box.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:.85rem">Type at least 2 letters…</div>'; return; }
+  let results=[];
+  // R&C items
+  (items||[]).forEach(i=>{ if((i.name||'').toLowerCase().includes(q)) results.push({name:i.name, sub:'Ratchet & Clank · '+(i.type||''), img:rcItemImage(i), status:i.status}); });
+  // Other collections items
+  try {
+    const { data } = await sbClient.from('other_items')
+      .select('name,status,image_url,other_catalog(name,image_url,collection_id)')
+      .eq('user_id',currentUser.id).ilike('name','%'+q+'%').limit(40);
+    (data||[]).forEach(r=>{
+      const img=(r.other_catalog&&r.other_catalog.image_url)||r.image_url||'';
+      results.push({name:r.name, sub:'Collection', img, status:r.status});
+    });
+  } catch(e){}
+  if(!results.length){ box.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:.85rem">No match found for "'+escHtml(q)+'"</div>'; return; }
+  box.innerHTML = results.slice(0,50).map(r=>{
+    const badge = r.status==='owned' ? '<span style="font-size:.6rem;color:var(--owned)">✓ owned</span>' : (r.status==='wishlist'?'<span style="font-size:.6rem;color:var(--wishlist)">★ wishlist</span>':'');
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px;border-bottom:1px solid rgba(255,255,255,.06)">'
+      + '<div style="width:44px;height:44px;border-radius:8px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">'+(r.img?'<img src="'+escHtml(r.img)+'" style="width:100%;height:100%;object-fit:cover"/>':'📦')+'</div>'
+      + '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(r.name)+'</div><div style="font-size:.68rem;color:var(--text-dim)">'+escHtml(r.sub)+' '+badge+'</div></div>'
+      + '</div>';
+  }).join('');
 }
 function closeHome(){ document.getElementById('home-screen').style.display='none'; document.body.classList.remove('on-home'); }
 
@@ -9472,6 +9500,16 @@ boot();
   </a>
   <a href="legal.html" class="footer-legal">Terms & Privacy</a>
   <span style="font-size:.55rem;color:var(--text-dim)"data-i18n="footer_made">Made with ❤️ by Ratchet Legacy</span>
+</div>
+
+<!-- GLOBAL SEARCH OVERLAY -->
+<div class="modal-overlay" id="globalsearch-overlay" style="z-index:520">
+  <div class="modal" style="max-width:520px;max-height:85vh;display:flex;flex-direction:column">
+    <button class="modal-close" onclick="closeGlobalSearch()">✕</button>
+    <h2 style="margin-bottom:12px">🔍 Search</h2>
+    <input type="text" id="gs-input" placeholder="Search all your collections..." oninput="runGlobalSearch()" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:12px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.9rem;outline:none;margin-bottom:12px"/>
+    <div id="gs-results" style="flex:1;overflow-y:auto"></div>
+  </div>
 </div>
 
 <!-- BOTTOM NAVIGATION BAR -->
