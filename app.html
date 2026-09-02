@@ -593,7 +593,7 @@
     .action-btn.del-btn:hover{border-color:rgba(255,77,106,.4);color:var(--missing)}
 
     /* MODAL */
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
     .modal-overlay.open{display:flex}
     .modal{background:var(--bg3);border:1px solid rgba(123,79,212,.3);border-radius:18px;padding:26px;width:100%;max-width:520px;position:relative;max-height:94vh;overflow-y:auto}
     .modal h2{font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.08em;margin-bottom:18px;color:var(--purple-light)}
@@ -738,6 +738,7 @@
     .gallery-confirm{padding:8px 18px;background:linear-gradient(135deg,var(--purple),var(--orange));border:none;border-radius:8px;color:#fff;font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700;cursor:pointer}
     .gallery-cancel{padding:8px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-family:'Inter',sans-serif;font-size:.78rem;cursor:pointer}
     /* ADMIN PANEL */
+    body.has-bnav .admin-screen,body.has-bnav .stats-screen{padding-bottom:80px}
     .admin-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto}
     .admin-screen.open{display:block}
     .admin-header{background:linear-gradient(135deg,#0D0F1A,#1A1035);border-bottom:1px solid rgba(255,107,26,.3);padding:20px 32px;display:flex;align-items:center;gap:14px}
@@ -7261,21 +7262,15 @@ function closeAnyCollectionScreens(exceptId){
 }
 // The central + button does different things depending on where you are
 function navContextualAdd(){
-  // If we're inside a collection view, add an item to it
+  // If we're inside another collection view, go to its catalog tab
   const cv=document.getElementById('collection-view-screen');
   if(cv && (cv.classList.contains('open')||cv.style.display!=='none') && currentCollView){
-    // open that collection's catalog tab (where the user adds)
     if(typeof cvSwitch==='function'){ cvSwitch('catalog'); }
     return;
   }
-  // If we're on the main R&C collection screen, open the add-object modal
-  const appScreen=document.getElementById('app-screen');
-  if(appScreen && appScreen.style.display!=='none'){
-    if(typeof openModal==='function'){ openModal(); return; }
-  }
-  // Otherwise (on Home): create a new collection (admin) or prompt
-  if(isAdmin() && typeof openCollManager==='function'){ openCollManager(); }
-  else { showToast('Open a collection to add items','info'); }
+  // Everywhere else (Home or R&C screen): open the R&C catalog to pick an item,
+  // which then launches the simple step-by-step add wizard.
+  if(typeof openCatalog==='function'){ openCatalog(); showToast('Pick an item, then tap + Add','info'); }
 }
 function openGlobalSearch(){
   const ov=document.getElementById('globalsearch-overlay');
@@ -8882,38 +8877,123 @@ async function addCatalogToCollection(id, status){
   } catch(e){ showToast('Error: '+e.message, 'error'); }
 }
 
-// Open the full add form pre-filled from a catalog entry, so the user can
-// set condition / completeness / price BEFORE saving to their collection.
+// ===== Quick Add Wizard (step-by-step, prefilled from catalog) =====
+let awState = null;
 function addFromCatalog(id){
   if(!currentUser){ showToast('Please sign in first','error'); return; }
   const c = catalogData.find(x=>String(x.id)===String(id));
   if(!c) return;
   closeCatalogDetail();
-  openModal();  // fresh add form
-  const typeMap = {Game:'Game',Figure:'Figure',Plush:'Plush',Statue:'Statue',Music:'Music',Artbook:'Artbook',Print:'Print',Clothing:'Clothing',Comic:'Comic',Manga:'Manga',Movie:'Movie',Misc:'Misc'};
-  // Prefill after the modal is open
-  setTimeout(()=>{
-    document.getElementById('inp-name').value = c.name||'';
-    // type
-    const typeSelect=document.getElementById('inp-type');
-    const typeVal = typeMap[c.category] || c.category || '';
-    let found=false;
-    for(let o of typeSelect.options){ if(o.value===typeVal){ found=true; break; } }
-    if(found){ typeSelect.value=typeVal; const tc=document.getElementById('inp-type-custom'); if(tc) tc.style.display='none'; }
-    // platform
-    if(c.platform && c.platform!=='-'){
-      const pfSel=document.getElementById('inp-platform');
-      let pf=false;
-      for(let o of pfSel.options){ if(o.value===c.platform){ pf=true; break; } }
-      if(pf){ pfSel.value=c.platform; document.getElementById('inp-platform-custom').style.display='none'; }
-      else { pfSel.value='__custom__'; const pc=document.getElementById('inp-platform-custom'); if(pc){ pc.style.display='block'; pc.value=c.platform; } }
+  // Map catalog category to an item type that has completeness config
+  const typeMap = {Game:'Physical game',Figure:'Figure',Plush:'Plush',Statue:'Statuette',Music:'Soundtrack',Artbook:'Art Book',Print:'Print',Clothing:'Clothing',Comic:'Comics',Manga:'Manga',Movie:'Film',Misc:'Misc'};
+  const type = typeMap[c.category] || c.category || 'Misc';
+  awState = {
+    catalog: c,
+    type: type,
+    step: 0,
+    status: 'owned',
+    condition: 'occasion',
+    completeness: {},   // key -> true/false
+    buy_price: ''
+  };
+  // Prefill completeness keys as present by default
+  (COMPLETENESS_CONFIG[type]||[]).forEach(f=>{ awState.completeness[f.k]='present'; });
+  // Build steps list (skip completeness step if this type has none)
+  awState.steps = ['status','condition'];
+  if((COMPLETENESS_CONFIG[type]||[]).length) awState.steps.push('completeness');
+  awState.steps.push('price');
+  // Header
+  document.getElementById('aw-name').textContent = c.name||'Item';
+  document.getElementById('aw-meta').textContent = [c.platform&&c.platform!=='-'?c.platform:'', c.year].filter(Boolean).join(' · ');
+  const cover=document.getElementById('aw-cover');
+  cover.innerHTML = c.image_url ? '<img src="'+escHtml(c.image_url)+'" style="width:100%;height:100%;object-fit:cover"/>' : (catalogIcon(c.category)||'🎮');
+  document.getElementById('addwiz-overlay').classList.add('open');
+  awRender();
+}
+function closeAddWiz(){ document.getElementById('addwiz-overlay').classList.remove('open'); awState=null; }
+function awRender(){
+  if(!awState) return;
+  const step = awState.steps[awState.step];
+  // progress bar
+  document.getElementById('aw-progress').innerHTML = awState.steps.map((s,i)=>
+    '<div style="flex:1;height:4px;border-radius:2px;background:'+(i<=awState.step?'var(--purple)':'rgba(255,255,255,.12)')+'"></div>'
+  ).join('');
+  document.getElementById('aw-step-label').textContent = 'Step '+(awState.step+1)+' / '+awState.steps.length;
+  const body = document.getElementById('aw-body');
+  const q = document.getElementById('aw-question');
+  const bigBtn = (active,onclick,icon,title,sub)=>
+    '<div onclick="'+onclick+'" style="background:var(--bg2);border:2px solid '+(active?'var(--purple)':'rgba(255,255,255,.1)')+';border-radius:12px;padding:15px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:10px">'
+    + '<div style="font-size:1.4rem">'+icon+'</div>'
+    + '<div style="flex:1"><div style="color:var(--text);font-weight:600;font-size:.9rem">'+title+'</div>'+(sub?'<div style="color:var(--text-dim);font-size:.72rem">'+sub+'</div>':'')+'</div>'
+    + (active?'<div style="color:var(--purple-light);font-size:1.1rem">✓</div>':'')
+    + '</div>';
+
+  if(step==='status'){
+    q.textContent = 'Do you own it?';
+    body.innerHTML =
+      bigBtn(awState.status==='owned',"awSet('status','owned')",'✓','I own it','In my collection')
+      + bigBtn(awState.status==='wishlist',"awSet('status','wishlist')",'★','Wishlist','I want it');
+  } else if(step==='condition'){
+    q.textContent = 'What condition?';
+    body.innerHTML =
+      bigBtn(awState.condition==='neuf_blister',"awSet('condition','neuf_blister')",'✨','New / Sealed','Never opened')
+      + bigBtn(awState.condition==='occasion',"awSet('condition','occasion')",'📦','Pre-owned','Used / opened');
+  } else if(step==='completeness'){
+    q.textContent = 'What\'s included?';
+    if(awState.condition==='neuf_blister'){
+      body.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;padding:10px;background:var(--bg2);border-radius:10px">✨ Sealed item — everything is included automatically.</div>';
+    } else {
+      const fields = COMPLETENESS_CONFIG[awState.type]||[];
+      body.innerHTML = fields.map(f=>{
+        const on = awState.completeness[f.k]==='present';
+        return '<div onclick="awToggleComp(\''+f.k+'\')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border:2px solid '+(on?'var(--owned)':'rgba(255,255,255,.1)')+';border-radius:10px;margin-bottom:8px;cursor:pointer">'
+          + '<div style="font-size:1.2rem">'+f.i+'</div>'
+          + '<div style="flex:1;color:var(--text);font-weight:600;font-size:.85rem">'+f.l+'</div>'
+          + '<div style="font-size:1.1rem">'+(on?'✅':'⬜')+'</div>'
+          + '</div>';
+      }).join('');
     }
-    if(c.region) document.getElementById('inp-region').value=c.region;
-    if(c.image_url) document.getElementById('inp-img').value=c.image_url;
-    document.getElementById('inp-status').value='owned';
-    // refresh the completeness fields for the chosen type
-    updateCompleteness();
-  }, 120);
+  } else if(step==='price'){
+    q.textContent = 'Purchase price?';
+    body.innerHTML = '<input type="number" id="aw-price-input" value="'+(awState.buy_price||'')+'" placeholder="0.00" step="0.01" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:14px;color:var(--text);font-size:1.1rem;outline:none;text-align:center" oninput="awState.buy_price=this.value"/>'
+      + '<div style="text-align:center;color:var(--text-dim);font-size:.72rem;margin-top:8px">Optional — leave empty if unknown</div>';
+  }
+  // buttons
+  document.getElementById('aw-back').style.display = awState.step>0 ? 'block' : 'none';
+  document.getElementById('aw-next').textContent = (awState.step===awState.steps.length-1) ? '✓ Add to collection' : 'Continue →';
+}
+function awSet(key,val){ awState[key]=val; awRender(); }
+function awToggleComp(k){ awState.completeness[k] = (awState.completeness[k]==='present')?'absent':'present'; awRender(); }
+function awBack(){ if(awState.step>0){ awState.step--; awRender(); } }
+async function awNext(){
+  if(awState.step < awState.steps.length-1){ awState.step++; awRender(); return; }
+  // Final step → save
+  const c = awState.catalog;
+  const row = {
+    user_id: currentUser.id,
+    name: c.name,
+    type: awState.type,
+    platform: (c.platform&&c.platform!=='-')?c.platform:null,
+    region: c.region||null,
+    img_url: c.image_url||null,
+    status: awState.status,
+    condition: awState.condition,
+    buy_price: awState.buy_price!==''?parseFloat(awState.buy_price):null
+  };
+  // completeness
+  if(awState.condition==='neuf_blister'){
+    (COMPLETENESS_CONFIG[awState.type]||[]).forEach(f=>{ row['comp_'+f.k]='present'; });
+  } else {
+    (COMPLETENESS_CONFIG[awState.type]||[]).forEach(f=>{ row['comp_'+f.k]=awState.completeness[f.k]||'absent'; });
+  }
+  try {
+    const { data, error } = await sbClient.from('items').insert([row]).select('*').single();
+    if(error){ showToast('Error: '+error.message,'error'); return; }
+    if(data){ items.push(migrateItemLang(data)); }
+    showToast(awState.status==='wishlist'?'Added to wishlist ★':'Added to your collection ✓','success');
+    closeAddWiz();
+    render();
+  } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 
 // ---- Admin: add / edit / delete ----
@@ -9380,7 +9460,7 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
     'news-edit-overlay','news-popup-overlay','catitem-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
-    'collmanager-overlay','catalogedit-overlay','catreq-overlay','pasteimport-overlay','catreqreview-overlay','delacc-overlay','collection-view-screen','subcoll-screen'
+    'collmanager-overlay','catalogedit-overlay','catreq-overlay','pasteimport-overlay','catreqreview-overlay','delacc-overlay','addwiz-overlay','globalsearch-overlay','collection-view-screen','subcoll-screen'
   ];
   // Return the topmost open closable element, or null
   function topOpen(){
@@ -9500,6 +9580,32 @@ boot();
   </a>
   <a href="legal.html" class="footer-legal">Terms & Privacy</a>
   <span style="font-size:.55rem;color:var(--text-dim)"data-i18n="footer_made">Made with ❤️ by Ratchet Legacy</span>
+</div>
+
+<!-- QUICK ADD WIZARD (step by step, prefilled from catalog) -->
+<div class="modal-overlay" id="addwiz-overlay" style="z-index:560">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeAddWiz()">✕</button>
+    <!-- Item header (prefilled) -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)">
+      <div id="aw-cover" style="width:50px;height:64px;border-radius:6px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.6rem">🎮</div>
+      <div style="min-width:0">
+        <div id="aw-name" style="color:var(--text);font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Item</div>
+        <div id="aw-meta" style="color:var(--text-dim);font-size:.75rem"></div>
+      </div>
+    </div>
+    <!-- Progress -->
+    <div id="aw-progress" style="display:flex;gap:6px;margin-bottom:18px"></div>
+    <!-- Step content -->
+    <div id="aw-step-label" style="color:var(--text-dim);font-size:.72rem;margin-bottom:4px"></div>
+    <div id="aw-question" style="color:var(--text);font-weight:700;font-size:1.15rem;margin-bottom:16px"></div>
+    <div id="aw-body" style="margin-bottom:22px"></div>
+    <!-- Nav buttons -->
+    <div style="display:flex;gap:10px">
+      <button id="aw-back" onclick="awBack()" style="flex:0 0 auto;background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--text-dim);border-radius:10px;padding:13px 18px;font-weight:600;cursor:pointer;display:none">← Back</button>
+      <button id="aw-next" onclick="awNext()" style="flex:1;background:var(--purple);border:none;color:#fff;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">Continue →</button>
+    </div>
+  </div>
 </div>
 
 <!-- GLOBAL SEARCH OVERLAY -->
