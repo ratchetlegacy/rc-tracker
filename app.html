@@ -1081,27 +1081,38 @@
     .home-coll-count{font-size:.78rem;color:var(--text-dim)}
     .home-coll-accent{position:absolute;top:0;left:0;bottom:0;width:4px}
     .home-coll-arrow{color:var(--text-dim);font-size:1.3rem;flex-shrink:0}
-    /* Collection view tabs */
-    .cv-tabs{display:flex;gap:4px;padding:0 16px;max-width:600px;margin:0 auto;overflow-x:auto}
+    /* Bottom navigation bar */
+    .bnav{position:fixed;bottom:0;left:0;right:0;z-index:400;display:flex;align-items:center;background:var(--bg2);border-top:1px solid rgba(255,255,255,.08);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));backdrop-filter:blur(10px)}
+    .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;background:none;border:none;cursor:pointer;color:var(--text-dim);font-family:Inter,sans-serif;font-size:.62rem;font-weight:600;transition:color .15s}
+    .bnav-item .bnav-ic{font-size:1.25rem;line-height:1}
+    .bnav-item.active{color:var(--purple-light)}
+    .bnav-add{flex:0 0 auto;margin:0 4px}
+    .bnav-add-btn{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--orange));border:none;color:#fff;font-size:1.8rem;font-weight:300;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px -2px rgba(123,79,212,.6);margin-top:-14px;transition:transform .12s}
+    .bnav-add-btn:active{transform:scale(.92)}
+    body.has-bnav #app-screen,body.has-bnav #home-screen,body.has-bnav .collection-view-screen{padding-bottom:76px}
     /* Catalog card grid (Steam/Epic style) */
     .cvcat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     @media(max-width:380px){.cvcat-grid{grid-template-columns:1fr 1fr;gap:10px}}
-    .cvcat-card{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;transition:transform .12s,border-color .12s;cursor:pointer}
-    .cvcat-card:hover{transform:translateY(-3px);border-color:var(--purple)}
+    .cvcat-card{background:var(--bg2);border:1px solid transparent;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s,border-color .18s;position:relative}
+    .cvcat-card:hover{transform:translateY(-5px);border-color:var(--purple);box-shadow:0 10px 26px -6px rgba(123,79,212,.55),0 4px 10px rgba(0,0,0,.4)}
     .cvcat-cover{width:100%;aspect-ratio:3/4;background:var(--bg3);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
-    .cvcat-cover img{width:100%;height:100%;object-fit:cover}
+    .cvcat-cover img{width:100%;height:100%;object-fit:cover;transition:transform .35s cubic-bezier(.2,.7,.3,1)}
+    .cvcat-card:hover .cvcat-cover img{transform:scale(1.07)}
+    .cvcat-cover::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.55) 0%,transparent 45%);opacity:0;transition:opacity .18s}
+    .cvcat-card:hover .cvcat-cover::after{opacity:1}
     .cvcat-cover .cvcat-ph{font-size:2.4rem;opacity:.25}
-    .cvcat-owned-flag{position:absolute;top:6px;right:6px;background:var(--owned);color:#062;font-size:.58rem;font-weight:800;padding:3px 7px;border-radius:4px;letter-spacing:.03em}
-    .cvcat-admin-edit{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);border:none;color:#fff;font-size:.8rem;width:26px;height:26px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .cvcat-owned-flag{position:absolute;top:6px;right:6px;background:var(--owned);color:#062;font-size:.58rem;font-weight:800;padding:3px 7px;border-radius:4px;letter-spacing:.03em;z-index:2}
+    .cvcat-admin-edit{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);border:none;color:#fff;font-size:.8rem;width:26px;height:26px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
     .cvcat-body{padding:9px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
     .cvcat-name{font-weight:700;font-size:.82rem;color:var(--text);line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .cvcat-meta{font-size:.66rem;color:var(--text-dim)}
-    .cvcat-btn{margin:0 10px 10px;border:none;border-radius:6px;padding:9px;font-weight:700;font-size:.74rem;cursor:pointer;font-family:Inter,sans-serif}
+    .cvcat-btn{margin:0 10px 10px;border:none;border-radius:5px;padding:9px;font-weight:700;font-size:.74rem;cursor:pointer;font-family:Inter,sans-serif;transition:background .15s,transform .1s}
+    .cvcat-btn:active{transform:scale(.96)}
     .cvcat-btn-add{background:var(--purple);color:#fff}
     .cvcat-btn-add:hover{background:var(--purple-light)}
     .cvcat-btn-owned{background:rgba(61,214,140,.15);color:var(--owned);border:1px solid rgba(61,214,140,.35)}
     .cvcat-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-    .cvcat-filters select{flex:1;min-width:100px;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:9px 10px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none}
+    .cvcat-filters select{flex:1;min-width:100px;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:9px 10px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none}
     .cv-tab{flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-dim);padding:12px 6px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s}
     .cv-tab.active{color:var(--purple-light);border-bottom-color:var(--purple)}
     .home-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
@@ -3854,7 +3865,9 @@ async function launchApp(){
     refreshCatReqBadge();
     loadCollections();
   }
-  const _ff = document.getElementById('fixed-footer'); if(_ff) _ff.style.display = 'flex';
+  const _ff = document.getElementById('fixed-footer'); if(_ff) _ff.style.display = 'none';
+  const _bn = document.getElementById('bottom-nav'); if(_bn) _bn.style.display = 'flex';
+  document.body.classList.add('has-bnav');
   // Sync mobile header
   function syncMobileHeader(){
     const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'R&C';
@@ -7187,6 +7200,66 @@ function showHome(){
   renderHome();
   loadNews();
   renderHomeCollections();
+  setNavActive('home');
+}
+
+// ── Bottom navigation bar ──
+let navCurrentTab = 'home';
+function setNavActive(tab){
+  navCurrentTab = tab;
+  document.querySelectorAll('.bnav-item').forEach(el=>{
+    el.classList.toggle('active', el.dataset.tab===tab);
+  });
+}
+function navGo(tab){
+  // Close any open collection view / overlays first
+  if(typeof closeAllScreensToHome==='function' && tab!=='add'){ /* handled per-tab below */ }
+  if(tab==='home'){
+    closeAnyCollectionScreens();
+    showHome();
+  } else if(tab==='search'){
+    closeAnyCollectionScreens();
+    showHome();
+    setTimeout(()=>{ openGlobalSearch(); }, 60);
+    setNavActive('search');
+  } else if(tab==='add'){
+    navContextualAdd();
+  } else if(tab==='stats'){
+    closeAnyCollectionScreens();
+    if(typeof openStats==='function'){ openStats(); }
+    else { showHome(); }
+    setNavActive('stats');
+  } else if(tab==='more'){
+    openMobileMenu();
+    setNavActive('more');
+  }
+}
+function closeAnyCollectionScreens(){
+  ['collection-view-screen','subcoll-screen','catalog-screen','stats-screen','profile-screen','friends-screen','themes-screen','wiki-screen','guide-screen','compare-screen','market-screen','other-screen'].forEach(id=>{
+    const el=document.getElementById(id); if(el){ el.classList.remove('open'); el.style.display='none'; }
+  });
+}
+// The central + button does different things depending on where you are
+function navContextualAdd(){
+  // If we're inside a collection view, add an item to it
+  const cv=document.getElementById('collection-view-screen');
+  if(cv && (cv.classList.contains('open')||cv.style.display!=='none') && currentCollView){
+    // open that collection's catalog tab (where the user adds)
+    if(typeof cvSwitch==='function'){ cvSwitch('catalog'); }
+    return;
+  }
+  // If we're on the main R&C collection screen, open the add-object modal
+  const appScreen=document.getElementById('app-screen');
+  if(appScreen && appScreen.style.display!=='none'){
+    if(typeof openModal==='function'){ openModal(); return; }
+  }
+  // Otherwise (on Home): create a new collection (admin) or prompt
+  if(isAdmin() && typeof openCollManager==='function'){ openCollManager(); }
+  else { showToast('Open a collection to add items','info'); }
+}
+function openGlobalSearch(){
+  // lightweight: focus the R&C search if present, else toast
+  showToast('Search coming here soon 🔍','info');
 }
 function closeHome(){ document.getElementById('home-screen').style.display='none'; document.body.classList.remove('on-home'); }
 
@@ -9360,6 +9433,25 @@ boot();
   </a>
   <a href="legal.html" class="footer-legal">Terms & Privacy</a>
   <span style="font-size:.55rem;color:var(--text-dim)"data-i18n="footer_made">Made with ❤️ by Ratchet Legacy</span>
+</div>
+
+<!-- BOTTOM NAVIGATION BAR -->
+<div class="bnav" id="bottom-nav" style="display:none">
+  <button class="bnav-item active" data-tab="home" onclick="navGo('home')">
+    <span class="bnav-ic">🏠</span><span>Home</span>
+  </button>
+  <button class="bnav-item" data-tab="search" onclick="navGo('search')">
+    <span class="bnav-ic">🔍</span><span>Search</span>
+  </button>
+  <div class="bnav-add">
+    <button class="bnav-add-btn" onclick="navGo('add')" aria-label="Add">+</button>
+  </div>
+  <button class="bnav-item" data-tab="stats" onclick="navGo('stats')">
+    <span class="bnav-ic">📊</span><span>Stats</span>
+  </button>
+  <button class="bnav-item" data-tab="more" onclick="navGo('more')">
+    <span class="bnav-ic">⚙️</span><span>More</span>
+  </button>
 </div>
 
 </body>
