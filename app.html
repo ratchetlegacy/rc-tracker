@@ -1081,6 +1081,34 @@
     .home-coll-count{font-size:.78rem;color:var(--text-dim)}
     .home-coll-accent{position:absolute;top:0;left:0;bottom:0;width:4px}
     .home-coll-arrow{color:var(--text-dim);font-size:1.3rem;flex-shrink:0}
+    /* Home featured Netflix tile */
+    .home-featured-tile{position:relative;border-radius:14px;overflow:hidden;height:150px;cursor:pointer;margin-bottom:4px;display:flex;align-items:flex-end}
+    .home-featured-bg{position:absolute;inset:0;background:linear-gradient(135deg,rgba(123,79,212,.55),rgba(255,107,26,.4));background-size:cover;background-position:center}
+    .home-featured-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8) 0%,rgba(0,0,0,.15) 65%)}
+    .home-featured-badge{position:absolute;top:12px;left:12px;font-size:.6rem;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;padding:3px 9px;border-radius:5px;font-weight:800;letter-spacing:.06em;z-index:3}
+    .home-featured-logo{position:absolute;top:38px;left:16px;font-size:2.6rem;z-index:2;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+    .home-featured-content{position:relative;z-index:3;padding:16px}
+    .home-featured-name{font-family:'Orbitron',sans-serif;color:#fff;font-weight:800;font-size:1.3rem;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+    .home-featured-count{color:#e8eaf0;font-size:.8rem;margin-top:2px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+    .home-featured-bar{height:5px;background:rgba(0,0,0,.5);border-radius:3px;margin-top:8px;overflow:hidden;max-width:220px}
+    .home-featured-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--orange));border-radius:3px;transition:width .5s}
+    /* Home collection tiles (Netflix grid) */
+    .home-tiles{display:flex;flex-direction:column;gap:10px}
+    .home-tile-wide{position:relative;border-radius:12px;overflow:hidden;height:84px;cursor:pointer;display:flex;align-items:center;padding:0 16px}
+    .home-tile-wide .htw-bg{position:absolute;inset:0;opacity:.9}
+    .home-tile-wide .htw-shade{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.45),transparent 70%)}
+    .home-tile-wide .htw-ic{position:relative;font-size:1.9rem;margin-right:14px;z-index:2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+    .home-tile-wide .htw-info{position:relative;z-index:2;flex:1}
+    .home-tile-wide .htw-name{color:#fff;font-weight:700;font-size:.98rem;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+    .home-tile-wide .htw-count{color:#e0e3ee;font-size:.72rem;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+    .home-tile-wide .htw-arrow{position:relative;z-index:2;color:#fff;font-size:1.2rem}
+    .home-tiles-row{display:flex;gap:10px}
+    .home-tile-sq{flex:1;position:relative;border-radius:12px;overflow:hidden;height:96px;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;padding:10px}
+    .home-tile-sq .hts-bg{position:absolute;inset:0;opacity:.92}
+    .home-tile-sq .hts-shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.55),transparent 60%)}
+    .home-tile-sq .hts-ic{position:absolute;top:8px;right:10px;font-size:1.5rem;z-index:2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+    .home-tile-sq .hts-name{position:relative;z-index:2;color:#fff;font-weight:700;font-size:.82rem;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+    .home-tile-sq .hts-count{position:relative;z-index:2;color:#e0e3ee;font-size:.66rem;text-shadow:0 1px 3px rgba(0,0,0,.5)}
     /* Bottom navigation bar */
     .bnav{position:fixed;bottom:0;left:0;right:0;z-index:400;display:flex;align-items:center;background:var(--bg2);border-top:1px solid rgba(255,255,255,.08);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));backdrop-filter:blur(10px)}
     .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;background:none;border:none;cursor:pointer;color:var(--text-dim);font-family:Inter,sans-serif;font-size:.62rem;font-weight:600;transition:color .15s}
@@ -1342,19 +1370,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div id="home-screen" style="display:none">
   <div class="home-topbar">
     <div class="logo-img" style="width:38px;height:38px"><img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:9px"/><div class="logo-fallback">🔧</div></div>
-    <div style="flex:1"></div>
-    <button class="home-menu-btn" onclick="openMobileMenu()">☰</button>
+    <div style="flex:1;font-weight:700;font-size:1.05rem;color:var(--text);margin-left:10px">Home</div>
+    <div class="home-avatar" id="home-avatar" onclick="closeHome();openProfile()" style="cursor:pointer;width:38px;height:38px;font-size:1.1rem">🦊</div>
   </div>
   <div class="home-body">
-    <!-- Welcome -->
-    <div class="home-welcome" onclick="closeHome();openProfile()" style="cursor:pointer">
-      <div class="home-avatar" id="home-avatar">🦊</div>
-      <div style="flex:1;min-width:0">
-        <div class="home-hi">Hi <span id="home-pseudo">Collector</span>!</div>
-        <div class="home-rank" id="home-rank">🌱 Rookie</div>
-      </div>
-      <span style="color:var(--text-dim);font-size:1.2rem">›</span>
-    </div>
 
     <!-- Key stats (compact one-liner) -->
     <div class="home-stats-compact">
@@ -1369,41 +1388,40 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- News button (opens popup) -->
     <div id="home-news-btn-wrap" style="display:none;margin-bottom:18px">
-      <button onclick="openNewsPopup()" style="width:100%;background:var(--bg2);border:1px solid rgba(255,212,71,.2);border-radius:16px;padding:14px 16px;color:var(--wishlist);font-weight:600;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+      <button onclick="openNewsPopup()" style="width:100%;background:var(--bg2);border:1px solid rgba(255,212,71,.2);border-radius:12px;padding:14px 16px;color:var(--wishlist);font-weight:600;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
         <span>📣 What's new</span>
         <span style="color:var(--text-dim);font-size:1.1rem">›</span>
       </button>
     </div>
 
-    <!-- Collections hub -->
-    <div class="home-section-label" style="display:flex;justify-content:space-between;align-items:center">
-      <span>Collection Hub</span>
+    <!-- Featured: Ratchet & Clank (big Netflix tile) -->
+    <div class="home-featured-tile" onclick="goToCollection()">
+      <div class="home-featured-bg" id="home-rc-bg"></div>
+      <div class="home-featured-overlay"></div>
+      <span class="home-featured-badge">MAIN</span>
+      <div class="home-featured-logo" id="home-rc-logo">🦊</div>
+      <div class="home-featured-content">
+        <div class="home-featured-name">Ratchet &amp; Clank</div>
+        <div class="home-featured-count" id="home-rc-count">My main collection</div>
+        <div class="home-featured-bar"><div class="home-featured-fill" id="home-rc-fill" style="width:0%"></div></div>
+      </div>
+      <span id="home-rc-edit" style="display:none;position:absolute;top:12px;right:12px;color:#fff;font-size:.9rem;background:rgba(0,0,0,.4);border-radius:6px;padding:4px 7px;z-index:3" onclick="event.stopPropagation();editRcLogo()">✏️</span>
+    </div>
+
+    <!-- Section label -->
+    <div class="home-section-label" style="display:flex;justify-content:space-between;align-items:center;margin-top:22px">
+      <span>My collections</span>
       <span id="home-coll-admin" style="display:none">
         <button onclick="openNewsEdit()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:.7rem;font-weight:600;margin-right:10px">✏️ News</button>
-        <button onclick="openCollManager()" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-size:.7rem;font-weight:700">⚙️ Manage</button>
+        <button onclick="openCollManager()" style="background:none;border:none;color:var(--purple-light);cursor:pointer;font-size:.7rem;font-weight:700">+ New</button>
       </span>
     </div>
 
-    <!-- Featured: Ratchet & Clank -->
-    <div class="home-coll-card home-coll-featured" onclick="goToCollection()">
-      <div class="home-coll-accent" style="background:linear-gradient(180deg,var(--purple),var(--orange))"></div>
-      <div id="home-rc-logo" class="home-coll-logo-ph" style="background:linear-gradient(135deg,rgba(123,79,212,.3),rgba(255,138,42,.2))">🦊</div>
-      <div class="home-coll-info">
-        <div class="home-coll-name">Ratchet &amp; Clank <span style="font-size:.62rem;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;padding:2px 8px;border-radius:10px;vertical-align:middle;margin-left:4px">MAIN</span></div>
-        <div class="home-coll-count" id="home-rc-count">My main collection</div>
-      </div>
-      <span id="home-rc-edit" style="display:none;color:var(--purple-light);font-size:.9rem;padding:0 8px" onclick="event.stopPropagation();editRcLogo()">✏️</span>
-      <span class="home-coll-arrow">›</span>
-    </div>
-
-    <!-- Other collections -->
-    <div id="home-collections" class="home-coll-grid" style="margin-top:12px">
+    <!-- Other collections (Netflix tiles) -->
+    <div id="home-collections" class="home-tiles" style="margin-top:12px">
       <div style="text-align:center;color:var(--text-dim);font-size:.8rem;padding:16px">Loading…</div>
     </div>
 
-    <div style="text-align:center;margin-top:26px">
-      <button class="home-kofi" onclick="window.open('https://ko-fi.com/ratchetlegacy','_blank')">☕ Support the project</button>
-    </div>
   </div>
 </div>
 
@@ -2679,6 +2697,14 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="admin-section">
       <div class="admin-section-title">🏆 Rang</div>
       <div class="stat-widget" id="profile-rank-display" style="background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px"></div>
+    </div>
+
+    <!-- STATS ACCESS -->
+    <div class="admin-section">
+      <button onclick="document.getElementById('profile-screen').classList.remove('open');openStats()" style="width:100%;background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:15px 16px;color:var(--text);font-weight:600;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+        <span>📊 View my stats</span>
+        <span style="color:var(--text-dim);font-size:1.1rem">›</span>
+      </button>
     </div>
 
     <!-- STATS -->
@@ -7212,23 +7238,16 @@ function setNavActive(tab){
   });
 }
 function navGo(tab){
-  // Close any open collection view / overlays first
-  if(typeof closeAllScreensToHome==='function' && tab!=='add'){ /* handled per-tab below */ }
-  if(tab==='home'){
+  if(tab==='profile'){
     closeAnyCollectionScreens();
-    showHome();
+    if(typeof openProfile==='function'){ openProfile(); }
+    setNavActive('profile');
   } else if(tab==='search'){
     closeAnyCollectionScreens();
-    showHome();
-    setTimeout(()=>{ openGlobalSearch(); }, 60);
+    openGlobalSearch();
     setNavActive('search');
   } else if(tab==='add'){
     navContextualAdd();
-  } else if(tab==='stats'){
-    closeAnyCollectionScreens();
-    if(typeof openStats==='function'){ openStats(); }
-    else { showHome(); }
-    setNavActive('stats');
   } else if(tab==='more'){
     openMobileMenu();
     setNavActive('more');
@@ -7269,15 +7288,14 @@ async function renderHomeCollections(){
   const adminBtn=document.getElementById('home-coll-admin');
   if(adminBtn) adminBtn.style.display = isAdmin()?'inline':'none';
   await loadCollections();
-  // top-level collections only (no parent)
   const tops = allCollections.filter(c=>!c.parent_id);
   if(!tops.length){
     grid.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:.8rem;padding:16px">'
-      + (isAdmin()?'No collections yet — tap ⚙️ Manage to create one!':'More collections coming soon! 🚀')
+      + (isAdmin()?'No collections yet — tap + New to create one!':'More collections coming soon! 🚀')
       + '</div>';
     return;
   }
-  // owned counts per collection (across catalog)
+  // owned counts per collection
   let ownedByColl = {};
   try {
     const { data } = await sbClient.from('other_items')
@@ -7288,27 +7306,46 @@ async function renderHomeCollections(){
       if(cid) ownedByColl[cid] = (ownedByColl[cid]||0)+1;
     });
   } catch(e){}
-  grid.innerHTML = tops.map(c=>{
+
+  const tileData = tops.map(c=>{
     const subs = allCollections.filter(x=>x.parent_id===c.id);
-    let count, label;
-    if(subs.length){
-      // sum owned across its sub-collections
-      let tot = 0; subs.forEach(s=>{ tot += ownedByColl[s.id]||0; });
-      count = subs.length; label = subs.length+' categories';
-    } else {
-      count = ownedByColl[c.id]||0; label = (ownedByColl[c.id]||0)+' owned';
-    }
-    const logo = c.logo_url
-      ? '<img class="home-coll-logo" src="'+escHtml(c.logo_url)+'" onerror="this.outerHTML=\'<div class=&quot;home-coll-logo-ph&quot; style=&quot;background:'+c.color+'33&quot;>🗂️</div>\'"/>'
-      : '<div class="home-coll-logo-ph" style="background:'+c.color+'33">🗂️</div>';
-    return '<div class="home-coll-card" onclick="openCollectionNode(\''+c.id+'\')">'
-      + '<div class="home-coll-accent" style="background:'+c.color+'"></div>'
-      + logo
-      + '<div class="home-coll-info"><div class="home-coll-name">'+escHtml(c.name)+'</div>'
-      + '<div class="home-coll-count">'+escHtml(label)+'</div></div>'
-      + '<span class="home-coll-arrow">›</span>'
-      + '</div>';
-  }).join('');
+    let label;
+    if(subs.length){ label = subs.length+' categories'; }
+    else { label = (ownedByColl[c.id]||0)+' owned'; }
+    const col = c.color || '#7B4FD4';
+    const icon = '🗂️';
+    const bg = c.logo_url
+      ? 'background-image:linear-gradient(120deg,'+col+'cc,'+col+'55),url('+escHtml(c.logo_url)+');background-size:cover;background-position:center'
+      : 'background:linear-gradient(120deg,'+col+',rgba(0,0,0,.3))';
+    return {c, label, col, icon, bg};
+  });
+
+  let html='';
+  // First collection = wide tile
+  const first = tileData[0];
+  html += '<div class="home-tile-wide" onclick="openCollectionNode(\''+first.c.id+'\')">'
+    + '<div class="htw-bg" style="'+first.bg+'"></div><div class="htw-shade"></div>'
+    + (first.c.logo_url?'':'<span class="htw-ic">'+first.icon+'</span>')
+    + '<div class="htw-info"><div class="htw-name">'+escHtml(first.c.name)+'</div><div class="htw-count">'+escHtml(first.label)+'</div></div>'
+    + '<span class="htw-arrow">›</span>'
+    + '</div>';
+  // Rest = square tiles, rows of 3
+  const rest = tileData.slice(1);
+  for(let i=0;i<rest.length;i+=3){
+    html += '<div class="home-tiles-row">';
+    rest.slice(i,i+3).forEach(t=>{
+      html += '<div class="home-tile-sq" onclick="openCollectionNode(\''+t.c.id+'\')">'
+        + '<div class="hts-bg" style="'+t.bg+'"></div><div class="hts-shade"></div>'
+        + (t.c.logo_url?'':'<span class="hts-ic">'+t.icon+'</span>')
+        + '<div class="hts-name">'+escHtml(t.c.name)+'</div><div class="hts-count">'+escHtml(t.label)+'</div>'
+        + '</div>';
+    });
+    // pad the last row so tiles keep their width
+    const inRow = rest.slice(i,i+3).length;
+    for(let p=inRow;p<3;p++){ html += '<div style="flex:1"></div>'; }
+    html += '</div>';
+  }
+  grid.innerHTML = html;
 }
 
 // Decide: a collection with sub-collections shows a sub-list; a leaf opens the tabs view
@@ -7740,7 +7777,9 @@ function renderHome(){
   const val = items.filter(i=>i.status==='owned').reduce((s,i)=>s+(parseFloat(i.cur_value)||0),0);
   document.getElementById('home-value').textContent = val>0 ? fmtEurS(val) : '—';
   const rcCount=document.getElementById('home-rc-count');
-  if(rcCount) rcCount.textContent = owned+' games owned';
+  if(rcCount) rcCount.textContent = owned+' / '+(rcCollectionTotal||'?')+' owned';
+  const rcFill=document.getElementById('home-rc-fill');
+  if(rcFill) rcFill.style.width = pct+'%';
   loadRcLogo();
 }
 async function loadRcLogo(){
@@ -7750,13 +7789,13 @@ async function loadRcLogo(){
     const { data } = await sbClient.from('app_settings').select('value').eq('key','rc_logo').maybeSingle();
     const url = (data && data.value) ? data.value.trim() : '';
     const box=document.getElementById('home-rc-logo');
-    if(box && url){
-      box.innerHTML='';
-      box.style.background='var(--bg)';
-      const img=document.createElement('img');
-      img.src=url; img.className='home-coll-logo'; img.style.width='100%'; img.style.height='100%';
-      img.onerror=()=>{ box.innerHTML='🦊'; box.style.background='linear-gradient(135deg,rgba(123,79,212,.3),rgba(255,138,42,.2))'; };
-      box.appendChild(img);
+    const bg=document.getElementById('home-rc-bg');
+    if(url){
+      // Use the image as the tile background, hide the emoji logo
+      if(bg){ bg.style.backgroundImage='linear-gradient(135deg,rgba(123,79,212,.5),rgba(255,107,26,.35)),url('+url+')'; bg.style.backgroundSize='cover'; bg.style.backgroundPosition='center'; }
+      if(box){ box.style.display='none'; }
+    } else {
+      if(box){ box.style.display='block'; }
     }
   } catch(e){}
 }
@@ -9437,8 +9476,8 @@ boot();
 
 <!-- BOTTOM NAVIGATION BAR -->
 <div class="bnav" id="bottom-nav" style="display:none">
-  <button class="bnav-item active" data-tab="home" onclick="navGo('home')">
-    <span class="bnav-ic">🏠</span><span>Home</span>
+  <button class="bnav-item active" data-tab="profile" onclick="navGo('profile')">
+    <span class="bnav-ic">👤</span><span>Profile</span>
   </button>
   <button class="bnav-item" data-tab="search" onclick="navGo('search')">
     <span class="bnav-ic">🔍</span><span>Search</span>
@@ -9446,9 +9485,6 @@ boot();
   <div class="bnav-add">
     <button class="bnav-add-btn" onclick="navGo('add')" aria-label="Add">+</button>
   </div>
-  <button class="bnav-item" data-tab="stats" onclick="navGo('stats')">
-    <span class="bnav-ic">📊</span><span>Stats</span>
-  </button>
   <button class="bnav-item" data-tab="more" onclick="navGo('more')">
     <span class="bnav-ic">⚙️</span><span>More</span>
   </button>
