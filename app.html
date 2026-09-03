@@ -1111,7 +1111,7 @@
     .home-tile-sq .hts-name{position:relative;z-index:2;color:#fff;font-weight:700;font-size:.82rem;text-shadow:0 1px 4px rgba(0,0,0,.5)}
     .home-tile-sq .hts-count{position:relative;z-index:2;color:#e0e3ee;font-size:.66rem;text-shadow:0 1px 3px rgba(0,0,0,.5)}
     /* Bottom navigation bar */
-    .bnav{position:fixed;bottom:0;left:0;right:0;z-index:400;display:flex;align-items:center;background:var(--bg2);border-top:1px solid rgba(255,255,255,.08);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));backdrop-filter:blur(10px)}
+    .bnav{position:fixed;bottom:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-around;background:var(--bg2);border-top:1px solid rgba(255,255,255,.08);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 -4px 20px rgba(0,0,0,.35)}
     .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;background:none;border:none;cursor:pointer;color:var(--text-dim);font-family:Inter,sans-serif;font-size:.62rem;font-weight:600;transition:color .15s}
     .bnav-item .bnav-ic{font-size:1.25rem;line-height:1}
     .bnav-item.active{color:var(--purple-light)}
@@ -7388,6 +7388,10 @@ function navGo(tab){
     setNavActive('search');
   } else if(tab==='add'){
     navContextualAdd();
+  } else if(tab==='collections'){
+    closeAnyCollectionScreens();
+    if(typeof showHome==='function'){ showHome(); }
+    setNavActive('collections');
   } else if(tab==='more'){
     openMobileMenu();
     setNavActive('more');
@@ -9775,6 +9779,9 @@ boot();
   <div class="bnav-add">
     <button class="bnav-add-btn" onclick="navGo('add')" aria-label="Add">+</button>
   </div>
+  <button class="bnav-item" data-tab="collections" onclick="navGo('collections')">
+    <span class="bnav-ic">🗂️</span><span>Collections</span>
+  </button>
   <button class="bnav-item" data-tab="more" onclick="navGo('more')">
     <span class="bnav-ic">⚙️</span><span>More</span>
   </button>
