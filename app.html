@@ -2377,6 +2377,23 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
+<!-- COLLECTION ADD WIZARD (step by step, manual entry for a new game) -->
+<div class="modal-overlay" id="collwiz-overlay" style="z-index:566">
+  <div class="modal" style="max-width:420px;max-height:90vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeCollWiz()">✕</button>
+    <h2 id="cw-title" style="margin-bottom:10px">➕ Add a game</h2>
+    <!-- Progress -->
+    <div id="cw-progress" style="display:flex;gap:6px;margin-bottom:18px"></div>
+    <div id="cw-step-label" style="color:var(--text-dim);font-size:.72rem;margin-bottom:4px"></div>
+    <div id="cw-question" style="color:var(--text);font-weight:700;font-size:1.15rem;margin-bottom:16px"></div>
+    <div id="cw-body" style="margin-bottom:22px"></div>
+    <div style="display:flex;gap:10px">
+      <button id="cw-back" onclick="cwBack()" style="flex:0 0 auto;background:transparent;border:1px solid rgba(255,255,255,.15);color:var(--text-dim);border-radius:10px;padding:13px 18px;font-weight:600;cursor:pointer;display:none">← Back</button>
+      <button id="cw-next" onclick="cwNext()" style="flex:1;background:var(--purple);border:none;color:#fff;border-radius:10px;padding:13px;font-weight:700;cursor:pointer">Continue →</button>
+    </div>
+  </div>
+</div>
+
 <!-- CATALOG REQUEST MODAL (users propose an addition) -->
 <div class="modal-overlay" id="catreq-overlay" style="z-index:565">
   <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto">
@@ -4147,6 +4164,7 @@ function takePhotoFor(targetInputId, contextLabel, nameInputId){
       if(targetInputId==='collform-logo' && typeof updateCollLogoPreview==='function'){ updateCollLogoPreview(); }
       if(targetInputId==='cate-image' && typeof updateCateImgPreview==='function'){ updateCateImgPreview(); }
       if(targetInputId==='catreq-image' && typeof updateCatreqImgPreview==='function'){ updateCatreqImgPreview(); }
+      if(targetInputId==='cw-image' && window.cwState){ cwState.image=document.getElementById('cw-image').value; if(typeof cwImgPreview==='function') cwImgPreview(); }
       // Logo uploads (admin bank / category logos) are NOT user content →
       // don't push them to the photo moderation queue.
       if(contextLabel==='logo'){
@@ -6806,15 +6824,111 @@ async function deleteOtherItem(){
 
 // ── User: suggest a catalog addition ──
 function openCatReq(collId){
-  document.getElementById('catreq-collection').value=collId;
-  document.getElementById('catreq-name').value='';
-  document.getElementById('catreq-platform').value='';
-  document.getElementById('catreq-year').value='';
-  document.getElementById('catreq-variant').value='';
-  document.getElementById('catreq-publisher').value='';
-  document.getElementById('catreq-image').value='';
-  updateCatreqImgPreview();
-  document.getElementById('catreq-overlay').classList.add('open');
+  // New: launch the step-by-step wizard instead of the old form
+  openCollWiz(collId);
+}
+// ===== Collection Add Wizard (step by step) =====
+let cwState = null;
+function openCollWiz(collId){
+  if(!currentUser){ showToast('Please sign in','error'); return; }
+  cwState = {
+    collId, step:0,
+    name:'', platform:'', year:'', image:'',
+    status:'owned', condition:'occasion',
+    type:'Physical game', completeness:{}
+  };
+  (COMPLETENESS_CONFIG['Physical game']||[]).forEach(f=>{ cwState.completeness[f.k]='present'; });
+  cwState.steps = ['info','status','condition','completeness'];
+  document.getElementById('collwiz-overlay').classList.add('open');
+  cwRender();
+}
+function closeCollWiz(){ document.getElementById('collwiz-overlay').classList.remove('open'); cwState=null; }
+function cwRender(){
+  if(!cwState) return;
+  const step = cwState.steps[cwState.step];
+  document.getElementById('cw-progress').innerHTML = cwState.steps.map((s,i)=>
+    '<div style="flex:1;height:4px;border-radius:2px;background:'+(i<=cwState.step?'var(--purple)':'rgba(255,255,255,.12)')+'"></div>'
+  ).join('');
+  document.getElementById('cw-step-label').textContent = 'Step '+(cwState.step+1)+' / '+cwState.steps.length;
+  const q=document.getElementById('cw-question');
+  const body=document.getElementById('cw-body');
+  const bigBtn = (active,onclick,icon,title,sub)=>
+    '<div onclick="'+onclick+'" style="background:var(--bg2);border:2px solid '+(active?'var(--purple)':'rgba(255,255,255,.1)')+';border-radius:12px;padding:15px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:10px">'
+    + '<div style="font-size:1.4rem">'+icon+'</div>'
+    + '<div style="flex:1"><div style="color:var(--text);font-weight:600;font-size:.9rem">'+title+'</div>'+(sub?'<div style="color:var(--text-dim);font-size:.72rem">'+sub+'</div>':'')+'</div>'
+    + (active?'<div style="color:var(--purple-light);font-size:1.1rem">✓</div>':'')
+    + '</div>';
+
+  if(step==='info'){
+    q.textContent='Game details';
+    body.innerHTML =
+      '<div class="form-group"><label>Name *</label><input type="text" id="cw-name" value="'+escHtml(cwState.name)+'" placeholder="Game name" oninput="cwState.name=this.value"/></div>'
+      + '<div style="display:flex;gap:10px"><div class="form-group" style="flex:1"><label>Platform *</label><input type="text" id="cw-platform" value="'+escHtml(cwState.platform)+'" placeholder="PS2, PS4..." oninput="cwState.platform=this.value"/></div>'
+      + '<div class="form-group" style="width:90px"><label>Year *</label><input type="number" id="cw-year" value="'+escHtml(cwState.year)+'" placeholder="2004" oninput="cwState.year=this.value"/></div></div>'
+      + '<div class="form-group"><label>Photo *</label><input type="text" id="cw-image" value="'+escHtml(cwState.image)+'" placeholder="Image URL..." style="width:100%;margin-bottom:8px" oninput="cwState.image=this.value;cwImgPreview()"/>'
+      + '<div style="display:flex;gap:8px"><button type="button" onclick="openGallery(\'cw-image\')" style="flex:1;padding:9px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.76rem;font-weight:600;cursor:pointer">🖼️ Gallery</button>'
+      + '<button type="button" onclick="takePhotoFor(\'cw-image\',\'logo\',null)" style="flex:1;padding:9px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.76rem;font-weight:600;cursor:pointer">📷 Photo</button></div>'
+      + '<div id="cw-img-preview" style="margin-top:8px"></div></div>';
+    setTimeout(cwImgPreview,10);
+  } else if(step==='status'){
+    q.textContent='Do you own it?';
+    body.innerHTML =
+      bigBtn(cwState.status==='owned',"cwSet('status','owned')",'✓','I own it','In my collection')
+      + bigBtn(cwState.status==='wishlist',"cwSet('status','wishlist')",'★','Wishlist','I want it');
+  } else if(step==='condition'){
+    q.textContent='What condition?';
+    body.innerHTML =
+      bigBtn(cwState.condition==='neuf_blister',"cwSet('condition','neuf_blister')",'✨','New / Sealed','Never opened')
+      + bigBtn(cwState.condition==='occasion',"cwSet('condition','occasion')",'📦','Pre-owned','Used / opened');
+  } else if(step==='completeness'){
+    q.textContent="What's included?";
+    if(cwState.condition==='neuf_blister'){
+      body.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem;padding:10px;background:var(--bg2);border-radius:10px">✨ Sealed item — everything included automatically.</div>';
+    } else {
+      const fields = COMPLETENESS_CONFIG[cwState.type]||[];
+      body.innerHTML = fields.map(f=>{
+        const on = cwState.completeness[f.k]==='present';
+        return '<div onclick="cwToggleComp(\''+f.k+'\')" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg2);border:2px solid '+(on?'var(--owned)':'rgba(255,255,255,.1)')+';border-radius:10px;margin-bottom:8px;cursor:pointer">'
+          + '<div style="font-size:1.2rem">'+f.i+'</div><div style="flex:1;color:var(--text);font-weight:600;font-size:.85rem">'+f.l+'</div><div style="font-size:1.1rem">'+(on?'✅':'⬜')+'</div></div>';
+      }).join('');
+    }
+  }
+  document.getElementById('cw-back').style.display = cwState.step>0?'block':'none';
+  document.getElementById('cw-next').textContent = (cwState.step===cwState.steps.length-1)?'✓ Add game':'Continue →';
+}
+function cwImgPreview(){ const b=document.getElementById('cw-img-preview'); if(!b) return; const u=(cwState.image||'').trim(); b.innerHTML=u?'<img src="'+escHtml(u)+'" style="max-height:90px;border-radius:8px;object-fit:contain;background:var(--bg)" onerror="this.style.display=\'none\'"/>':''; }
+function cwSet(k,v){ cwState[k]=v; cwRender(); }
+function cwToggleComp(k){ cwState.completeness[k]=(cwState.completeness[k]==='present')?'absent':'present'; cwRender(); }
+function cwBack(){ if(cwState.step>0){ cwState.step--; cwRender(); } }
+async function cwNext(){
+  const step=cwState.steps[cwState.step];
+  if(step==='info'){
+    const missing=[];
+    if(!cwState.name.trim()) missing.push('Name');
+    if(!cwState.platform.trim()) missing.push('Platform');
+    if(isNaN(parseInt(cwState.year))) missing.push('Year');
+    if(!cwState.image.trim()) missing.push('Photo');
+    if(missing.length){ showToast('Required: '+missing.join(', '),'error'); return; }
+  }
+  if(cwState.step < cwState.steps.length-1){ cwState.step++; cwRender(); return; }
+  // Save
+  try {
+    const { data:catRow, error:catErr } = await sbClient.from('other_catalog').insert([{
+      collection_id: cwState.collId, name:cwState.name.trim(), platform:cwState.platform.trim(),
+      year:parseInt(cwState.year), image_url:cwState.image.trim()
+    }]).select('id').single();
+    if(catErr){ showToast('Error: '+catErr.message,'error'); return; }
+    const itemRow = {
+      user_id: currentUser.id, catalog_id: catRow.id, collection_id: cwState.collId,
+      name:cwState.name.trim(), category:'Catalog', status:cwState.status,
+      is_complete: cwState.condition==='neuf_blister', condition:cwState.condition
+    };
+    const { error:itemErr } = await sbClient.from('other_items').insert([itemRow]);
+    if(itemErr){ showToast('Error: '+itemErr.message,'error'); return; }
+    showToast(cwState.status==='wishlist'?'Added to wishlist ★':'Added to your collection ✓','success');
+    closeCollWiz();
+    if(currentCollView){ await loadCatalogFor(currentCollView); await loadMyCollItems(currentCollView); renderCollectionView(currentCollView); }
+  } catch(e){ showToast('Error: '+e.message,'error'); }
 }
 function updateCatreqImgPreview(){
   const box=document.getElementById('catreq-img-preview'); if(!box) return;
@@ -9492,7 +9606,7 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
     'news-edit-overlay','news-popup-overlay','catitem-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
-    'collmanager-overlay','catalogedit-overlay','catreq-overlay','pasteimport-overlay','catreqreview-overlay','delacc-overlay','addwiz-overlay','globalsearch-overlay','collection-view-screen','subcoll-screen'
+    'collmanager-overlay','catalogedit-overlay','catreq-overlay','collwiz-overlay','pasteimport-overlay','catreqreview-overlay','delacc-overlay','addwiz-overlay','globalsearch-overlay','collection-view-screen','subcoll-screen'
   ];
   // Return the topmost open closable element, or null
   function topOpen(){
