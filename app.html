@@ -2658,6 +2658,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       </div>
       <div id="cat-image-preview" style="margin-top:8px"></div>
     </div>
+    <div class="form-group"><label>Back image (verso)</label>
+      <input type="text" id="cat-edit-imageback" placeholder="Back photo URL..." style="width:100%;margin-bottom:8px"/>
+      <button type="button" onclick="takePhotoFor('cat-edit-imageback','logo',null)" style="width:100%;padding:9px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.76rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">📷 Take back photo</button>
+    </div>
     <div class="form-group"><label>Description</label><textarea id="cat-edit-desc" rows="2"></textarea></div>
     <div style="display:flex;gap:10px;margin-top:8px">
       <button class="add-btn" style="flex:1" onclick="saveCatalogEntry()">💾 Save</button>
@@ -9060,13 +9064,16 @@ function filterRcCatalog(){
 function openCatalogDetail(id){
   const c = catalogData.find(x=>String(x.id)===String(id));
   if(!c) return;
+  _cdFront=true;
   const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.region, c.year].filter(Boolean).join(' · ');
+  const hasBack = c.image_back && c.image_back.trim();
   const img = c.image_url
-    ? '<img src="'+escHtml(c.image_url)+'" alt="" onerror="this.parentNode.innerHTML=\'<div class=&quot;cd-noimg&quot;>'+catalogIcon(c.category)+'</div>\'"/>'
+    ? '<img id="cd-photo" src="'+escHtml(c.image_url)+'" alt="" onerror="this.parentNode.innerHTML=\'<div class=&quot;cd-noimg&quot;>'+catalogIcon(c.category)+'</div>\'"/>'
+      + (hasBack?'<button onclick="cdFlip(\''+escHtml(c.image_url)+'\',\''+escHtml(c.image_back)+'\')" style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:8px;padding:6px 12px;font-size:.72rem;font-weight:600;cursor:pointer;z-index:2">🔄 Flip</button>':'')
     : '<div class="cd-noimg">'+catalogIcon(c.category)+'</div>';
   const body = document.getElementById('catalog-detail-body');
   body.innerHTML =
-    '<div class="cd-img">'+img+'</div>'
+    '<div class="cd-img" style="position:relative">'+img+'</div>'
     + '<div class="cd-cat">'+catalogIcon(c.category)+' '+escHtml(c.category||'Misc')+'</div>'
     + '<h2 class="cd-name">'+escHtml(c.name)+'</h2>'
     + (meta?'<div class="cd-meta">'+escHtml(meta)+'</div>':'')
@@ -9090,6 +9097,8 @@ function openCatalogDetail(id){
   document.getElementById('catalog-detail-overlay').classList.add('open');
 }
 function closeCatalogDetail(){ document.getElementById('catalog-detail-overlay').classList.remove('open'); }
+let _cdFront=true;
+function cdFlip(front,back){ const img=document.getElementById('cd-photo'); if(!img) return; _cdFront=!_cdFront; img.src=_cdFront?front:back; }
 
 // Add a catalog entry straight into the user's collection or wishlist
 async function addCatalogToCollection(id, status){
@@ -9256,6 +9265,7 @@ function openCatalogEdit(id){
   document.getElementById('cat-edit-price-new').value = entry ? (entry.price_new!=null?entry.price_new:'') : '';
   document.getElementById('cat-edit-price-used').value = entry ? (entry.price_used!=null?entry.price_used:'') : '';
   document.getElementById('cat-edit-image').value = entry ? (entry.image_url||'') : '';
+  document.getElementById('cat-edit-imageback').value = entry ? (entry.image_back||'') : '';
   document.getElementById('cat-edit-desc').value = entry ? (entry.description||'') : '';
   document.getElementById('cat-delete-btn').style.display = entry ? 'block' : 'none';
   updateCatImagePreview();
@@ -9286,6 +9296,7 @@ async function saveCatalogEntry(){
     price_new: document.getElementById('cat-edit-price-new').value!==''?parseFloat(document.getElementById('cat-edit-price-new').value):null,
     price_used: document.getElementById('cat-edit-price-used').value!==''?parseFloat(document.getElementById('cat-edit-price-used').value):null,
     image_url: document.getElementById('cat-edit-image').value.trim() || null,
+    image_back: document.getElementById('cat-edit-imageback').value.trim() || null,
     description: document.getElementById('cat-edit-desc').value.trim() || null,
   };
   try {
