@@ -1411,7 +1411,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
 
     <!-- Section label -->
-    <div class="home-section-label" style="display:flex;justify-content:space-between;align-items:center;margin-top:22px">
+    <div class="home-section-label" style="display:none;justify-content:space-between;align-items:center;margin-top:22px">
       <span>My collections</span>
       <span id="home-coll-admin" style="display:none">
         <button onclick="openNewsEdit()" style="background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:.7rem;font-weight:600;margin-right:10px">✏️ News</button>
@@ -1420,7 +1420,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
 
     <!-- Other collections (Netflix tiles) -->
-    <div id="home-collections" class="home-tiles" style="margin-top:12px">
+    <div id="home-collections" class="home-tiles" style="display:none;margin-top:12px">
       <div style="text-align:center;color:var(--text-dim);font-size:.8rem;padding:16px">Loading…</div>
     </div>
 
@@ -2957,11 +2957,11 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-section-title">Community</div>
   <a href="https://ratchetlegacy.github.io/rc-site/" target="_blank" rel="noopener" class="menu-item" style="text-decoration:none;color:var(--text)">🌐 Wiki &amp; Trades <span style="font-size:.62rem;color:var(--text-dim)">↗</span></a>
 
-  <div class="menu-section-title">Collection Hub</div>
-  <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome()">📦 Collection Hub</div>
+  <div class="menu-section-title" style="display:none">Collection Hub</div>
+  <div class="menu-item" style="display:none" onclick="closeMobileMenu();closeAllScreensToHome()">📦 Collection Hub</div>
 
   <div class="menu-section-title" id="menu-admin-title" style="display:none">Admin</div>
-  <div class="menu-item" id="menu-collmanage" onclick="closeMobileMenu();openCollManager()" style="display:none;color:var(--purple-light)">🗂️ Manage collections</div>
+  <div class="menu-item" id="menu-collmanage" onclick="closeMobileMenu();openCollManager()" style="display:none!important;color:var(--purple-light)">🗂️ Manage collections</div>
   <div class="menu-item" id="menu-catreq" onclick="openCatReqReview()" style="display:none;color:var(--purple-light)">📥 Catalog requests <span id="catreq-badge"></span></div>
   <div class="menu-item" id="menu-photomod" onclick="openPhotoMod()" style="display:none;color:var(--owned)">📷 Photo moderation <span id="photomod-badge"></span></div>
   <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin panel</div>
@@ -9743,6 +9743,15 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
   });
 
   window.addEventListener('popstate', ()=>{
+    // Catalog cascade: if the R&C catalog screen is open and we're deep in the cascade, go up one level
+    const catScreen=document.getElementById('catalog-screen');
+    const catOpen = catScreen && catScreen.classList.contains('open');
+    if(catOpen && !topOpen()){
+      if(typeof rcNavReg!=='undefined' && rcNavReg){ rcOpenPlat(rcNavPlat); rearmHomeTrap(); return; }
+      if(typeof rcNavPlat!=='undefined' && rcNavPlat){ rcOpenCat(rcNavCat); rearmHomeTrap(); return; }
+      if(typeof rcNavCat!=='undefined' && rcNavCat){ renderCatalog(); rearmHomeTrap(); return; }
+      // at categories level -> let the normal close happen (falls through below)
+    }
     const openEl=topOpen();
     if(openEl){
       // consume this back press: close the top layer
