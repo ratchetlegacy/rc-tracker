@@ -2945,24 +2945,20 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div class="mobile-menu-panel" id="mobile-menu-panel">
   <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
   <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome()">🏠 Home</div>
-  <div class="menu-item" onclick="closeMobileMenu();openProfile()">🦊 <span id="mobile-pseudo">My profile</span></div>
   <div class="menu-item" onclick="openFriends()">🤝 Friends <span id="friends-badge" style="display:none;background:var(--missing);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700;margin-left:4px">0</span></div>
 
-  <div class="menu-section-title">Ratchet &amp; Clank</div>
-  <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome();goToCollection()">🗂️ My R&C collection</div>
-  <div class="menu-item" onclick="closeMobileMenu();openCatalog()">📚 R&C Catalog</div>
-  <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 R&C Stats</div>
-  <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export R&C (PDF)</div>
+  <div class="menu-section-title">Collection</div>
+  <div class="menu-item" onclick="closeMobileMenu();closeAllScreensToHome();goToCollection()">🗂️ My collection</div>
+  <div class="menu-item" onclick="closeMobileMenu();openCatalog()">📚 Catalog</div>
+  <div class="menu-item" onclick="closeMobileMenu();openStats()">📊 Stats</div>
+  <div class="menu-item" onclick="closeMobileMenu();openExportModal()">📄 Export (PDF)</div>
 
   <div class="menu-section-title">Community</div>
   <a href="https://ratchetlegacy.github.io/rc-site/" target="_blank" rel="noopener" class="menu-item" style="text-decoration:none;color:var(--text)">🌐 Wiki &amp; Trades <span style="font-size:.62rem;color:var(--text-dim)">↗</span></a>
 
-  <div class="menu-section-title" style="display:none">Collection Hub</div>
-  <div class="menu-item" style="display:none" onclick="closeMobileMenu();closeAllScreensToHome()">📦 Collection Hub</div>
-
   <div class="menu-section-title" id="menu-admin-title" style="display:none">Admin</div>
   <div class="menu-item" id="menu-collmanage" onclick="closeMobileMenu();openCollManager()" style="display:none!important;color:var(--purple-light)">🗂️ Manage collections</div>
-  <div class="menu-item" id="menu-catreq" onclick="openCatReqReview()" style="display:none;color:var(--purple-light)">📥 Catalog requests <span id="catreq-badge"></span></div>
+  <div class="menu-item" id="menu-catreq" onclick="openCatReqReview()" style="display:none!important;color:var(--purple-light)">📥 Catalog requests <span id="catreq-badge"></span></div>
   <div class="menu-item" id="menu-photomod" onclick="openPhotoMod()" style="display:none;color:var(--owned)">📷 Photo moderation <span id="photomod-badge"></span></div>
   <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin panel</div>
 
@@ -2972,7 +2968,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)">📲 Install the app</div>
   <a href="https://ko-fi.com/ratchetlegacy" target="_blank" class="menu-item" style="color:#FF8C42;border-color:rgba(255,140,66,.2)">☕ Fuel the collection!</a>
   <div class="menu-item" style="color:var(--missing);border-color:rgba(255,77,106,.2)" onclick="closeMobileMenu();doSignOut()">🚪 Sign out</div>
-  <a href="legal.html" class="menu-item" style="color:var(--text-dim);font-size:.72rem">📄 Terms & Privacy</a>
+  <a href="https://ratchetlegacy.github.io/rc-site/legal.html" target="_blank" class="menu-item" style="color:var(--text-dim);font-size:.72rem">📄 Terms & Privacy</a>
 </div>
 
 <!-- EXPORT MODAL -->
