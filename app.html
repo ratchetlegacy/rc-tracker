@@ -8947,35 +8947,79 @@ function catalogIcon(cat){
   return m[cat]||'📌';
 }
 
+// ===== R&C catalog: cascade nav (Category > Platform > Region > items) =====
+let rcNavCat='', rcNavPlat='', rcNavReg='';
+
 function renderCatalog(){
   const list = document.getElementById('catalog-list');
-  let items = catalogData;
-  if(catalogFilter!=='all') items = items.filter(c=>c.category===catalogFilter);
   if(!catalogData.length){ list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)">No entries yet.</div>'; return; }
+  rcNavCat=''; rcNavPlat=''; rcNavReg='';
+  rcShowCategories();
+}
 
-  // Dropdown filters: category + platform + search
-  const cats = [...new Set(catalogData.map(c=>c.category).filter(Boolean))].sort();
-  const platforms = [...new Set(catalogData.map(c=>c.platform).filter(p=>p&&p!=='-'))].sort();
-  let html = '';
-  html += '<input type="text" id="rccat-search" placeholder="🔍 Search the catalog..." oninput="filterRcCatalog()" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:11px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none;margin-bottom:12px"/>';
-  html += '<div class="cvcat-filters">'
-    + '<select id="rccat-filter-cat" onchange="filterRcCatalog()"><option value="">All types</option>'+cats.map(c=>'<option value="'+escHtml(c)+'">'+catalogIcon(c)+' '+escHtml(c)+'</option>').join('')+'</select>'
-    + '<select id="rccat-filter-platform" onchange="filterRcCatalog()"><option value="">All platforms</option>'+platforms.map(p=>'<option value="'+escHtml(p)+'">'+escHtml(p)+'</option>').join('')+'</select>'
-    + '</div>';
+function rcMenuCards(items, onClick){
+  return '<div class="cvcat-grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">' + items.map(it=>{
+    const bg = it.img ? 'background-image:linear-gradient(to top,rgba(10,11,20,.9),rgba(10,11,20,.3)),url('+escHtml(it.img)+');background-size:cover;background-position:center' : '';
+    return '<div class="cvcat-card" style="cursor:pointer;min-height:120px;justify-content:flex-end;'+bg+'" onclick="'+onClick(it.key)+'">'
+      + '<div style="padding:14px">'
+      +   '<div style="font-size:1.6rem;margin-bottom:6px">'+(it.icon||'📦')+'</div>'
+      +   '<div style="font-weight:700;font-size:.9rem;color:#fff">'+escHtml(it.label)+'</div>'
+      +   '<div style="font-size:.68rem;color:rgba(255,255,255,.75);margin-top:2px">'+it.count+' item'+(it.count>1?'s':'')+'</div>'
+      + '</div></div>';
+  }).join('') + '</div>';
+}
+function rcCrumb(){
+  let parts = ['<button class="cvcat-btn" style="margin:0;padding:6px 12px;background:var(--bg3);color:var(--text)" onclick="renderCatalog()">🗂️ Types</button>'];
+  if(rcNavCat) parts.push('<button class="cvcat-btn" style="margin:0;padding:6px 12px;background:var(--bg3);color:var(--text)" onclick="rcOpenCat(\''+escHtml(rcNavCat).replace(/'/g,"\\'")+'\')">'+catalogIcon(rcNavCat)+' '+escHtml(rcNavCat)+'</button>');
+  if(rcNavPlat) parts.push('<button class="cvcat-btn" style="margin:0;padding:6px 12px;background:var(--bg3);color:var(--text)" onclick="rcOpenPlat(\''+escHtml(rcNavPlat).replace(/'/g,"\\'")+'\')">'+escHtml(rcNavPlat)+'</button>');
+  if(rcNavReg) parts.push('<span class="cvcat-btn" style="margin:0;padding:6px 12px;background:var(--bg3);color:var(--text-dim)">'+escHtml(rcNavReg)+'</span>');
+  return '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px">'+parts.join('<span style="color:var(--text-dim)">›</span>')+'</div>';
+}
 
-  // Cards grid
-  html += '<div class="cvcat-grid" id="rccat-list">' + catalogData.map(c=>catalogCard(c)).join('') + '</div>';
+function rcShowCategories(){
+  const list=document.getElementById('catalog-list');
+  const counts={};
+  catalogData.forEach(c=>{ const k=c.category||'Misc'; counts[k]=(counts[k]||0)+1; });
+  const cats=Object.keys(counts).sort();
+  const items=cats.map(cat=>({key:cat,label:cat,icon:catalogIcon(cat),count:counts[cat],img:(catalogData.find(o=>(o.category||'Misc')===cat&&o.image_url)||{}).image_url}));
+  list.innerHTML = rcMenuCards(items, k=>'rcOpenCat(\''+k.replace(/'/g,"\\'")+'\')');
+}
+function rcOpenCat(cat){
+  rcNavCat=cat; rcNavPlat=''; rcNavReg='';
+  const inCat=catalogData.filter(c=>(c.category||'Misc')===cat);
+  const counts={};
+  inCat.forEach(c=>{ const k=(c.platform&&c.platform!=='-')?c.platform:'—'; counts[k]=(counts[k]||0)+1; });
+  const plats=Object.keys(counts).sort();
+  const items=plats.map(p=>({key:p,label:p==='—'?'(no platform)':p,icon:'🕹️',count:counts[p],img:(inCat.find(o=>((o.platform&&o.platform!=='-')?o.platform:'—')===p&&o.image_url)||{}).image_url}));
+  document.getElementById('catalog-list').innerHTML = rcCrumb() + rcMenuCards(items, k=>'rcOpenPlat(\''+k.replace(/'/g,"\\'")+'\')');
+}
+function rcOpenPlat(plat){
+  rcNavPlat=plat; rcNavReg='';
+  const inSel=catalogData.filter(c=>(c.category||'Misc')===rcNavCat && ((c.platform&&c.platform!=='-')?c.platform:'—')===plat);
+  const counts={};
+  inSel.forEach(c=>{ const k=c.region||'—'; counts[k]=(counts[k]||0)+1; });
+  const regs=Object.keys(counts).sort();
+  if(regs.length<=1){ rcOpenReg(regs[0]||'—'); return; }
+  const items=regs.map(r=>({key:r,label:r==='—'?'(no version)':r,icon:'🌍',count:counts[r],img:(inSel.find(o=>(o.region||'—')===r&&o.image_url)||{}).image_url}));
+  document.getElementById('catalog-list').innerHTML = rcCrumb() + rcMenuCards(items, k=>'rcOpenReg(\''+k.replace(/'/g,"\\'")+'\')');
+}
+function rcOpenReg(reg){
+  rcNavReg=reg;
+  const list=catalogData.filter(c=>(c.category||'Misc')===rcNavCat && ((c.platform&&c.platform!=='-')?c.platform:'—')===rcNavPlat && (c.region||'—')===reg);
+  let html = rcCrumb();
+  html += '<input type="text" id="rccat-search" placeholder="🔍 Search here..." oninput="filterRcCatalog()" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:11px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none;margin-bottom:12px"/>';
+  html += '<div class="cvcat-grid" id="rccat-list">' + list.map(c=>catalogCard(c)).join('') + '</div>';
   html += '<div id="rccat-empty" style="display:none;text-align:center;padding:20px;color:var(--text-dim);font-size:.82rem">No match found.</div>';
-  list.innerHTML = html;
+  document.getElementById('catalog-list').innerHTML = html;
 }
 
 function catalogCard(c){
-  const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.year].filter(Boolean).join(' · ');
+  const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.region, c.year].filter(Boolean).join(' · ');
   const adminEdit = isAdmin() ? '<button class="cvcat-admin-edit" onclick="event.stopPropagation();openCatalogEdit('+c.id+')">✏️</button>' : '';
   const cover = c.image_url
     ? '<img src="'+escHtml(c.image_url)+'" loading="lazy"/>'
     : '<span class="cvcat-ph">'+catalogIcon(c.category)+'</span>';
-  return '<div class="cvcat-card rccat-row" data-name="'+escHtml((c.name+' '+(c.platform||'')).toLowerCase())+'" data-cat="'+escHtml(c.category||'')+'" data-platform="'+escHtml(c.platform||'')+'">'
+  return '<div class="cvcat-card rccat-row" data-name="'+escHtml((c.name+' '+(c.platform||'')).toLowerCase())+'">'
     + '<div class="cvcat-cover" onclick="openCatalogDetail('+c.id+')" style="cursor:pointer">'+cover+adminEdit
     +   '<span style="position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.65);color:#fff;font-size:.56rem;font-weight:700;padding:2px 6px;border-radius:4px">'+catalogIcon(c.category)+' '+escHtml(c.category||'')+'</span>'
     + '</div>'
@@ -8992,14 +9036,10 @@ function catalogCard(c){
 
 function filterRcCatalog(){
   const q=(document.getElementById('rccat-search')?.value||'').toLowerCase().trim();
-  const fc=document.getElementById('rccat-filter-cat')?.value||'';
-  const fp=document.getElementById('rccat-filter-platform')?.value||'';
   const rows=document.querySelectorAll('.rccat-row');
   let shown=0;
   rows.forEach(r=>{
-    let ok = !q || (r.dataset.name||'').includes(q);
-    if(ok && fc) ok = (r.dataset.cat===fc);
-    if(ok && fp) ok = (r.dataset.platform===fp);
+    const ok = !q || (r.dataset.name||'').includes(q);
     r.style.display = ok?'':'none';
     if(ok) shown++;
   });
