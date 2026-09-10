@@ -3610,6 +3610,18 @@ function setAllSections(open){
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
 let rcCatalogByName = {};
+let marketRating = {};  // name_key -> {median, count}
+async function loadMarketRating(){
+  try {
+    const { data } = await sbClient.from('market_rating').select('*');
+    marketRating = {};
+    (data||[]).forEach(r=>{ if(r.name_key) marketRating[r.name_key] = {median:r.median_price, count:r.sample_count}; });
+  } catch(e){ marketRating={}; }
+}
+function ratingFor(name){
+  const k=(name||'').trim().toLowerCase();
+  return marketRating[k]||null;
+}
 async function loadRcCatalogIndex(){
   try {
     const { data } = await sbClient.from('catalog').select('name,image_url');
@@ -3618,6 +3630,7 @@ async function loadRcCatalogIndex(){
       if(c.name){ rcCatalogByName[c.name.trim().toLowerCase()] = c.image_url||''; }
     });
   } catch(e){ rcCatalogByName={}; }
+  await loadMarketRating();
 }
 // Returns the image to show for an R&C item: catalog photo ALWAYS wins, else the item's own.
 function rcItemImage(item){
@@ -9061,6 +9074,16 @@ function openCatalogDetail(id){
     + '<div class="cd-cat">'+catalogIcon(c.category)+' '+escHtml(c.category||'Misc')+'</div>'
     + '<h2 class="cd-name">'+escHtml(c.name)+'</h2>'
     + (meta?'<div class="cd-meta">'+escHtml(meta)+'</div>':'')
+    + (function(){
+        const r=ratingFor(c.name);
+        if(!r||r.median==null) return '';
+        const val=parseFloat(r.median).toFixed(2).replace(/\.00$/,'');
+        return '<div style="margin:12px 0;padding:12px 14px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:10px;text-align:center">'
+          + '<div style="font-size:.66rem;color:var(--text-dim);letter-spacing:.04em">💰 COMMUNITY VALUE (median)</div>'
+          + '<div style="font-family:Orbitron,sans-serif;font-weight:700;font-size:1.3rem;color:var(--owned)">'+val+' €</div>'
+          + '<div style="font-size:.62rem;color:var(--text-dim)">based on '+r.count+' collector'+(r.count>1?'s':'')+'</div>'
+          + '</div>';
+      })()
     + (c.description?'<p class="cd-desc">'+escHtml(c.description)+'</p>':'')
     + '<div class="cd-actions">'
     +   '<button class="cd-btn cd-btn-owned" onclick="addFromCatalog('+c.id+')">✓ Add &amp; customize</button>'
