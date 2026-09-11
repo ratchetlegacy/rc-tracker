@@ -1577,6 +1577,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <span class="filter-label" style="width:70px;flex-shrink:0">Platform</span>
         <select id="platform-select" onchange="onPlatformSelect(this.value)" style="flex:1;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none"></select>
       </div>
+      <div style="display:flex;align-items:center;gap:10px" id="region-filter-row">
+        <span class="filter-label" style="width:70px;flex-shrink:0">Language</span>
+        <select id="region-select" onchange="onRegionSelect(this.value)" style="flex:1;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none"></select>
+      </div>
       <div style="display:flex;align-items:center;gap:10px">
         <span class="filter-label" style="width:70px;flex-shrink:0">Status</span>
         <select id="status-select" onchange="onStatusSelect(this.value)" style="flex:1;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:10px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none">
@@ -3146,7 +3150,7 @@ async function confirmDeleteAccount(){
 }
 
 // ══ STATE ══
-let items=[], activeType='all', activeStatus=null, activePlatform='all', editingId=null, currentRating=0;
+let items=[], activeType='all', activeStatus=null, activePlatform='all', activeRegion='all', editingId=null, currentRating=0;
 
 // ══ DB ══
 // Legacy FR option values -> EN (display migration; persisted on next save of the item)
@@ -3552,6 +3556,18 @@ function buildTypeFilters(){
 // Dropdown handlers
 function onTypeSelect(v){ activeType=v; render(); updateFiltersBadge(); }
 function onPlatformSelect(v){ activePlatform=v; render(); updateFiltersBadge(); }
+function getRegions(){ return [...new Set(items.map(i=>i.region).filter(Boolean))].sort(); }
+function buildRegionFilters(){
+  const sel=document.getElementById('region-select');
+  if(!sel) return;
+  const regions=getRegions();
+  const row=document.getElementById('region-filter-row');
+  if(row) row.style.display = regions.length ? 'flex' : 'none';
+  sel.innerHTML='<option value="all">All languages</option>' + regions.map(r=>'<option value="'+escHtml(r)+'"'+(activeRegion===r?' selected':'')+'>'+escHtml(r)+'</option>').join('');
+  sel.value=activeRegion||'all';
+  updateFiltersBadge();
+}
+function onRegionSelect(v){ activeRegion=v; render(); updateFiltersBadge(); }
 function onStatusSelect(v){
   activeStatus = (v==='all') ? null : v;
   render(); updateFiltersBadge();
@@ -3564,16 +3580,18 @@ function toggleFiltersPanel(){
   if(chev) chev.textContent = open ? '▴' : '▾';
 }
 function resetAllFilters(){
-  activeType='all'; activePlatform='all'; activeStatus=null;
+  activeType='all'; activePlatform='all'; activeStatus=null; activeRegion='all';
   const ts=document.getElementById('type-select'); if(ts) ts.value='all';
   const ps=document.getElementById('platform-select'); if(ps) ps.value='all';
   const ss=document.getElementById('status-select'); if(ss) ss.value='all';
+  const rs=document.getElementById('region-select'); if(rs) rs.value='all';
   render(); updateFiltersBadge();
 }
 function updateFiltersBadge(){
   let n=0;
   if(activeType && activeType!=='all') n++;
   if(activePlatform && activePlatform!=='all') n++;
+  if(activeRegion && activeRegion!=='all') n++;
   if(activeStatus) n++;
   const badge=document.getElementById('filters-active-badge');
   if(badge){ badge.style.display = n>0?'inline':'none'; badge.textContent=n+' active'; }
@@ -3691,12 +3709,14 @@ function render(){
 
   buildTypeFilters();
   buildPlatformFilters();
+  buildRegionFilters();
 
   // filter
   let filtered=items;
   if(activeType!=='all') filtered=filtered.filter(i=>i.type===activeType);
   if(activeStatus) filtered=filtered.filter(i=>i.status===activeStatus);
   if(activePlatform!=='all') filtered=filtered.filter(i=>(i.platform||'')===activePlatform);
+  if(activeRegion!=='all') filtered=filtered.filter(i=>(i.region||'')===activeRegion);
 
   const container=document.getElementById('grid-container');
   container.innerHTML='';
