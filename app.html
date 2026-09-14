@@ -1238,6 +1238,19 @@
       .header-titles h1{font-size:1rem}
       .header-user .user-email{display:none}
     }
+    /* ═══ Site harmony: subtle animations, hover, glow, gradient titles ═══ */
+    @keyframes rlFadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    @keyframes rlLogoGlow{0%,100%{filter:drop-shadow(0 0 4px rgba(123,79,212,.5))}50%{filter:drop-shadow(0 0 12px rgba(255,107,26,.7))}}
+    /* card hover */
+    .card,.cvcat-card,.home-tile-sq,.home-tile-wide,.home-featured-tile,.other-card,.menu-card{transition:transform .2s cubic-bezier(.2,.7,.3,1),box-shadow .2s,border-color .2s!important}
+    .card:hover,.cvcat-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px -10px rgba(123,79,212,.5)}
+    /* logo glow */
+    .logo-img{animation:rlLogoGlow 3.6s ease-in-out infinite}
+    /* gradient on big content titles (safe selection) */
+    .cat-title,.profile-section-title,.public-section-title,.guide-hero-title,.themes-intro-title{background:linear-gradient(120deg,var(--purple-light,#9B6FF4),var(--orange,#FF6B1A));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    /* fade-in on appear */
+    .rl-reveal{opacity:0;animation:rlFadeUp .6s ease forwards}
+    @media(prefers-reduced-motion:reduce){.rl-reveal{opacity:1;animation:none}.logo-img{animation:none}}
   </style>
 </head>
 <body>
