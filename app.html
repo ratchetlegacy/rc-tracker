@@ -3658,17 +3658,42 @@ function setAllSections(open){
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
 let rcCatalogByName = {};
-let marketRating = {};  // name_key -> {median, count}
+let marketRating = {};  // catalog_id -> { neuf:{median,count}, occasion:{median,count} }
 async function loadMarketRating(){
   try {
     const { data } = await sbClient.from('market_rating').select('*');
     marketRating = {};
-    (data||[]).forEach(r=>{ if(r.name_key) marketRating[r.name_key] = {median:r.median_price, count:r.sample_count}; });
+    (data||[]).forEach(r=>{
+      if(r.catalog_id==null) return;
+      const k = String(r.catalog_id);
+      if(!marketRating[k]) marketRating[k] = {};
+      marketRating[k][r.cond] = {
+        median: r.median_price!=null ? parseFloat(r.median_price) : null,
+        count:  r.user_count || 0,
+        sample: r.sample_count || 0
+      };
+    });
   } catch(e){ marketRating={}; }
 }
-function ratingFor(name){
-  const k=(name||'').trim().toLowerCase();
-  return marketRating[k]||null;
+// 'neuf_blister' / 'neuf' / 'new' / 'sealed' => neuf, tout le reste => occasion
+function condKey(cond){
+  const c=(cond||'').toLowerCase();
+  return (c==='neuf_blister'||c==='neuf'||c==='new'||c==='sealed') ? 'neuf' : 'occasion';
+}
+// Cote d'un item de la collection (selon son etat), ou null
+function ratingFor(item){
+  if(!item || item.catalog_id==null) return null;
+  const e = marketRating[String(item.catalog_id)];
+  if(!e) return null;
+  return e[condKey(item.condition)] || null;
+}
+// La cote pilote la valeur de marche : elle remplace cur_value EN MEMOIRE
+// (rien n'est ecrit en base) pour tous les objets rattaches au catalogue.
+function applyRatingToItems(){
+  (items||[]).forEach(i=>{
+    const r = ratingFor(i);
+    if(r && r.median!=null) i.cur_value = r.median;
+  });
 }
 async function loadRcCatalogIndex(){
   try {
@@ -3679,6 +3704,7 @@ async function loadRcCatalogIndex(){
     });
   } catch(e){ rcCatalogByName={}; }
   await loadMarketRating();
+  applyRatingToItems();
 }
 // Returns the image to show for an R&C item: catalog photo ALWAYS wins, else the item's own.
 function rcItemImage(item){
@@ -9132,13 +9158,19 @@ function openCatalogDetail(id){
     + '<h2 class="cd-name">'+escHtml(c.name)+'</h2>'
     + (meta?'<div class="cd-meta">'+escHtml(meta)+'</div>':'')
     + (function(){
-        const r=ratingFor(c.name);
-        if(!r||r.median==null) return '';
-        const val=parseFloat(r.median).toFixed(2).replace(/\.00$/,'');
+        const rr = marketRating[String(c.id)] || {};
+        const line = (lbl,r)=> (r && r.median!=null)
+          ? '<div style="flex:1">'
+            + '<div style="font-size:.58rem;color:var(--text-dim);letter-spacing:.08em">'+lbl+'</div>'
+            + '<div style="font-family:Orbitron,sans-serif;font-weight:700;font-size:1.15rem;color:var(--owned)">'+parseFloat(r.median).toFixed(2).replace(/\.00$/,'')+' €</div>'
+            + '<div style="font-size:.56rem;color:var(--text-dim)">'+(r.count ? r.count+' collector'+(r.count>1?'s':'') : 'estimate only')+'</div>'
+            + '</div>'
+          : '';
+        const a=line('NEW / SEALED', rr.neuf), b=line('PRE-OWNED', rr.occasion);
+        if(!a && !b) return '';
         return '<div style="margin:12px 0;padding:12px 14px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:10px;text-align:center">'
-          + '<div style="font-size:.66rem;color:var(--text-dim);letter-spacing:.04em">💰 COMMUNITY VALUE (median)</div>'
-          + '<div style="font-family:Orbitron,sans-serif;font-weight:700;font-size:1.3rem;color:var(--owned)">'+val+' €</div>'
-          + '<div style="font-size:.62rem;color:var(--text-dim)">based on '+r.count+' collector'+(r.count>1?'s':'')+'</div>'
+          + '<div style="font-size:.6rem;color:var(--text-dim);letter-spacing:.1em;margin-bottom:6px">💰 MARKET RATING (median)</div>'
+          + '<div style="display:flex;gap:10px">'+a+b+'</div>'
           + '</div>';
       })()
     + (c.description?'<p class="cd-desc">'+escHtml(c.description)+'</p>':'')
@@ -9170,6 +9202,8 @@ async function addCatalogToCollection(id, status){
     img_url: c.image_url || '',
     status: status,                       // 'owned' or 'wishlist'
     condition: 'used',
+    catalog_id: c.id,
+    edition: c.edition || '',
     lang: 'FR',
     grade: 'excellent',
   };
@@ -9284,6 +9318,8 @@ async function awNext(){
     img_url: c.image_url||null,
     status: awState.status,
     condition: awState.condition,
+    catalog_id: c.id,
+    edition: c.edition || '',
     buy_price: awState.buy_price!==''?parseFloat(awState.buy_price):null
   };
   // Pre-fill current value from the catalog reference price, based on condition
@@ -9299,6 +9335,7 @@ async function awNext(){
     const { data, error } = await sbClient.from('items').insert([row]).select('*').single();
     if(error){ showToast('Error: '+error.message,'error'); return; }
     if(data){ items.push(migrateItemLang(data)); }
+    await loadMarketRating(); applyRatingToItems();
     showToast(awState.status==='wishlist'?'Added to wishlist ★':'Added to your collection ✓','success');
     closeAddWiz();
     render();
