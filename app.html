@@ -994,7 +994,7 @@
     .menu-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 8px}
     .menu-card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 8px;border-radius:14px;background:var(--bg3);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:.16s}
     .menu-card:hover{background:rgba(123,79,212,.2);border-color:var(--purple);transform:translateY(-2px)}
-    .menu-card .mc-ic{font-size:1.7rem}
+    .menu-card .mc-ic{display:none}
     .menu-card .mc-lbl{font-size:.74rem;font-weight:600;text-align:center}
     .menu-section-title{font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin:12px 6px 2px}
     .menu-section-title:first-of-type{margin-top:4px}
@@ -1131,8 +1131,8 @@
     .bnav-add-btn:active{transform:scale(.92)}
     body.has-bnav #app-screen,body.has-bnav #home-screen,body.has-bnav .collection-view-screen{padding-bottom:76px}
     /* Catalog card grid (Steam/Epic style) */
-    .cvcat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media(max-width:380px){.cvcat-grid{grid-template-columns:1fr 1fr;gap:10px}}
+    .cvcat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:10px}
+    @media(max-width:380px){.cvcat-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}}
     .cvcat-card{background:var(--bg2);border:1px solid transparent;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s,border-color .18s;position:relative}
     .cvcat-card:hover{transform:translateY(-5px);border-color:var(--purple);box-shadow:0 10px 26px -6px rgba(123,79,212,.55),0 4px 10px rgba(0,0,0,.4)}
     .cvcat-cover{width:100%;aspect-ratio:3/4;background:var(--bg3);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
@@ -1143,10 +1143,10 @@
     .cvcat-cover .cvcat-ph{font-size:2.4rem;opacity:.25}
     .cvcat-owned-flag{position:absolute;top:6px;right:6px;background:var(--owned);color:#062;font-size:.58rem;font-weight:800;padding:3px 7px;border-radius:4px;letter-spacing:.03em;z-index:2}
     .cvcat-admin-edit{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);border:none;color:#fff;font-size:.8rem;width:26px;height:26px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
-    .cvcat-body{padding:9px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
-    .cvcat-name{font-weight:700;font-size:.82rem;color:var(--text);line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .cvcat-meta{font-size:.66rem;color:var(--text-dim)}
-    .cvcat-btn{margin:0 10px 10px;border:none;border-radius:5px;padding:9px;font-weight:700;font-size:.74rem;cursor:pointer;font-family:Inter,sans-serif;transition:background .15s,transform .1s}
+    .cvcat-body{padding:7px 8px;display:flex;flex-direction:column;gap:2px;flex:1}
+    .cvcat-name{font-weight:700;font-size:.74rem;color:var(--text);line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .cvcat-meta{font-size:.6rem;color:var(--text-dim)}
+    .cvcat-btn{margin:0 7px 7px;border:none;border-radius:5px;padding:7px;font-weight:700;font-size:.66rem;cursor:pointer;font-family:Inter,sans-serif;transition:background .15s,transform .1s}
     .cvcat-btn:active{transform:scale(.96)}
     .cvcat-btn-add{background:var(--purple);color:#fff}
     .cvcat-btn-add:hover{background:var(--purple-light)}
