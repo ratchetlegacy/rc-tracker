@@ -2670,6 +2670,9 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
     <div class="form-group"><label>Year</label><input type="number" id="cat-edit-year" placeholder="2004"/></div>
     <div class="form-group"><label>Region</label><input type="text" id="cat-edit-region" placeholder="PAL, NTSC-U..."/></div>
+    <div class="form-group"><label>Edition</label><input type="text" id="cat-edit-edition" placeholder="Standard, Platinum, Essentials, Collector, Coffret..." list="cat-edition-list"/>
+      <datalist id="cat-edition-list"><option value="Standard"></option><option value="Platinum"></option><option value="Essentials"></option><option value="Collector"></option><option value="Coffret"></option><option value="Greatest Hits"></option><option value="Disc only"></option></datalist>
+    </div>
     <div class="form-group">
       <label>💰 Reference value (€) — optional</label>
       <div style="display:flex;gap:10px">
@@ -9078,7 +9081,7 @@ function rcOpenReg(reg){
 }
 
 function catalogCard(c){
-  const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.region, c.year].filter(Boolean).join(' · ');
+  const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.edition, c.region, c.year].filter(Boolean).join(' · ');
   const adminEdit = isAdmin() ? '<button class="cvcat-admin-edit" onclick="event.stopPropagation();openCatalogEdit('+c.id+')">✏️</button>' : '';
   const cover = c.image_url
     ? '<img src="'+escHtml(c.image_url)+'" loading="lazy"/>'
@@ -9116,7 +9119,7 @@ function openCatalogDetail(id){
   const c = catalogData.find(x=>String(x.id)===String(id));
   if(!c) return;
   _cdFront=true;
-  const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.region, c.year].filter(Boolean).join(' · ');
+  const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.edition, c.region, c.year].filter(Boolean).join(' · ');
   const hasBack = c.image_back && c.image_back.trim();
   const img = c.image_url
     ? '<img id="cd-photo" src="'+escHtml(c.image_url)+'" alt="" onerror="this.parentNode.innerHTML=\'<div class=&quot;cd-noimg&quot;>'+catalogIcon(c.category)+'</div>\'"/>'
@@ -9313,6 +9316,7 @@ function openCatalogEdit(id){
   document.getElementById('cat-edit-platform').value = entry ? (entry.platform||'') : '';
   document.getElementById('cat-edit-year').value = entry ? (entry.year||'') : '';
   document.getElementById('cat-edit-region').value = entry ? (entry.region||'') : '';
+  document.getElementById('cat-edit-edition').value = entry ? (entry.edition||'') : '';
   document.getElementById('cat-edit-price-new').value = entry ? (entry.price_new!=null?entry.price_new:'') : '';
   document.getElementById('cat-edit-price-used').value = entry ? (entry.price_used!=null?entry.price_used:'') : '';
   document.getElementById('cat-edit-image').value = entry ? (entry.image_url||'') : '';
@@ -9344,6 +9348,7 @@ async function saveCatalogEntry(){
     platform: document.getElementById('cat-edit-platform').value.trim() || null,
     year: parseInt(document.getElementById('cat-edit-year').value) || null,
     region: document.getElementById('cat-edit-region').value.trim() || null,
+    edition: document.getElementById('cat-edit-edition').value.trim() || null,
     price_new: document.getElementById('cat-edit-price-new').value!==''?parseFloat(document.getElementById('cat-edit-price-new').value):null,
     price_used: document.getElementById('cat-edit-price-used').value!==''?parseFloat(document.getElementById('cat-edit-price-used').value):null,
     image_url: document.getElementById('cat-edit-image').value.trim() || null,
