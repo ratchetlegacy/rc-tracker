@@ -3689,7 +3689,9 @@ async function loadMarketRating(){
       if(!marketRating[k]) marketRating[k] = {};
       marketRating[k][r.cond] = {
         median: r.median_price!=null ? parseFloat(r.median_price) : null,
-        count:  r.user_count || 0,
+        count:  (r.user_count || 0) + (r.sale_count || 0),   // prix reels : collectionneurs + ventes relevees
+        users:  r.user_count || 0,
+        sales:  r.sale_count || 0,
         sample: r.sample_count || 0
       };
     });
@@ -9224,51 +9226,54 @@ function trendSvg(points, color){
     + '</svg>';
 }
 function trendHtml(rows, sales){
-  // on garde l'etat qui a le plus de points, occasion en cas d'egalite
+  // Une courbe par etat : neuf et occasion sont deux marches differents.
   const byCond={};
   rows.forEach(r=>{ (byCond[r.cond]=byCond[r.cond]||[]).push(r); });
-  let best=null, bestCond='';
-  Object.keys(byCond).forEach(k=>{
-    const arr=byCond[k].slice().sort((a,b)=>String(a.month).localeCompare(String(b.month)));
-    if(!best || arr.length>best.length || (arr.length===best.length && k==='occasion')){ best=arr; bestCond=k; }
+  const fmt=v=>parseFloat(v).toFixed(2).replace(/\.00$/,'')+' \u20ac';
+  const blocks=[];
+  let bestCount=0;
+  ['occasion','neuf'].forEach(cond=>{
+    const arr=(byCond[cond]||[]).slice().sort((a,b)=>String(a.month).localeCompare(String(b.month)));
+    if(!arr.length) return;
+    // points_total = tous les prix dates de l'objet pour cet etat.
+    const totalPts=Math.max.apply(null, arr.map(r=>r.points_total||r.sample_count||0));
+    bestCount=Math.max(bestCount,totalPts);
+    if(arr.length<3 || totalPts<4) return;
+    const pts=arr.map(r=>{
+      const m=String(r.month).slice(0,7);
+      let tip=m+' \u00b7 '+fmt(r.median_price)+' (median of '+r.sample_count+')';
+      (sales||[]).forEach(v=>{
+        if(v.condition!==cond) return;
+        if(String(v.sold_on).slice(0,7)!==m) return;
+        tip+='\n\u2022 '+fmt(v.price)+(v.source?' \u00b7 '+v.source:'')+(v.condition_note?' \u00b7 '+v.condition_note:'');
+      });
+      return {m:m, v:parseFloat(r.median_price), tip:tip};
+    });
+    const first=pts[0].v, last=pts[pts.length-1].v;
+    const diff=last-first, pct=first>0?((diff/first)*100):0;
+    const up=diff>=0, color=up?'#3DD68C':'#FF6B6B';
+    blocks.push(
+      '<div style="margin:12px 0;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px">'
+      + '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">'
+      +   '<span style="font-size:.6rem;color:var(--text-dim);letter-spacing:.1em">\ud83d\udcc8 TREND \u00b7 '+(cond==='neuf'?'NEW / SEALED':'PRE-OWNED')+'</span>'
+      +   '<span style="font-size:.78rem;font-weight:700;color:'+color+'">'+(up?'\u25b2':'\u25bc')+' '+(up?'+':'')+pct.toFixed(0)+'%</span>'
+      + '</div>'
+      + trendSvg(pts,color)
+      + '<div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--text-dim);margin-top:4px">'
+      +   '<span>'+pts[0].m+' \u00b7 '+fmt(first)+'</span><span>'+pts[pts.length-1].m+' \u00b7 '+fmt(last)+'</span>'
+      + '</div>'
+      + '<div style="font-size:.56rem;color:var(--text-dim);text-align:center;margin-top:4px">Hover a point for the sales behind it</div>'
+      + '</div>');
   });
-  // points_total = tous les prix dates de l'objet, toutes fenetres confondues.
-  // Un historique etale (une vente par an) doit pouvoir tracer une courbe.
-  const totalPts = best ? Math.max.apply(null, best.map(r=>r.points_total||r.sample_count||0)) : 0;
-  if(!best || best.length<3 || totalPts<4){
+  if(!blocks.length){
     return '<div style="font-size:.7rem;color:var(--text-dim);text-align:center;padding:10px">'
-      + '📉 Not enough data for a trend yet'
-      + (totalPts?' ('+totalPts+' price'+(totalPts>1?'s':'')+' recorded)':'')
+      + '\ud83d\udcc9 Not enough data for a trend yet'
+      + (bestCount?' ('+bestCount+' dated price'+(bestCount>1?'s':'')+')':'')
       + '</div>';
   }
-  const fmtTip=v=>parseFloat(v).toFixed(2).replace(/\.00$/,'')+' \u20ac';
-  const pts=best.map(r=>{
-    const m=String(r.month).slice(0,7);
-    let tip=m+' \u00b7 '+fmtTip(r.median_price)+' (median of '+r.sample_count+')';
-    (sales||[]).forEach(v=>{
-      if(v.condition!==bestCond) return;
-      if(String(v.sold_on).slice(0,7)!==m) return;
-      tip += '\n\u2022 '+fmtTip(v.price)+(v.source?' \u00b7 '+v.source:'')+(v.condition_note?' \u00b7 '+v.condition_note:'');
-    });
-    return {m:m, v:parseFloat(r.median_price), tip:tip};
-  });
-  const first=pts[0].v, last=pts[pts.length-1].v;
-  const diff=last-first, pct=first>0?((diff/first)*100):0;
-  const up=diff>=0;
-  const color=up?'#3DD68C':'#FF6B6B';
-  const fmt=v=>parseFloat(v).toFixed(2).replace(/\.00$/,'')+' \u20ac';
-  return '<div style="margin:12px 0;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px">'
-    + '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">'
-    +   '<span style="font-size:.6rem;color:var(--text-dim);letter-spacing:.1em">\ud83d\udcc8 TREND \u00b7 '+(bestCond==='neuf'?'NEW':'PRE-OWNED')+'</span>'
-    +   '<span style="font-size:.78rem;font-weight:700;color:'+color+'">'+(up?'\u25b2':'\u25bc')+' '+(up?'+':'')+pct.toFixed(0)+'%</span>'
-    + '</div>'
-    + trendSvg(pts,color)
-    + '<div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--text-dim);margin-top:4px">'
-    +   '<span>'+pts[0].m+' \u00b7 '+fmt(first)+'</span><span>'+pts[pts.length-1].m+' \u00b7 '+fmt(last)+'</span>'
-    + '</div>'
-    + '<div style="font-size:.56rem;color:var(--text-dim);text-align:center;margin-top:4px">Hover a point for the sales behind it</div>'
-    + '</div>';
+  return blocks.join('');
 }
+
 async function loadTrendInto(boxId, catalogId, client){
   const box=document.getElementById(boxId); if(!box) return;
   try{
@@ -9305,7 +9310,7 @@ function openCatalogDetail(id){
           ? '<div style="flex:1">'
             + '<div style="font-size:.58rem;color:var(--text-dim);letter-spacing:.08em">'+lbl+'</div>'
             + '<div style="font-family:Orbitron,sans-serif;font-weight:700;font-size:1.15rem;color:var(--owned)">'+parseFloat(r.median).toFixed(2).replace(/\.00$/,'')+' €</div>'
-            + '<div style="font-size:.56rem;color:var(--text-dim)">'+(r.count ? r.count+' collector'+(r.count>1?'s':'') : 'estimate only')+'</div>'
+            + '<div style="font-size:.56rem;color:var(--text-dim)">'+(r.count ? r.count+' real price'+(r.count>1?'s':'') : 'estimate only')+'</div>'
             + '</div>'
           : '';
         const a=line('NEW / SEALED', rr.neuf), b=line('PRE-OWNED', rr.occasion);
