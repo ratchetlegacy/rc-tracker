@@ -1811,6 +1811,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
           <label>Purchase price (€)</label>
           <input type="number" id="inp-buy" placeholder="ex: 12.99" min="0" step="0.01"/>
           <div class="price-hint"data-i18n="hint_buy_price">What you paid</div>
+          <input type="month" id="inp-buydate" style="margin-top:6px"/>
+          <div class="price-hint">When you bought it (optional) — feeds the price trend</div>
         </div>
         <div class="form-group">
           <label>Current value (€)</label>
@@ -2693,11 +2695,20 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <button type="button" onclick="openGallery('cat-edit-image')" style="flex:1;padding:9px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.76rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">🖼️ Gallery</button>
         <button type="button" onclick="takePhotoFor('cat-edit-image','logo',null)" style="flex:1;padding:9px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.76rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">📷 Take a photo</button>
       </div>
+      <label style="display:flex;align-items:center;gap:8px;margin:8px 0 4px;font-size:.76rem;color:var(--text-mid);cursor:pointer">
+        <input type="checkbox" id="cutout-cat-edit-image" style="width:auto;margin:0"/>
+        ✂️ Remove the background on upload
+      </label>
+      <div style="font-size:.66rem;color:var(--text-dim);margin-bottom:8px">Done on your device, nothing is sent anywhere. First use downloads the model (a few tens of MB) — better on wifi. Not recommended on box art scans.</div>
       <div id="cat-image-preview" style="margin-top:8px"></div>
     </div>
     <div class="form-group"><label>Back image (verso)</label>
       <input type="text" id="cat-edit-imageback" placeholder="Back photo URL..." style="width:100%;margin-bottom:8px"/>
       <button type="button" onclick="takePhotoFor('cat-edit-imageback','logo',null)" style="width:100%;padding:9px 12px;background:rgba(61,214,140,.15);border:1px solid rgba(61,214,140,.4);border-radius:8px;color:var(--owned);font-size:.76rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif">📷 Take back photo</button>
+      <label style="display:flex;align-items:center;gap:8px;margin:8px 0 4px;font-size:.76rem;color:var(--text-mid);cursor:pointer">
+        <input type="checkbox" id="cutout-cat-edit-imageback" style="width:auto;margin:0"/>
+        ✂️ Remove the background on upload
+      </label>
     </div>
     <div class="form-group"><label>Description</label><textarea id="cat-edit-desc" rows="2"></textarea></div>
     <div style="display:flex;gap:10px;margin-top:8px">
@@ -3257,6 +3268,7 @@ function openModal(id){
   document.getElementById('inp-condition').value=item?(item.condition||'neuf_blister'):'neuf_blister';
   document.getElementById('inp-grade').value=item?(item.grade||'excellent'):'excellent';
   document.getElementById('inp-buy').value=item&&item.buy_price!=null?item.buy_price:'';
+  document.getElementById('inp-buydate').value=(item&&item.buy_date)?String(item.buy_date).slice(0,7):'';
   document.getElementById('inp-val').value=item&&item.cur_value!=null?item.cur_value:'';
   document.getElementById('inp-img').value=item?(item.img_url||''):'';
   document.getElementById('inp-wish-url').value=item?(item.wish_url||''):'';
@@ -3429,6 +3441,7 @@ async function saveItem(){
     grade:gradeEl?gradeEl.value:'excellent',
     bonus:bonusEl?bonusEl.value.trim():'',
     buy_price:buy!==''?parseFloat(buy):null,
+    buy_date:(function(){ const v=document.getElementById('inp-buydate').value; return v?v+'-01':null; })(),
     cur_value:val!==''?parseFloat(val):null,
     img_url:document.getElementById('inp-img').value.trim(),
     rating:currentRating||null,
@@ -4232,6 +4245,37 @@ const CLD_CLOUD = 'dmfq8hkvu';
 const CLD_API_KEY = '487377232434179';
 const CLD_UPLOAD_PRESET = 'rc-jaquettes';   // unsigned preset for user camera photos
 
+// ══ DETOURAGE LOCAL (background removal) ══
+// Tourne entierement dans le navigateur : aucune image n'est envoyee ailleurs,
+// aucune cle d'API, aucun quota. Le modele est telecharge au premier usage
+// puis mis en cache par le navigateur.
+let _bgRemovalLib = null;
+async function loadBgRemoval(){
+  if(_bgRemovalLib) return _bgRemovalLib;
+  _bgRemovalLib = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm');
+  return _bgRemovalLib;
+}
+function cutoutWanted(targetInputId){
+  const el = document.getElementById('cutout-'+targetInputId);
+  return !!(el && el.checked);
+}
+// Renvoie un nouveau File PNG detoure, ou le fichier d'origine si ca echoue.
+async function cutoutFile(file){
+  try {
+    showToast('Removing the background… \u2702\ufe0f (first time can take a while)','info');
+    const lib = await loadBgRemoval();
+    const fn = lib.removeBackground || (lib.default && lib.default.removeBackground) || lib.default;
+    const blob = await fn(file, { output: { format: 'image/png' } });
+    if(!blob || !blob.size) throw new Error('empty result');
+    const base = (file.name||'photo').replace(/\.[^.]+$/,'');
+    return new File([blob], base+'-cutout.png', { type:'image/png' });
+  } catch(e){
+    console.log('background removal failed:', e);
+    showToast('Background removal failed, uploading the original photo','error');
+    return file;
+  }
+}
+
 // Take/pick a photo → upload to Cloudinary (unsigned) → fill target input.
 // Also logs the photo to the moderation queue so an admin can review it.
 function takePhotoFor(targetInputId, contextLabel, nameInputId){
@@ -4241,9 +4285,10 @@ function takePhotoFor(targetInputId, contextLabel, nameInputId){
   input.accept = 'image/*';
   input.setAttribute('capture','environment'); // prefer the rear camera on mobile
   input.onchange = async () => {
-    const file = input.files && input.files[0];
+    let file = input.files && input.files[0];
     if(!file) return;
     const targetEl = document.getElementById(targetInputId);
+    if(cutoutWanted(targetInputId)) file = await cutoutFile(file);
     showToast('Uploading photo… 📤','info');
     try {
       const form = new FormData();
@@ -9158,6 +9203,67 @@ function filterRcCatalog(){
   if(empty) empty.style.display = shown===0?'block':'none';
 }
 
+
+// ══ COURBE DE TENDANCE DES PRIX ══
+// Source : la vue market_rating_history (mediane glissante 12 mois des
+// prix reellement payes : achats utilisateurs + ventes relevees en admin).
+// L'estimation admin n'y entre pas, sinon la courbe serait plate.
+function trendSvg(points, color){
+  const W=280, H=90, P=6;
+  const vals=points.map(p=>p.v);
+  const min=Math.min.apply(null,vals), max=Math.max.apply(null,vals);
+  const span=(max-min)||1;
+  const stepX=(W-2*P)/Math.max(1,points.length-1);
+  const xy=points.map((p,i)=>[P+i*stepX, H-P-((p.v-min)/span)*(H-2*P)]);
+  const line=xy.map((c,i)=>(i?'L':'M')+c[0].toFixed(1)+' '+c[1].toFixed(1)).join(' ');
+  const area=line+' L'+xy[xy.length-1][0].toFixed(1)+' '+(H-P)+' L'+xy[0][0].toFixed(1)+' '+(H-P)+' Z';
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block">'
+    + '<path d="'+area+'" fill="'+color+'" opacity=".14"/>'
+    + '<path d="'+line+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+    + xy.map(c=>'<circle cx="'+c[0].toFixed(1)+'" cy="'+c[1].toFixed(1)+'" r="2.5" fill="'+color+'"/>').join('')
+    + '</svg>';
+}
+function trendHtml(rows){
+  // on garde l'etat qui a le plus de points, occasion en cas d'egalite
+  const byCond={};
+  rows.forEach(r=>{ (byCond[r.cond]=byCond[r.cond]||[]).push(r); });
+  let best=null, bestCond='';
+  Object.keys(byCond).forEach(k=>{
+    const arr=byCond[k].slice().sort((a,b)=>String(a.month).localeCompare(String(b.month)));
+    if(!best || arr.length>best.length || (arr.length===best.length && k==='occasion')){ best=arr; bestCond=k; }
+  });
+  const totalPts = best ? Math.max.apply(null, best.map(r=>r.sample_count||0)) : 0;
+  if(!best || best.length<3 || totalPts<5){
+    return '<div style="font-size:.7rem;color:var(--text-dim);text-align:center;padding:10px">'
+      + '📉 Not enough data for a trend yet'
+      + (totalPts?' ('+totalPts+' price'+(totalPts>1?'s':'')+' recorded)':'')
+      + '</div>';
+  }
+  const pts=best.map(r=>({m:String(r.month).slice(0,7), v:parseFloat(r.median_price)}));
+  const first=pts[0].v, last=pts[pts.length-1].v;
+  const diff=last-first, pct=first>0?((diff/first)*100):0;
+  const up=diff>=0;
+  const color=up?'#3DD68C':'#FF6B6B';
+  const fmt=v=>parseFloat(v).toFixed(2).replace(/\.00$/,'')+' \u20ac';
+  return '<div style="margin:12px 0;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px">'
+    + '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">'
+    +   '<span style="font-size:.6rem;color:var(--text-dim);letter-spacing:.1em">\ud83d\udcc8 TREND \u00b7 '+(bestCond==='neuf'?'NEW':'PRE-OWNED')+'</span>'
+    +   '<span style="font-size:.78rem;font-weight:700;color:'+color+'">'+(up?'\u25b2':'\u25bc')+' '+(up?'+':'')+pct.toFixed(0)+'%</span>'
+    + '</div>'
+    + trendSvg(pts,color)
+    + '<div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--text-dim);margin-top:4px">'
+    +   '<span>'+pts[0].m+' \u00b7 '+fmt(first)+'</span><span>'+pts[pts.length-1].m+' \u00b7 '+fmt(last)+'</span>'
+    + '</div></div>';
+}
+async function loadTrendInto(boxId, catalogId, client){
+  const box=document.getElementById(boxId); if(!box) return;
+  try{
+    const {data,error}=await client.from('market_rating_history').select('*').eq('catalog_id',catalogId);
+    if(error) throw error;
+    box.innerHTML=trendHtml(data||[]);
+  }catch(e){ box.innerHTML=''; }
+}
+
 // ---- Catalog detail card (everyone) ----
 function openCatalogDetail(id){
   const c = catalogData.find(x=>String(x.id)===String(id));
@@ -9191,6 +9297,7 @@ function openCatalogDetail(id){
           + '<div style="display:flex;gap:10px">'+a+b+'</div>'
           + '</div>';
       })()
+    + '<div id="cd-trend"></div>'
     + (c.description?'<p class="cd-desc">'+escHtml(c.description)+'</p>':'')
     + '<div class="cd-actions">'
     +   '<button class="cd-btn cd-btn-owned" onclick="addFromCatalog('+c.id+')">✓ Add &amp; customize</button>'
@@ -9199,6 +9306,7 @@ function openCatalogDetail(id){
     + '<p style="font-size:.7rem;color:var(--text-dim);text-align:center;margin-top:8px">"Add &amp; customize" lets you set condition &amp; completeness before saving.</p>'
     + (isAdmin()?'<button class="cd-admin-edit" onclick="closeCatalogDetail();openCatalogEdit('+c.id+')">✏️ Edit entry (admin)</button>':'');
   document.getElementById('catalog-detail-overlay').classList.add('open');
+  loadTrendInto('cd-trend', c.id, sbClient);
 }
 function closeCatalogDetail(){ document.getElementById('catalog-detail-overlay').classList.remove('open'); }
 let _cdFront=true;
@@ -9252,7 +9360,8 @@ function addFromCatalog(id){
     status: 'owned',
     condition: 'occasion',
     completeness: {},   // key -> true/false
-    buy_price: ''
+    buy_price: '',
+    buy_date: ''
   };
   // Prefill completeness keys as present by default
   (COMPLETENESS_CONFIG[type]||[]).forEach(f=>{ awState.completeness[f.k]='present'; });
@@ -9314,7 +9423,8 @@ function awRender(){
   } else if(step==='price'){
     q.textContent = 'Purchase price?';
     body.innerHTML = '<input type="number" id="aw-price-input" value="'+(awState.buy_price||'')+'" placeholder="0.00" step="0.01" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:14px;color:var(--text);font-size:1.1rem;outline:none;text-align:center" oninput="awState.buy_price=this.value"/>'
-      + '<div style="text-align:center;color:var(--text-dim);font-size:.72rem;margin-top:8px">Optional — leave empty if unknown</div>';
+      + '<input type="month" id="aw-date-input" value="'+(awState.buy_date||'')+'" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px;color:var(--text);font-size:.95rem;outline:none;text-align:center;margin-top:10px" oninput="awState.buy_date=this.value"/>'
+      + '<div style="text-align:center;color:var(--text-dim);font-size:.72rem;margin-top:8px">Both optional. The month you bought it is what makes the price trend meaningful.</div>';
   }
   // buttons
   document.getElementById('aw-back').style.display = awState.step>0 ? 'block' : 'none';
@@ -9338,7 +9448,8 @@ async function awNext(){
     condition: awState.condition,
     catalog_id: c.id,
     edition: c.edition || '',
-    buy_price: awState.buy_price!==''?parseFloat(awState.buy_price):null
+    buy_price: awState.buy_price!==''?parseFloat(awState.buy_price):null,
+    buy_date: awState.buy_date ? awState.buy_date+'-01' : null
   };
   // Pre-fill current value from the catalog reference price, based on condition
   const refVal = (awState.condition==='neuf_blister') ? c.price_new : c.price_used;
