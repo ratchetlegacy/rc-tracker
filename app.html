@@ -1133,6 +1133,13 @@
     /* Catalog card grid (Steam/Epic style) */
     .cvcat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:10px}
     @media(max-width:380px){.cvcat-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}}
+    /* navigation du catalogue : cartes plus grandes, nom entier, cote */
+    #rccat-list{grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
+    @media(max-width:380px){#rccat-list{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}}
+    #rccat-list .cvcat-name{font-size:.82rem;-webkit-line-clamp:4;line-height:1.25}
+    #rccat-list .cvcat-meta{font-size:.65rem;line-height:1.3}
+    .cvcat-rate{display:flex;gap:8px;margin:6px 10px 0;font-size:.62rem;color:var(--text-dim)}
+    .cvcat-rate b{display:block;font-family:Orbitron,sans-serif;font-size:.78rem;color:var(--owned);font-weight:700}
     .cvcat-card{background:var(--bg2);border:1px solid transparent;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s,border-color .18s;position:relative}
     .cvcat-card:hover{transform:translateY(-5px);border-color:var(--purple);box-shadow:0 10px 26px -6px rgba(123,79,212,.55),0 4px 10px rgba(0,0,0,.4)}
     .cvcat-cover{width:100%;aspect-ratio:3/4;background:var(--bg3);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
@@ -9106,6 +9113,16 @@ function rcOpenReg(reg){
   document.getElementById('catalog-list').innerHTML = html;
 }
 
+// Cote affichee sur la vignette du catalogue (neuf / occasion)
+function catalogCardRating(c){
+  const rr = marketRating[String(c.id)] || {};
+  const fmt = v => parseFloat(v).toFixed(2).replace(/\.00$/,'') + ' \u20ac';
+  const cell = (lbl,r) => (r && r.median!=null)
+    ? '<div><b>'+fmt(r.median)+'</b>'+lbl+'</div>' : '';
+  const a = cell('new', rr.neuf), b = cell('used', rr.occasion);
+  if(!a && !b) return '';
+  return '<div class="cvcat-rate">'+a+b+'</div>';
+}
 function catalogCard(c){
   const meta = [c.platform&&c.platform!=='-'?c.platform:'', c.edition, c.region, c.year].filter(Boolean).join(' · ');
   const adminEdit = isAdmin() ? '<button class="cvcat-admin-edit" onclick="event.stopPropagation();openCatalogEdit('+c.id+')">✏️</button>' : '';
@@ -9120,7 +9137,8 @@ function catalogCard(c){
     +   '<div class="cvcat-name">'+escHtml(c.name)+'</div>'
     +   (meta?'<div class="cvcat-meta">'+escHtml(meta)+'</div>':'')
     + '</div>'
-    + '<div style="display:flex;gap:6px;margin:0 10px 10px">'
+    + catalogCardRating(c)
+    + '<div style="display:flex;gap:6px;margin:8px 10px 10px">'
     +   '<button class="cvcat-btn cvcat-btn-add" style="flex:1;margin:0" onclick="event.stopPropagation();addFromCatalog('+c.id+')">+ Add</button>'
     +   '<button class="cvcat-btn" style="flex:0 0 auto;margin:0;background:rgba(255,255,255,.06);color:var(--text-dim);border:1px solid rgba(255,255,255,.1)" onclick="event.stopPropagation();openCatalogDetail('+c.id+')">See more</button>'
     + '</div>'
