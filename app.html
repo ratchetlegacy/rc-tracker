@@ -1811,7 +1811,10 @@ CREATE POLICY "Users see own items" ON items FOR ALL
           <label>Purchase price (€)</label>
           <input type="number" id="inp-buy" placeholder="ex: 12.99" min="0" step="0.01"/>
           <div class="price-hint"data-i18n="hint_buy_price">What you paid</div>
-          <input type="month" id="inp-buydate" style="margin-top:6px"/>
+          <div style="display:flex;gap:6px;margin-top:6px">
+            <select id="inp-buymonth" style="flex:1.4"></select>
+            <select id="inp-buyyear" style="flex:1"></select>
+          </div>
           <div class="price-hint">When you bought it (optional) — feeds the price trend</div>
         </div>
         <div class="form-group">
@@ -2719,6 +2722,24 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 </div>
 
 <!-- CATALOG DETAIL CARD (everyone) -->
+<div class="modal-overlay" id="sold-overlay" style="z-index:540">
+  <div class="modal" style="max-width:380px">
+    <div style="padding:22px">
+      <div style="font-size:1.8rem;text-align:center;margin-bottom:6px">💰</div>
+      <h3 style="font-family:Orbitron,sans-serif;font-size:1rem;text-align:center;margin-bottom:6px">Did you sell it?</h3>
+      <div id="sold-name" style="text-align:center;color:var(--text-dim);font-size:.8rem;margin-bottom:14px"></div>
+      <div style="font-size:.74rem;color:var(--text-dim);margin-bottom:12px;text-align:center">Sharing the price you got helps everyone know what this is really worth. Reviewed before it counts.</div>
+      <input type="number" id="sold-price" step="0.01" placeholder="Sold for (€)" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:13px;color:var(--text);font-size:1rem;text-align:center;margin-bottom:10px"/>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <select id="sold-month" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:13px;color:var(--text);font-size:.95rem;font-family:Inter,sans-serif;flex:1.4"></select>
+        <select id="sold-year" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:13px;color:var(--text);font-size:.95rem;font-family:Inter,sans-serif;flex:1"></select>
+      </div>
+      <button onclick="submitSold()" style="width:100%;background:linear-gradient(135deg,var(--purple),var(--orange));border:none;color:#fff;border-radius:10px;padding:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;margin-bottom:8px">Share the price</button>
+      <button onclick="closeSold()" style="width:100%;background:none;border:none;color:var(--text-dim);padding:8px;font-size:.8rem;cursor:pointer;font-family:Inter,sans-serif">No thanks</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="catalog-detail-overlay" style="z-index:520">
   <div class="modal catalog-detail-modal" style="max-width:420px">
     <button class="modal-close" onclick="closeCatalogDetail()">✕</button>
@@ -3268,7 +3289,7 @@ function openModal(id){
   document.getElementById('inp-condition').value=item?(item.condition||'neuf_blister'):'neuf_blister';
   document.getElementById('inp-grade').value=item?(item.grade||'excellent'):'excellent';
   document.getElementById('inp-buy').value=item&&item.buy_price!=null?item.buy_price:'';
-  document.getElementById('inp-buydate').value=(item&&item.buy_date)?String(item.buy_date).slice(0,7):'';
+  fillMonthYear('inp-buymonth','inp-buyyear',(item&&item.buy_date)?String(item.buy_date).slice(0,7):'',true);
   document.getElementById('inp-val').value=item&&item.cur_value!=null?item.cur_value:'';
   document.getElementById('inp-img').value=item?(item.img_url||''):'';
   document.getElementById('inp-wish-url').value=item?(item.wish_url||''):'';
@@ -3441,7 +3462,7 @@ async function saveItem(){
     grade:gradeEl?gradeEl.value:'excellent',
     bonus:bonusEl?bonusEl.value.trim():'',
     buy_price:buy!==''?parseFloat(buy):null,
-    buy_date:(function(){ const v=document.getElementById('inp-buydate').value; return v?v+'-01':null; })(),
+    buy_date:(function(){ const v=readMonthYear('inp-buymonth','inp-buyyear'); return v?v+'-01':null; })(),
     cur_value:val!==''?parseFloat(val):null,
     img_url:document.getElementById('inp-img').value.trim(),
     rating:currentRating||null,
@@ -3481,8 +3502,76 @@ async function setStatus(id,status){
 }
 async function deleteItem(id){
   if(!confirm(t('confirm_del_item'))) return;
-  try{ await dbDelete(id); items=items.filter(i=>i.id!==id); render(); showToast('Deleted.','success'); }
+  const item = items.find(i=>String(i.id)===String(id));
+  try{
+    await dbDelete(id);
+    items=items.filter(i=>i.id!==id);
+    render();
+    showToast('Deleted.','success');
+    askSoldPrice(item);   // proposer de declarer la vente
+  }
   catch(e){ showToast('Error: '+e.message,'error'); }
+}
+
+// ══ SELECTEURS MOIS / ANNEE ══
+// <input type="month"> n'existe pas sur Safari iOS : deux listes deroulantes
+// marchent partout et evitent une saisie libre impossible a valider.
+const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function fillMonthYear(monthId, yearId, value, allowEmpty){
+  const ms=document.getElementById(monthId), ys=document.getElementById(yearId);
+  if(!ms||!ys) return;
+  const now=new Date(), curY=now.getFullYear();
+  let optM = allowEmpty ? '<option value="">Month</option>' : '';
+  for(let i=1;i<=12;i++){ const v=String(i).padStart(2,'0'); optM+='<option value="'+v+'">'+MONTH_NAMES[i-1]+'</option>'; }
+  let optY = allowEmpty ? '<option value="">Year</option>' : '';
+  for(let y=curY;y>=1995;y--) optY+='<option value="'+y+'">'+y+'</option>';
+  ms.innerHTML=optM; ys.innerHTML=optY;
+  const v=(value||'').slice(0,7);
+  if(/^\d{4}-\d{2}$/.test(v)){ ys.value=v.slice(0,4); ms.value=v.slice(5,7); }
+  else if(!allowEmpty){ ys.value=String(curY); ms.value=String(now.getMonth()+1).padStart(2,'0'); }
+  else { ys.value=''; ms.value=''; }
+}
+function readMonthYear(monthId, yearId){
+  const m=document.getElementById(monthId), y=document.getElementById(yearId);
+  if(!m||!y||!m.value||!y.value) return null;
+  return y.value+'-'+m.value;
+}
+
+// ══ DECLARER UNE VENTE AU MOMENT DE RETIRER UN OBJET ══
+// L'objet quitte la collection, souvent parce qu'il a ete vendu : c'est le
+// meilleur moment pour recuperer un vrai prix de marche. La declaration part
+// en 'pending' et ne compte dans la cote qu'une fois validee par l'admin.
+function askSoldPrice(item){
+  if(!item || !item.catalog_id || !currentUser) return;
+  const box=document.getElementById('sold-overlay');
+  if(!box) return;
+  document.getElementById('sold-name').textContent=item.name||'';
+  document.getElementById('sold-price').value=(item.buy_price!=null?'':'');
+  fillMonthYear('sold-month','sold-year','',false);
+  box.dataset.catalogId=item.catalog_id;
+  box.dataset.condition=(String(item.condition||'').toLowerCase().indexOf('neuf')>=0||String(item.condition||'').toLowerCase()==='new')?'neuf':'occasion';
+  box.classList.add('open');
+}
+function closeSold(){ const b=document.getElementById('sold-overlay'); if(b) b.classList.remove('open'); }
+async function submitSold(){
+  const box=document.getElementById('sold-overlay');
+  const price=parseFloat(document.getElementById('sold-price').value);
+  const month=readMonthYear('sold-month','sold-year');
+  if(!price||!month){ showToast('A price and a month are needed','error'); return; }
+  try{
+    const {error}=await sbClient.from('catalog_sales').insert([{
+      catalog_id: box.dataset.catalogId,
+      price: price,
+      sold_on: month+'-01',
+      condition: box.dataset.condition||'occasion',
+      source: 'Collector',
+      status: 'pending',
+      submitted_by: currentUser.id
+    }]);
+    if(error) throw error;
+    closeSold();
+    showToast('Thanks! Your sale will feed the rating once reviewed. \ud83d\udcb0','success');
+  }catch(e){ showToast('Error: '+e.message,'error'); }
 }
 
 // ══ RENDER ══
@@ -9446,13 +9535,18 @@ function awRender(){
   } else if(step==='price'){
     q.textContent = 'Purchase price?';
     body.innerHTML = '<input type="number" id="aw-price-input" value="'+(awState.buy_price||'')+'" placeholder="0.00" step="0.01" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:14px;color:var(--text);font-size:1.1rem;outline:none;text-align:center" oninput="awState.buy_price=this.value"/>'
-      + '<input type="month" id="aw-date-input" value="'+(awState.buy_date||'')+'" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px;color:var(--text);font-size:.95rem;outline:none;text-align:center;margin-top:10px" oninput="awState.buy_date=this.value"/>'
+      + '<div style="display:flex;gap:8px;margin-top:10px">'
+      +   '<select id="aw-month" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:13px;color:var(--text);font-size:.95rem;font-family:Inter,sans-serif;flex:1.4" onchange="awSyncDate()"></select>'
+      +   '<select id="aw-year" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:13px;color:var(--text);font-size:.95rem;font-family:Inter,sans-serif;flex:1" onchange="awSyncDate()"></select>'
+      + '</div>'
       + '<div style="text-align:center;color:var(--text-dim);font-size:.72rem;margin-top:8px">Both optional. The month you bought it is what makes the price trend meaningful.</div>';
+    fillMonthYear('aw-month','aw-year', awState.buy_date||'', true);
   }
   // buttons
   document.getElementById('aw-back').style.display = awState.step>0 ? 'block' : 'none';
   document.getElementById('aw-next').textContent = (awState.step===awState.steps.length-1) ? '✓ Add to collection' : 'Continue →';
 }
+function awSyncDate(){ awState.buy_date = readMonthYear('aw-month','aw-year') || ''; }
 function awSet(key,val){ awState[key]=val; awRender(); }
 function awToggleComp(k){ awState.completeness[k] = (awState.completeness[k]==='present')?'absent':'present'; awRender(); }
 function awBack(){ if(awState.step>0){ awState.step--; awRender(); } }
