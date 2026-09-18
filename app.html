@@ -2698,6 +2698,14 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="form-group"><label>Edition</label><input type="text" id="cat-edit-edition" placeholder="Standard, Platinum, Essentials, Collector, Coffret..." list="cat-edition-list"/>
       <datalist id="cat-edition-list"><option value="Standard"></option><option value="Platinum"></option><option value="Essentials"></option><option value="Collector"></option><option value="Coffret"></option><option value="Greatest Hits"></option><option value="Disc only"></option></datalist>
     </div>
+    <div class="form-group"><label>Languages on the box</label>
+      <input type="text" id="cat-edit-languages" placeholder="FR, EN, ES" list="cat-lang-list"/>
+      <datalist id="cat-lang-list"><option value="FR"></option><option value="FR, EN"></option><option value="EN"></option><option value="FR, EN, ES"></option><option value="JP"></option><option value="PT"></option><option value="DE"></option><option value="IT"></option><option value="NL, FR"></option><option value="RU, EN"></option></datalist>
+      <div style="font-size:.62rem;color:var(--text-dim);margin-top:2px">Separate with commas. Leave empty if unchecked.</div>
+    </div>
+    <div class="form-group"><label>Reference (printed on the box)</label>
+      <input type="text" id="cat-edit-reference" placeholder="CFI-1016A, SCPH-77004, PSP-2004..."/>
+    </div>
     <div class="form-group">
       <label>💰 Reference value (€) — optional</label>
       <div style="display:flex;gap:10px">
@@ -9213,6 +9221,26 @@ function catalogIcon(cat){
 // ===== R&C catalog: cascade nav (Category > Platform > Region > items) =====
 let rcNavCat='', rcNavPlat='', rcNavReg='';
 
+// Zone = la parenthese de la region ("NL (PAL)" -> "PAL"). Regroupement
+// d'affichage uniquement : la region complete reste sur chaque vignette.
+function rcZoneOf(c){
+  const r=String((c&&c.region)||'');
+  const m=r.match(/\(([^)]+)\)/);
+  if(m) return m[1].trim().toUpperCase();
+  return r.trim() || '—';
+}
+function rcLangs(c){
+  return String((c&&c.languages)||'').split(/[,;/]/).map(x=>x.trim().toUpperCase()).filter(Boolean);
+}
+function rcLangChips(c){
+  const L=rcLangs(c); if(!L.length) return '';
+  const shown=L.slice(0,3), rest=L.length-shown.length;
+  return '<div style="display:flex;gap:4px;flex-wrap:wrap;margin:4px 10px 0">'
+    + shown.map(l=>'<span style="font-size:.58rem;font-weight:700;background:rgba(123,79,212,.2);color:var(--accent2,#9B6FF4);border-radius:5px;padding:1px 6px">'+escHtml(l)+'</span>').join('')
+    + (rest>0?'<span style="font-size:.58rem;color:var(--text-dim)">+'+rest+'</span>':'')
+    + '</div>';
+}
+
 function renderCatalog(){
   const list = document.getElementById('catalog-list');
   if(!catalogData.length){ list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)">No entries yet.</div>'; return; }
@@ -9260,15 +9288,15 @@ function rcOpenPlat(plat){
   rcNavPlat=plat; rcNavReg='';
   const inSel=catalogData.filter(c=>(c.category||'Misc')===rcNavCat && ((c.platform&&c.platform!=='-')?c.platform:'—')===plat);
   const counts={};
-  inSel.forEach(c=>{ const k=c.region||'—'; counts[k]=(counts[k]||0)+1; });
+  inSel.forEach(c=>{ const k=rcZoneOf(c); counts[k]=(counts[k]||0)+1; });
   const regs=Object.keys(counts).sort();
   if(regs.length<=1){ rcOpenReg(regs[0]||'—'); return; }
-  const items=regs.map(r=>({key:r,label:r==='—'?'(no version)':r,icon:'🌍',count:counts[r],img:(inSel.find(o=>(o.region||'—')===r&&o.image_url)||{}).image_url}));
+  const items=regs.map(r=>({key:r,label:r==='—'?'(no version)':r,icon:'🌍',count:counts[r],img:(inSel.find(o=>rcZoneOf(o)===r&&o.image_url)||{}).image_url}));
   document.getElementById('catalog-list').innerHTML = rcCrumb() + rcMenuCards(items, k=>'rcOpenReg(\''+k.replace(/'/g,"\\'")+'\')');
 }
 function rcOpenReg(reg){
   rcNavReg=reg;
-  const list=catalogData.filter(c=>(c.category||'Misc')===rcNavCat && ((c.platform&&c.platform!=='-')?c.platform:'—')===rcNavPlat && (c.region||'—')===reg);
+  const list=catalogData.filter(c=>(c.category||'Misc')===rcNavCat && ((c.platform&&c.platform!=='-')?c.platform:'—')===rcNavPlat && rcZoneOf(c)===reg);
   let html = rcCrumb();
   html += '<input type="text" id="rccat-search" placeholder="🔍 Search here..." oninput="filterRcCatalog()" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:11px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none;margin-bottom:12px"/>';
   html += '<div class="cvcat-grid" id="rccat-list">' + list.map(c=>catalogCard(c)).join('') + '</div>';
@@ -9300,6 +9328,7 @@ function catalogCard(c){
     +   '<div class="cvcat-name">'+escHtml(c.name)+'</div>'
     +   (meta?'<div class="cvcat-meta">'+escHtml(meta)+'</div>':'')
     + '</div>'
+    + rcLangChips(c)
     + catalogCardRating(c)
     + '<div style="display:flex;gap:6px;margin:8px 10px 10px">'
     +   '<button class="cvcat-btn cvcat-btn-add" style="flex:1;margin:0" onclick="event.stopPropagation();addFromCatalog('+c.id+')">+ Add</button>'
@@ -9435,6 +9464,14 @@ function openCatalogDetail(id){
           + '<div style="font-size:.6rem;color:var(--text-dim);letter-spacing:.1em;margin-bottom:6px">💰 MARKET RATING (median)</div>'
           + '<div style="display:flex;gap:10px">'+a+b+'</div>'
           + '</div>';
+      })()
+    + (function(){
+        const L=rcLangs(c);
+        let h='';
+        if(L.length) h+='<div style="margin-top:8px;font-size:.76rem"><span style="color:var(--text-dim)">Languages</span> '
+          + L.map(l=>'<span style="display:inline-block;font-size:.66rem;font-weight:700;background:rgba(123,79,212,.2);color:#9B6FF4;border-radius:5px;padding:2px 7px;margin:0 4px 4px 0">'+escHtml(l)+'</span>').join('')+'</div>';
+        if(c.reference) h+='<div style="margin-top:2px;font-size:.76rem"><span style="color:var(--text-dim)">Reference</span> <code style="font-size:.72rem">'+escHtml(c.reference)+'</code></div>';
+        return h;
       })()
     + '<div id="cd-trend"></div>'
     + (c.description?'<p class="cd-desc">'+escHtml(c.description)+'</p>':'')
@@ -9627,6 +9664,8 @@ function openCatalogEdit(id){
   document.getElementById('cat-edit-year').value = entry ? (entry.year||'') : '';
   document.getElementById('cat-edit-region').value = entry ? (entry.region||'') : '';
   document.getElementById('cat-edit-edition').value = entry ? (entry.edition||'') : '';
+  const _lg=document.getElementById('cat-edit-languages'); if(_lg) _lg.value = entry ? (entry.languages||'') : '';
+  const _rf=document.getElementById('cat-edit-reference'); if(_rf) _rf.value = entry ? (entry.reference||'') : '';
   document.getElementById('cat-edit-price-new').value = entry ? (entry.price_new!=null?entry.price_new:'') : '';
   document.getElementById('cat-edit-price-used').value = entry ? (entry.price_used!=null?entry.price_used:'') : '';
   document.getElementById('cat-edit-image').value = entry ? (entry.image_url||'') : '';
@@ -9659,6 +9698,8 @@ async function saveCatalogEntry(){
     year: parseInt(document.getElementById('cat-edit-year').value) || null,
     region: document.getElementById('cat-edit-region').value.trim() || null,
     edition: document.getElementById('cat-edit-edition').value.trim() || null,
+    languages: (document.getElementById('cat-edit-languages')||{}).value ? document.getElementById('cat-edit-languages').value.trim().toUpperCase() : null,
+    reference: (document.getElementById('cat-edit-reference')||{}).value ? document.getElementById('cat-edit-reference').value.trim() : null,
     price_new: document.getElementById('cat-edit-price-new').value!==''?parseFloat(document.getElementById('cat-edit-price-new').value):null,
     price_used: document.getElementById('cat-edit-price-used').value!==''?parseFloat(document.getElementById('cat-edit-price-used').value):null,
     image_url: document.getElementById('cat-edit-image').value.trim() || null,
