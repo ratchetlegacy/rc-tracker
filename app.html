@@ -1801,6 +1801,19 @@ CREATE POLICY "Users see own items" ON items FOR ALL
           <input type="text" id="inp-bonus" placeholder="ex: DVD, planche de stickers, affiche..."/>
         </div>
       </div>
+
+      <div id="progress-section" style="display:none;margin-top:16px">
+        <label style="font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);font-weight:600;display:block;margin-bottom:8px">Your progress</label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid rgba(255,255,255,.08);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:.84rem">
+          <input type="checkbox" id="inp-done100" style="width:auto;margin:0"/> 🏁 Finished at 100%
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1px solid rgba(255,255,255,.08);border-radius:10px;margin-bottom:8px;cursor:pointer;font-size:.84rem">
+          <input type="checkbox" id="inp-trophies" style="width:auto;margin:0"/> 🏆 All trophies
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;font-size:.78rem;color:var(--text-dim)">
+          <input type="checkbox" id="inp-trophies-na" style="width:auto;margin:0" onchange="document.getElementById('inp-trophies').disabled=this.checked; if(this.checked) document.getElementById('inp-trophies').checked=false;"/> No trophies on this game
+        </label>
+      </div>
     </div>
 
     <!-- Valeur financière -->
@@ -3356,6 +3369,17 @@ const GRADE_LABELS = {
 function toggleCondition(){
   const c = document.getElementById('inp-condition').value;
   const gradeGroup = document.getElementById('occasion-grade-group');
+  // Progression : uniquement pour les jeux, et seulement s'ils sont possedes
+  (function(){
+    const sec=document.getElementById('progress-section');
+    const isGame = (item && (String(item.type||'').toLowerCase()==='game' || String(item.type||'').toLowerCase()==='console/pack'))
+                || (document.getElementById('inp-type') && String(document.getElementById('inp-type').value||'').toLowerCase()==='game');
+    sec.style.display = isGame ? 'block' : 'none';
+    document.getElementById('inp-done100').checked   = !!(item && item.completed_100);
+    document.getElementById('inp-trophies').checked  = !!(item && item.trophies_100);
+    document.getElementById('inp-trophies-na').checked = !!(item && item.trophies_na);
+    document.getElementById('inp-trophies').disabled = !!(item && item.trophies_na);
+  })();
   const completenessSection = document.getElementById('completeness-section');
   if(gradeGroup) gradeGroup.style.display = c==='occasion' ? 'block' : 'none';
   if(completenessSection){
@@ -3463,6 +3487,9 @@ async function saveItem(){
     bonus:bonusEl?bonusEl.value.trim():'',
     buy_price:buy!==''?parseFloat(buy):null,
     buy_date:(function(){ const v=readMonthYear('inp-buymonth','inp-buyyear'); return v?v+'-01':null; })(),
+    completed_100: document.getElementById('inp-done100').checked,
+    trophies_100:  document.getElementById('inp-trophies-na').checked ? false : document.getElementById('inp-trophies').checked,
+    trophies_na:   document.getElementById('inp-trophies-na').checked,
     cur_value:val!==''?parseFloat(val):null,
     img_url:document.getElementById('inp-img').value.trim(),
     rating:currentRating||null,
