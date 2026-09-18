@@ -3311,6 +3311,7 @@ function openModal(id){
   document.getElementById('inp-grade').value=item?(item.grade||'excellent'):'excellent';
   document.getElementById('inp-buy').value=item&&item.buy_price!=null?item.buy_price:'';
   fillMonthYear('inp-buymonth','inp-buyyear',(item&&item.buy_date)?String(item.buy_date).slice(0,7):'',true);
+  fillProgress(item);
   document.getElementById('inp-val').value=item&&item.cur_value!=null?item.cur_value:'';
   document.getElementById('inp-img').value=item?(item.img_url||''):'';
   document.getElementById('inp-wish-url').value=item?(item.wish_url||''):'';
@@ -3374,20 +3375,27 @@ const GRADE_LABELS = {
   'mauvais':'⭐ Poor'
 };
 
+// Bloc "Your progress" : visible uniquement sur les jeux.
+// Appele a l'ouverture de la fiche, la ou l'objet est connu.
+function fillProgress(item){
+  const sec=document.getElementById('progress-section');
+  if(!sec) return;
+  const typeEl=document.getElementById('inp-type');
+  const t=String((item && item.type) || (typeEl && typeEl.value) || '').toLowerCase();
+  sec.style.display = (t==='game' || t==='console/pack') ? 'block' : 'none';
+  const done=document.getElementById('inp-done100');
+  const tro=document.getElementById('inp-trophies');
+  const na=document.getElementById('inp-trophies-na');
+  if(!done||!tro||!na) return;
+  done.checked = !!(item && item.completed_100);
+  tro.checked  = !!(item && item.trophies_100);
+  na.checked   = !!(item && item.trophies_na);
+  tro.disabled = !!(item && item.trophies_na);
+}
+
 function toggleCondition(){
   const c = document.getElementById('inp-condition').value;
   const gradeGroup = document.getElementById('occasion-grade-group');
-  // Progression : uniquement pour les jeux, et seulement s'ils sont possedes
-  (function(){
-    const sec=document.getElementById('progress-section');
-    const isGame = (item && (String(item.type||'').toLowerCase()==='game' || String(item.type||'').toLowerCase()==='console/pack'))
-                || (document.getElementById('inp-type') && String(document.getElementById('inp-type').value||'').toLowerCase()==='game');
-    sec.style.display = isGame ? 'block' : 'none';
-    document.getElementById('inp-done100').checked   = !!(item && item.completed_100);
-    document.getElementById('inp-trophies').checked  = !!(item && item.trophies_100);
-    document.getElementById('inp-trophies-na').checked = !!(item && item.trophies_na);
-    document.getElementById('inp-trophies').disabled = !!(item && item.trophies_na);
-  })();
   const completenessSection = document.getElementById('completeness-section');
   if(gradeGroup) gradeGroup.style.display = c==='occasion' ? 'block' : 'none';
   if(completenessSection){
@@ -3495,9 +3503,9 @@ async function saveItem(){
     bonus:bonusEl?bonusEl.value.trim():'',
     buy_price:buy!==''?parseFloat(buy):null,
     buy_date:(function(){ const v=readMonthYear('inp-buymonth','inp-buyyear'); return v?v+'-01':null; })(),
-    completed_100: document.getElementById('inp-done100').checked,
-    trophies_100:  document.getElementById('inp-trophies-na').checked ? false : document.getElementById('inp-trophies').checked,
-    trophies_na:   document.getElementById('inp-trophies-na').checked,
+    completed_100: !!(document.getElementById('inp-done100')||{}).checked,
+    trophies_100:  (document.getElementById('inp-trophies-na')||{}).checked ? false : !!(document.getElementById('inp-trophies')||{}).checked,
+    trophies_na:   !!(document.getElementById('inp-trophies-na')||{}).checked,
     cur_value:val!==''?parseFloat(val):null,
     img_url:document.getElementById('inp-img').value.trim(),
     rating:currentRating||null,
