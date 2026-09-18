@@ -1660,7 +1660,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="form-row">
         <div class="form-group">
           <label>Type</label>
-          <select id="inp-type" onchange="updateCompleteness();toggleCustomField('inp-type','inp-type-custom')">
+          <select id="inp-type" onchange="updateCompleteness();toggleCustomField('inp-type','inp-type-custom');refreshProgressVisibility()">
             <option value="">— Select —</option>
             <option>Physical game</option><option>Console Pack</option><option>Controller Pack</option>
             <option>Accessory</option><option>Goodie</option>
@@ -1822,8 +1822,20 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <div class="form-row">
         <div class="form-group">
           <label>Purchase price (€)</label>
+          <label style="display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:.8rem;color:var(--text-mid);cursor:pointer;font-weight:400">
+            <input type="checkbox" id="inp-gift" style="width:auto;margin:0" onchange="toggleGift()"/> 🎁 Received as a gift
+          </label>
           <input type="number" id="inp-buy" placeholder="ex: 12.99" min="0" step="0.01"/>
           <div class="price-hint"data-i18n="hint_buy_price">What you paid</div>
+          <div id="gift-fields" style="display:none;margin-top:8px">
+            <input type="text" id="inp-gift-from" placeholder="Offert par… (ex: Mathieu)" style="margin-bottom:6px"/>
+            <input type="text" id="inp-gift-for" placeholder="Pour… (ex: Noël, anniversaire)" list="gift-occasions"/>
+            <datalist id="gift-occasions">
+              <option value="Noël"></option><option value="Anniversaire"></option>
+              <option value="Fête des mères"></option><option value="Fête des pères"></option>
+              <option value="Saint-Valentin"></option><option value="Sans occasion"></option>
+            </datalist>
+          </div>
           <div style="display:flex;gap:6px;margin-top:6px">
             <select id="inp-buymonth" style="flex:1.4"></select>
             <select id="inp-buyyear" style="flex:1"></select>
@@ -2932,7 +2944,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
   <div class="public-footer">
     <img src="https://ratchetlegacy.github.io/rc-tracker/Ratchet%20Legacy.jpg" style="width:32px;height:32px;border-radius:8px;vertical-align:middle;margin-right:8px"/>
-    Ratchet Legacy Tracker — <a href="https://ratchetlegacy.github.io/rc-tracker" style="color:var(--purple-light)">Create my collection</a>
+    Ratchet Legacy Tracker — <a href="https://ratchetlegacy.github.io/rc-tracker/app.html" style="color:var(--purple-light)">Create my collection</a>
   </div>
 </div>
 
@@ -3312,6 +3324,10 @@ function openModal(id){
   document.getElementById('inp-buy').value=item&&item.buy_price!=null?item.buy_price:'';
   fillMonthYear('inp-buymonth','inp-buyyear',(item&&item.buy_date)?String(item.buy_date).slice(0,7):'',true);
   fillProgress(item);
+  document.getElementById('inp-gift').checked = !!(item && item.gift);
+  document.getElementById('inp-gift-from').value = (item && item.gift_from) || '';
+  document.getElementById('inp-gift-for').value  = (item && item.gift_for)  || '';
+  toggleGift();
   document.getElementById('inp-val').value=item&&item.cur_value!=null?item.cur_value:'';
   document.getElementById('inp-img').value=item?(item.img_url||''):'';
   document.getElementById('inp-wish-url').value=item?(item.wish_url||''):'';
@@ -3375,6 +3391,17 @@ const GRADE_LABELS = {
   'mauvais':'⭐ Poor'
 };
 
+// Le type peut changer en cours de saisie : on reevalue la visibilite
+// sans toucher aux cases deja cochees.
+function refreshProgressVisibility(){
+  const sec=document.getElementById('progress-section');
+  const typeEl=document.getElementById('inp-type');
+  if(!sec||!typeEl) return;
+  const t=String(typeEl.value||'').toLowerCase();
+  const GAME_TYPES=['physical game','digital game','console pack','controller pack','game'];
+  sec.style.display = GAME_TYPES.indexOf(t)>=0 ? 'block' : 'none';
+}
+
 // Bloc "Your progress" : visible uniquement sur les jeux.
 // Appele a l'ouverture de la fiche, la ou l'objet est connu.
 function fillProgress(item){
@@ -3382,7 +3409,8 @@ function fillProgress(item){
   if(!sec) return;
   const typeEl=document.getElementById('inp-type');
   const t=String((item && item.type) || (typeEl && typeEl.value) || '').toLowerCase();
-  sec.style.display = (t==='game' || t==='console/pack') ? 'block' : 'none';
+  const GAME_TYPES=['physical game','digital game','console pack','controller pack','game'];
+  sec.style.display = GAME_TYPES.indexOf(t)>=0 ? 'block' : 'none';
   const done=document.getElementById('inp-done100');
   const tro=document.getElementById('inp-trophies');
   const na=document.getElementById('inp-trophies-na');
@@ -3391,6 +3419,21 @@ function fillProgress(item){
   tro.checked  = !!(item && item.trophies_100);
   na.checked   = !!(item && item.trophies_na);
   tro.disabled = !!(item && item.trophies_na);
+}
+
+// Cadeau : le prix d'achat tombe a 0 et deux champs s'ouvrent.
+// Un 0 reel entre bien dans la cote — c'est une acquisition a cout nul,
+// pas un prix de marche, donc on ne l'envoie pas dans les ventes.
+function toggleGift(){
+  const on=document.getElementById('inp-gift').checked;
+  const box=document.getElementById('gift-fields');
+  const buy=document.getElementById('inp-buy');
+  if(box) box.style.display = on ? 'block' : 'none';
+  if(buy){
+    buy.disabled = on;
+    buy.style.opacity = on ? '.5' : '1';
+    if(on) buy.value='0';
+  }
 }
 
 function toggleCondition(){
@@ -3503,6 +3546,9 @@ async function saveItem(){
     bonus:bonusEl?bonusEl.value.trim():'',
     buy_price:buy!==''?parseFloat(buy):null,
     buy_date:(function(){ const v=readMonthYear('inp-buymonth','inp-buyyear'); return v?v+'-01':null; })(),
+    gift:      !!(document.getElementById('inp-gift')||{}).checked,
+    gift_from: (document.getElementById('inp-gift-from')||{}).value ? document.getElementById('inp-gift-from').value.trim() : null,
+    gift_for:  (document.getElementById('inp-gift-for') ||{}).value ? document.getElementById('inp-gift-for').value.trim()  : null,
     completed_100: !!(document.getElementById('inp-done100')||{}).checked,
     trophies_100:  (document.getElementById('inp-trophies-na')||{}).checked ? false : !!(document.getElementById('inp-trophies')||{}).checked,
     trophies_na:   !!(document.getElementById('inp-trophies-na')||{}).checked,
