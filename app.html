@@ -1258,6 +1258,72 @@
     /* fade-in on appear */
     .rl-reveal{opacity:0;animation:rlFadeUp .6s ease forwards}
     @media(prefers-reduced-motion:reduce){.rl-reveal{opacity:1;animation:none}.logo-img{animation:none}}
+
+    /* ══════════════════════════════════════════════════════════
+       HARMONISATION AVEC LE SITE (rc-site)
+       Bloc ajoute en fin de feuille : il ne modifie aucune regle
+       existante, il les surcharge. Pour revenir en arriere, il
+       suffit de supprimer ce bloc entier.
+       ══════════════════════════════════════════════════════════ */
+
+    /* 1. Fonds et textes : les valeurs exactes du site */
+    :root{
+      --bg:#0A0B14; --bg2:#10121F; --bg3:#181B2E;
+      --text:#EEF0F8; --text-dim:#8B92AD;
+      --text-mid:#B8BED4; --gold:#FFC85A;
+      --line:rgba(255,255,255,.08);
+      --r:16px;
+    }
+    body{background:var(--bg)}
+
+    /* 2. Barre du haut : translucide et floutee comme le site */
+    .header-top{
+      background:rgba(10,11,20,.78) !important;
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--line) !important;
+    }
+
+    /* 3. Cartes : coins plus ronds, liseré qui s'allume au survol
+          et ombre violette portee, comme sur le site */
+    .stat-card, .stat-widget, .guide-card, .form-section,
+    .admin-section, .cvcat-card, .modal{
+      border-radius:18px;
+      border:1px solid var(--line);
+      transition:border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .guide-card:hover, .cvcat-card:hover, .stat-card:hover{
+      border-color:rgba(123,79,212,.45);
+      box-shadow:0 14px 40px -18px rgba(123,79,212,.55);
+    }
+
+    /* 4. Titres de section facon site : etiquette doree en petites
+          capitales au-dessus, puis le titre en Orbitron */
+    .admin-section-title, .stat-widget-title, .form-section-title, .fr-section-title{
+      font-family:'Orbitron',sans-serif;
+      letter-spacing:.04em;
+    }
+    .stats-page-header h1, .stats-page-header h2{
+      font-family:'Orbitron',sans-serif;
+      font-weight:900;
+    }
+    /* Le mot mis en avant prend le degrade violet-orange du site */
+    .grad, .stats-page-header .grad{
+      background:linear-gradient(120deg,var(--purple-light),var(--orange));
+      -webkit-background-clip:text;background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    /* Etiquette doree, a poser sur un element : <div class="page-tag">COLLECTION</div> */
+    .page-tag{
+      font-family:'Orbitron',sans-serif;font-size:.7rem;
+      letter-spacing:.24em;color:var(--gold);margin-bottom:10px;
+    }
+
+    /* 5. Boutons principaux : meme degrade que les CTA du site */
+    .add-btn, .btn-primary{
+      background:linear-gradient(135deg,var(--purple),var(--orange));
+      border:none;color:#fff;font-weight:700;
+    }
   </style>
 </head>
 <body>
