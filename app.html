@@ -1319,6 +1319,22 @@
       letter-spacing:.24em;color:var(--gold);margin-bottom:10px;
     }
 
+    /* 4 bis. Cartes de categorie de la collection, façon Vault */
+    .cc-menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:8px}
+    .cc-card{position:relative;min-height:150px;border-radius:18px;overflow:hidden;cursor:pointer;
+      background:var(--bg2);border:1px solid var(--line);display:flex;align-items:flex-end;
+      background-size:cover;background-position:center;transition:.2s}
+    .cc-card:hover{transform:translateY(-4px);border-color:rgba(123,79,212,.55);
+      box-shadow:0 16px 44px -18px rgba(123,79,212,.6)}
+    .cc-card .cc-body{position:relative;padding:14px;width:100%}
+    .cc-card .cc-ic{font-size:1.7rem;display:block;margin-bottom:4px}
+    .cc-card h3{font-family:'Orbitron',sans-serif;font-size:.92rem;color:#fff;margin:0}
+    .cc-card .cc-n{font-size:.72rem;color:rgba(255,255,255,.72);margin-top:2px}
+    .cc-back{display:inline-flex;align-items:center;gap:8px;background:var(--bg3);
+      border:1px solid var(--line);border-radius:100px;padding:7px 16px;color:var(--text-dim);
+      font-size:.76rem;font-weight:600;cursor:pointer;margin-bottom:14px;font-family:Inter,sans-serif}
+    .cc-back:hover{color:var(--text)}
+
     /* 5. Boutons principaux : meme degrade que les CTA du site */
     .add-btn, .btn-primary{
       background:linear-gradient(135deg,var(--purple),var(--orange));
@@ -1694,6 +1710,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 
   <div id="section-controls" style="display:none;gap:8px;padding:0 32px;margin-bottom:2px">
+    <button id="view-toggle" onclick="toggleCollectionView()" style="background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 12px;color:var(--text-dim);font-size:.72rem;font-weight:600;cursor:pointer">🗂️ Cards</button>
     <button onclick="setAllSections(true)" style="background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 12px;color:var(--text-dim);font-size:.72rem;font-weight:600;cursor:pointer">⬇️ Expand all</button>
     <button onclick="setAllSections(false)" style="background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 12px;color:var(--text-dim);font-size:.72rem;font-weight:600;cursor:pointer">⬆️ Collapse all</button>
   </div>
@@ -3849,6 +3866,22 @@ function buildTypeFilters(){
 }
 // Dropdown handlers
 function onTypeSelect(v){ activeType=v; render(); updateFiltersBadge(); }
+
+// Vue de la collection : cartes de categorie (comme le Vault du site)
+// ou sections repliables. Le choix est memorise.
+let collectionView = localStorage.getItem('rc_collection_view') || 'cards';
+function toggleCollectionView(){
+  collectionView = (collectionView==='cards') ? 'list' : 'cards';
+  localStorage.setItem('rc_collection_view', collectionView);
+  if(collectionView==='cards') activeType='all';
+  render(); updateFiltersBadge();
+}
+function refreshViewToggle(){
+  const b=document.getElementById('view-toggle');
+  if(b) b.textContent = (collectionView==='cards') ? '☰ List' : '🗂️ Cards';
+}
+function openCatCard(type){ activeType = type || ''; render(); updateFiltersBadge(); }
+function backToCats(){ activeType='all'; render(); updateFiltersBadge(); }
 function onPlatformSelect(v){ activePlatform=v; render(); updateFiltersBadge(); }
 function getRegions(){ return [...new Set(items.map(i=>i.region).filter(Boolean))].sort(); }
 function buildRegionFilters(){
@@ -4042,6 +4075,46 @@ function render(){
 
   const container=document.getElementById('grid-container');
   container.innerHTML='';
+
+  refreshViewToggle();
+
+  // Vue cartes : un niveau de categories, puis les objets de la categorie.
+  if(collectionView==='cards' && activeType==='all'){
+    const types=getTypes().slice();
+    if(filtered.some(i=>!i.type)) types.push('');
+    const menu=document.createElement('div');
+    menu.className='cc-menu';
+    let shown=0;
+    types.forEach(type=>{
+      const catItems=filtered.filter(i=>(i.type||'')===(type||''));
+      if(!catItems.length) return;
+      shown++;
+      const ownedCat=items.filter(i=>(i.type||'')===(type||'')&&i.status==='owned').length;
+      const totalCat=items.filter(i=>(i.type||'')===(type||'')).length;
+      const sample=(catItems.find(i=>i.img_url)||{}).img_url;
+      const card=document.createElement('div');
+      card.className='cc-card';
+      if(sample) card.style.backgroundImage='linear-gradient(to top,rgba(10,11,20,.94),rgba(10,11,20,.35)),url('+sample+')';
+      card.innerHTML='<div class="cc-body">'
+        + '<span class="cc-ic">'+(getIcon(type)||'📦')+'</span>'
+        + '<h3>'+escHtml(type||t('card_uncat'))+'</h3>'
+        + '<div class="cc-n">'+ownedCat+'/'+totalCat+'</div>'
+        + '</div>';
+      card.onclick=()=>openCatCard(type);
+      menu.appendChild(card);
+    });
+    if(shown){ container.appendChild(menu); }
+    else { container.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:40px">'+t('empty_title')+'</div>'; }
+    return;
+  }
+  // Dans la vue cartes, on est entre dans une categorie : bouton de retour
+  if(collectionView==='cards'){
+    const back=document.createElement('button');
+    back.className='cc-back';
+    back.textContent='← '+(t('card_uncat')?'':'')+'All categories';
+    back.onclick=backToCats;
+    container.appendChild(back);
+  }
 
   const typesToShow=activeType==='all'?getTypes():[activeType];
   let anyItem=false;
