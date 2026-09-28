@@ -3880,8 +3880,21 @@ function refreshViewToggle(){
   const b=document.getElementById('view-toggle');
   if(b) b.textContent = (collectionView==='cards') ? '☰ List' : '🗂️ Cards';
 }
-function openCatCard(type){ activeType = type || ''; render(); updateFiltersBadge(); }
-function backToCats(){ activeType='all'; render(); updateFiltersBadge(); }
+function openCatCard(type){
+  activeType = type || '';
+  // On empile une etape d'historique : le bouton retour du telephone
+  // ou du navigateur ramene aux cartes au lieu de quitter le tracker.
+  try{ history.pushState({rcCat:activeType}, '', location.href); }catch(e){}
+  render(); updateFiltersBadge();
+}
+function backToCats(fromHistory){
+  activeType='all';
+  render(); updateFiltersBadge();
+  if(!fromHistory){ try{ history.back(); }catch(e){} }
+}
+window.addEventListener('popstate', ()=>{
+  if(collectionView==='cards' && activeType!=='all') backToCats(true);
+});
 function onPlatformSelect(v){ activePlatform=v; render(); updateFiltersBadge(); }
 function getRegions(){ return [...new Set(items.map(i=>i.region).filter(Boolean))].sort(); }
 function buildRegionFilters(){
@@ -4137,7 +4150,11 @@ function render(){
     sec.className='category-section';
     const secKey = 'sec_'+(type||'uncat');
     // collapsed by default; remember per-type state
-    const collapsed = localStorage.getItem('rc_'+secKey)!=='open';
+    // En vue cartes, on vient de cliquer sur la categorie : inutile de
+    // demander un second clic pour la deplier.
+    const collapsed = (collectionView==='cards' && activeType!=='all')
+      ? false
+      : localStorage.getItem('rc_'+secKey)!=='open';
     sec.innerHTML=`
       <div class="cat-header cat-toggle${collapsed?' collapsed':''}" onclick="toggleCatSection(this,'${secKey}')">
         <span class="cat-chevron">▼</span>
