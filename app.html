@@ -3880,21 +3880,12 @@ function refreshViewToggle(){
   const b=document.getElementById('view-toggle');
   if(b) b.textContent = (collectionView==='cards') ? '☰ List' : '🗂️ Cards';
 }
-function openCatCard(type){
-  activeType = type || '';
-  // On empile une etape d'historique : le bouton retour du telephone
-  // ou du navigateur ramene aux cartes au lieu de quitter le tracker.
-  try{ history.pushState({rcCat:activeType}, '', location.href); }catch(e){}
-  render(); updateFiltersBadge();
-}
-function backToCats(fromHistory){
-  activeType='all';
-  render(); updateFiltersBadge();
-  if(!fromHistory){ try{ history.back(); }catch(e){} }
-}
-window.addEventListener('popstate', ()=>{
-  if(collectionView==='cards' && activeType!=='all') backToCats(true);
-});
+function openCatCard(type){ activeType = type || ''; render(); updateFiltersBadge(); }
+function backToCats(){ activeType='all'; render(); updateFiltersBadge(); }
+// Vrai quand on est entre dans une categorie en vue cartes : le piege
+// de retour du tracker s'en sert pour remonter d'un cran au lieu de
+// renvoyer a l'accueil.
+function inCatCard(){ return collectionView==='cards' && activeType!=='all'; }
 function onPlatformSelect(v){ activePlatform=v; render(); updateFiltersBadge(); }
 function getRegions(){ return [...new Set(items.map(i=>i.region).filter(Boolean))].sort(); }
 function buildRegionFilters(){
@@ -10398,6 +10389,12 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
       if(typeof rcNavPlat!=='undefined' && rcNavPlat){ rcOpenCat(rcNavCat); rearmHomeTrap(); return; }
       if(typeof rcNavCat!=='undefined' && rcNavCat){ renderCatalog(); rearmHomeTrap(); return; }
       // at categories level -> let the normal close happen (falls through below)
+    }
+    // Vue cartes de la collection : remonter aux categories d'abord
+    if(!topOpen() && typeof inCatCard==='function' && inCatCard()){
+      backToCats();
+      rearmHomeTrap();
+      return;
     }
     const openEl=topOpen();
     if(openEl){
