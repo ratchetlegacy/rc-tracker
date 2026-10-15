@@ -2801,6 +2801,9 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="form-group"><label>Reference (printed on the box)</label>
       <input type="text" id="cat-edit-reference" placeholder="CFI-1016A, SCPH-77004, PSP-2004..."/>
     </div>
+    <div class="form-group"><label>Barcode (EAN / UPC / ISBN)</label>
+      <input type="text" id="cat-edit-barcode" placeholder="711719391227" inputmode="numeric"/>
+    </div>
     <div class="form-group">
       <label>💰 Reference value (€) — optional</label>
       <div style="display:flex;gap:10px">
@@ -9672,6 +9675,7 @@ function openCatalogDetail(id){
         if(L.length) h+='<div style="margin-top:8px;font-size:.76rem"><span style="color:var(--text-dim)">Languages</span> '
           + L.map(l=>'<span style="display:inline-block;font-size:.66rem;font-weight:700;background:rgba(123,79,212,.2);color:#9B6FF4;border-radius:5px;padding:2px 7px;margin:0 4px 4px 0">'+escHtml(l)+'</span>').join('')+'</div>';
         if(c.reference) h+='<div style="margin-top:2px;font-size:.76rem"><span style="color:var(--text-dim)">Reference</span> <code style="font-size:.72rem">'+escHtml(c.reference)+'</code></div>';
+        if(c.barcode) h+='<div style="margin-top:2px;font-size:.76rem"><span style="color:var(--text-dim)">Barcode</span> <code style="font-size:.72rem;letter-spacing:.08em">'+escHtml(c.barcode)+'</code></div>';
         return h;
       })()
     + '<div id="cd-trend"></div>'
@@ -9867,6 +9871,7 @@ function openCatalogEdit(id){
   document.getElementById('cat-edit-edition').value = entry ? (entry.edition||'') : '';
   const _lg=document.getElementById('cat-edit-languages'); if(_lg) _lg.value = entry ? (entry.languages||'') : '';
   const _rf=document.getElementById('cat-edit-reference'); if(_rf) _rf.value = entry ? (entry.reference||'') : '';
+  const _bc=document.getElementById('cat-edit-barcode'); if(_bc) _bc.value = entry ? (entry.barcode||'') : '';
   document.getElementById('cat-edit-price-new').value = entry ? (entry.price_new!=null?entry.price_new:'') : '';
   document.getElementById('cat-edit-price-used').value = entry ? (entry.price_used!=null?entry.price_used:'') : '';
   document.getElementById('cat-edit-image').value = entry ? (entry.image_url||'') : '';
@@ -9901,6 +9906,7 @@ async function saveCatalogEntry(){
     edition: document.getElementById('cat-edit-edition').value.trim() || null,
     languages: (document.getElementById('cat-edit-languages')||{}).value ? document.getElementById('cat-edit-languages').value.trim().toUpperCase() : null,
     reference: (document.getElementById('cat-edit-reference')||{}).value ? document.getElementById('cat-edit-reference').value.trim() : null,
+    barcode: (document.getElementById('cat-edit-barcode')||{}).value ? document.getElementById('cat-edit-barcode').value.replace(/\s/g,'') : null,
     price_new: document.getElementById('cat-edit-price-new').value!==''?parseFloat(document.getElementById('cat-edit-price-new').value):null,
     price_used: document.getElementById('cat-edit-price-used').value!==''?parseFloat(document.getElementById('cat-edit-price-used').value):null,
     image_url: document.getElementById('cat-edit-image').value.trim() || null,
