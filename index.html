@@ -106,7 +106,7 @@
 
     /* CLANK — hard tech: thick cyan frame, dark metal, top scanline, cut corner via border */
     [data-theme="clank"] .item-card,[data-theme="clank"] .catalog-row,[data-theme="clank"] .fr-card,
-    [data-theme="clank"] .wiki-card,[data-theme="clank"] .home-tile,[data-theme="clank"] .theme-card{
+    [data-theme="clank"] .home-tile,[data-theme="clank"] .theme-card{
       border-radius:0 !important;
       border:2px solid #3FA9C9 !important;
       border-top-width:5px !important;
@@ -117,7 +117,7 @@
     }
     /* KIT — brass: thick gold frame, warm hatch texture */
     [data-theme="kit"] .item-card,[data-theme="kit"] .catalog-row,[data-theme="kit"] .fr-card,
-    [data-theme="kit"] .wiki-card,[data-theme="kit"] .home-tile,[data-theme="kit"] .theme-card{
+    [data-theme="kit"] .home-tile,[data-theme="kit"] .theme-card{
       border-radius:0 !important;
       border:2px solid #D89030 !important;
       border-left-width:6px !important;
@@ -128,7 +128,7 @@
     }
     /* NEFARIOUS — villain: glowing orange frame on purple, energy grid */
     [data-theme="nefarious"] .item-card,[data-theme="nefarious"] .catalog-row,[data-theme="nefarious"] .fr-card,
-    [data-theme="nefarious"] .wiki-card,[data-theme="nefarious"] .home-tile,[data-theme="nefarious"] .theme-card{
+    [data-theme="nefarious"] .home-tile,[data-theme="nefarious"] .theme-card{
       border-radius:0 !important;
       border:2px solid #FF6A1A !important;
       background:
@@ -138,7 +138,7 @@
     }
     /* NEBULA — glassy rounded, cyan glow, blur */
     [data-theme="nebula"] .item-card,[data-theme="nebula"] .catalog-row,[data-theme="nebula"] .fr-card,
-    [data-theme="nebula"] .wiki-card,[data-theme="nebula"] .home-tile,[data-theme="nebula"] .theme-card{
+    [data-theme="nebula"] .home-tile,[data-theme="nebula"] .theme-card{
       border-radius:22px !important;
       border:1px solid rgba(43,212,196,.45) !important;
       background:linear-gradient(160deg, rgba(19,37,56,.7), rgba(10,16,24,.6)) !important;
@@ -147,7 +147,7 @@
     }
     /* QWARK — heroic: fat top accent bar, big radius, blue glow */
     [data-theme="qwark"] .item-card,[data-theme="qwark"] .catalog-row,[data-theme="qwark"] .fr-card,
-    [data-theme="qwark"] .wiki-card,[data-theme="qwark"] .home-tile,[data-theme="qwark"] .theme-card{
+    [data-theme="qwark"] .home-tile,[data-theme="qwark"] .theme-card{
       border-radius:16px !important;
       border:1px solid rgba(70,214,255,.35) !important;
       border-top:6px solid #3FB54A !important;
@@ -156,7 +156,7 @@
     }
     /* ARSENAL — blazing Martian red, lava glow, fat orange top bar */
     [data-theme="arsenal"] .item-card,[data-theme="arsenal"] .catalog-row,[data-theme="arsenal"] .fr-card,
-    [data-theme="arsenal"] .wiki-card,[data-theme="arsenal"] .home-tile,[data-theme="arsenal"] .theme-card{
+    [data-theme="arsenal"] .home-tile,[data-theme="arsenal"] .theme-card{
       border-radius:8px !important;
       border:1px solid rgba(240,60,0,.5) !important;
       border-top:5px solid #FF8A1A !important;
@@ -165,7 +165,7 @@
     }
     /* GADGETRON — industrial: fat hazard left border, boxy, warm */
     [data-theme="gadgetron"] .item-card,[data-theme="gadgetron"] .catalog-row,[data-theme="gadgetron"] .fr-card,
-    [data-theme="gadgetron"] .wiki-card,[data-theme="gadgetron"] .home-tile,[data-theme="gadgetron"] .theme-card{
+    [data-theme="gadgetron"] .home-tile,[data-theme="gadgetron"] .theme-card{
       border-radius:4px !important;
       border:2px solid rgba(255,176,32,.5) !important;
       border-left:8px solid #FFB020 !important;
@@ -176,7 +176,7 @@
     }
     /* RIVET — rugged: fat rust bottom border, warm */
     [data-theme="rivet"] .item-card,[data-theme="rivet"] .catalog-row,[data-theme="rivet"] .fr-card,
-    [data-theme="rivet"] .wiki-card,[data-theme="rivet"] .home-tile,[data-theme="rivet"] .theme-card{
+    [data-theme="rivet"] .home-tile,[data-theme="rivet"] .theme-card{
       border-radius:12px !important;
       border:1px solid rgba(224,112,58,.45) !important;
       border-bottom:6px solid #E0703A !important;
@@ -892,25 +892,6 @@
     .avatar-opt.selected{border-color:var(--purple);background:rgba(123,79,212,.2)}
     .avatar-opt:hover{border-color:rgba(123,79,212,.5)}
     /* MARKETPLACE */
-    .market-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto}
-    .market-screen.open{display:block}
-    .market-header{background:linear-gradient(135deg,#0D0F1A,#1A1035);border-bottom:1px solid rgba(61,214,140,.3);padding:20px 32px;display:flex;align-items:center;gap:14px}
-    .market-header h1{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;color:var(--owned);flex:1}
-    .market-body{padding:24px 32px;max-width:1000px;margin:0 auto}
-    .market-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}
-    .market-card{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;overflow:hidden;transition:transform .2s,border-color .2s}
-    .market-card:hover{transform:translateY(-2px);border-color:rgba(61,214,140,.3)}
-    .market-card-img{width:100%;height:140px;object-fit:contain;background:var(--bg3)}
-    .market-card-body{padding:12px}
-    .market-card-name{font-size:.85rem;font-weight:700;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .market-card-meta{font-size:.68rem;color:var(--text-dim);margin-bottom:8px}
-    .market-card-type{display:inline-block;padding:3px 8px;border-radius:6px;font-size:.62rem;font-weight:700;margin-bottom:8px}
-    .market-card-type.exchange{background:rgba(123,79,212,.2);color:var(--purple-light);border:1px solid rgba(123,79,212,.3)}
-    .market-card-type.sale{background:rgba(255,212,71,.15);color:var(--wishlist);border:1px solid rgba(255,212,71,.3)}
-    .market-card-type.gift{background:rgba(61,214,140,.15);color:var(--owned);border:1px solid rgba(61,214,140,.3)}
-    .market-card-looking{font-size:.72rem;color:var(--text-dim);margin-bottom:10px;font-style:italic}
-    .market-card-owner{font-size:.7rem;color:var(--chrome);margin-bottom:10px;display:flex;align-items:center;gap:5px}
-    .market-contact-btn{width:100%;padding:8px;background:linear-gradient(135deg,var(--owned),#00B89C);border:none;border-radius:8px;color:#fff;font-family:Orbitron,sans-serif;font-size:.65rem;font-weight:700;cursor:pointer;letter-spacing:.05em}
     /* EXCHANGE MODAL */
     .exchange-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;align-items:center;justify-content:center}
     .exchange-modal.open{display:flex}
@@ -993,7 +974,7 @@
     .cd-btn-owned{background:linear-gradient(135deg,#3DD68C,#1E9E63);color:#06140d}
     .cd-btn-wish{background:linear-gradient(135deg,#FFD447,#FF9D2E);color:#1a1200}
     .cd-admin-edit{margin-top:14px;width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px;color:var(--text-dim);cursor:pointer;font-size:.82rem}
-    .app-content,.stats-body,.admin-body,.market-body,.public-body{padding-bottom:50px}
+    .app-content,.stats-body,.admin-body,.public-body{padding-bottom:50px}
     /* GUIDE */
     .guide-wrap{max-width:840px;margin:0 auto}
     .guide-hero{text-align:center;padding:30px 20px 36px;background:linear-gradient(160deg,rgba(120,210,235,.12),rgba(155,111,244,.06));border:1px solid rgba(120,210,235,.2);border-radius:18px;margin-bottom:28px}
@@ -1061,22 +1042,6 @@
     .public-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:500;overflow-y:auto}
     .public-screen.open{display:block}
     /* WIKI */
-    .wiki-list{display:flex;flex-direction:column;gap:12px}
-    .wiki-card{display:flex;gap:14px;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px;cursor:pointer;transition:transform .12s,border-color .12s;position:relative;overflow:hidden}
-    .wiki-card:hover{transform:translateY(-2px);border-color:var(--purple)}
-    .wiki-card-thumb{width:80px;height:80px;flex-shrink:0;border-radius:10px;overflow:hidden;background:var(--bg2);display:flex;align-items:center;justify-content:center}
-    .wiki-card-thumb img{width:100%;height:100%;object-fit:cover}
-    .wiki-card-thumb .wiki-noimg{font-size:2rem;opacity:.4}
-    .wiki-card-info{flex:1;min-width:0}
-    .wiki-card-cat{display:inline-block;font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--cyan,#78D2EB);background:rgba(120,210,235,.1);padding:2px 8px;border-radius:10px;margin-bottom:6px}
-    .wiki-card-title{font-weight:700;font-size:.98rem;line-height:1.25;margin-bottom:4px}
-    .wiki-card-date{font-family:'Orbitron',sans-serif;font-size:.72rem;color:var(--purple-light);font-weight:600}
-    .wiki-card-excerpt{font-size:.78rem;color:var(--text-dim);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .wiki-d-img{width:100%;max-height:280px;object-fit:contain;border-radius:12px;margin-bottom:14px;background:var(--bg)}
-    .wiki-d-cat{display:inline-block;font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--cyan,#78D2EB);background:rgba(120,210,235,.1);padding:4px 12px;border-radius:12px;margin-bottom:8px}
-    .wiki-d-title{font-size:1.4rem;margin:0 0 4px;line-height:1.2}
-    .wiki-d-date{font-family:'Orbitron',sans-serif;font-size:.82rem;color:var(--purple-light);font-weight:600;margin-bottom:14px}
-    .wiki-d-body{font-size:.92rem;line-height:1.7;color:var(--text);white-space:pre-wrap}
     /* THEMES PAGE */
     .themes-intro{background:linear-gradient(135deg,rgba(123,79,212,.12),rgba(255,138,42,.08));border:1px solid rgba(123,79,212,.3);border-radius:16px;padding:18px;margin-bottom:16px}
     .themes-intro-title{font-weight:800;font-size:1rem;margin-bottom:8px}
@@ -2188,21 +2153,6 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
-<!-- STATS SCREEN -->
-<div class="stats-screen" id="stats-screen">
-  <div class="stats-page-header">
-    <div class="logo-img" onclick="closeStats();showMainMenu()" style="cursor:pointer" title="Home" style="width:40px;height:40px">
-      <img src="https://res.cloudinary.com/dmfq8hkvu/image/upload/v1788954181/Ratchet_Legacy_ikwdp6.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
-    </div>
-    <h1 data-i18n="stat_title">📊 STATISTICS</h1>
-    <button class="stats-back" onclick="closeStats()" data-i18n="btn_back">← Back</button>
-  </div>
-  <div class="stats-body" id="stats-body">
-    <div style="text-align:center;padding:60px;color:var(--text-dim)"><span style="font-size:2rem;display:block;margin-bottom:10px;animation:spin 1s linear infinite">⚙️</span>Calculating statistics...</div>
-
-</div>
-</div>
-
 <!-- GUIDE / HELP SCREEN -->
 <div class="stats-screen" id="guide-screen">
   <div class="stats-page-header">
@@ -2703,106 +2653,6 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
 </div>
 
-<!-- WIKI SCREEN -->
-<div class="stats-screen" id="wiki-screen">
-  <div class="stats-page-header">
-    <div class="logo-img" onclick="closeWiki();showMainMenu()" style="cursor:pointer;width:40px;height:40px" title="Home">
-      <img src="https://res.cloudinary.com/dmfq8hkvu/image/upload/v1788954181/Ratchet_Legacy_ikwdp6.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
-    </div>
-    <h1>📖 WIKI</h1>
-    <button class="stats-back" onclick="closeWiki()">← Back</button>
-  </div>
-  <div class="stats-body">
-    <div class="catalog-wrap">
-      <p class="catalog-intro">The story of Ratchet &amp; Clank — timeline, lore and more. Written by the community. 🌌</p>
-      <div id="wiki-cats" class="catalog-cats"></div>
-      <div style="text-align:center;margin:4px 0 14px">
-        <button class="catalog-suggest-btn" onclick="openWikiSuggest()">💡 Suggest an article</button>
-      </div>
-      <div id="wiki-admin-bar" style="display:none;text-align:right;margin:10px 0">
-        <button class="add-btn" onclick="openWikiEdit()">+ ADD ARTICLE</button>
-        <button class="add-btn" style="background:linear-gradient(135deg,#2a9d8f,#264653)" onclick="openWikiReview()">📥 Review suggestions <span id="wiki-suggest-badge"></span></button>
-      </div>
-      <div id="wiki-list" class="wiki-list">
-        <div style="text-align:center;padding:50px;color:var(--text-dim)"><span style="font-size:1.6rem;display:block;animation:spin 1s linear infinite">⚙️</span>Loading…</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- WIKI ARTICLE DETAIL -->
-<div class="modal-overlay" id="wiki-detail-overlay" style="z-index:520">
-  <div class="modal" style="max-width:520px;max-height:88vh;overflow-y:auto">
-    <button class="modal-close" onclick="closeWikiDetail()">✕</button>
-    <div id="wiki-detail-body"></div>
-  </div>
-</div>
-
-<!-- WIKI EDIT MODAL (admin) -->
-<div class="modal-overlay" id="wiki-edit-overlay" style="z-index:540">
-  <div class="modal" style="max-width:520px;max-height:90vh;overflow-y:auto">
-    <button class="modal-close" onclick="closeWikiEdit()">✕</button>
-    <h2 id="wiki-edit-title" style="margin-bottom:16px">New article</h2>
-    <input type="hidden" id="wiki-edit-id"/>
-    <div class="form-group"><label>Title</label><input type="text" id="wiki-f-title" placeholder="e.g. Ratchet &amp; Clank (2002)"/></div>
-    <div class="form-group"><label>Category</label>
-      <select id="wiki-f-cat">
-        <option value="History">History / Timeline</option>
-        <option value="Character">Character</option>
-        <option value="Lore">Lore</option>
-        <option value="Guide">Guide</option>
-        <option value="Other">Other</option>
-      </select>
-    </div>
-    <div class="form-group"><label>Date / Year (optional)</label><input type="text" id="wiki-f-date" placeholder="e.g. 2002 · PS2"/></div>
-    <div class="form-group"><label>Image URL (optional)</label>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input type="text" id="wiki-f-image" placeholder="URL or gallery..." style="flex:1" oninput="updateWikiImgPreview()"/>
-        <button type="button" onclick="openGallery('wiki-f-image')" style="padding:8px 12px;background:rgba(123,79,212,.2);border:1px solid rgba(123,79,212,.4);border-radius:8px;color:var(--purple-light);font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Inter,sans-serif">🖼️ Gallery</button>
-      </div>
-      <div id="wiki-img-preview" style="margin-top:8px"></div>
-    </div>
-    <div class="form-group"><label>Text</label><textarea id="wiki-f-body" style="min-height:160px" placeholder="Write the article..."></textarea></div>
-    <div class="form-group"><label>Sort order (lower = first)</label><input type="number" id="wiki-f-sort" value="0"/></div>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="add-btn" style="flex:1" onclick="saveWikiEntry()">💾 Save</button>
-      <button id="wiki-delete-btn" style="display:none;flex:1;padding:11px;background:rgba(255,77,106,.15);border:1px solid rgba(255,77,106,.4);border-radius:10px;color:var(--missing);cursor:pointer" onclick="deleteWikiEntry()">🗑️ Delete</button>
-    </div>
-  </div>
-</div>
-
-<!-- WIKI SUGGEST MODAL (users) -->
-<div class="modal-overlay" id="wiki-suggest-overlay" style="z-index:540">
-  <div class="modal" style="max-width:480px;max-height:90vh;overflow-y:auto">
-    <button class="modal-close" onclick="closeWikiSuggest()">✕</button>
-    <h2 style="margin-bottom:6px">💡 Suggest an article</h2>
-    <p style="font-size:.82rem;color:var(--text-dim);margin-bottom:14px">Share something about the R&amp;C universe. An admin will review it before it's published.</p>
-    <div class="form-group"><label>Title</label><input type="text" id="wiki-s-title" placeholder="Article title"/></div>
-    <div class="form-group"><label>Category</label>
-      <select id="wiki-s-cat">
-        <option value="History">History / Timeline</option>
-        <option value="Character">Character</option>
-        <option value="Lore">Lore</option>
-        <option value="Guide">Guide</option>
-        <option value="Other">Other</option>
-      </select>
-    </div>
-    <div class="form-group"><label>Date / Year (optional)</label><input type="text" id="wiki-s-date" placeholder="e.g. 2002"/></div>
-    <div class="form-group"><label>Your text</label><textarea id="wiki-s-body" style="min-height:140px" placeholder="Write your suggestion..."></textarea></div>
-    <button class="add-btn" style="width:100%" onclick="submitWikiSuggestion()">📤 Send suggestion</button>
-  </div>
-</div>
-
-<!-- WIKI REVIEW MODAL (admin) -->
-<div class="modal-overlay" id="wiki-review-overlay" style="z-index:540">
-  <div class="modal" style="max-width:520px;max-height:90vh;overflow-y:auto">
-    <button class="modal-close" onclick="closeWikiReview()">✕</button>
-    <h2 style="margin-bottom:16px">📥 Pending suggestions</h2>
-    <div id="wiki-review-body"></div>
-  </div>
-</div>
-
-
 <!-- CATALOG EDIT MODAL (admin) -->
 <div class="modal-overlay" id="catalog-edit-overlay" style="z-index:500">
   <div class="modal" style="max-width:460px">
@@ -3115,30 +2965,6 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <input type="hidden" id="addfriend-target"/>
     <textarea id="addfriend-message" maxlength="200" placeholder="Hi! We talked on Instagram 🙂" style="width:100%;min-height:80px;background:var(--bg);border:1px solid rgba(123,79,212,.3);border-radius:10px;padding:12px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none;resize:vertical"></textarea>
     <button onclick="confirmAddFriend()" style="margin-top:14px;width:100%;background:linear-gradient(135deg,var(--purple),var(--orange));color:#fff;border:none;border-radius:12px;padding:13px;font-weight:800;cursor:pointer">🤝 Send friend request</button>
-  </div>
-</div>
-
-<!-- MARKETPLACE SCREEN -->
-<div class="market-screen" id="market-screen">
-  <div class="market-header">
-    <div style="font-size:1.5rem">🤝</div>
-    <h1>TRADE MARKETPLACE</h1>
-    <button class="admin-back" onclick="closeMarketplace()" data-i18n="btn_back">← Back</button>
-  </div>
-  <div class="market-body">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-      <select id="market-filter-type" onchange="renderMarketplace()" style="background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none">
-        <option value="">All types</option>
-        <option value="exchange">🔄 Trades</option>
-        <option value="sale">💰 Sales</option>
-        <option value="gift">🎁 Gifts</option>
-      </select>
-      <input type="text" id="market-search" placeholder="🔍 Search..." oninput="renderMarketplace()"
-        style="flex:1;min-width:180px;background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:7px 12px;color:var(--text);font-family:Inter,sans-serif;font-size:.78rem;outline:none"/>
-    </div>
-    <div id="market-grid" class="market-grid">
-      <div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px">Loading...</div>
-    </div>
   </div>
 </div>
 
@@ -4777,8 +4603,7 @@ function takePhotoFor(targetInputId, contextLabel, nameInputId){
       if(targetEl){ targetEl.value = url; }
       // refresh any preview linked to that input
       if(targetInputId==='inp-img' && typeof updateImgPreviewInp==='function'){ /* optional */ }
-      if(targetInputId==='wiki-f-image' && typeof updateWikiImgPreview==='function'){ updateWikiImgPreview(); }
-      if(targetInputId==='other-f-image' && typeof updateOtherImgPreview==='function'){ updateOtherImgPreview(); }
+        if(targetInputId==='other-f-image' && typeof updateOtherImgPreview==='function'){ updateOtherImgPreview(); }
       if(targetInputId==='cat-edit-image' && typeof updateCatImagePreview==='function'){ updateCatImagePreview(); }
       if(targetInputId==='catform-logo' && typeof updateCatLogoPreview==='function'){ updateCatLogoPreview(); }
       if(targetInputId==='collform-logo' && typeof updateCollLogoPreview==='function'){ updateCollLogoPreview(); }
@@ -5646,7 +5471,7 @@ function openStats(){
   openProfile();
   setTimeout(()=>{ const el=document.getElementById('pf-stats-title'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 150);
 }
-function closeStats(){ document.getElementById('stats-screen').classList.remove('open'); }
+function closeStats(){} // ancien écran supprimé : les stats sont dans le Profil
 
 function openGuide(){
   document.getElementById('guide-screen').classList.add('open');
@@ -5659,7 +5484,7 @@ function closeGuide(){ document.getElementById('guide-screen').classList.remove(
 function fmtEurS(v){ if(v==null) return '—'; return parseFloat(v).toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
 
 function renderStats(target, embedded){
-  const body = target || window._statsTarget || document.getElementById('stats-body');
+  const body = target || window._statsTarget || document.getElementById('profile-stats-embed');
   window._statsTarget = body; window._statsEmbedded = !!embedded;
   const owned = items.filter(i=>i.status==='owned');
   const wish = items.filter(i=>i.status==='wishlist');
@@ -5896,7 +5721,7 @@ function showOutdatedPrices(){
       +'</div>';
   });
   html += '</div>';
-  (window._statsTarget||document.getElementById('stats-body')).innerHTML = '<button onclick="renderStats(window._statsTarget, window._statsEmbedded)" style="margin-bottom:16px;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:Inter,sans-serif">← Back to stats</button>' + html;
+  (window._statsTarget||document.getElementById('profile-stats-embed')).innerHTML = '<button onclick="renderStats(window._statsTarget, window._statsEmbedded)" style="margin-bottom:16px;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:Inter,sans-serif">← Back to stats</button>' + html;
 }
 
 function showNoValueItems(){
@@ -5913,7 +5738,7 @@ function showNoValueItems(){
       +'</div>';
   });
   html += '</div>';
-  (window._statsTarget||document.getElementById('stats-body')).innerHTML = '<button onclick="renderStats(window._statsTarget, window._statsEmbedded)" style="margin-bottom:16px;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:Inter,sans-serif">← Back to stats</button>' + html;
+  (window._statsTarget||document.getElementById('profile-stats-embed')).innerHTML = '<button onclick="renderStats(window._statsTarget, window._statsEmbedded)" style="margin-bottom:16px;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:Inter,sans-serif">← Back to stats</button>' + html;
 }
 
 function kpi(icon, label, id, value, color=''){
@@ -6449,228 +6274,6 @@ async function confirmAddFriend(){
 }
 
 function closeFriends(){ document.getElementById('friends-screen').classList.remove('open'); }
-
-// ══════════════════════════════════════════════════════════
-//  WIKI SYSTEM
-// ══════════════════════════════════════════════════════════
-let wikiData = [];
-let wikiActiveCat = 'all';
-const WIKI_CATS = ['History','Character','Lore','Guide','Other'];
-const WIKI_CAT_ICON = {History:'📜',Character:'👤',Lore:'🌌',Guide:'🗺️',Other:'✨',all:'📖'};
-
-async function openWiki(){
-  if(typeof closeMobileMenu==='function') closeMobileMenu();
-  if(typeof showMainMenu==='function'){} // no-op guard
-  document.getElementById('wiki-screen').classList.add('open');
-  // admin bar
-  const bar=document.getElementById('wiki-admin-bar');
-  if(bar) bar.style.display = isAdmin()?'block':'none';
-  if(isAdmin()) refreshWikiSuggestBadge();
-  await loadWiki();
-}
-function closeWiki(){ document.getElementById('wiki-screen').classList.remove('open'); }
-
-async function loadWiki(){
-  const list=document.getElementById('wiki-list');
-  list.innerHTML='<div style="text-align:center;padding:50px;color:var(--text-dim)"><span style="font-size:1.6rem;display:block;animation:spin 1s linear infinite">⚙️</span>Loading…</div>';
-  try {
-    const { data, error } = await sbClient.from('wiki_entries')
-      .select('*').order('sort_order',{ascending:true}).order('created_at',{ascending:true});
-    if(error){ list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim)">Error: '+error.message+'</div>'; return; }
-    wikiData = data||[];
-    renderWikiCats();
-    renderWikiList();
-  } catch(e){ list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim)">Error: '+e.message+'</div>'; }
-}
-
-function renderWikiCats(){
-  const box=document.getElementById('wiki-cats');
-  const cats = ['all', ...WIKI_CATS.filter(c=> wikiData.some(w=>w.category===c))];
-  box.innerHTML = cats.map(c=>{
-    const active = c===wikiActiveCat ? ' active':'';
-    const label = c==='all'?'All':c;
-    return '<button class="catalog-cat'+active+'" onclick="setWikiCat(\''+c+'\')">'+(WIKI_CAT_ICON[c]||'')+' '+label+'</button>';
-  }).join('');
-}
-function setWikiCat(c){ wikiActiveCat=c; renderWikiCats(); renderWikiList(); }
-
-function renderWikiList(){
-  const list=document.getElementById('wiki-list');
-  let entries = wikiActiveCat==='all' ? wikiData : wikiData.filter(w=>w.category===wikiActiveCat);
-  if(!entries.length){
-    list.innerHTML='<div style="text-align:center;padding:40px;color:var(--text-dim);font-size:.85rem">No articles yet.'+(isAdmin()?' Add the first one! 📝':' Come back soon! 🌌')+'</div>';
-    return;
-  }
-  list.innerHTML = entries.map(w=>{
-    const thumb = w.image_url
-      ? '<div class="wiki-card-thumb"><img src="'+escHtml(w.image_url)+'" loading="lazy" onerror="this.parentNode.innerHTML=\'<span class=&quot;wiki-noimg&quot;>'+(WIKI_CAT_ICON[w.category]||'📖')+'</span>\'"/></div>'
-      : '<div class="wiki-card-thumb"><span class="wiki-noimg">'+(WIKI_CAT_ICON[w.category]||'📖')+'</span></div>';
-    const excerpt = (w.body||'').slice(0,120);
-    return '<div class="wiki-card" onclick="openWikiDetail(\''+w.id+'\')">'
-      + thumb
-      + '<div class="wiki-card-info">'
-      + '<span class="wiki-card-cat">'+(WIKI_CAT_ICON[w.category]||'')+' '+escHtml(w.category||'')+'</span>'
-      + '<div class="wiki-card-title">'+escHtml(w.title)+'</div>'
-      + (w.game_date?'<div class="wiki-card-date">'+escHtml(w.game_date)+'</div>':'')
-      + '<div class="wiki-card-excerpt">'+escHtml(excerpt)+'</div>'
-      + '</div></div>';
-  }).join('');
-}
-
-function openWikiDetail(id){
-  const w = wikiData.find(x=>String(x.id)===String(id));
-  if(!w) return;
-  const body=document.getElementById('wiki-detail-body');
-  const img = w.image_url ? '<img class="wiki-d-img" src="'+escHtml(w.image_url)+'" onerror="this.style.display=\'none\'"/>' : '';
-  body.innerHTML = img
-    + '<span class="wiki-d-cat">'+(WIKI_CAT_ICON[w.category]||'')+' '+escHtml(w.category||'')+'</span>'
-    + '<h2 class="wiki-d-title">'+escHtml(w.title)+'</h2>'
-    + (w.game_date?'<div class="wiki-d-date">'+escHtml(w.game_date)+'</div>':'')
-    + '<div class="wiki-d-body">'+escHtml(w.body||'')+'</div>'
-    + (isAdmin()?'<button onclick="closeWikiDetail();openWikiEdit(\''+w.id+'\')" style="margin-top:18px;width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px;color:var(--text-dim);cursor:pointer;font-size:.82rem">✏️ Edit (admin)</button>':'');
-  document.getElementById('wiki-detail-overlay').classList.add('open');
-}
-function closeWikiDetail(){ document.getElementById('wiki-detail-overlay').classList.remove('open'); }
-
-// ── Admin: create / edit ──
-function openWikiEdit(id){
-  if(!isAdmin()){ showToast('Admin only','error'); return; }
-  const w = id ? wikiData.find(x=>String(x.id)===String(id)) : null;
-  document.getElementById('wiki-edit-title').textContent = w?'Edit article':'New article';
-  document.getElementById('wiki-edit-id').value = w?w.id:'';
-  document.getElementById('wiki-f-title').value = w?w.title:'';
-  document.getElementById('wiki-f-cat').value = w?(w.category||'History'):'History';
-  document.getElementById('wiki-f-date').value = w?(w.game_date||''):'';
-  document.getElementById('wiki-f-image').value = w?(w.image_url||''):'';
-  document.getElementById('wiki-f-body').value = w?(w.body||''):'';
-  document.getElementById('wiki-f-sort').value = w?(w.sort_order||0):0;
-  document.getElementById('wiki-delete-btn').style.display = w?'block':'none';
-  updateWikiImgPreview();
-  document.getElementById('wiki-edit-overlay').classList.add('open');
-}
-function closeWikiEdit(){ document.getElementById('wiki-edit-overlay').classList.remove('open'); }
-function updateWikiImgPreview(){
-  const box=document.getElementById('wiki-img-preview'); if(!box) return;
-  const url=(document.getElementById('wiki-f-image').value||'').trim();
-  box.innerHTML = url ? '<img src="'+escHtml(url)+'" style="max-height:90px;border-radius:8px;border:1px solid rgba(255,255,255,.12);object-fit:contain" onerror="this.style.display=\'none\'"/>' : '';
-}
-async function saveWikiEntry(){
-  if(!isAdmin()){ showToast('Admin only','error'); return; }
-  const id=document.getElementById('wiki-edit-id').value;
-  const payload={
-    title: document.getElementById('wiki-f-title').value.trim(),
-    category: document.getElementById('wiki-f-cat').value,
-    game_date: document.getElementById('wiki-f-date').value.trim()||null,
-    image_url: document.getElementById('wiki-f-image').value.trim()||null,
-    body: document.getElementById('wiki-f-body').value.trim(),
-    sort_order: parseInt(document.getElementById('wiki-f-sort').value)||0,
-    updated_at: new Date().toISOString()
-  };
-  if(!payload.title||!payload.body){ showToast('Title and text are required','error'); return; }
-  try {
-    let error;
-    if(id){ ({error} = await sbClient.from('wiki_entries').update(payload).eq('id',id)); }
-    else  { ({error} = await sbClient.from('wiki_entries').insert([payload])); }
-    if(error){ console.log('wiki save error:',error); showToast('Error: '+error.message,'error'); return; }
-    showToast('Article saved! 📖','success');
-    closeWikiEdit();
-    loadWiki();
-  } catch(e){ showToast('Error: '+e.message,'error'); }
-}
-async function deleteWikiEntry(){
-  const id=document.getElementById('wiki-edit-id').value;
-  if(!id) return;
-  if(!confirm('Delete this article?')) return;
-  try {
-    const { error } = await sbClient.from('wiki_entries').delete().eq('id',id);
-    if(error){ showToast('Error: '+error.message,'error'); return; }
-    showToast('Deleted','info'); closeWikiEdit(); loadWiki();
-  } catch(e){ showToast('Error: '+e.message,'error'); }
-}
-
-// ── Users: suggest an article ──
-function openWikiSuggest(){
-  if(!currentUser){ showToast('Please sign in first','error'); return; }
-  document.getElementById('wiki-s-title').value='';
-  document.getElementById('wiki-s-cat').value='History';
-  document.getElementById('wiki-s-date').value='';
-  document.getElementById('wiki-s-body').value='';
-  document.getElementById('wiki-suggest-overlay').classList.add('open');
-}
-function closeWikiSuggest(){ document.getElementById('wiki-suggest-overlay').classList.remove('open'); }
-async function submitWikiSuggestion(){
-  if(!currentUser){ showToast('Please sign in first','error'); return; }
-  const title=document.getElementById('wiki-s-title').value.trim();
-  const body=document.getElementById('wiki-s-body').value.trim();
-  if(!title||!body){ showToast('Title and text are required','error'); return; }
-  const author = localStorage.getItem('rc_pseudo_'+currentUser.id)||'Collector';
-  try {
-    const { error } = await sbClient.from('wiki_suggestions').insert([{
-      user_id: currentUser.id, author_name: author, title,
-      category: document.getElementById('wiki-s-cat').value,
-      game_date: document.getElementById('wiki-s-date').value.trim()||null,
-      body, status:'pending'
-    }]);
-    if(error){ console.log('wiki suggest error:',error); showToast('Error: '+error.message,'error'); return; }
-    showToast('Suggestion sent! Thanks 🙌','success');
-    closeWikiSuggest();
-  } catch(e){ showToast('Error: '+e.message,'error'); }
-}
-
-// ── Admin: review suggestions ──
-async function refreshWikiSuggestBadge(){
-  if(!isAdmin()) return;
-  try {
-    const { data } = await sbClient.from('wiki_suggestions').select('id').eq('status','pending');
-    const n=(data||[]).length;
-    const badge=document.getElementById('wiki-suggest-badge');
-    if(badge) badge.textContent = n>0?('('+n+')'):'';
-  } catch(e){}
-}
-async function openWikiReview(){
-  if(!isAdmin()){ showToast('Admin only','error'); return; }
-  const body=document.getElementById('wiki-review-body');
-  body.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-dim)">Loading…</div>';
-  document.getElementById('wiki-review-overlay').classList.add('open');
-  try {
-    const { data, error } = await sbClient.from('wiki_suggestions')
-      .select('*').eq('status','pending').order('created_at',{ascending:true});
-    if(error){ body.innerHTML='<div style="padding:20px;color:var(--text-dim)">Error: '+error.message+'</div>'; return; }
-    if(!data||!data.length){ body.innerHTML='<div style="text-align:center;padding:30px;color:var(--text-dim);font-size:.85rem">No pending suggestions 🎉</div>'; return; }
-    body.innerHTML = data.map(s=>{
-      return '<div style="background:var(--bg3);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:14px;margin-bottom:12px">'
-        + '<div style="font-size:.68rem;color:var(--text-dim);margin-bottom:4px">by '+escHtml(s.author_name||'?')+' · '+escHtml(s.category||'')+(s.game_date?' · '+escHtml(s.game_date):'')+'</div>'
-        + '<div style="font-weight:700;margin-bottom:6px">'+escHtml(s.title)+'</div>'
-        + '<div style="font-size:.82rem;color:var(--text-dim);white-space:pre-wrap;max-height:120px;overflow-y:auto;margin-bottom:10px">'+escHtml(s.body)+'</div>'
-        + '<div style="display:flex;gap:8px">'
-        + '<button onclick="approveWikiSuggestion(\''+s.id+'\')" class="fr-btn fr-accept" style="flex:1">✓ Approve &amp; publish</button>'
-        + '<button onclick="rejectWikiSuggestion(\''+s.id+'\')" class="fr-btn fr-decline">✕ Reject</button>'
-        + '</div></div>';
-    }).join('');
-  } catch(e){ body.innerHTML='<div style="padding:20px;color:var(--text-dim)">Error: '+e.message+'</div>'; }
-}
-function closeWikiReview(){ document.getElementById('wiki-review-overlay').classList.remove('open'); }
-async function approveWikiSuggestion(id){
-  try {
-    // fetch the suggestion, publish it as an entry, then mark approved
-    const { data:s, error:e1 } = await sbClient.from('wiki_suggestions').select('*').eq('id',id).single();
-    if(e1||!s){ showToast('Error loading suggestion','error'); return; }
-    const { error:e2 } = await sbClient.from('wiki_entries').insert([{
-      title:s.title, body:s.body, category:s.category||'History', game_date:s.game_date||null, sort_order:0
-    }]);
-    if(e2){ showToast('Error publishing: '+e2.message,'error'); return; }
-    await sbClient.from('wiki_suggestions').update({status:'approved'}).eq('id',id);
-    showToast('Published! 📖','success');
-    refreshWikiSuggestBadge(); openWikiReview(); loadWiki();
-  } catch(e){ showToast('Error: '+e.message,'error'); }
-}
-async function rejectWikiSuggestion(id){
-  try {
-    const { error } = await sbClient.from('wiki_suggestions').update({status:'rejected'}).eq('id',id);
-    if(error){ showToast('Error: '+error.message,'error'); return; }
-    showToast('Rejected','info'); refreshWikiSuggestBadge(); openWikiReview();
-  } catch(e){ showToast('Error: '+e.message,'error'); }
-}
 
 // ══════════════════════════════════════════════════════════
 //  CAMERA PHOTO MODERATION (admin)
@@ -8035,7 +7638,7 @@ function navGo(tab){
   }
 }
 function closeAnyCollectionScreens(exceptId){
-  ['collection-view-screen','subcoll-screen','catalog-screen','stats-screen','profile-screen','friends-screen','themes-screen','wiki-screen','guide-screen','compare-screen','market-screen','other-screen'].forEach(id=>{
+  ['collection-view-screen','subcoll-screen','catalog-screen','profile-screen','friends-screen','themes-screen','guide-screen','compare-screen','other-screen'].forEach(id=>{
     if(id===exceptId) return;
     const el=document.getElementById(id); if(el){ el.classList.remove('open'); }
   });
@@ -8739,8 +8342,8 @@ async function saveRcTotal(){
 
 // Re-render the Stats page if it is currently open
 function refreshStatsIfOpen(){
-  const st = document.getElementById('stats-screen');
-  if(st && st.classList.contains('open') && typeof renderStats === 'function') renderStats();
+  const pf = document.getElementById('profile-screen');
+  if(pf && pf.classList.contains('open') && typeof renderProfileDashboard === 'function') renderProfileDashboard();
 }
 
 async function loadRcTotal(){
@@ -8834,7 +8437,6 @@ function applyTranslations(){
   // Signout buttons
   document.querySelectorAll('.signout-btn').forEach(b=>b.textContent=t('btn_signout'));
   // Nav buttons by action
-  document.querySelectorAll('button[onclick*="openMarketplace"]').forEach(b=>b.textContent=t('btn_exchanges'));
   document.querySelectorAll('button[onclick*="openStats"]').forEach(b=>b.textContent=t('btn_stats'));
   document.querySelectorAll('button[onclick*="openModal()"]').forEach(b=>b.textContent=t('btn_add'));
   // Modal cancel/save
@@ -8891,74 +8493,9 @@ function applyTranslations(){
   document.querySelectorAll('.filter-btn[data-status="owned"]').forEach(b=>b.textContent='✅ '+t('filter_owned'));
   document.querySelectorAll('.filter-btn[data-status="wishlist"]').forEach(b=>b.textContent='🎯 '+t('filter_wishlist'));
   // Stats page refresh if open
-  const statsScreen = document.getElementById('stats-screen');
-  if(statsScreen && statsScreen.classList.contains('open') && typeof renderStats === 'function') renderStats();
+  if(typeof refreshStatsIfOpen === 'function') refreshStatsIfOpen();
   // Re-render collection
   if(typeof render === 'function') render();
-}
-
-// ══ MARKETPLACE ══
-let marketItems = [];
-
-async function openMarketplace(){
-  document.getElementById('market-screen').classList.add('open');
-  await loadMarketplace();
-}
-function closeMarketplace(){ document.getElementById('market-screen').classList.remove('open'); }
-
-async function loadMarketplace(){
-  try {
-    const { data, error } = await sbClient.from('exchanges').select('*').eq('is_active', true).order('created_at', {ascending:false});
-    if(error) throw error;
-    marketItems = data || [];
-    renderMarketplace();
-  } catch(e){ 
-    document.getElementById('market-grid').innerHTML = '<div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px"data-i18n="market_empty">No listings yet.</div>';
-  }
-}
-
-function renderMarketplace(){
-  const typeFilter = document.getElementById('market-filter-type').value;
-  const search = (document.getElementById('market-search').value||'').toLowerCase();
-  const grid = document.getElementById('market-grid');
-  let filtered = marketItems;
-  if(typeFilter) filtered = filtered.filter(i=>i.transaction_type===typeFilter);
-  if(search) filtered = filtered.filter(i=>(i.item_name||'').toLowerCase().includes(search)||(i.looking_for||'').toLowerCase().includes(search));
-  if(!filtered.length){
-    grid.innerHTML = '<div style="color:var(--text-dim);grid-column:1/-1;text-align:center;padding:40px">No listings found.</div>';
-    return;
-  }
-  grid.innerHTML = '';
-  filtered.forEach(item => {
-    const typeLabels = {exchange:'🔄 Échange', sale:'💰 Sale', gift:'🎁 Don'};
-    const card = document.createElement('div');
-    card.className = 'market-card';
-    const imgHtml = item.img_url ? '<img class=\'market-card-img\' src=\''+escHtml(item.img_url)+'\'/>' : '<div class=\'market-card-img\' style=\'display:flex;align-items:center;justify-content:center;font-size:2rem\'>📦</div>';
-    const isOwner = currentUser && item.owner_id === currentUser.id;
-    card.innerHTML = imgHtml
-      +'<div class="market-card-body">'
-      +'<div class="market-card-name">'+escHtml(item.item_name||'')+'</div>'
-      +'<div class="market-card-meta">'+(item.item_type||'')+' · '+(item.item_platform||'')+'</div>'
-      +'<span class="market-card-type '+(item.transaction_type||'exchange')+'">'+(typeLabels[item.transaction_type]||'🔄 Échange')+'</span>'
-      +(item.looking_for?'<div class="market-card-looking">🔍 '+escHtml(item.looking_for)+'</div>':'')
-      +'<div class="market-card-owner">👤 '+escHtml(item.owner_pseudo||'Collector')+'</div>'
-      +(item.sale_link?'<a href="'+escHtml(item.sale_link)+'" target="_blank" rel="noopener" class="market-contact-btn" style="display:block;text-align:center;text-decoration:none;margin-bottom:6px">🔗 VOIR ANNONCE</a>':'')
-      +(isOwner ? '' : '<button class="market-contact-btn" data-contact="'+escHtml(item.contact||'')+'" onclick="contactOwner(this.dataset.contact)">📩 CONTACT</button>')
-      +(isOwner ? '<button class="market-contact-btn" data-id="'+item.id+'" onclick="deleteExchange(this.dataset.id)" style="background:rgba(255,77,106,.3);margin-top:6px">🗑️ REMOVE LISTING</button>' : '')
-      +'</div>';
-    grid.appendChild(card);
-  });
-}
-
-function contactOwner(contact){
-  if(!contact){ showToast('No contact provided', 'error'); return; }
-  if(contact.includes('@')){
-    window.location.href = 'mailto:'+contact;
-  } else if(contact.startsWith('http')){
-    window.open(contact, '_blank');
-  } else {
-    navigator.clipboard.writeText(contact).then(()=>showToast('Contact copied: '+contact, 'success'));
-  }
 }
 
 let exchangeItemData = null;
@@ -9005,12 +8542,13 @@ async function submitExchange(){
 }
 
 async function deleteExchange(id){
-  if(!confirm('Remove this listing from the marketplace?')) return;
+  if(!(await rlConfirm('Remove listing','Remove this item from trades?','Remove','Cancel'))) return;
   try {
     const { error } = await sbClient.from('exchanges').update({is_active:false}).eq('id',id).eq('owner_id',currentUser.id);
     if(error) throw error;
     showToast('Listing removed!', 'success');
-    await loadMarketplace();
+    if(typeof closeDetail==='function') closeDetail();
+    if(typeof render==='function') render();
   } catch(e){ showToast('Error: '+e.message, 'error'); }
 }
 
@@ -10579,9 +10117,8 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'modal-overlay','detail-overlay','gallery-overlay','submit-photo-overlay',
     'img-edit-overlay','addfriend-overlay','exchange-modal','export-overlay',
     'ios-install-overlay','desktop-install-overlay','catalog-detail-overlay',
-    'catalog-edit-overlay','profile-screen','admin-screen','stats-screen',
-    'guide-screen','public-screen','friends-screen','compare-screen','market-screen',
-    'wiki-screen','wiki-detail-overlay','wiki-edit-overlay','wiki-suggest-overlay','wiki-review-overlay',
+    'catalog-edit-overlay','profile-screen','admin-screen',
+    'guide-screen','public-screen','friends-screen','compare-screen',
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
     'news-edit-overlay','news-popup-overlay','catitem-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
     'collmanager-overlay','catalogedit-overlay','catreq-overlay','collwiz-overlay','pasteimport-overlay','catreqreview-overlay','delacc-overlay','reset-overlay','addwiz-overlay','globalsearch-overlay','collection-view-screen','subcoll-screen'
