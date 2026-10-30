@@ -3422,14 +3422,19 @@ function migrateItemLang(it){
 }
 
 async function fetchItems(){
-  const {data,error}=await sbClient.from('items').select('*').order('created_at',{ascending:true});
+  if(!currentUser){ items=[]; return; }
+  // Only MY items: the friends' read rule (RLS) would otherwise mix
+  // a friend's objects into my own collection.
+  const {data,error}=await sbClient.from('items').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:true});
   if(error){ showToast('Error: '+error.message,'error'); return; }
   items=(data||[]).map(migrateItemLang);
   await loadRcCatalogIndex();  // so catalog photos become default images
 }
 async function dbInsert(obj){ const {data,error}=await sbClient.from('items').insert([obj]).select().single(); if(error) throw error; return data; }
-async function dbUpdate(id,obj){ const {error}=await sbClient.from('items').update(obj).eq('id',id); if(error) throw error; }
-async function dbDelete(id){ const {error}=await sbClient.from('items').delete().eq('id',id); if(error) throw error; }
+// RLS silently skips rows you don't own: count the affected rows so a
+// refused change raises an error instead of looking successful.
+async function dbUpdate(id,obj){ const {data,error}=await sbClient.from('items').update(obj).eq('id',id).select('id'); if(error) throw error; if(!data||!data.length) throw new Error('Item not saved (not in your collection)'); }
+async function dbDelete(id){ const {data,error}=await sbClient.from('items').delete().eq('id',id).select('id'); if(error) throw error; if(!data||!data.length) throw new Error('Item not deleted (not in your collection)'); }
 
 // ══ MODAL ══
 function openModal(id){
