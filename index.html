@@ -10863,8 +10863,10 @@ const IMP_SERIES = [
   [/trilog|collection|triple pack/,'trilogy'],[/going commando|locked and loaded|loacked/,'ratchet clank 2'],[/up your arsenal/,'ratchet clank 3']
 ];
 function impDetect(list, t){ for(const [re,v] of list){ if(re.test(t)) return v; } return null; }
+const IMP_SYN = [[/\bvinyl\b/,'vinyle vinyles'],[/\bpen\b|penna/,'stylo'],[/\bplush\b/,'peluche'],[/\bmug\b/,'tasse'],[/keychain|key ring/,'key chain'],[/\bposter\b/,'affiche'],[/\bbottle\b/,'gourde'],[/omni ?wrench/,'omniwrench cle'],[/phone ?ring/,'phone ring'],[/\bfilm\b|movie/,'film movie'],[/blu ?ray/,'blue ray'],[/\bguide\b/,'guide guides'],[/\bpins?\b/,'pins'],[/sticker/,'stickers'],[/t ?shirt|\btee\b|teeshirt/,'t shirt']];
 function impSuggest(title, query){
-  const t = impNorm(query||title);
+  let t = impNorm(query||title);
+  for(const [re,add] of IMP_SYN){ if(re.test(t)) t += ' '+add; }
   const words = t.split(' ').filter(w=>w.length>1 && !['ratchet','clank','et','and','the','de','le','la','jeu','jeux','pour','for','avec','ps2','ps3','ps4','ps5','psp','playstation','sony','version','edition','game','neuf','sous','blister','new','rare','lot','pal','ntsc','with','avec','from','by','official','officiel','series','serie','action','collectible','collector','limited','complet','complete','tres','bon','etat','excellent','vintage'].includes(w));
   const plat = impDetect(IMP_PLAT,t), ed = impDetect(IMP_ED,t), reg = impDetect(IMP_REG,t), ser = impDetect(IMP_SERIES,t);
   // numéro d'épisode, sans compter celui de la console (« PS2 », « PlayStation 3 »)
@@ -10880,7 +10882,7 @@ function impSuggest(title, query){
     let base = 0;
     const hw = ' '+hay.split(' ').map(x=>x.length>3?x.replace(/s$/,''):x).join(' ')+' ';
     for(const w of words){ const ws = w.length>3?w.replace(/s$/,''):w; if(hw.includes(' '+ws+' ')) base += w.length>3?2:1; }
-    if(ser){ const ok = ser.split('|').some(x=>name.includes(x)); base += ok?6:-3; }
+    if(ser){ const ok = ser.split('|').some(x=>name.includes(x)); base += merch ? (ok?3:0) : (ok?6:-3); }
     if(base<=0){ if(plat && isGame && pl===plat && !merch) base = 1; else return {c, s:0}; }
     let s = base;
     if(merch){ if(isGame||isConsole) s -= 8; }
