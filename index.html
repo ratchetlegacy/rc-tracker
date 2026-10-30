@@ -10807,8 +10807,9 @@ async function impReadFile(file){
   if(!file) return;
   try{
     await impLoadXLSX();
-    const buf = await file.arrayBuffer();
-    const wb = XLSX.read(buf, {type:'array', cellDates:true});
+    const isCsv = /\.csv$/i.test(file.name) || /csv|text/.test(file.type||'');
+    const wb = isCsv ? XLSX.read(await file.text(), {type:'string', raw:true})
+                     : XLSX.read(await file.arrayBuffer(), {type:'array', cellDates:true});
     const sheetName = wb.SheetNames.find(n=>/achat|purchase/i.test(n)) || wb.SheetNames[0];
     const raw = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], {header:1, raw:true, defval:''});
     // trouver la ligne d'en-tête
@@ -10824,9 +10825,16 @@ async function impReadFile(file){
     const cSrc   = col(/^source|plateforme|site/);
     const cNote  = col(/remarque|detail|note|etat/);
     if(cTitle<0){ showToast(impL('Colonne « Objet » ou « Annonce » introuvable','No “Item”/“Title” column found'),'error'); return; }
-    const toNum = v => { if(typeof v==='number') return v; const n=parseFloat(String(v).replace(/[^\d,.-]/g,'').replace(/\s/g,'').replace(',','.')); return isNaN(n)?null:n; };
+    const toNum = v => {
+      if(typeof v==='number') return v;
+      let x=String(v).replace(/[^\d,.-]/g,'');
+      if(x.includes(',') && x.includes('.')) x = x.lastIndexOf(',')>x.lastIndexOf('.') ? x.replace(/\./g,'').replace(',','.') : x.replace(/,/g,'');
+      else x = x.replace(',','.');
+      const n=parseFloat(x); return isNaN(n)?null:Math.round(n*100)/100;
+    };
     const toDate = v => {
-      if(v instanceof Date && !isNaN(v)) return v.toISOString().slice(0,10);
+      if(v instanceof Date && !isNaN(v)){ const d=new Date(v.getTime()+12*3600e3); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+      if(typeof v==='number' && v>20000 && v<80000){ const d=new Date(Math.round((v-25569)*864e5)+12*3600e3); return d.toISOString().slice(0,10); }
       const s=String(v).trim(); let m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/); if(m) return m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0');
       m=s.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?/); if(m) return m[1]+'-'+m[2]+'-'+(m[3]||'01');
       return '';
@@ -10922,7 +10930,7 @@ function impRender(){
   if(!rows.length){ list.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:.85rem">'+impL('Rien ici.','Nothing here.')+'</div>'; return; }
   list.innerHTML = rows.map(({r,i})=>{
     const c = impCat(r.pick);
-    const img = c && c.image_url ? '<img src="'+impEsc(c.image_url)+'" style="width:56px;height:72px;object-fit:cover;border-radius:8px;flex-shrink:0" loading="lazy"/>' : '<div style="width:56px;height:72px;border-radius:8px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;flex-shrink:0">❔</div>';
+    const img = c && c.image_url ? '<img src="'+impEsc(c.image_url)+'" style="width:56px;height:72px;object-fit:cover;border-radius:8px;flex-shrink:0;background:rgba(255,255,255,.05)" loading="lazy" onerror="this.style.visibility=\'hidden\'"/>' : '<div style="width:56px;height:72px;border-radius:8px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;flex-shrink:0">❔</div>';
     const meta = [r.date ? r.date.split('-').reverse().join('/') : '', r.price!=null ? r.price.toFixed(2).replace('.',',')+' €' : '', r.source].filter(Boolean).join(' · ');
     let actions='';
     if(r.status==='todo'){
