@@ -2932,7 +2932,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- RANK -->
     <div class="admin-section">
-      <div class="admin-section-title">🏆 Rang</div>
+      <div class="admin-section-title" data-i18n="profile_rank">🏆 Rang</div>
       <div class="stat-widget" id="profile-rank-display" style="background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px"></div>
     </div>
 
@@ -2958,7 +2958,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
     <!-- TYPE BARS -->
     <div class="admin-section">
-      <div class="admin-section-title">📦 Collection par type</div>
+      <div class="admin-section-title" data-i18n="profile_by_type">📦 Collection par type</div>
       <div id="profile-type-bars" style="display:flex;flex-direction:column;gap:8px"></div>
     </div>
 
@@ -3004,6 +3004,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="profile-section" style="margin-bottom:20px;background:rgba(255,77,106,.06);border:1px solid rgba(255,77,106,.3);border-radius:14px;padding:16px">
       <div class="profile-section-title" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--missing);text-transform:uppercase;margin-bottom:8px">⚠️ Danger zone</div>
       <p style="font-size:.76rem;color:var(--text-dim);margin-bottom:12px">Deleting your account permanently removes your profile and your entire collection (Ratchet &amp; Clank + all other collections). This cannot be undone.</p>
+      <button onclick="startResetCollection()" style="width:100%;margin-bottom:10px;background:transparent;border:1px solid rgba(255,77,106,.3);color:var(--missing);border-radius:10px;padding:12px;font-weight:600;cursor:pointer">↺ Start over (empty my R&amp;C collection)</button>
       <button onclick="startDeleteAccount()" style="width:100%;background:transparent;border:1px solid rgba(255,77,106,.5);color:var(--missing);border-radius:10px;padding:12px;font-weight:700;cursor:pointer">🗑️ Delete my account</button>
     </div>
 
@@ -3182,7 +3183,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openGuide()">❓ How to use</div>
   <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)">📲 Install the app</div>
   <a href="https://ko-fi.com/ratchetlegacy" target="_blank" class="menu-item" style="color:#FF8C42;border-color:rgba(255,140,66,.2)">☕ Fuel the collection!</a>
-  <div class="menu-item" style="color:var(--missing);border-color:rgba(255,77,106,.2)" onclick="closeMobileMenu();startResetCollection()">↺ Start over (empty my collection)</div>
+  <!-- "Start over" moved to Profile > Danger zone: too easy to hit by mistake in the everyday menu -->
   <div class="menu-item" style="color:var(--missing);border-color:rgba(255,77,106,.2)" onclick="closeMobileMenu();doSignOut()">🚪 Sign out</div>
   <a href="https://ratchetlegacy.com/legal.html" target="_blank" class="menu-item" style="color:var(--text-dim);font-size:.72rem;text-align:center;justify-content:center">📄 Terms &amp; Privacy</a>
 </div>
@@ -4189,7 +4190,13 @@ function render(){
       menu.appendChild(card);
     });
     if(shown){ container.appendChild(menu); }
-    else { container.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:40px">'+t('empty_title')+'</div>'; }
+    else { container.innerHTML='<div class="empty-state"><div class="icon">📦</div>'
+      +'<div style="font-weight:700;color:var(--text);margin-bottom:6px">'+t('empty_title')+'</div>'
+      +'<div style="margin-bottom:16px">'+t('empty_hint')+'</div>'
+      +'<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">'
+      +'<button class="add-btn" onclick="openCatalog()">'+t('empty_catalog')+'</button>'
+      +'<button class="add-btn" style="background:rgba(255,255,255,.08)" onclick="openModal()">'+t('empty_manual')+'</button>'
+      +'</div></div>'; }
     return;
   }
   // Dans la vue cartes, on est entre dans une categorie : bouton de retour
@@ -4587,13 +4594,13 @@ function openProfile(){
   const pct = total ? Math.round(owned/total*100) : 0;
 
   document.getElementById('profile-stats-grid').innerHTML =
-    '<div class="stat-card"><div class="sicon">✅</div><div class="svalue">'+owned+'</div><div class="slabel">Owned</div></div>'
+    '<div class="stat-card"><div class="sicon">✅</div><div class="svalue">'+owned+'</div><div class="slabel">'+t('kpi_owned_lbl')+'</div></div>'
     +'<div class="stat-card"><div class="sicon">🎯</div><div class="svalue">'+wish+'</div><div class="slabel">Wishlist</div></div>'
     +'<div class="stat-card"><div class="sicon">📦</div><div class="svalue">'+total+'</div><div class="slabel">Total</div></div>'
-    +'<div class="stat-card"><div class="sicon">📈</div><div class="svalue">'+pct+'%</div><div class="slabel">Completeness</div></div>'
-    +'<div class="stat-card"><div class="sicon">💸</div><div class="svalue">'+fmtEur(totalInvested)+'</div><div class="slabel">Investi</div></div>'
-    +'<div class="stat-card"><div class="sicon">💰</div><div class="svalue" style="color:var(--purple-light)">'+fmtEur(totalValue)+'</div><div class="slabel">Market value</div></div>'
-    +'<div class="stat-card"><div class="sicon">'+(delta>=0?'📈':'📉')+'</div><div class="svalue" style="color:'+(delta>=0?'var(--profit)':'var(--loss)')+'">'+( delta>=0?'+':'')+fmtEur(delta)+'</div><div class="slabel">Plus-value</div></div>';
+    +'<div class="stat-card"><div class="sicon">📈</div><div class="svalue">'+pct+'%</div><div class="slabel">'+t('kpi_completeness')+'</div></div>'
+    +'<div class="stat-card"><div class="sicon">💸</div><div class="svalue">'+fmtEur(totalInvested)+'</div><div class="slabel">'+t('kpi_invested')+'</div></div>'
+    +'<div class="stat-card"><div class="sicon">💰</div><div class="svalue" style="color:var(--purple-light)">'+fmtEur(totalValue)+'</div><div class="slabel">'+t('kpi_value')+'</div></div>'
+    +'<div class="stat-card"><div class="sicon">'+(delta>=0?'📈':'📉')+'</div><div class="svalue" style="color:'+(delta>=0?'var(--profit)':'var(--loss)')+'">'+( delta>=0?'+':'')+fmtEur(delta)+'</div><div class="slabel">'+t('kpi_delta')+'</div></div>';
 
   // Top 5 most valuable
   const topItems = [...items].filter(i=>i.cur_value!=null).sort((a,b)=>parseFloat(b.cur_value)-parseFloat(a.cur_value)).slice(0,5);
@@ -5318,6 +5325,10 @@ const T = {
     'kpi_neuf':'Neuf/Blister','kpi_occasion':'Occasion',
     // Empty state
     'empty_state':'Aucun objet trouvé.',
+    'empty_title':'Ta collection est vide',
+    'kpi_owned_lbl':'Possédés','gs_catalog':'Dans le catalogue','gs_mine':'Dans ma collection',
+    'empty_hint':'Pars du catalogue : choisis un objet, il arrive déjà rempli (photo, plateforme, édition).',
+    'empty_catalog':'📚 Parcourir le catalogue','empty_manual':'✏️ Ajouter à la main',
     // Card / render labels
     'card_owned':'Possédé','card_wishlist':'Souhaité','card_missing':'Manquant',
     'card_buy':'Achat','card_value':'Valeur','card_uncat':'Sans catégorie',
@@ -5504,6 +5515,10 @@ const T = {
     'kpi_neuf':'New/Sealed','kpi_occasion':'Second hand',
     // Empty state
     'empty_state':'No items found.',
+    'empty_title':'Your collection is empty',
+    'kpi_owned_lbl':'Owned','gs_catalog':'In the catalog','gs_mine':'In my collection',
+    'empty_hint':'Start from the catalog: pick an item and it comes pre-filled (photo, platform, edition).',
+    'empty_catalog':'📚 Browse the catalog','empty_manual':'✏️ Add manually',
     // Card / render labels
     'card_owned':'Owned','card_wishlist':'Wishlist','card_missing':'Missing',
     'card_buy':'Buy','card_value':'Value','card_uncat':'Uncategorized',
@@ -7972,7 +7987,9 @@ function openGlobalSearch(){
   if(ov){ ov.classList.add('open'); const inp=document.getElementById('gs-input'); if(inp){ inp.value=''; setTimeout(()=>inp.focus(),100); } document.getElementById('gs-results').innerHTML='<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:.85rem">Type to search your collection…</div>'; }
 }
 function closeGlobalSearch(){ const ov=document.getElementById('globalsearch-overlay'); if(ov) ov.classList.remove('open'); setNavActive('profile'); }
+let _gsSeq=0;
 async function runGlobalSearch(){
+  const seq=++_gsSeq;   // only the latest keystroke may write its results
   const q=(document.getElementById('gs-input').value||'').trim().toLowerCase();
   const box=document.getElementById('gs-results');
   if(q.length<2){ box.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:.85rem">Type at least 2 letters…</div>'; return; }
@@ -7989,14 +8006,34 @@ async function runGlobalSearch(){
       results.push({name:r.name, sub:'Collection', img, status:r.status});
     });
   } catch(e){}
-  if(!results.length){ box.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:.85rem">No match found for "'+escHtml(q)+'"</div>'; return; }
-  box.innerHTML = results.slice(0,50).map(r=>{
+  // Catalog: what exists, even if I don't own it yet -> tap to open & add
+  let catHits=[];
+  try {
+    const { data } = await sbClient.from('catalog')
+      .select('*').ilike('name','%'+q+'%').order('year').limit(30);
+    catHits = data||[];
+    catHits.forEach(c=>{ if(!catalogData.some(x=>x.id===c.id)) catalogData.push(c); });
+  } catch(e){}
+  if(seq!==_gsSeq) return;   // a newer search has started
+  const catHtml = catHits.length
+    ? '<div style="font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:14px 10px 6px">📚 '+t('gs_catalog')+'</div>'
+      + catHits.map(c=>{
+        const sub=[c.category,c.platform&&c.platform!=='-'?c.platform:'',c.region,c.edition,c.year].filter(Boolean).join(' · ');
+        return '<div onclick="closeGlobalSearch();openCatalogDetail('+c.id+')" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px;border-bottom:1px solid rgba(255,255,255,.06)">'
+          + '<div style="width:44px;height:44px;border-radius:8px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">'+(c.image_url?'<img src="'+escHtml(c.image_url)+'" style="width:100%;height:100%;object-fit:cover" loading="lazy"/>':'📦')+'</div>'
+          + '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(c.name)+'</div><div style="font-size:.72rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(sub)+'</div></div>'
+          + '<span style="font-size:.7rem;color:var(--purple)">›</span></div>';
+      }).join('')
+    : '';
+  if(!results.length && !catHits.length){ box.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:.85rem">No match found for "'+escHtml(q)+'"</div>'; return; }
+  const mineHead = results.length ? '<div style="font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);padding:6px 10px">🗂️ '+t('gs_mine')+'</div>' : '';
+  box.innerHTML = mineHead + results.slice(0,50).map(r=>{
     const badge = r.status==='owned' ? '<span style="font-size:.6rem;color:var(--owned)">✓ owned</span>' : (r.status==='wishlist'?'<span style="font-size:.6rem;color:var(--wishlist)">★ wishlist</span>':'');
     return '<div style="display:flex;align-items:center;gap:12px;padding:10px;border-bottom:1px solid rgba(255,255,255,.06)">'
       + '<div style="width:44px;height:44px;border-radius:8px;background:var(--bg3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">'+(r.img?'<img src="'+escHtml(r.img)+'" style="width:100%;height:100%;object-fit:cover"/>':'📦')+'</div>'
       + '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escHtml(r.name)+'</div><div style="font-size:.68rem;color:var(--text-dim)">'+escHtml(r.sub)+' '+badge+'</div></div>'
       + '</div>';
-  }).join('');
+  }).join('') + catHtml;
 }
 function closeHome(){ document.getElementById('home-screen').style.display='none'; document.body.classList.remove('on-home'); }
 
@@ -9562,7 +9599,9 @@ function rcOpenCat(cat){
   const inCat=catalogData.filter(c=>(c.category||'Misc')===cat);
   const counts={};
   inCat.forEach(c=>{ const k=(c.platform&&c.platform!=='-')?c.platform:'—'; counts[k]=(counts[k]||0)+1; });
-  const plats=Object.keys(counts).sort();
+  const firstYear={};
+  inCat.forEach(c=>{ const k=(c.platform&&c.platform!=='-')?c.platform:'—'; const y=+c.year||9999; if(!(k in firstYear)||y<firstYear[k]) firstYear[k]=y; });
+  const plats=Object.keys(counts).sort((a,b)=>(firstYear[a]-firstYear[b])||a.localeCompare(b));
   const items=plats.map(p=>({key:p,label:p==='—'?'(no platform)':p,icon:'🕹️',count:counts[p],img:(inCat.find(o=>((o.platform&&o.platform!=='-')?o.platform:'—')===p&&o.image_url)||{}).image_url}));
   document.getElementById('catalog-list').innerHTML = rcCrumb() + rcMenuCards(items, k=>'rcOpenPlat(\''+k.replace(/'/g,"\\'")+'\')');
 }
@@ -9573,12 +9612,19 @@ function rcOpenPlat(plat){
   inSel.forEach(c=>{ const k=rcZoneOf(c); counts[k]=(counts[k]||0)+1; });
   const regs=Object.keys(counts).sort();
   if(regs.length<=1){ rcOpenReg(regs[0]||'—'); return; }
-  const items=regs.map(r=>({key:r,label:r==='—'?'(no version)':r,icon:'🌍',count:counts[r],img:(inSel.find(o=>rcZoneOf(o)===r&&o.image_url)||{}).image_url}));
+  const zoneLabel=r=>{
+    if(r==='—') return '(no version)';
+    if(r!=='NTSC') return r;
+    const cc=[...new Set(inSel.filter(o=>rcZoneOf(o)===r).map(o=>String(o.region||'').split('(')[0].trim()).filter(Boolean))];
+    return cc.length? 'NTSC · '+cc.join(', ') : r;
+  };
+  const items=regs.map(r=>({key:r,label:zoneLabel(r),icon:'🌍',count:counts[r],img:(inSel.find(o=>rcZoneOf(o)===r&&o.image_url)||{}).image_url}));
   document.getElementById('catalog-list').innerHTML = rcCrumb() + rcMenuCards(items, k=>'rcOpenReg(\''+k.replace(/'/g,"\\'")+'\')');
 }
 function rcOpenReg(reg){
   rcNavReg=reg;
-  const list=catalogData.filter(c=>(c.category||'Misc')===rcNavCat && ((c.platform&&c.platform!=='-')?c.platform:'—')===rcNavPlat && rcZoneOf(c)===reg);
+  const list=catalogData.filter(c=>(c.category||'Misc')===rcNavCat && ((c.platform&&c.platform!=='-')?c.platform:'—')===rcNavPlat && rcZoneOf(c)===reg)
+    .slice().sort((a,b)=>((+a.year||9999)-(+b.year||9999))||String(a.name).localeCompare(String(b.name)));
   let html = rcCrumb();
   html += '<input type="text" id="rccat-search" placeholder="🔍 Search here..." oninput="filterRcCatalog()" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:11px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none;margin-bottom:12px"/>';
   html += '<div class="cvcat-grid" id="rccat-list">' + list.map(c=>catalogCard(c)).join('') + '</div>';
@@ -10464,6 +10510,14 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     ensureTrap();
   });
 
+  // Escape key (desktop) = same as the Back button: closes the top layer
+  document.addEventListener('keydown', (e)=>{
+    if(e.key!=='Escape') return;
+    const tag=(e.target&&e.target.tagName)||'';
+    if(/INPUT|TEXTAREA|SELECT/.test(tag) && e.target.id!=='gs-input') return;
+    if(topOpen()){ e.preventDefault(); history.back(); }
+  });
+
   window.addEventListener('popstate', ()=>{
     // Catalog cascade: if the R&C catalog screen is open and we're deep in the cascade, go up one level
     const catScreen=document.getElementById('catalog-screen');
@@ -10628,7 +10682,7 @@ boot();
   <div class="modal" style="max-width:520px;max-height:85vh;display:flex;flex-direction:column">
     <button class="modal-close" onclick="closeGlobalSearch()">✕</button>
     <h2 style="margin-bottom:12px">🔍 Search</h2>
-    <input type="text" id="gs-input" placeholder="Search all your collections..." oninput="runGlobalSearch()" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:12px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.9rem;outline:none;margin-bottom:12px"/>
+    <input type="text" id="gs-input" placeholder="Search your collection and the catalog..." oninput="runGlobalSearch()" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:12px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.9rem;outline:none;margin-bottom:12px"/>
     <div id="gs-results" style="flex:1;overflow-y:auto"></div>
   </div>
 </div>
