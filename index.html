@@ -10863,7 +10863,7 @@ const IMP_SERIES = [
   [/trilog|collection|triple pack/,'trilogy'],[/going commando|locked and loaded|loacked/,'ratchet clank 2'],[/up your arsenal/,'ratchet clank 3']
 ];
 function impDetect(list, t){ for(const [re,v] of list){ if(re.test(t)) return v; } return null; }
-const IMP_SYN = [[/\bvinyl\b/,'vinyle vinyles'],[/\bpen\b|penna/,'stylo'],[/\bplush\b/,'peluche'],[/\bmug\b/,'tasse'],[/keychain|key ring/,'key chain'],[/\bposter\b/,'affiche'],[/\bbottle\b/,'gourde'],[/omni ?wrench/,'omniwrench cle'],[/phone ?ring/,'phone ring'],[/\bfilm\b|movie/,'film movie'],[/blu ?ray/,'blue ray'],[/\bguide\b/,'guide guides'],[/\bpins?\b/,'pins'],[/sticker/,'stickers'],[/t ?shirt|\btee\b|teeshirt/,'t shirt']];
+const IMP_SYN = [[/\bvinyl\b/,'vinyle vinyles'],[/\bpen\b|penna/,'stylo'],[/\bplush\b/,'peluche'],[/\bmug\b/,'tasse'],[/keychain|key ring/,'key chain'],[/\bposter\b/,'affiche'],[/\bbottle\b/,'gourde'],[/omni ?wrench/,'omniwrench cle'],[/phone ?ring/,'phone ring'],[/\bfilm\b|movie/,'film movie'],[/blu ?ray/,'blue ray'],[/\bguide\b/,'guide guides'],[/\bpins?\b/,'pins'],[/sticker/,'stickers'],[/t ?shirt|\btee\b|teeshirt/,'t shirt'],[/record|soundtrack|\bost\b/,'bande originale'],[/papercraft|paper craft/,'paper craft']];
 function impSuggest(title, query){
   let t = impNorm(query||title);
   for(const [re,add] of IMP_SYN){ if(re.test(t)) t += ' '+add; }
@@ -10896,6 +10896,8 @@ function impSuggest(title, query){
       else if(!ser && /^ratchet clank( ps4)?$/.test(name)) s += 2;   // « Ratchet & Clank PS2 » → le premier jeu
       if(ed){ s += e.includes(ed.split(' ')[0]) ? 4 : -1; } else if(/classique|standard/.test(e)) s += 1;
     }
+    if(!isGame && !ser && !num && /(^| )ratchet clank$/.test(name)) s += 2;
+    if(/variant/.test(name) && !/variant/.test(t)) s -= 1;
     if(reg){ s += rg.startsWith(reg) ? 3 : -2; } else if(rg.startsWith('fr')) s += 1;
     return {c, s};
   }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
