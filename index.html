@@ -9649,8 +9649,11 @@ function rcOpenReg(reg){
 function catalogCardRating(c){
   const rr = marketRating[String(c.id)] || {};
   const fmt = v => parseFloat(v).toFixed(2).replace(/\.00$/,'') + ' \u20ac';
+  // estimate (no real price yet) shown in amber with "≈", real rating in green
   const cell = (lbl,r) => (r && r.median!=null)
-    ? '<div><b>'+fmt(r.median)+'</b>'+lbl+'</div>' : '';
+    ? (r.count ? '<div><b>'+fmt(r.median)+'</b>'+lbl+'</div>'
+               : '<div title="Estimate from current listings — no completed sale yet"><b style="color:#F5B941">≈ '+fmt(r.median)+'</b>'+lbl+' est.</div>')
+    : '';
   const a = cell('new', rr.neuf), b = cell('used', rr.occasion);
   if(!a && !b) return '';
   return '<div class="cvcat-rate">'+a+b+'</div>';
@@ -9795,8 +9798,8 @@ function openCatalogDetail(id){
         const line = (lbl,r)=> (r && r.median!=null)
           ? '<div style="flex:1">'
             + '<div style="font-size:.58rem;color:var(--text-dim);letter-spacing:.08em">'+lbl+'</div>'
-            + '<div style="font-family:Orbitron,sans-serif;font-weight:700;font-size:1.15rem;color:var(--owned)">'+parseFloat(r.median).toFixed(2).replace(/\.00$/,'')+' €</div>'
-            + '<div style="font-size:.56rem;color:var(--text-dim)">'+(r.count ? r.count+' real price'+(r.count>1?'s':'') : 'estimate only')+'</div>'
+            + '<div style="font-family:Orbitron,sans-serif;font-weight:700;font-size:1.15rem;color:'+(r.count?'var(--owned)':'#F5B941')+'">'+(r.count?'':'≈ ')+parseFloat(r.median).toFixed(2).replace(/\.00$/,'')+' €</div>'
+            + '<div style="font-size:.56rem;color:var(--text-dim)">'+(r.count ? r.count+' real price'+(r.count>1?'s':'') : 'estimate from current listings · no sale yet')+'</div>'
             + '</div>'
           : '';
         const a=line('NEW / SEALED', rr.neuf), b=line('PRE-OWNED', rr.occasion);
