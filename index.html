@@ -4104,9 +4104,11 @@ function render(){
   const hasCur=ownedItems.some(i=>i.cur_value!=null);
   const delta=totalCurrent-totalInvested;
   // stat cards moved to stats page
-  if(hasBuy&&hasCur){
-    const sign=delta>=0?'+':'';
-  }else{ document.getElementById('stat-delta').textContent='—'; document.getElementById('stat-delta').className='fvalue profit-zero'; }
+  // #stat-delta no longer exists on the home screen: guard it, otherwise an
+  // empty collection (or one without prices) crashes render() and the app
+  // stays stuck on "Loading...".
+  const statDelta=document.getElementById('stat-delta');
+  if(statDelta && !(hasBuy&&hasCur)){ statDelta.textContent='—'; statDelta.className='fvalue profit-zero'; }
 
   // progress
   const owned=items.filter(i=>i.status==='owned').length;
