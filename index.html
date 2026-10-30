@@ -10865,7 +10865,7 @@ const IMP_SERIES = [
 function impDetect(list, t){ for(const [re,v] of list){ if(re.test(t)) return v; } return null; }
 function impSuggest(title, query){
   const t = impNorm(query||title);
-  const words = t.split(' ').filter(w=>w.length>1 && !['ratchet','clank','et','and','the','de','le','la','jeu','jeux','pour','for','avec','ps2','ps3','ps4','ps5','psp','playstation','sony','version','edition','game','neuf','sous','blister','new','rare','lot','pal','ntsc'].includes(w));
+  const words = t.split(' ').filter(w=>w.length>1 && !['ratchet','clank','et','and','the','de','le','la','jeu','jeux','pour','for','avec','ps2','ps3','ps4','ps5','psp','playstation','sony','version','edition','game','neuf','sous','blister','new','rare','lot','pal','ntsc','with','avec','from','by','official','officiel','series','serie','action','collectible','collector','limited','complet','complete','tres','bon','etat','excellent','vintage'].includes(w));
   const plat = impDetect(IMP_PLAT,t), ed = impDetect(IMP_ED,t), reg = impDetect(IMP_REG,t), ser = impDetect(IMP_SERIES,t);
   // numéro d'épisode, sans compter celui de la console (« PS2 », « PlayStation 3 »)
   const tNoPlat = t.replace(/\bps ?[2-5]\b|playstation ?[2-5]\b|psp ?\d{4}|\bseries? ?\d\b|\bx ?\d\b|\d+ ?(cm|ml|meter|m)\b/g,' ');
@@ -10878,7 +10878,8 @@ function impSuggest(title, query){
     const hay = name+' '+pl+' '+rg+' '+e+' '+impNorm(cat);
     const isGame = cat==='Game', isConsole = cat==='Console/Pack';
     let base = 0;
-    for(const w of words){ if((' '+hay+' ').includes(' '+w+' ')) base += w.length>3?2:1; }
+    const hw = ' '+hay.split(' ').map(x=>x.length>3?x.replace(/s$/,''):x).join(' ')+' ';
+    for(const w of words){ const ws = w.length>3?w.replace(/s$/,''):w; if(hw.includes(' '+ws+' ')) base += w.length>3?2:1; }
     if(ser){ const ok = ser.split('|').some(x=>name.includes(x)); base += ok?6:-3; }
     if(base<=0){ if(plat && isGame && pl===plat && !merch) base = 1; else return {c, s:0}; }
     let s = base;
