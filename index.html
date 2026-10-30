@@ -8681,6 +8681,8 @@ async function loadRcTotal(){
       rcCollectionTotal = total;
       updateRcProgressBar(total);
       if(typeof render === 'function') render();
+      // the home card was drawn before the total arrived ("0 / ? owned")
+      if(typeof renderHome === 'function' && document.body.classList.contains('on-home')) renderHome();
     }
     // Update admin field if open
     const field = document.getElementById('admin-rc-total');
