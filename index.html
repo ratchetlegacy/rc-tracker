@@ -1677,7 +1677,6 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <span>🔍 Filters <span id="filters-active-badge" style="display:none;background:var(--purple);color:#fff;border-radius:10px;padding:1px 8px;font-size:.68rem;margin-left:6px"></span></span>
         <span id="filters-chevron" style="color:var(--text-dim)">▾</span>
       </button>
-      <button class="add-btn" onclick="openModal()" data-i18n="btn_add">+ ADD OBJECT</button>
     </div>
     <!-- Collapsible filter dropdowns (hidden by default) -->
     <div id="filters-panel" style="display:none;flex-direction:column;gap:10px;background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px">
@@ -2200,7 +2199,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <div class="guide-card-icon">➕</div>
         <div class="guide-card-content">
           <h3>Add an item</h3>
-          <p>Tap the <strong>+ ADD OBJECT</strong> button (bottom right). Fill in the name, type, platform, edition and region. Set its status — <strong>Owned</strong> or <strong>Wishlist</strong> — its condition (New/Sealed or Second hand), and optionally a buy price and current market value. Pick a cover from the image bank, then save.</p>
+          <p>Tap the round <strong>+</strong> button at the bottom of the screen: it opens the catalog. Pick the exact item (edition and region), then follow the steps. Set its status — <strong>Owned</strong> or <strong>Wishlist</strong> — its condition (New/Sealed or Second hand), and optionally a buy price and current market value. Pick a cover from the image bank, then save.</p>
         </div>
       </div>
 
@@ -5242,7 +5241,7 @@ const T = {
     'btn_duplicate':'📋 Dupliquer',
     // Empty states
     'empty_collection':'Aucun objet dans ta collection',
-    'empty_add':'Clique sur + ADD pour commencer !',
+    'empty_add':'Touche le + en bas pour ajouter un objet depuis le catalogue !',
     'empty_wishlist':'Ta liste de souhaits est vide',
     'empty_search':'Aucun résultat pour cette recherche',
     // Gallery
@@ -5432,7 +5431,7 @@ const T = {
     'btn_duplicate':'📋 Duplicate',
     // Empty states
     'empty_collection':'No items in your collection',
-    'empty_add':'Click + ADD OBJECT to get started!',
+    'empty_add':'Tap the + at the bottom to add an item from the catalog!',
     'empty_wishlist':'Your wishlist is empty',
     'empty_search':'No results for this search',
     // Gallery
@@ -9436,7 +9435,7 @@ async function downloadGuidePDF(){
       ['Android (Chrome)','Open the tracker in Chrome. Tap the menu (three dots, top right), then Add to Home screen or Install app, and confirm. The app launches full-screen and is offline-ready.'],
     ]},
     { label:'FOR COLLECTORS', color:C_CYAN, items:[
-      ['Add an item','Tap + ADD OBJECT (bottom right). Fill in name, type, platform, edition and region. Set status (Owned or Wishlist), condition, and optional buy price and market value. Pick a cover, then save.'],
+      ['Add an item','Tap the round + button at the bottom: it opens the catalog. Pick the exact item (edition and region), then set status (Owned or Wishlist), condition, completeness and optional buy price and date.'],
       ['Choose a cover','In the form tap Image bank to browse covers by folder (PS2, PS3, Figures...). Search by name, tap an image, then Choose. Missing one? Use Submit a photo to send it to the admin.'],
       ['Completeness','For games, tick what you have (box, manual, disc...). The app tracks complete vs incomplete items and flags what is missing.'],
       ['Wishlist','Set status to Wishlist for items you are hunting. They show separately, do not count as owned, but appear in your stats.'],
@@ -9833,11 +9832,48 @@ function closeCatalogDetail(){ document.getElementById('catalog-detail-overlay')
 let _cdFront=true;
 function cdFlip(front,back){ const img=document.getElementById('cd-photo'); if(!img) return; _cdFront=!_cdFront; img.src=_cdFront?front:back; }
 
+// In-app confirm dialog (window.confirm() is blocked in installed PWAs)
+function rlConfirm(title, message, okLabel, cancelLabel){
+  return new Promise(resolve=>{
+    const ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px';
+    ov.innerHTML='<div style="background:var(--bg2,#151525);border:1px solid rgba(255,255,255,.12);border-radius:16px;max-width:380px;width:100%;padding:20px;color:var(--text,#fff);font-family:Inter,sans-serif">'
+      +'<div style="font-weight:800;font-size:1rem;margin-bottom:8px"></div>'
+      +'<div style="font-size:.88rem;color:var(--text-dim,#aab);line-height:1.45;margin-bottom:18px"></div>'
+      +'<div style="display:flex;gap:8px;justify-content:flex-end">'
+      +'<button data-r="0" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:var(--text,#fff);border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer"></button>'
+      +'<button data-r="1" class="add-btn" style="border-radius:10px;padding:10px 14px;cursor:pointer"></button>'
+      +'</div></div>';
+    const box=ov.firstChild;
+    box.children[0].textContent=title; box.children[1].textContent=message;
+    box.querySelector('[data-r="0"]').textContent=cancelLabel;
+    box.querySelector('[data-r="1"]').textContent=okLabel;
+    const done=v=>{ ov.remove(); resolve(v); };
+    ov.addEventListener('click',e=>{ if(e.target===ov) done(false); const b=e.target.closest('[data-r]'); if(b) done(b.dataset.r==='1'); });
+    document.body.appendChild(ov);
+  });
+}
+// Warn before adding a catalog entry the user already has (owned or wishlist)
+async function confirmIfAlreadyHave(c){
+  const mine=(items||[]).filter(i=>String(i.catalog_id)===String(c.id));
+  if(!mine.length) return true;
+  const owned=mine.filter(i=>i.status!=='wishlist').length, wish=mine.length-owned;
+  const fr=(typeof currentLang!=='undefined' && currentLang==='fr');
+  let msg;
+  if(owned) msg = fr ? ('Tu as déjà '+owned+' exemplaire'+(owned>1?'s':'')+' de « '+c.name+' » dans ta collection. Ajouter un exemplaire de plus ?')
+                     : ('You already own '+owned+' cop'+(owned>1?'ies':'y')+' of “'+c.name+'”. Add another copy?');
+  else msg = fr ? ('« '+c.name+' » est déjà dans ta liste de souhaits. L\'ajouter quand même ?')
+                : ('“'+c.name+'” is already in your wishlist. Add it anyway?');
+  return rlConfirm(fr?'Déjà dans ta collection':'Already in your collection', msg,
+                   fr?'Ajouter quand même':'Add anyway', fr?'Annuler':'Cancel');
+}
+
 // Add a catalog entry straight into the user's collection or wishlist
 async function addCatalogToCollection(id, status){
   if(!currentUser){ showToast('Please sign in first', 'error'); return; }
   const c = catalogData.find(x=>String(x.id)===String(id));
   if(!c) return;
+  if(!(await confirmIfAlreadyHave(c))) return;
   // Map catalog category → item type (best effort)
   const typeMap = {Game:'Game',Figure:'Figure',Plush:'Plush',Statue:'Statue',Music:'Music',Artbook:'Artbook',Print:'Print',Clothing:'Clothing',Comic:'Comic',Manga:'Manga',Movie:'Movie',Misc:'Misc'};
   const payload = {
@@ -9866,10 +9902,11 @@ async function addCatalogToCollection(id, status){
 
 // ===== Quick Add Wizard (step-by-step, prefilled from catalog) =====
 let awState = null;
-function addFromCatalog(id){
+async function addFromCatalog(id){
   if(!currentUser){ showToast('Please sign in first','error'); return; }
   const c = catalogData.find(x=>String(x.id)===String(id));
   if(!c) return;
+  if(!(await confirmIfAlreadyHave(c))) return;
   closeCatalogDetail();
   // Map catalog category to an item type that has completeness config
   const typeMap = {'Game':'Physical game','Console/Pack':'Console Pack','Figure':'Figure','Plush':'Plush','Goodie':'Goodie','Clothing':'Clothing','Print':'Print','Book':'Book','Guide':'Guide','Media':'Film','Misc':'Misc'};
