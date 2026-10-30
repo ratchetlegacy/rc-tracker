@@ -10856,6 +10856,7 @@ const IMP_PLAT = [[/\bps ?5\b|playstation 5/,'playstation 5'],[/\bps ?4\b|playst
 const IMP_ED = [[/platin/,'platinum'],[/promo|press|nfr|not for resale|review/,'press only'],[/\bdemo\b/,'demo only'],[/collector|gift package|special gift|limited edition/,'collector'],[/essential/,'essential'],[/the best/,'the best'],[/greatest hits/,'greatest hits'],[/\bhits?\b/,'playstation hit']];
 const IMP_REG = [[/\bjap|japan|japon|ntsc j|ntscj/,'jap'],[/\busa\b|ntsc u|\bus\b|americ/,'usa'],[/\buk\b|english/,'uk'],[/spiel|deutsch|german|allemand/,'de'],[/nuovo|sigillato|italia|italien|\bita\b|penna/,'it'],[/juego|espagnol|spanish|trilogia|precio/,'es'],[/\bvf\b|pal fr|\bfr\b|francais|version francaise/,'fr']];
 const IMP_SERIES = [
+  [/duo pack|cit tod/,'duo pack'],
   [/crack in time|future 2/,'crack in time'],[/all ?4 ?one|all for one|all one/,'all 4 one'],[/quest for booty|booty/,'quest for booty'],
   [/operation destruction|tools of destruction/,'operation destruction'],[/nexus/,'nexus'],[/q ?force|full frontal/,'qforce'],[/rift apart/,'rift apart'],
   [/taille ca compte|size matters/,'taille ca compte'],[/secret agent/,'secret agent clank'],[/gladiator|deadlock/,'gladiator|deadlock'],
@@ -10864,20 +10865,34 @@ const IMP_SERIES = [
 function impDetect(list, t){ for(const [re,v] of list){ if(re.test(t)) return v; } return null; }
 function impSuggest(title, query){
   const t = impNorm(query||title);
-  const words = t.split(' ').filter(w=>w.length>1 && !['ratchet','clank','et','and','the','de','le','la','jeu','jeux','pour','for','avec'].includes(w));
+  const words = t.split(' ').filter(w=>w.length>1 && !['ratchet','clank','et','and','the','de','le','la','jeu','jeux','pour','for','avec','ps2','ps3','ps4','ps5','psp','playstation','sony','version','edition','game','neuf','sous','blister','new','rare','lot','pal','ntsc'].includes(w));
   const plat = impDetect(IMP_PLAT,t), ed = impDetect(IMP_ED,t), reg = impDetect(IMP_REG,t), ser = impDetect(IMP_SERIES,t);
-  let num = null; const mn = t.match(/\b(2|3|4)\b(?! ?x)/); if(mn && !plat?.endsWith(mn[1])) num = mn[1];
+  // numéro d'épisode, sans compter celui de la console (« PS2 », « PlayStation 3 »)
+  const tNoPlat = t.replace(/\bps ?[2-5]\b|playstation ?[2-5]\b|psp ?\d{4}|\bseries? ?\d\b|\bx ?\d\b|\d+ ?(cm|ml|meter|m)\b/g,' ');
+  let num = null; const mn = tNoPlat.match(/\b(2|3|4)\b/); if(mn) num = mn[1];
   if(/\b4th\b/.test(t)) num='4';
+  const merch = /figur|action figure|plush|peluche|guide|poster|affiche|tasse|mug|pins?\b|magnet|bottle|gourde|t ?shirt|tee|funko|keychain|porte cle|stylo|pen\b|penna|phone ?ring|selfie|sticker|vinyl|blu ?ray|dvd|book|livre|comic|magazine|bobble|pixel pal|papercraft|paper craft/.test(t);
+  const consoleWord = /console|bundle|\bpack\b|slim|\bfat\b|\b(1004|2004|3004)\b/.test(t) && !/duo pack|triple pack|pack platin|gift package/.test(t);
   const scored = (catalogData||[]).map(c=>{
-    const name = impNorm(c.name), pl = impNorm(c.platform), rg = impNorm(c.region), e = impNorm(c.edition);
-    const hay = name+' '+pl+' '+rg+' '+e+' '+impNorm(c.category);
-    let s = 0;
-    for(const w of words){ if((' '+hay+' ').includes(' '+w+' ')) s += w.length>3?2:1; }
-    if(plat){ s += (pl===plat)?4:-5; }
-    if(ser){ const ok = ser.split('|').some(x=>name.includes(x)); s += ok?6:-3; }
-    if(num){ s += new RegExp('ratchet clank '+num+'\\b').test(name) ? 4 : (/^ratchet clank( |$)/.test(name)&&!ser? -2:0); }
-    else if(!ser && /^ratchet clank$/.test(name) && plat) s += 2; // titre « Ratchet & Clank PS2 » → le premier jeu
-    if(ed){ s += e.includes(ed.split(' ')[0]) ? 4 : -1; } else if(/classique|standard/.test(e)) s += 1;
+    const name = impNorm(c.name), pl = impNorm(c.platform), rg = impNorm(c.region), e = impNorm(c.edition), cat = c.category||'';
+    const hay = name+' '+pl+' '+rg+' '+e+' '+impNorm(cat);
+    const isGame = cat==='Game', isConsole = cat==='Console/Pack';
+    let base = 0;
+    for(const w of words){ if((' '+hay+' ').includes(' '+w+' ')) base += w.length>3?2:1; }
+    if(ser){ const ok = ser.split('|').some(x=>name.includes(x)); base += ok?6:-3; }
+    if(base<=0){ if(plat && isGame && pl===plat && !merch) base = 1; else return {c, s:0}; }
+    let s = base;
+    if(merch){ if(isGame||isConsole) s -= 8; }
+    else {
+      if(plat && (isGame||isConsole)) s += (pl===plat)?4:-5;
+      if(isConsole && !consoleWord) s -= 6;
+      if(consoleWord && isConsole) s += 3;
+    }
+    if(isGame){
+      if(num){ s += new RegExp('^ratchet clank '+num+'\\b').test(name) ? 5 : -3; }
+      else if(!ser && /^ratchet clank( ps4)?$/.test(name)) s += 2;   // « Ratchet & Clank PS2 » → le premier jeu
+      if(ed){ s += e.includes(ed.split(' ')[0]) ? 4 : -1; } else if(/classique|standard/.test(e)) s += 1;
+    }
     if(reg){ s += rg.startsWith(reg) ? 3 : -2; } else if(rg.startsWith('fr')) s += 1;
     return {c, s};
   }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s);
