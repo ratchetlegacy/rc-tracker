@@ -4054,7 +4054,8 @@ async function loadMarketRating(){
         count:  (r.user_count || 0) + (r.sale_count || 0),   // prix reels : collectionneurs + ventes relevees
         users:  r.user_count || 0,
         sales:  r.sale_count || 0,
-        sample: r.sample_count || 0
+        sample: r.sample_count || 0,
+        sources: r.source==='reelle' ? String(r.sources||'').replace(/collectionneurs/g,'collectors') : ''
       };
     });
   } catch(e){ marketRating={}; }
@@ -9800,6 +9801,7 @@ function openCatalogDetail(id){
             + '<div style="font-size:.58rem;color:var(--text-dim);letter-spacing:.08em">'+lbl+'</div>'
             + '<div style="font-family:Orbitron,sans-serif;font-weight:700;font-size:1.15rem;color:'+(r.count?'var(--owned)':'#F5B941')+'">'+(r.count?'':'≈ ')+parseFloat(r.median).toFixed(2).replace(/\.00$/,'')+' €</div>'
             + '<div style="font-size:.56rem;color:var(--text-dim)">'+(r.count ? r.count+' real price'+(r.count>1?'s':'') : 'estimate from current listings · no sale yet')+'</div>'
+            + (r.count && r.sources ? '<div style="font-size:.54rem;color:var(--text-dim);margin-top:2px">'+escHtml(r.sources)+'</div>' : '')
             + '</div>'
           : '';
         const a=line('NEW / SEALED', rr.neuf), b=line('PRE-OWNED', rr.occasion);
@@ -9807,6 +9809,7 @@ function openCatalogDetail(id){
         return '<div style="margin:12px 0;padding:12px 14px;background:rgba(61,214,140,.1);border:1px solid rgba(61,214,140,.3);border-radius:10px;text-align:center">'
           + '<div style="font-size:.6rem;color:var(--text-dim);letter-spacing:.1em;margin-bottom:6px">💰 MARKET RATING (median)</div>'
           + '<div style="display:flex;gap:10px">'+a+b+'</div>'
+          + '<a href="https://ratchetlegacy.com/database.html#prix" target="_blank" rel="noopener" style="display:inline-block;margin-top:6px;font-size:.62rem;color:var(--purple-light,#9B6FF4)">How is this calculated?</a>'
           + '</div>';
       })()
     + (function(){
