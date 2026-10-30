@@ -1037,7 +1037,7 @@
     .menu-card .mc-sub{font-size:.64rem;color:var(--text-dim);text-align:left;line-height:1.25}
     .atl-head{display:flex;align-items:center;gap:8px}
     .atl-title{flex:1;font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.05rem;letter-spacing:.04em;background:linear-gradient(90deg,var(--orange,#ff8a2a),var(--purple-light,#b48cff));-webkit-background-clip:text;background-clip:text;color:transparent}
-    .atl-wrench{-webkit-text-fill-color:initial;display:inline-block;transform:rotate(-20deg)}
+    .atl-wrench{display:inline-block;transform:rotate(-20deg);font-size:1.1rem}
     .atl-tag{font-size:.68rem;color:var(--text-dim);margin:-4px 2px 6px}
     .atl-ic{width:22px;text-align:center}
     .atl-chev{color:var(--text-dim);font-size:.95rem}
@@ -3188,7 +3188,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <div class="mobile-menu-overlay" id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
 <div class="mobile-menu-panel" id="mobile-menu-panel">
   <div class="atl-head">
-    <div class="atl-title"><span class="atl-wrench">🔧</span> Atelier</div>
+    <span class="atl-wrench">🔧</span><div class="atl-title">Atelier</div>
     <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close">✕</button>
   </div>
   <div class="atl-tag">Tools, settings &amp; community</div>
