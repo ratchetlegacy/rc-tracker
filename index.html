@@ -10768,6 +10768,10 @@ boot();
 // ===== Import d'achats =====
 let impRows = [];          // {title, price, date, source, note, cond, status:'todo'|'done'|'skip', pick, sugg:[ids]}
 let impView = 'todo';
+let impCatFilter = 'all';
+const IMP_CATS = {Game:['Jeux','Games'],'Console/Pack':['Consoles & packs','Consoles & packs'],Figure:['Figurines','Figures'],Plush:['Peluches','Plushies'],Goodie:['Goodies','Goodies'],Clothing:['Vêtements','Clothing'],Print:['Affiches & PLV','Prints & displays'],Book:['Livres','Books'],Guide:['Guides','Guides'],Media:['Films & musique','Movies & music'],none:['Sans fiche','No entry']};
+const impRowCat = r => { const c=impCat(r.pick); return c ? (c.category||'Misc') : 'none'; };
+const impCatName = k => IMP_CATS[k] ? impL(IMP_CATS[k][0],IMP_CATS[k][1]) : k;
 const IMP_KEY = 'rl_import_queue_v1';
 const impFR = () => (typeof currentLang==='undefined' || currentLang==='fr');
 const impL = (fr,en) => impFR()?fr:en;
@@ -10780,8 +10784,8 @@ async function openImport(){
   document.getElementById('import-overlay').style.display='block';
   document.getElementById('imp-title').textContent = impL('Importer des achats','Import purchases');
   document.getElementById('imp-intro').textContent = impL(
-    'Dépose un fichier Excel ou CSV avec une ligne par achat (colonnes : date, objet ou titre de l\'annonce, prix). Pour chaque ligne, le tracker propose la fiche du catalogue qui correspond : vérifie l\'édition et la région, corrige si besoin, puis valide. Rien n\'est ajouté sans ta validation, et ta liste est gardée si tu fermes la page.',
-    'Drop an Excel or CSV file with one row per purchase (columns: date, item or listing title, price). For each row the tracker suggests the matching catalog entry: check edition and region, fix it if needed, then confirm. Nothing is added without your confirmation, and the list is kept if you close the page.');
+    'Dépose un fichier Excel ou CSV avec une ligne par achat (colonnes : date, objet ou titre de l\'annonce, prix). Pour chaque ligne, le tracker propose la fiche du catalogue qui correspond : vérifie l\'édition et la région, corrige si besoin, puis touche « Ajouter » : une fenêtre te laisse contrôler la fiche, l\'état, la complétude et le prix d\'achat avant d\'enregistrer. Rien n\'est ajouté sans ta validation, et ta liste est gardée si tu fermes la page.',
+    'Drop an Excel or CSV file with one row per purchase (columns: date, item or listing title, price). For each row the tracker suggests the matching catalog entry: check edition and region, fix it if needed, then tap “Add”: a window lets you check the entry, condition, completeness and purchase price before saving. Nothing is added without your confirmation, and the list is kept if you close the page.');
   document.getElementById('imp-pick-lbl').textContent = impL('📂 Choisir un fichier','📂 Choose a file');
   if(!catalogData || !catalogData.length){
     document.getElementById('imp-list').innerHTML='<div style="text-align:center;color:var(--text-dim);padding:30px">'+impL('Chargement du catalogue…','Loading catalog…')+'</div>';
@@ -10928,8 +10932,17 @@ function impRender(){
   f.style.display = impRows.length?'flex':'none';
   f.innerHTML = [['todo',impL('À valider','To confirm')],['done',impL('Ajoutées','Added')],['skip',impL('Ignorées','Skipped')]].map(([k,l])=>
     '<button onclick="impView=\''+k+'\';impRender()" style="border-radius:20px;padding:6px 12px;font-size:.76rem;cursor:pointer;border:1px solid '+(impView===k?'var(--purple)':'rgba(255,255,255,.12)')+';background:'+(impView===k?'rgba(123,79,212,.25)':'transparent')+';color:var(--text)">'+l+'</button>').join('');
+  // filtre par catégorie (d'après la fiche proposée), sur les lignes de l'onglet affiché
+  const inView = impRows.filter(r=>r.status===impView);
+  const counts = {}; inView.forEach(r=>{ const k=impRowCat(r); counts[k]=(counts[k]||0)+1; });
+  if(impCatFilter!=='all' && !counts[impCatFilter]) impCatFilter='all';
+  const catKeys = Object.keys(counts).sort((a,b)=>counts[b]-counts[a]);
+  if(catKeys.length>1){
+    const chip=(k,l,n)=>'<button onclick="impCatFilter=\''+k+'\';impRender()" style="border-radius:20px;padding:5px 11px;font-size:.72rem;cursor:pointer;border:1px solid '+(impCatFilter===k?'var(--accent,#ff8a3d)':'rgba(255,255,255,.1)')+';background:'+(impCatFilter===k?'rgba(255,138,61,.18)':'transparent')+';color:var(--text)">'+impEsc(l)+' <span style="opacity:.6">'+n+'</span></button>';
+    f.innerHTML += '<div style="flex-basis:100%;height:0"></div>' + chip('all',impL('Toutes','All'),inView.length) + catKeys.map(k=>chip(k,impCatName(k),counts[k])).join('');
+  }
   if(!impRows.length){ list.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:40px 10px;font-size:.85rem">'+impL('Aucune ligne pour l\'instant. Choisis un fichier pour commencer.','No rows yet. Choose a file to start.')+'</div>'; return; }
-  const rows = impRows.map((r,i)=>({r,i})).filter(x=>x.r.status===impView);
+  const rows = impRows.map((r,i)=>({r,i})).filter(x=>x.r.status===impView && (impCatFilter==='all' || impRowCat(x.r)===impCatFilter));
   if(!rows.length){ list.innerHTML='<div style="text-align:center;color:var(--text-dim);padding:30px;font-size:.85rem">'+impL('Rien ici.','Nothing here.')+'</div>'; return; }
   list.innerHTML = rows.map(({r,i})=>{
     const c = impCat(r.pick);
@@ -10945,12 +10958,10 @@ function impRender(){
         + '</select>'
         + '<input type="search" placeholder="'+impL('🔎 Chercher une autre fiche…','🔎 Search another entry…')+'" onchange="impSearch('+i+',this.value)" style="width:100%;box-sizing:border-box;margin-top:6px;background:var(--bg);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:8px 10px;color:var(--text);font-size:.78rem"/>'
         + '<div style="display:flex;gap:6px;margin-top:8px;align-items:center;flex-wrap:wrap">'
-        +   '<select onchange="impRows['+i+'].cond=this.value;impSave()" style="background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:9px;padding:8px;color:var(--text);font-size:.78rem">'
-        +     '<option value="used"'+(r.cond!=='neuf_blister'?' selected':'')+'>'+impL('Occasion','Second hand')+'</option>'
-        +     '<option value="neuf_blister"'+(r.cond==='neuf_blister'?' selected':'')+'>'+impL('Neuf / scellé','New / sealed')+'</option></select>'
+        +   '<span style="font-size:.74rem;color:var(--text-dim)">'+impEsc(impCatName(impRowCat(r)))+'</span>'
         +   '<span style="flex:1"></span>'
         +   '<button onclick="impSkip('+i+')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--text-dim);border-radius:9px;padding:8px 12px;font-size:.78rem;cursor:pointer">'+impL('Ignorer','Skip')+'</button>'
-        +   '<button class="add-btn" onclick="impConfirm('+i+')" '+(c?'':'disabled style="opacity:.4"')+'>'+impL('✓ Valider','✓ Confirm')+'</button>'
+        +   '<button class="add-btn" onclick="impOpenAdd('+i+')" '+(c?'':'disabled style="opacity:.4"')+'>'+impL('＋ Ajouter','＋ Add')+'</button>'
         + '</div>';
     } else {
       actions = '<div style="display:flex;gap:8px;margin-top:8px;align-items:center"><span style="flex:1;font-size:.76rem;color:'+(r.status==='done'?'var(--owned,#3ddc97)':'var(--text-dim)')+'">'
@@ -10974,29 +10985,78 @@ function impSearch(i,q){
   impRows[i].sugg = res.map(x=>x.c.id); impRows[i].pick = res[0].c.id; impSave(); impRender();
 }
 function impSkip(i){ impRows[i].status='skip'; impSave(); impRender(); }
-async function impConfirm(i){
-  const r = impRows[i], c = impCat(r.pick);
+// Fenêtre de contrôle avant ajout : fiche, état, complétude, prix et date d'achat
+const IMP_TYPEMAP = {'Game':'Physical game','Console/Pack':'Console Pack','Figure':'Figure','Plush':'Plush','Goodie':'Goodie','Clothing':'Clothing','Print':'Print','Book':'Book','Guide':'Guide','Media':'Film','Misc':'Misc'};
+let impAdd = null;   // {i, pick, cond, price, date, comp:{}}
+function impOpenAdd(i){
+  const r = impRows[i]; if(!impCat(r.pick)) return;
+  impAdd = { i, pick:r.pick, cond:r.cond||'used', price:(r.price!=null?r.price:''), date:r.date||'', comp:{} };
+  let ov=document.getElementById('imp-add-ov');
+  if(!ov){ ov=document.createElement('div'); ov.id='imp-add-ov'; ov.style.cssText='position:fixed;inset:0;z-index:1600;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center;padding:12px;overflow-y:auto'; ov.addEventListener('click',e=>{ if(e.target===ov) impCloseAdd(); }); document.body.appendChild(ov); }
+  ov.style.display='flex'; impRenderAdd();
+}
+function impCloseAdd(){ const ov=document.getElementById('imp-add-ov'); if(ov) ov.style.display='none'; impAdd=null; }
+function impRenderAdd(){
+  const ov=document.getElementById('imp-add-ov'); if(!ov||!impAdd) return;
+  const r=impRows[impAdd.i], c=impCat(impAdd.pick);
+  const type = IMP_TYPEMAP[c.category] || c.category || 'Misc';
+  const fields = COMPLETENESS_CONFIG[type] || [];
+  const opts = (r.sugg||[]).map(id=>impCat(id)).filter(Boolean); if(!opts.find(o=>o.id===c.id)) opts.unshift(c);
+  const inp='width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:11px;color:var(--text);font-size:.88rem;font-family:Inter,sans-serif;outline:none';
+  const lbl=t=>'<div style="font-size:.72rem;color:var(--text-dim);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.04em">'+t+'</div>';
+  const seg=(v,l)=>'<button onclick="impAdd.cond=\''+v+'\';impRenderAdd()" style="flex:1;border-radius:10px;padding:11px;font-size:.84rem;cursor:pointer;border:1px solid '+(impAdd.cond===v?'var(--purple)':'rgba(255,255,255,.12)')+';background:'+(impAdd.cond===v?'rgba(123,79,212,.3)':'transparent')+';color:var(--text);font-weight:600">'+l+'</button>';
+  const refVal = impAdd.cond==='neuf_blister' ? c.price_new : c.price_used;
+  ov.innerHTML = '<div style="background:var(--bg2);border:1px solid rgba(255,255,255,.12);border-radius:18px;max-width:460px;width:100%;padding:18px;color:var(--text);font-family:Inter,sans-serif;margin:auto 0">'
+    + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><div style="flex:1;font-weight:800">'+impL('Contrôler avant d\'ajouter','Check before adding')+'</div><button onclick="impCloseAdd()" style="background:none;border:none;color:var(--text-dim);font-size:1.1rem;cursor:pointer">✕</button></div>'
+    + '<div style="display:flex;gap:12px;align-items:center">'
+    +   (c.image_url?'<img src="'+impEsc(c.image_url)+'" style="width:72px;height:92px;object-fit:cover;border-radius:10px;flex-shrink:0" onerror="this.style.visibility=\'hidden\'"/>':'<div style="width:72px;height:92px;border-radius:10px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;flex-shrink:0">❔</div>')
+    +   '<div style="min-width:0"><div style="font-weight:700;font-size:.92rem">'+impEsc(c.name)+'</div>'
+    +   '<div style="font-size:.78rem;color:var(--text-dim);margin-top:3px">'+impEsc([c.platform&&c.platform!=='-'?c.platform:'',c.region||'',c.edition||''].filter(Boolean).join(' · '))+'</div>'
+    +   (refVal!=null&&refVal!==''?'<div style="font-size:.76rem;margin-top:5px">'+impL('Cote ','Value ')+(impAdd.cond==='neuf_blister'?impL('neuf','new'):impL('occasion','used'))+' : <b>'+Number(refVal).toFixed(2).replace('.',',')+' €</b></div>':'')
+    +   '</div></div>'
+    + '<div style="font-size:.74rem;color:var(--text-dim);margin-top:10px;font-style:italic">'+impL('Annonce : ','Listing: ')+impEsc(r.title)+'</div>'
+    + lbl(impL('Fiche du catalogue','Catalog entry'))
+    + '<select onchange="impAdd.pick=this.value;impAdd.comp={};impRenderAdd()" style="'+inp+'">'+opts.map(o=>'<option value="'+o.id+'"'+(String(o.id)===String(impAdd.pick)?' selected':'')+'>'+impEsc(impLabel(o))+'</option>').join('')+'</select>'
+    + lbl(impL('État','Condition'))
+    + '<div style="display:flex;gap:8px">'+seg('used',impL('Occasion','Second hand'))+seg('neuf_blister',impL('Neuf / scellé','New / sealed'))+'</div>'
+    + (impAdd.cond!=='neuf_blister' && fields.length
+        ? lbl(impL('Complétude (touche pour cocher ce que tu as)','Completeness (tap what you have)'))
+          + '<div style="display:flex;flex-wrap:wrap;gap:6px">'+fields.map(fl=>{ const on=impAdd.comp[fl.k]==='present';
+              return '<button onclick="impAdd.comp[\''+fl.k+'\']=(impAdd.comp[\''+fl.k+'\']===\'present\')?\'absent\':\'present\';impRenderAdd()" style="border-radius:20px;padding:7px 11px;font-size:.78rem;cursor:pointer;border:1px solid '+(on?'var(--owned,#3ddc97)':'rgba(255,255,255,.12)')+';background:'+(on?'rgba(61,220,151,.15)':'transparent')+';color:var(--text)">'+fl.i+' '+fl.l+(on?' ✓':'')+'</button>'; }).join('')+'</div>'
+        : '')
+    + '<div style="display:flex;gap:10px">'
+    +   '<div style="flex:1">'+lbl(impL('Prix d\'achat (€)','Purchase price (€)'))+'<input type="number" step="0.01" min="0" value="'+impEsc(impAdd.price)+'" oninput="impAdd.price=this.value" style="'+inp+'"/></div>'
+    +   '<div style="flex:1">'+lbl(impL('Date d\'achat','Purchase date'))+'<input type="date" value="'+impEsc(impAdd.date)+'" oninput="impAdd.date=this.value" style="'+inp+'"/></div>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;margin-top:18px">'
+    +   '<button onclick="impCloseAdd()" style="flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:var(--text);border-radius:12px;padding:12px;font-weight:600;cursor:pointer">'+impL('Annuler','Cancel')+'</button>'
+    +   '<button class="add-btn" onclick="impDoAdd()" style="flex:2;border-radius:12px;padding:12px">'+impL('✓ Ajouter à ma collection','✓ Add to my collection')+'</button>'
+    + '</div></div>';
+}
+async function impDoAdd(){
+  if(!impAdd) return;
+  const a = impAdd, r = impRows[a.i], c = impCat(a.pick);
   if(!c) return;
   if(!(await confirmIfAlreadyHave(c))) return;
-  const typeMap = {'Game':'Physical game','Console/Pack':'Console Pack','Figure':'Figure','Plush':'Plush','Goodie':'Goodie','Clothing':'Clothing','Print':'Print','Book':'Book','Guide':'Guide','Media':'Film','Misc':'Misc'};
-  const type = typeMap[c.category] || c.category || 'Misc';
+  const type = IMP_TYPEMAP[c.category] || c.category || 'Misc';
+  const price = a.price===''||a.price==null ? null : parseFloat(String(a.price).replace(',','.'));
   const row = {
     user_id: currentUser.id, name: c.name, type,
     platform: (c.platform&&c.platform!=='-')?c.platform:null, region: c.region||null,
-    img_url: c.image_url||null, status:'owned', condition: r.cond||'used',
+    img_url: c.image_url||null, status:'owned', condition: a.cond,
     catalog_id: c.id, edition: c.edition||'',
-    buy_price: r.price!=null ? r.price : null,
-    buy_date: r.date || null,
+    buy_price: isNaN(price)?null:price,
+    buy_date: a.date || null,
     notes: impL('Importé : ','Imported: ')+r.title+(r.source?' ('+r.source+')':'')
   };
-  const refVal = (row.condition==='neuf_blister') ? c.price_new : c.price_used;
+  const refVal = (a.cond==='neuf_blister') ? c.price_new : c.price_used;
   if(refVal!=null && refVal!=='') row.cur_value = parseFloat(refVal);
-  if(row.condition==='neuf_blister'){ (COMPLETENESS_CONFIG[type]||[]).forEach(f=>{ row['comp_'+f.k]='present'; }); }
+  (COMPLETENESS_CONFIG[type]||[]).forEach(f=>{ row['comp_'+f.k] = a.cond==='neuf_blister' ? 'present' : (a.comp[f.k]||'absent'); });
   try{
     const { data, error } = await sbClient.from('items').insert([row]).select('*').single();
     if(error){ showToast('Error: '+error.message,'error'); return; }
     if(data){ items.push(migrateItemLang(data)); }
-    r.status='done'; impSave(); impRender();
+    r.status='done'; r.pick=c.id; r.cond=a.cond; impSave(); impCloseAdd(); impRender();
     try{ await loadMarketRating(); applyRatingToItems(); render(); }catch(e){}
     showToast(impL('Ajouté à ta collection ✓','Added to your collection ✓'),'success');
   }catch(e){ showToast('Error: '+e.message,'error'); }
