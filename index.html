@@ -9603,7 +9603,10 @@ function rcOpenCat(cat){
   inCat.forEach(c=>{ const k=(c.platform&&c.platform!=='-')?c.platform:'—'; counts[k]=(counts[k]||0)+1; });
   const firstYear={};
   inCat.forEach(c=>{ const k=(c.platform&&c.platform!=='-')?c.platform:'—'; const y=+c.year||9999; if(!(k in firstYear)||y<firstYear[k]) firstYear[k]=y; });
-  const plats=Object.keys(counts).sort((a,b)=>(firstYear[a]-firstYear[b])||a.localeCompare(b));
+  // consoles in launch order; anything else after, by its earliest item
+  const CONSOLE_ORDER=['playstation 2','psp','playstation 3','ps vita','playstation 4','playstation 5'];
+  const rank=k=>{ const i=CONSOLE_ORDER.indexOf(String(k).toLowerCase()); return i>=0 ? i : 100+(firstYear[k]-1990); };
+  const plats=Object.keys(counts).sort((a,b)=>(rank(a)-rank(b))||a.localeCompare(b));
   const items=plats.map(p=>({key:p,label:p==='—'?'(no platform)':p,icon:'🕹️',count:counts[p],img:(inCat.find(o=>((o.platform&&o.platform!=='-')?o.platform:'—')===p&&o.image_url)||{}).image_url}));
   document.getElementById('catalog-list').innerHTML = rcCrumb() + rcMenuCards(items, k=>'rcOpenPlat(\''+k.replace(/'/g,"\\'")+'\')');
 }
