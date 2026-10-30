@@ -1656,7 +1656,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <span>
           <span id="collection-count" style="font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;color:var(--gold)">0 / 2500</span>
           <span id="collection-pct" style="font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700;color:var(--orange)">0%</span>
-          <span onclick="editCollectionTotal()" style="font-size:.6rem;color:var(--text-dim);cursor:pointer;text-decoration:underline">✎</span>
+
         </span>
       </div>
       <div class="energy-bar-bg" style="margin-bottom:6px"><div class="energy-bar-fill" id="collection-bar" style="width:0%;background:linear-gradient(90deg,var(--orange),var(--gold))"></div></div>
@@ -2053,8 +2053,8 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
   <div class="admin-body">
 
-    <!-- RC TOTAL SETTING -->
-    <div class="admin-section">
+    <!-- RC TOTAL SETTING : now automatic (catalog count), kept hidden -->
+    <div class="admin-section" style="display:none">
       <div class="admin-section-title" data-i18n="admin_rc_total">🎮 Total known R&C items</div>
       <div class="admin-form">
         <p style="font-size:.75rem;color:var(--text-dim);margin-bottom:12px">Sets the total used for the "R&C Collection" progress bar for all users.</p>
@@ -3853,6 +3853,7 @@ function getCollectionTotal(){
   return rcCollectionTotal || 0;
 }
 function editCollectionTotal(){
+  showToast('This total is automatic: it is the number of items in the catalog.', 'info'); return;
   if(!isAdmin()){ showToast('Only an admin can change this total.', 'error'); return; }
   const current = getCollectionTotal();
   const val = prompt('Total number of known R&C items (shared for everyone, e.g. 2500):', current || '');
@@ -8675,8 +8676,15 @@ function refreshStatsIfOpen(){
 
 async function loadRcTotal(){
   try {
-    const { data } = await sbClient.from('app_settings').select('value').eq('key','rc_total').single();
-    const total = data ? parseInt(data.value) : 0;
+    // The total follows the catalog: every new catalog entry raises it.
+    // (The old hand-typed 'rc_total' setting is only a fallback.)
+    let total = 0;
+    const { count } = await sbClient.from('catalog').select('id', { count:'exact', head:true });
+    if(count > 0) total = count;
+    else {
+      const { data } = await sbClient.from('app_settings').select('value').eq('key','rc_total').single();
+      total = data ? parseInt(data.value) : 0;
+    }
     if(total > 0){
       rcCollectionTotal = total;
       updateRcProgressBar(total);
