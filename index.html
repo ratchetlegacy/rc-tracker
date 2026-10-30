@@ -746,6 +746,40 @@
     .admin-back{padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:'Inter',sans-serif}
     .admin-body{padding:28px 32px;max-width:900px;margin:0 auto}
     .admin-section{margin-bottom:32px}
+    /* Profil : tableau de bord */
+    .pf-hero{display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
+    .pf-card{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(123,79,212,.22),rgba(255,138,42,.10));border:1px solid rgba(123,79,212,.35);border-radius:18px;padding:18px}
+    .pf-card::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 70%);pointer-events:none}
+    .pf-top{display:flex;align-items:center;gap:18px}
+    .pf-ring{position:relative;width:112px;height:112px;flex-shrink:0}
+    .pf-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+    .pf-ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+    .pf-ring-pct{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.35rem}
+    .pf-ring-sub{font-size:.66rem;color:var(--text-dim);margin-top:2px}
+    .pf-rank-name{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .pf-rank-bar{height:8px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;margin:8px 0 6px}
+    .pf-rank-fill{height:100%;border-radius:6px;transition:width 1s ease}
+    .pf-mini{font-size:.74rem;color:var(--text-dim)}
+    .pf-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+    .pf-chip{font-size:.72rem;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)}
+    .pf-money{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .pf-tile{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 12px;text-align:center}
+    .pf-tile-ic{font-size:1.1rem}
+    .pf-tile-val{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.05rem;margin-top:6px;white-space:nowrap}
+    .pf-tile-lbl{font-size:.68rem;color:var(--text-dim);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+    .pf-months{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px}
+    .pf-months-bars{display:flex;align-items:flex-end;gap:6px;height:110px;margin-top:10px}
+    .pf-mcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;min-width:0}
+    .pf-mbar{width:100%;max-width:26px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,var(--orange,#ff8a2a),var(--purple,#7b4fd4));min-height:2px;transition:height .8s ease}
+    .pf-mlbl{font-size:.6rem;color:var(--text-dim)}
+    .pf-mval{font-size:.58rem;color:var(--text);white-space:nowrap}
+    .pf-settings{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 16px;margin-bottom:30px}
+    .pf-settings summary{cursor:pointer;font-weight:700;font-size:.88rem;list-style:none}
+    .pf-settings summary::-webkit-details-marker{display:none}
+    .pf-settings summary::after{content:" ▾";color:var(--text-dim)}
+    .pf-settings[open] summary::after{content:" ▴"}
+    @media(max-width:520px){ .pf-ring{width:96px;height:96px} .pf-money{gap:8px} .pf-tile{padding:12px 6px} .pf-tile-val{font-size:.9rem} }
+
     .admin-section-title{font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;color:var(--orange);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
     .admin-section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,107,26,.3),transparent)}
     .admin-form{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px}
@@ -2929,38 +2963,19 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   </div>
   <div class="admin-body">
 
-    <!-- RANK -->
+    <!-- TABLEAU DE BORD (rang, collection, argent, dépenses) -->
+    <div id="pf-hero" class="pf-hero"></div>
+
+    <!-- STATISTIQUES DÉTAILLÉES (même rendu que l'ancien écran Stats) -->
     <div class="admin-section">
-      <div class="admin-section-title" data-i18n="profile_rank">🏆 Rang</div>
-      <div class="stat-widget" id="profile-rank-display" style="background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px"></div>
+      <div class="admin-section-title" id="pf-stats-title">📊 Statistics</div>
+      <div id="profile-stats-embed"></div>
     </div>
 
-    <!-- STATS ACCESS -->
-    <div class="admin-section">
-      <button onclick="document.getElementById('profile-screen').classList.remove('open');openStats()" style="width:100%;background:var(--bg2);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:15px 16px;color:var(--text);font-weight:600;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
-        <span>📊 View my stats</span>
-        <span style="color:var(--text-dim);font-size:1.1rem">›</span>
-      </button>
-    </div>
-
-    <!-- STATS -->
-    <div class="admin-section">
-      <div class="admin-section-title">📊 Statistics</div>
-      <div class="kpi-grid" id="profile-stats-grid"></div>
-    </div>
-
-    <!-- TOP 5 -->
-    <div class="admin-section">
-      <div class="admin-section-title">💎 Top 5 most valuable items</div>
-      <div class="top-list" id="profile-top-items"></div>
-    </div>
-
-    <!-- TYPE BARS -->
-    <div class="admin-section">
-      <div class="admin-section-title" data-i18n="profile_by_type">📦 Collection par type</div>
-      <div id="profile-type-bars" style="display:flex;flex-direction:column;gap:8px"></div>
-    </div>
-
+    <!-- RÉGLAGES DU PROFIL (repliés) -->
+    <details class="pf-settings" id="pf-settings">
+      <summary id="pf-settings-summary">⚙️ Profile settings — avatar, nickname, public profile</summary>
+      <div style="padding-top:16px">
     <!-- AVATAR -->
     <div class="profile-section" style="margin-bottom:20px">
       <div class="profile-section-title" style="font-family:'Orbitron',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:var(--chrome);text-transform:uppercase;margin-bottom:12px">🎭 Avatar</div>
@@ -3006,6 +3021,9 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <button onclick="startResetCollection()" style="width:100%;margin-bottom:10px;background:transparent;border:1px solid rgba(255,77,106,.3);color:var(--missing);border-radius:10px;padding:12px;font-weight:600;cursor:pointer">↺ Start over (empty my R&amp;C collection)</button>
       <button onclick="startDeleteAccount()" style="width:100%;background:transparent;border:1px solid rgba(255,77,106,.5);color:var(--missing);border-radius:10px;padding:12px;font-weight:700;cursor:pointer">🗑️ Delete my account</button>
     </div>
+
+      </div>
+    </details>
 
   </div>
 </div>
@@ -4575,66 +4593,74 @@ function openProfile(){
     grid.appendChild(el);
   });
 
-  // Rank
-  const owned = items.filter(i=>i.status==='owned').length;
-  const rank = getRank(owned);
-  const nextRank = RANKS[RANKS.indexOf(rank)+1];
-  const progress = nextRank ? Math.round(((owned-rank.min)/(nextRank.min-rank.min))*100) : 100;
-  document.getElementById('profile-rank-display').innerHTML =
-    '<div class="profile-rank-icon">'+rank.icon+'</div>'
-    +'<div><div class="profile-rank-name" style="color:'+rank.color+'">'+rank.name+'</div>'
-    +'<div class="profile-rank-progress">'+(nextRank ? nextRank.min-owned+' '+t('rank_next')+' '+nextRank.name : t('rank_max')) +'</div>'
-    +'<div class="profile-rank-bar"><div class="profile-rank-fill" style="width:'+progress+'%;background:'+rank.color+'"></div></div>'
-    +'</div>';
-
-  // Stats
-  const wish = items.filter(i=>i.status==='wishlist').length;
-  const total = items.length;
-  const totalInvested = items.filter(i=>i.status==='owned'&&i.buy_price!=null).reduce((s,i)=>s+parseFloat(i.buy_price),0);
-  const totalValue = items.filter(i=>i.status==='owned'&&i.cur_value!=null).reduce((s,i)=>s+parseFloat(i.cur_value),0);
-  const delta = totalValue - totalInvested;
-  const pct = total ? Math.round(owned/total*100) : 0;
-
-  document.getElementById('profile-stats-grid').innerHTML =
-    '<div class="stat-card"><div class="sicon">✅</div><div class="svalue">'+owned+'</div><div class="slabel">'+t('kpi_owned_lbl')+'</div></div>'
-    +'<div class="stat-card"><div class="sicon">🎯</div><div class="svalue">'+wish+'</div><div class="slabel">Wishlist</div></div>'
-    +'<div class="stat-card"><div class="sicon">📦</div><div class="svalue">'+total+'</div><div class="slabel">Total</div></div>'
-    +'<div class="stat-card"><div class="sicon">📈</div><div class="svalue">'+pct+'%</div><div class="slabel">'+t('kpi_completeness')+'</div></div>'
-    +'<div class="stat-card"><div class="sicon">💸</div><div class="svalue">'+fmtEur(totalInvested)+'</div><div class="slabel">'+t('kpi_invested')+'</div></div>'
-    +'<div class="stat-card"><div class="sicon">💰</div><div class="svalue" style="color:var(--purple-light)">'+fmtEur(totalValue)+'</div><div class="slabel">'+t('kpi_value')+'</div></div>'
-    +'<div class="stat-card"><div class="sicon">'+(delta>=0?'📈':'📉')+'</div><div class="svalue" style="color:'+(delta>=0?'var(--profit)':'var(--loss)')+'">'+( delta>=0?'+':'')+fmtEur(delta)+'</div><div class="slabel">'+t('kpi_delta')+'</div></div>';
-
-  // Top 5 most valuable
-  const topItems = [...items].filter(i=>i.cur_value!=null).sort((a,b)=>parseFloat(b.cur_value)-parseFloat(a.cur_value)).slice(0,5);
-  const topEl = document.getElementById('profile-top-items');
-  if(topItems.length){
-    topEl.innerHTML = topItems.map((item,i)=>
-      '<div class="top-item">'
-      +'<div class="ti-rank">#'+(i+1)+'</div>'
-      +'<div style="font-size:1.1rem">'+getIcon(item.type)+'</div>'
-      +'<div class="ti-name">'+escHtml(item.name)+'</div>'
-      +'<div class="ti-val">'+fmtEur(parseFloat(item.cur_value))+'</div>'
-      +'</div>'
-    ).join('');
-  } else {
-    topEl.innerHTML = '<div style="color:var(--text-dim);font-size:.82rem">'+t('no_value_obj')+'</div>';
-  }
-
-  // Type breakdown
-  const types = [...new Set(items.map(i=>i.type).filter(Boolean))];
-  const maxCount = Math.max(...types.map(t=>items.filter(i=>i.type===t&&i.status==='owned').length), 1);
-  document.getElementById('profile-type-bars').innerHTML = types.map(t=>{
-    const count = items.filter(i=>i.type===t&&i.status==='owned').length;
-    const total = items.filter(i=>i.type===t).length;
-    const w = Math.round((count/maxCount)*100);
-    return '<div class="type-bar-row">'
-      +'<div class="type-bar-label">'+getIcon(t)+' '+t+'</div>'
-      +'<div class="type-bar-bg"><div class="type-bar-fill" style="width:'+w+'%"></div></div>'
-      +'<div class="type-bar-count">'+count+'/'+total+'</div>'
-      +'</div>';
-  }).join('');
+  renderProfileDashboard();
 
   document.getElementById('profile-screen').classList.add('open');
+}
+
+
+// ===== Profil : tableau de bord tout-en-un (rang, collection, argent, dépenses, statistiques) =====
+const pfL = (fr,en) => (typeof currentLang!=='undefined' && currentLang==='fr') ? fr : en;
+function renderProfileDashboard(){
+  const owned = items.filter(i=>i.status==='owned');
+  const wish = items.filter(i=>i.status==='wishlist').length;
+  const rank = getRank(owned.length);
+  const nextRank = RANKS[RANKS.indexOf(rank)+1];
+  const rProg = nextRank ? Math.round(((owned.length-rank.min)/(nextRank.min-rank.min))*100) : 100;
+  const catTotal = getCollectionTotal();
+  const ownedCat = new Set(owned.filter(i=>i.catalog_id!=null).map(i=>String(i.catalog_id))).size;
+  const pct = catTotal>0 ? Math.min(100, Math.round(ownedCat/catTotal*100)) : 0;
+  const invested = owned.reduce((s,i)=>i.buy_price!=null?s+parseFloat(i.buy_price):s,0);
+  const market = owned.reduce((s,i)=>i.cur_value!=null?s+parseFloat(i.cur_value):s,0);
+  const delta = market - invested, dPct = invested>0 ? Math.round(delta/invested*100) : null;
+  const nNew = owned.filter(i=>i.condition==='neuf_blister').length;
+  const regions = new Set(owned.map(i=>(i.region||'').split(' ')[0]).filter(Boolean)).size;
+  const plats = new Set(owned.map(i=>i.platform).filter(Boolean)).size;
+  const C = 2*Math.PI*46;
+  const fmt0 = v => parseFloat(v).toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});
+
+  // Dépenses des 12 derniers mois, d'après la date et le prix d'achat
+  const now = new Date(); const months=[];
+  for(let k=11;k>=0;k--){ const d=new Date(now.getFullYear(), now.getMonth()-k, 1); months.push({y:d.getFullYear(), m:d.getMonth(), v:0, n:0}); }
+  owned.forEach(i=>{
+    if(!i.buy_date||i.buy_price==null) return;
+    const d=new Date(i.buy_date);
+    const mo=months.find(x=>x.y===d.getFullYear()&&x.m===d.getMonth());
+    if(mo){ mo.v+=parseFloat(i.buy_price); mo.n++; }
+  });
+  const maxM = Math.max(...months.map(x=>x.v), 1), sumM = months.reduce((s,x)=>s+x.v,0);
+  const mNames = pfL('JFMAMJJASOND','JFMAMJJASOND');
+
+  document.getElementById('pf-hero').innerHTML =
+    '<div class="pf-card"><div class="pf-top">'
+    +  '<div class="pf-ring"><svg viewBox="0 0 100 100"><defs><linearGradient id="pfGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a2a"/><stop offset="1" stop-color="#7b4fd4"/></linearGradient></defs>'
+    +    '<circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="8"/>'
+    +    '<circle cx="50" cy="50" r="46" fill="none" stroke="url(#pfGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+(C*(1-pct/100)).toFixed(1)+'"/></svg>'
+    +    '<div class="pf-ring-txt"><div class="pf-ring-pct">'+pct+'%</div><div class="pf-ring-sub">'+ownedCat+' / '+(catTotal||'—')+'<br>'+pfL('du catalogue','of catalog')+'</div></div></div>'
+    +  '<div style="flex:1;min-width:0">'
+    +    '<div class="pf-rank-name" style="color:'+rank.color+'"><span style="font-size:1.5rem">'+rank.icon+'</span>'+escHtml(rank.name)+'</div>'
+    +    '<div class="pf-rank-bar"><div class="pf-rank-fill" style="width:'+rProg+'%;background:'+rank.color+'"></div></div>'
+    +    '<div class="pf-mini">'+(nextRank ? (nextRank.min-owned.length)+' '+pfL('objet(s) avant','item(s) to')+' <b>'+escHtml(nextRank.name)+'</b>' : pfL('Rang maximum atteint !','Max rank reached!'))+'</div>'
+    +    '<div class="pf-chips">'
+    +      '<span class="pf-chip">✅ '+owned.length+' '+pfL('possédés','owned')+'</span>'
+    +      '<span class="pf-chip">🎯 '+wish+' wishlist</span>'
+    +      '<span class="pf-chip">🆕 '+nNew+' '+pfL('neufs','sealed')+'</span>'
+    +      '<span class="pf-chip">🌍 '+regions+' '+pfL('régions','regions')+'</span>'
+    +      '<span class="pf-chip">🎮 '+plats+' '+pfL('plateformes','platforms')+'</span>'
+    +    '</div>'
+    +  '</div></div></div>'
+    +'<div class="pf-money">'
+    +  '<div class="pf-tile"><div class="pf-tile-ic">💸</div><div class="pf-tile-val">'+fmt0(invested)+'</div><div class="pf-tile-lbl">'+pfL('Dépensé','Spent')+'</div></div>'
+    +  '<div class="pf-tile"><div class="pf-tile-ic">💰</div><div class="pf-tile-val" style="color:var(--purple-light)">'+fmt0(market)+'</div><div class="pf-tile-lbl">'+pfL('Valeur','Value')+'</div></div>'
+    +  '<div class="pf-tile"><div class="pf-tile-ic">'+(delta>=0?'📈':'📉')+'</div><div class="pf-tile-val" style="color:'+(delta>=0?'var(--profit)':'var(--loss)')+'">'+(delta>=0?'+':'')+fmt0(delta)+'</div><div class="pf-tile-lbl">'+pfL('Plus-value','Gain')+(dPct!=null?' · '+(dPct>=0?'+':'')+dPct+'%':'')+'</div></div>'
+    +'</div>'
+    +'<div class="pf-months"><div style="display:flex;align-items:baseline;gap:8px"><div style="font-weight:700;font-size:.86rem;flex:1">📅 '+pfL('Achats des 12 derniers mois','Purchases, last 12 months')+'</div><div class="pf-mini">'+fmt0(sumM)+'</div></div>'
+    +  '<div class="pf-months-bars">'+months.map(x=>'<div class="pf-mcol" title="'+x.n+' · '+fmt0(x.v)+'"><div class="pf-mval">'+(x.v?Math.round(x.v):'')+'</div><div class="pf-mbar" style="height:'+Math.round(x.v/maxM*80)+'%"></div><div class="pf-mlbl">'+mNames[x.m]+'</div></div>').join('')+'</div>'
+    +'</div>';
+
+  document.getElementById('pf-stats-title').textContent = '📊 '+pfL('Statistiques détaillées','Detailed statistics');
+  document.getElementById('pf-settings-summary').textContent = '⚙️ '+pfL('Réglages du profil — avatar, pseudo, profil public','Profile settings — avatar, nickname, public profile');
+  renderStats(document.getElementById('profile-stats-embed'), true);
 }
 
 function closeProfile(){
@@ -5583,8 +5609,9 @@ function cycleLang(){
 const CHART_COLORS = ['#7B4FD4','#FF6B1A','#3DD68C','#FFD447','#FF4D6A','#60A5FA','#F97316','#A78BFA','#34D399','#FB923C','#818CF8','#6EE7B7','#FCA5A5','#93C5FD'];
 
 function openStats(){
-  document.getElementById('stats-screen').classList.add('open');
-  renderStats();
+  // Les statistiques vivent désormais dans la page Profil
+  openProfile();
+  setTimeout(()=>{ const el=document.getElementById('pf-stats-title'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 150);
 }
 function closeStats(){ document.getElementById('stats-screen').classList.remove('open'); }
 
@@ -5598,8 +5625,9 @@ function closeGuide(){ document.getElementById('guide-screen').classList.remove(
 
 function fmtEurS(v){ if(v==null) return '—'; return parseFloat(v).toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
 
-function renderStats(){
-  const body = document.getElementById('stats-body');
+function renderStats(target, embedded){
+  const body = target || window._statsTarget || document.getElementById('stats-body');
+  window._statsTarget = body; window._statsEmbedded = !!embedded;
   const owned = items.filter(i=>i.status==='owned');
   const wish = items.filter(i=>i.status==='wishlist');
   const total = items.length;
@@ -5653,7 +5681,8 @@ function renderStats(){
   // Build HTML
   let html = '';
 
-  // KPI CARDS
+  // KPI CARDS (déjà affichés en haut du profil quand les stats y sont intégrées)
+  if(!embedded){
   html += '<div class="kpi-grid">';
   html += kpi('📦','Total','total',total);
   html += kpi('✅','Owned','owned',owned.length);
@@ -5667,6 +5696,7 @@ function renderStats(){
   html += kpi('🆕','New/Sealed','neuf',nNeuf);
   html += kpi('📦','Used','occ',nOcc);
   html += '</div>';
+  }
 
   // ROW 1: Type pie + Type bars
   html += '<div class="stats-grid two">';
@@ -5821,14 +5851,14 @@ function showOutdatedPrices(){
     const lastUpdate = localStorage.getItem('price_updated_'+item.id);
     const days = lastUpdate ? Math.floor((Date.now()-parseInt(lastUpdate))/(24*60*60*1000)) : '?';
     const _v = itemVariant(item);
-    html += '<div class="top-list-item" style="cursor:pointer" data-id="'+item.id+'" onclick="closeStats();openModal(this.dataset.id)">'
+    html += '<div class="top-list-item" style="cursor:pointer" data-id="'+item.id+'" onclick="closeStats();closeProfile();openModal(this.dataset.id)">'
       +'<div class="top-list-icon">'+getIcon(item.type)+'</div>'
       +'<div class="top-list-namewrap"><div class="top-list-name">'+escHtml(item.name)+'</div>'+(_v?'<div class="top-list-variant">'+escHtml(_v)+'</div>':'')+'</div>'
       +'<div class="top-list-val" style="color:var(--wishlist);font-size:.7rem">'+days+'j</div>'
       +'</div>';
   });
   html += '</div>';
-  document.getElementById('stats-body').innerHTML = '<button onclick="renderStats()" style="margin-bottom:16px;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:Inter,sans-serif">← Back to stats</button>' + html;
+  (window._statsTarget||document.getElementById('stats-body')).innerHTML = '<button onclick="renderStats(window._statsTarget, window._statsEmbedded)" style="margin-bottom:16px;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:Inter,sans-serif">← Back to stats</button>' + html;
 }
 
 function showNoValueItems(){
@@ -5838,14 +5868,14 @@ function showNoValueItems(){
   html += '<div class="top-list">';
   items.forEach(item=>{
     const _v = itemVariant(item);
-    html += '<div class="top-list-item" style="cursor:pointer" data-id="'+item.id+'" onclick="closeStats();openModal(this.dataset.id)">'
+    html += '<div class="top-list-item" style="cursor:pointer" data-id="'+item.id+'" onclick="closeStats();closeProfile();openModal(this.dataset.id)">'
       +'<div class="top-list-icon">'+getIcon(item.type)+'</div>'
       +'<div class="top-list-namewrap"><div class="top-list-name">'+escHtml(item.name)+'</div>'+(_v?'<div class="top-list-variant">'+escHtml(_v)+'</div>':'')+'</div>'
       +'<div class="top-list-val" style="color:var(--purple-light);font-size:.7rem">Add</div>'
       +'</div>';
   });
   html += '</div>';
-  document.getElementById('stats-body').innerHTML = '<button onclick="renderStats()" style="margin-bottom:16px;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:Inter,sans-serif">← Back to stats</button>' + html;
+  (window._statsTarget||document.getElementById('stats-body')).innerHTML = '<button onclick="renderStats(window._statsTarget, window._statsEmbedded)" style="margin-bottom:16px;padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:Inter,sans-serif">← Back to stats</button>' + html;
 }
 
 function kpi(icon, label, id, value, color=''){
