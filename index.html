@@ -768,8 +768,11 @@
     .pf-tile-val{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.05rem;margin-top:6px;white-space:nowrap}
     .pf-tile-lbl{font-size:.68rem;color:var(--text-dim);margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
     .pf-months{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px}
-    .pf-months-bars{display:flex;align-items:flex-end;gap:6px;height:110px;margin-top:10px}
-    .pf-mcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;min-width:0}
+    .pf-months-scroll{overflow-x:auto;overflow-y:hidden;margin-top:10px;padding-bottom:6px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+    .pf-months-bars{display:flex;align-items:flex-end;gap:6px;height:130px;min-width:100%}
+    .pf-marrow{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--text);cursor:pointer;font-size:1.1rem;line-height:1}
+    .pf-myear{font-size:.56rem;color:var(--purple-light);height:10px}
+    .pf-mcol{flex:1 0 38px;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;min-width:38px}
     .pf-mbar{width:100%;max-width:26px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,var(--orange,#ff8a2a),var(--purple,#7b4fd4));min-height:2px;transition:height .8s ease}
     .pf-mlbl{font-size:.6rem;color:var(--text-dim)}
     .pf-mval{font-size:.58rem;color:var(--text);white-space:nowrap}
@@ -4601,6 +4604,7 @@ function openProfile(){
 
 // ===== Profil : tableau de bord tout-en-un (rang, collection, argent, dépenses, statistiques) =====
 const pfL = (fr,en) => (typeof currentLang!=='undefined' && currentLang==='fr') ? fr : en;
+function pfScrollMonths(dir){ const sc=document.getElementById('pf-months-scroll'); if(sc) sc.scrollBy({left:dir*Math.max(200, sc.clientWidth*0.8), behavior:'smooth'}); }
 function renderProfileDashboard(){
   const owned = items.filter(i=>i.status==='owned');
   const wish = items.filter(i=>i.status==='wishlist').length;
@@ -4619,9 +4623,14 @@ function renderProfileDashboard(){
   const C = 2*Math.PI*46;
   const fmt0 = v => parseFloat(v).toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0});
 
-  // Dépenses des 12 derniers mois, d'après la date et le prix d'achat
+  // Dépenses par mois, du premier achat renseigné jusqu'au mois en cours (au moins 12 mois)
   const now = new Date(); const months=[];
-  for(let k=11;k>=0;k--){ const d=new Date(now.getFullYear(), now.getMonth()-k, 1); months.push({y:d.getFullYear(), m:d.getMonth(), v:0, n:0}); }
+  const dated = owned.filter(i=>i.buy_date).map(i=>new Date(i.buy_date)).filter(d=>!isNaN(d));
+  let start = dated.length ? new Date(Math.min(...dated)) : new Date(now.getFullYear(), now.getMonth()-11, 1);
+  start = new Date(start.getFullYear(), start.getMonth(), 1);
+  const minStart = new Date(now.getFullYear(), now.getMonth()-11, 1);
+  if(start > minStart) start = minStart;
+  for(let d=new Date(start); d<=now; d=new Date(d.getFullYear(), d.getMonth()+1, 1)) months.push({y:d.getFullYear(), m:d.getMonth(), v:0, n:0});
   owned.forEach(i=>{
     if(!i.buy_date||i.buy_price==null) return;
     const d=new Date(i.buy_date);
@@ -4629,7 +4638,7 @@ function renderProfileDashboard(){
     if(mo){ mo.v+=parseFloat(i.buy_price); mo.n++; }
   });
   const maxM = Math.max(...months.map(x=>x.v), 1), sumM = months.reduce((s,x)=>s+x.v,0);
-  const mNames = pfL('JFMAMJJASOND','JFMAMJJASOND');
+  const mNames = pfL('janv,févr,mars,avr,mai,juin,juil,août,sept,oct,nov,déc','Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec').split(',');
 
   document.getElementById('pf-hero').innerHTML =
     '<div class="pf-card"><div class="pf-top">'
@@ -4654,9 +4663,13 @@ function renderProfileDashboard(){
     +  '<div class="pf-tile"><div class="pf-tile-ic">💰</div><div class="pf-tile-val" style="color:var(--purple-light)">'+fmt0(market)+'</div><div class="pf-tile-lbl">'+pfL('Valeur','Value')+'</div></div>'
     +  '<div class="pf-tile"><div class="pf-tile-ic">'+(delta>=0?'📈':'📉')+'</div><div class="pf-tile-val" style="color:'+(delta>=0?'var(--profit)':'var(--loss)')+'">'+(delta>=0?'+':'')+fmt0(delta)+'</div><div class="pf-tile-lbl">'+pfL('Plus-value','Gain')+(dPct!=null?' · '+(dPct>=0?'+':'')+dPct+'%':'')+'</div></div>'
     +'</div>'
-    +'<div class="pf-months"><div style="display:flex;align-items:baseline;gap:8px"><div style="font-weight:700;font-size:.86rem;flex:1">📅 '+pfL('Achats des 12 derniers mois','Purchases, last 12 months')+'</div><div class="pf-mini">'+fmt0(sumM)+'</div></div>'
-    +  '<div class="pf-months-bars">'+months.map(x=>'<div class="pf-mcol" title="'+x.n+' · '+fmt0(x.v)+'"><div class="pf-mval">'+(x.v?Math.round(x.v):'')+'</div><div class="pf-mbar" style="height:'+Math.round(x.v/maxM*80)+'%"></div><div class="pf-mlbl">'+mNames[x.m]+'</div></div>').join('')+'</div>'
+    +'<div class="pf-months"><div style="display:flex;align-items:center;gap:8px">'
+    +  '<div style="font-weight:700;font-size:.86rem;flex:1">📅 '+pfL('Achats par mois','Purchases per month')+' <span class="pf-mini" style="font-weight:400">· '+fmt0(sumM)+' '+pfL('depuis','since')+' '+mNames[months[0].m]+(pfL(' ',' '))+months[0].y+'</span></div>'
+    +  '<button class="pf-marrow" onclick="pfScrollMonths(-1)" aria-label="‹">‹</button><button class="pf-marrow" onclick="pfScrollMonths(1)" aria-label="›">›</button></div>'
+    +  '<div class="pf-months-scroll" id="pf-months-scroll"><div class="pf-months-bars">'+months.map(x=>'<div class="pf-mcol" title="'+mNames[x.m]+' '+x.y+' · '+x.n+' '+pfL('achat(s)','purchase(s)')+' · '+fmt0(x.v)+'"><div class="pf-mval">'+(x.v?Math.round(x.v):'')+'</div><div class="pf-mbar" style="height:'+Math.round(x.v/maxM*78)+'%"></div><div class="pf-mlbl">'+mNames[x.m]+'</div><div class="pf-myear">'+((x.m===0||x===months[0])?x.y:'')+'</div></div>').join('')+'</div></div>'
     +'</div>';
+  // on démarre sur le mois en cours (tout à droite)
+  setTimeout(()=>{ const sc=document.getElementById('pf-months-scroll'); if(sc) sc.scrollLeft = sc.scrollWidth; }, 60);
 
   document.getElementById('pf-stats-title').textContent = '📊 '+pfL('Statistiques détaillées','Detailed statistics');
   document.getElementById('pf-settings-summary').textContent = '⚙️ '+pfL('Réglages du profil — avatar, pseudo, profil public','Profile settings — avatar, nickname, public profile');
