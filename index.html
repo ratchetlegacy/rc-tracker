@@ -1031,11 +1031,23 @@
     .menu-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 8px}
     .menu-card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 8px;border-radius:14px;background:var(--bg3);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:.16s}
     .menu-card:hover{background:rgba(123,79,212,.2);border-color:var(--purple);transform:translateY(-2px)}
-    .menu-card .mc-ic{display:none}
-    .menu-card .mc-lbl{font-size:.74rem;font-weight:600;text-align:center}
+    .menu-card{align-items:flex-start!important;padding:14px 12px!important;gap:4px!important;background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.015))!important}
+    .menu-card .mc-ic{display:flex;width:34px;height:34px;border-radius:10px;align-items:center;justify-content:center;font-size:1.05rem;background:rgba(123,79,212,.18);border:1px solid rgba(123,79,212,.3);margin-bottom:4px}
+    .menu-card .mc-lbl{font-size:.8rem;font-weight:700;text-align:left}
+    .menu-card .mc-sub{font-size:.64rem;color:var(--text-dim);text-align:left;line-height:1.25}
+    .atl-head{display:flex;align-items:center;gap:8px}
+    .atl-title{flex:1;font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.05rem;letter-spacing:.04em;background:linear-gradient(90deg,var(--orange,#ff8a2a),var(--purple-light,#b48cff));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .atl-wrench{-webkit-text-fill-color:initial;display:inline-block;transform:rotate(-20deg)}
+    .atl-tag{font-size:.68rem;color:var(--text-dim);margin:-4px 2px 6px}
+    .atl-ic{width:22px;text-align:center}
+    .atl-chev{color:var(--text-dim);font-size:.95rem}
+    .atl-kofi{color:#FF8C42!important;border-color:rgba(255,140,66,.25)!important;background:rgba(255,140,66,.06)!important}
+    .atl-foot{margin-top:auto;padding-top:14px;display:flex;align-items:center;gap:10px}
+    .atl-signout{flex:1;background:transparent;border:1px solid rgba(255,77,106,.3);color:var(--missing);border-radius:10px;padding:10px;font-weight:700;font-size:.8rem;cursor:pointer;font-family:Inter,sans-serif}
+    .atl-foot a{font-size:.66rem;color:var(--text-dim);text-decoration:none}
     .menu-section-title{font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.09em;font-weight:700;margin:12px 6px 2px}
     .menu-section-title:first-of-type{margin-top:4px}
-    .mobile-menu-close{align-self:flex-end;background:transparent;border:none;color:var(--text-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px}
+    .mobile-menu-close{background:transparent;border:none;color:var(--text-dim);font-size:1.3rem;cursor:pointer;padding:4px 8px}
     
     /* PRICE NOTIF */
     .price-notif{background:rgba(255,212,71,.08);border:1px solid rgba(255,212,71,.25);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
@@ -3175,23 +3187,29 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 <!-- MOBILE MENU -->
 <div class="mobile-menu-overlay" id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
 <div class="mobile-menu-panel" id="mobile-menu-panel">
-  <button class="mobile-menu-close" onclick="closeMobileMenu()">✕</button>
+  <div class="atl-head">
+    <div class="atl-title"><span class="atl-wrench">🔧</span> Atelier</div>
+    <button class="mobile-menu-close" onclick="closeMobileMenu()" aria-label="Close">✕</button>
+  </div>
+  <div class="atl-tag">Tools, settings &amp; community</div>
+
   <div class="menu-user" id="menu-user-block" onclick="closeMobileMenu();openProfile()">
     <div class="menu-user-av" id="menu-user-av">🦊</div>
-    <div><div class="menu-user-name" id="menu-user-name">My profile</div><div class="menu-user-sub">View profile &amp; stats</div></div>
+    <div style="flex:1;min-width:0"><div class="menu-user-name" id="menu-user-name">My profile</div><div class="menu-user-sub">Rank, stats &amp; spending</div></div>
+    <span class="atl-chev">›</span>
   </div>
 
+  <div class="menu-section-title">My collection</div>
   <div class="menu-cards">
-    <div class="menu-card" onclick="closeMobileMenu();closeAllScreensToHome();goToCollection()"><span class="mc-ic">🗂️</span><span class="mc-lbl">My collection</span></div>
-    <div class="menu-card" onclick="closeMobileMenu();openCatalog()"><span class="mc-ic">📚</span><span class="mc-lbl">Catalog</span></div>
-    <div class="menu-card" onclick="closeMobileMenu();openStats()"><span class="mc-ic">📊</span><span class="mc-lbl">Stats</span></div>
-    <div class="menu-card" onclick="closeMobileMenu();openExportModal()"><span class="mc-ic">📄</span><span class="mc-lbl">Export PDF</span></div>
-    <div class="menu-card" onclick="closeMobileMenu();openImport()"><span class="mc-ic">📥</span><span class="mc-lbl">Import purchases</span></div>
+    <div class="menu-card" onclick="closeMobileMenu();openCatalog()"><span class="mc-ic">📚</span><span class="mc-lbl">Catalog</span><span class="mc-sub">Every R&amp;C item</span></div>
+    <div class="menu-card" onclick="closeMobileMenu();openImport()"><span class="mc-ic">📥</span><span class="mc-lbl">Import</span><span class="mc-sub">Excel / CSV purchases</span></div>
+    <div class="menu-card" onclick="closeMobileMenu();openExportModal()"><span class="mc-ic">📄</span><span class="mc-lbl">Export PDF</span><span class="mc-sub">Your list, printable</span></div>
+    <div class="menu-card" onclick="closeMobileMenu();openThemes()" id="mobile-theme-btn"><span class="mc-ic">🎨</span><span class="mc-lbl">Themes</span><span class="mc-sub">Colours of the app</span></div>
   </div>
 
   <div class="menu-section-title">Community</div>
-  <a href="https://ratchetlegacy.com/" target="_blank" rel="noopener" class="menu-item" style="text-decoration:none;color:var(--text)">🌐 Wiki &amp; Trades <span style="font-size:.62rem;color:var(--text-dim)">↗</span></a>
-  <div class="menu-item" onclick="openFriends()">🤝 Friends <span id="friends-badge" style="display:none;background:var(--missing);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700;margin-left:4px">0</span></div>
+  <div class="menu-item" onclick="openFriends()"><span class="atl-ic">🤝</span><span style="flex:1">Friends</span><span id="friends-badge" style="display:none;background:var(--missing);color:#fff;border-radius:10px;padding:1px 7px;font-size:.7rem;font-weight:700">0</span><span class="atl-chev">›</span></div>
+  <a href="https://ratchetlegacy.com/" target="_blank" rel="noopener" class="menu-item"><span class="atl-ic">🌐</span><span style="flex:1">Wiki &amp; Trades</span><span class="atl-chev">↗</span></a>
 
   <div class="menu-section-title" id="menu-admin-title" style="display:none">Admin</div>
   <div class="menu-item" id="menu-collmanage" onclick="closeMobileMenu();openCollManager()" style="display:none!important;color:var(--purple-light)">🗂️ Manage collections</div>
@@ -3199,14 +3217,16 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" id="menu-photomod" onclick="openPhotoMod()" style="display:none;color:var(--owned)">📷 Photo moderation <span id="photomod-badge"></span></div>
   <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin panel</div>
 
-  <div class="menu-section-title">App</div>
-  <div class="menu-item" onclick="closeMobileMenu();openThemes()" id="mobile-theme-btn">🎨 Themes</div>
-  <div class="menu-item" onclick="closeMobileMenu();openGuide()">❓ How to use</div>
-  <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)">📲 Install the app</div>
-  <a href="https://ko-fi.com/ratchetlegacy" target="_blank" class="menu-item" style="color:#FF8C42;border-color:rgba(255,140,66,.2)">☕ Fuel the collection!</a>
+  <div class="menu-section-title">Help &amp; app</div>
+  <div class="menu-item" onclick="closeMobileMenu();openGuide()"><span class="atl-ic">❓</span><span style="flex:1">How to use</span><span class="atl-chev">›</span></div>
+  <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)"><span class="atl-ic">📲</span><span style="flex:1">Install the app</span></div>
+  <a href="https://ko-fi.com/ratchetlegacy" target="_blank" rel="noopener" class="menu-item atl-kofi"><span class="atl-ic">☕</span><span style="flex:1">Fuel the collection!</span><span class="atl-chev">↗</span></a>
   <!-- "Start over" moved to Profile > Danger zone: too easy to hit by mistake in the everyday menu -->
-  <div class="menu-item" style="color:var(--missing);border-color:rgba(255,77,106,.2)" onclick="closeMobileMenu();doSignOut()">🚪 Sign out</div>
-  <a href="https://ratchetlegacy.com/legal.html" target="_blank" class="menu-item" style="color:var(--text-dim);font-size:.72rem;text-align:center;justify-content:center">📄 Terms &amp; Privacy</a>
+
+  <div class="atl-foot">
+    <button onclick="closeMobileMenu();doSignOut()" class="atl-signout">🚪 Sign out</button>
+    <a href="https://ratchetlegacy.com/legal.html" target="_blank" rel="noopener">Terms &amp; Privacy</a>
+  </div>
 </div>
 
 <!-- EXPORT MODAL -->
@@ -8836,7 +8856,7 @@ function applyTranslations(){
   document.querySelectorAll('a[href="legal.html"]').forEach(el=>{ el.textContent = t('footer_legal'); });
   // Mobile menu theme/lang labels
   const mobileTheme = document.getElementById('mobile-theme-btn');
-  if(mobileTheme){ const ic = (document.getElementById('theme-btn')?document.getElementById('theme-btn').textContent:'🎨'); mobileTheme.textContent = ic+' Themes'; }
+  if(mobileTheme){ const ic = (document.getElementById('theme-btn')?document.getElementById('theme-btn').textContent:'🎨'); const _mi=mobileTheme.querySelector('.mc-ic'); if(_mi) _mi.textContent = ic||'🎨'; else mobileTheme.textContent = ic+' Themes'; }
   // Profile section titles (use stable data-i18n where present; fallback by keyword)
   document.querySelectorAll('.profile-section-title').forEach(el=>{
     const txt = el.textContent;
@@ -9010,7 +9030,7 @@ function openMobileMenu(){
   // Also update theme/lang display
   const themeBtn = document.getElementById('mobile-theme-btn');
   const currentThemeIcon = document.getElementById('theme-btn')?document.getElementById('theme-btn').textContent:'🌌';
-  if(themeBtn) themeBtn.textContent = currentThemeIcon+' '+'Theme';
+  if(themeBtn){ const _mi=themeBtn.querySelector('.mc-ic'); if(_mi) _mi.textContent = currentThemeIcon||'🎨'; else themeBtn.textContent = currentThemeIcon+' '+'Theme'; }
 }
 function closeMobileMenu(){
   document.getElementById('mobile-menu-overlay').classList.remove('open');
@@ -10474,7 +10494,7 @@ function updateMenuInstallButton(){
   if(!btn) return;
   if(isStandalone() || localStorage.getItem('rc_app_installed')==='1'){ btn.style.display = 'none'; return; }
   // Always show on iOS and desktop (manual fallback). On Android, show when prompt ready.
-  btn.style.display = (isIosDevice() || isDesktop() || deferredInstallPrompt) ? 'block' : 'none';
+  btn.style.display = (isIosDevice() || isDesktop() || deferredInstallPrompt) ? 'flex' : 'none';
 }
 
 async function triggerInstall(){
@@ -11126,7 +11146,7 @@ async function impDoAdd(){
     <span class="bnav-ic">🗂️</span><span>Collections</span>
   </button>
   <button class="bnav-item" data-tab="more" onclick="navGo('more')">
-    <span class="bnav-ic">⚙️</span><span>More</span>
+    <span class="bnav-ic">🔧</span><span>Atelier</span>
   </button>
 </div>
 
