@@ -34,5 +34,33 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "lang": "en",
+  "categories": [
+    "entertainment",
+    "games",
+    "lifestyle"
+  ],
+  "shortcuts": [
+    {
+      "name": "My collection",
+      "url": "/index.html",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Megacorp Vault",
+      "url": "https://ratchetlegacy.com/database.html",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ]
 }

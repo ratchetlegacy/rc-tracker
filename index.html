@@ -9980,8 +9980,7 @@ function isStandalone(){
       || window.matchMedia('(display-mode: fullscreen)').matches
       || window.matchMedia('(display-mode: minimal-ui)').matches
       || window.navigator.standalone === true
-      || document.referrer.startsWith('android-app://')
-      || localStorage.getItem('rc_app_installed') === '1';
+      || document.referrer.startsWith('android-app://');
 }
 
 // If we're running inside the installed PWA, remember it permanently.
@@ -9996,6 +9995,9 @@ if(window.matchMedia('(display-mode: standalone)').matches
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
+  // Le navigateur ne propose l'installation que si l'app N'EST PAS installee :
+  // un ancien marqueur (app desinstallee depuis) ne doit plus cacher le bouton.
+  try{ localStorage.removeItem('rc_app_installed'); }catch(_){}
   maybeShowInstallBanner();
   updateMenuInstallButton();
 });
@@ -10014,7 +10016,7 @@ function maybeShowInstallBanner(){
   const fab = document.getElementById('install-fab');
   if(!fab) return;
   // Hide if already installed (detected OR remembered)
-  if(isStandalone() || localStorage.getItem('rc_app_installed') === '1'){
+  if(isStandalone() || (!deferredInstallPrompt && localStorage.getItem('rc_app_installed') === '1')){
     fab.style.display = 'none';
     return;
   }
@@ -10030,9 +10032,9 @@ function maybeShowInstallBanner(){
 function updateMenuInstallButton(){
   const btn = document.getElementById('menu-install-item');
   if(!btn) return;
-  if(isStandalone() || localStorage.getItem('rc_app_installed')==='1'){ btn.style.display = 'none'; return; }
-  // Always show on iOS and desktop (manual fallback). On Android, show when prompt ready.
-  btn.style.display = (isIosDevice() || isDesktop() || deferredInstallPrompt) ? 'flex' : 'none';
+  if(isStandalone()){ btn.style.display = 'none'; return; }
+  // Toujours visible hors de l'app installee : prompt natif si dispo, sinon instructions.
+  btn.style.display = 'flex';
 }
 
 async function triggerInstall(){
@@ -10062,8 +10064,8 @@ async function triggerInstall(){
     openDesktopInstall();
     return;
   }
-  // Android fallback
-  showToast('Open your browser menu → "Install app / Add to Home screen"', 'info');
+  // Android sans prompt natif (deja installee, ou navigateur qui ne le propose pas)
+  showToast('Open your browser menu (⋮) → "Install app" or "Add to Home screen"', 'info');
 }
 
 // Called from the side menu
