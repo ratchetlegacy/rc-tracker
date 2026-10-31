@@ -3907,6 +3907,16 @@ function setAllSections(open){
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
 let rcCatalogByName = {};
+// Annonces d'echange actives de l'utilisateur (pour le bouton de la fiche).
+// Sans cette variable, ouvrir la fiche d'un objet possede plantait.
+let marketItems = [];
+async function loadMyExchanges(){
+  try{
+    if(!sbClient||!currentUser) return;
+    const {data,error}=await sbClient.from('exchanges').select('id,item_id,owner_id').eq('owner_id',currentUser.id).eq('is_active',true);
+    if(!error) marketItems=data||[];
+  }catch(e){}
+}
 let marketRating = {};  // catalog_id -> { neuf:{median,count}, occasion:{median,count} }
 async function loadMarketRating(){
   try {
@@ -3956,6 +3966,7 @@ async function loadRcCatalogIndex(){
     });
   } catch(e){ rcCatalogByName={}; }
   await loadMarketRating();
+  loadMyExchanges();
   applyRatingToItems();
 }
 // Returns the image to show for an R&C item: catalog photo ALWAYS wins, else the item's own.
@@ -8537,6 +8548,7 @@ async function submitExchange(){
     }]);
     if(error) throw error;
     closeExchangeModal();
+    loadMyExchanges();
     showToast('Listing published!', 'success');
   } catch(e){ showToast('Error: '+e.message, 'error'); }
 }
@@ -8546,6 +8558,7 @@ async function deleteExchange(id){
   try {
     const { error } = await sbClient.from('exchanges').update({is_active:false}).eq('id',id).eq('owner_id',currentUser.id);
     if(error) throw error;
+    marketItems=marketItems.filter(e=>String(e.id)!==String(id));
     showToast('Listing removed!', 'success');
     if(typeof closeDetail==='function') closeDetail();
     if(typeof render==='function') render();
