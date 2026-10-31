@@ -51,16 +51,6 @@
           "sizes": "192x192"
         }
       ]
-    },
-    {
-      "name": "Megacorp Vault",
-      "url": "https://ratchetlegacy.com/database.html",
-      "icons": [
-        {
-          "src": "/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
     }
   ]
 }
