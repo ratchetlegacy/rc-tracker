@@ -3907,6 +3907,7 @@ function setAllSections(open){
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
 let rcCatalogByName = {};
+let rcCatalogById = {};
 // Annonces d'echange actives de l'utilisateur (pour le bouton de la fiche).
 // Sans cette variable, ouvrir la fiche d'un objet possede plantait.
 let marketItems = [];
@@ -3959,18 +3960,28 @@ function applyRatingToItems(){
 }
 async function loadRcCatalogIndex(){
   try {
-    const { data } = await sbClient.from('catalog').select('name,image_url');
-    rcCatalogByName = {};
+    const { data } = await sbClient.from('catalog').select('id,name,image_url');
+    rcCatalogByName = {}; rcCatalogById = {};
+    const nb = {};
     (data||[]).forEach(c=>{
-      if(c.name){ rcCatalogByName[c.name.trim().toLowerCase()] = c.image_url||''; }
+      if(c.id!=null) rcCatalogById[String(c.id)] = c.image_url||'';
+      if(c.name){ const k=c.name.trim().toLowerCase(); nb[k]=(nb[k]||0)+1; rcCatalogByName[k] = c.image_url||''; }
     });
-  } catch(e){ rcCatalogByName={}; }
+    // un nom porté par plusieurs fiches (éditions, régions) ne désigne aucune photo sûre
+    Object.keys(nb).forEach(k=>{ if(nb[k]>1) delete rcCatalogByName[k]; });
+  } catch(e){ rcCatalogByName={}; rcCatalogById={}; }
   await loadMarketRating();
   loadMyExchanges();
   applyRatingToItems();
 }
 // Returns the image to show for an R&C item: catalog photo ALWAYS wins, else the item's own.
 function rcItemImage(item){
+  // la fiche liée d'abord : le nom seul est partagé par plusieurs éditions et régions
+  if(item.catalog_id!=null){
+    const byId = rcCatalogById[String(item.catalog_id)];
+    if(byId && byId.trim()) return byId;
+    return item.img_url||'';
+  }
   const key = (item.name||'').trim().toLowerCase();
   const catImg = rcCatalogByName[key];
   return (catImg && catImg.trim()) ? catImg : (item.img_url||'');
@@ -4224,8 +4235,9 @@ function openDetail(id){
   // cover
   const img=document.getElementById('detail-img');
   const noCover=document.getElementById('detail-no-cover');
-  if(item.img_url){
-    img.src=item.img_url; img.style.display='block';
+  const coverUrl=rcItemImage(item);
+  if(coverUrl){
+    img.src=coverUrl; img.style.display='block';
     noCover.style.display='none';
   } else {
     img.style.display='none';
