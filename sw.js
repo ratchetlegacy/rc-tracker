@@ -6,7 +6,7 @@
 // v2 : le nom change volontairement. Le gestionnaire 'activate' efface
 // tout cache dont le nom differe de CACHE, donc ce simple renommage
 // purge l'ancien cache chez tous les visiteurs des leur prochaine visite.
-const CACHE = 'rc-tracker-v28';
+const CACHE = 'rc-tracker-v29';
 
 self.addEventListener('install', (event) => {
   // Activate immediately, don't wait for old SW to be released
