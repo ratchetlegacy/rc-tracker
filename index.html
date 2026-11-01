@@ -4003,9 +4003,9 @@ function rcEditionLabel(i){
   if(/press/i.test(e)) return 'Presse';
   return e;
 }
-// état : neuf sous blister, neuf, puis occasion
-function rcCondRank(c){ c=String(c||'occasion').toLowerCase(); return c==='neuf_blister'?0:(c==='neuf'?1:(c==='non_concerne'?3:2)); }
-function rcCondLabel(c){ const r=rcCondRank(c); return r===0?'Neuf sous blister':(r===1?'Neuf':(r===2?'Occasion':'')); }
+// état : neuf (sous blister ou non) puis occasion
+function rcCondRank(c){ c=String(c||'occasion').toLowerCase(); return (c==='neuf_blister'||c==='neuf')?0:(c==='non_concerne'?2:1); }
+function rcCondLabel(c){ const r=rcCondRank(c); return r===0?'Neuf':(r===1?'Occasion':''); }
 const rcCollator=new Intl.Collator('fr',{numeric:true,sensitivity:'base'});
 // Ordre : console (ordre de sortie) → édition (Classique, rééditions,
 // démos, presse, collectors) → état (neuf avant occasion) → jeux dans
