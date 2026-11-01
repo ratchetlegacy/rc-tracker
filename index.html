@@ -1355,6 +1355,32 @@
       border:none;color:#fff;font-weight:700;
     }
   .pf-sep{grid-column:1/-1;font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--purple-light,#9B6FF4);padding:10px 2px 2px;border-bottom:1px solid rgba(255,255,255,.08)}
+
+    /* couverture : photo entière sur un fond flouté de la même photo */
+    .card-cover{height:210px}
+    .cover-bg{position:absolute;inset:-24px;background-size:cover;background-position:center;filter:blur(20px) brightness(.5) saturate(1.2);transform:scale(1.08)}
+    .card-cover img,.cc-cover img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;background:transparent!important}
+    /* barre rapide */
+    .rc-qbar{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
+    .rc-qrow{display:flex;gap:8px;align-items:center}
+    .rc-scroll{overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+    .rc-scroll::-webkit-scrollbar{display:none}
+    .rc-qsel{flex:1;min-width:0;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:9px 10px;color:var(--text);font-family:Inter,sans-serif;font-size:.8rem;outline:none}
+    .rc-seg{display:flex;gap:4px;flex-shrink:0}
+    .rc-chip{flex-shrink:0;background:var(--bg3);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:7px 12px;color:var(--text-dim);font-family:Inter,sans-serif;font-size:.74rem;font-weight:600;cursor:pointer;white-space:nowrap}
+    .rc-chip.on{background:rgba(123,79,212,.25);border-color:var(--purple);color:var(--text)}
+    .rc-qdiv{flex-shrink:0;width:1px;height:20px;background:rgba(255,255,255,.12)}
+    /* affichage compact */
+    .grid-container.compact .items-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))!important;gap:10px}
+    .grid-container.compact .item-card{cursor:pointer;border-left-width:1px}
+    .cc-cover{position:relative;overflow:hidden;aspect-ratio:3/4;background:var(--bg3);display:flex;align-items:center;justify-content:center}
+    .cc-cover .no-img{font-size:2rem;opacity:.25}
+    .cc-st{position:absolute;z-index:2;left:6px;bottom:6px;font-size:.55rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 6px;border-radius:4px;background:rgba(255,107,26,.85);color:#fff}
+    .cc-st.neuf{background:rgba(61,214,140,.9);color:#062}
+    .cc-txt{padding:7px 8px 9px}
+    .cc-name{font-size:.74rem;font-weight:700;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .cc-meta{font-size:.62rem;color:var(--text-dim);margin-top:3px}
+    .cc-val{font-family:Orbitron,sans-serif;font-size:.72rem;font-weight:700;color:var(--owned);margin-top:4px}
 </style>
 </head>
 <body>
@@ -3907,7 +3933,13 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.01-c';   // à changer à chaque mise en ligne
+const RC_APP_VERSION = '2026.11.01-d';
+// préférences d'affichage de la collection (gardées sur l'appareil)
+function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
+function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
+let rcSortMode = rcPref('sort','serie');      // serie | recent | value | name
+let rcDensity  = rcPref('density','large');   // large | compact
+let rcCondFilter = 'all', rcEdFilter = 'all';   // à changer à chaque mise en ligne
 let rcCatalogByName = {};
 let rcCatalogById = {};
 let rcFirstYear = {};   // année de sortie d'origine d'un titre (plus petite année parmi ses fiches)
@@ -4029,6 +4061,52 @@ function rcSortItems(list){
   });
 }
 
+function rcSortByMode(list){
+  if(rcSortMode==='recent') return list.slice().sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
+  if(rcSortMode==='value')  return list.slice().sort((a,b)=>(parseFloat(b.cur_value)||0)-(parseFloat(a.cur_value)||0));
+  if(rcSortMode==='name')   return list.slice().sort((a,b)=>rcCollator.compare(a.name||'',b.name||'')||rcCollator.compare(a.edition||'',b.edition||''));
+  return rcSortItems(list);
+}
+// barre au-dessus de la collection : tri, affichage, filtres rapides état / édition
+function rcQuickBar(){
+  const bar=document.createElement('div'); bar.className='rc-qbar';
+  const chip=(grp,val,label,on)=>'<button class="rc-chip'+(on?' on':'')+'" onclick="rcQuick(\''+grp+'\',\''+String(val).replace(/'/g,"\\'")+'\')">'+escHtml(label)+'</button>';
+  const eds=[...new Set(items.map(rcEditionLabel))].sort((a,b)=>{
+    const ra=rcEditionRank(a==='Classique'?'':a==='Démo'?'demo':a==='Presse'?'press':a), rb=rcEditionRank(b==='Classique'?'':b==='Démo'?'demo':b==='Presse'?'press':b);
+    return (ra-rb)||rcCollator.compare(a,b);
+  });
+  bar.innerHTML =
+    '<div class="rc-qrow">'
+    + '<select class="rc-qsel" onchange="rcQuick(\'sort\',this.value)">'
+    +   [['serie','Ordre : édition & série'],['recent','Ordre : derniers ajouts'],['value','Ordre : valeur'],['name','Ordre : nom']].map(([v,l])=>'<option value="'+v+'"'+(rcSortMode===v?' selected':'')+'>'+l+'</option>').join('')
+    + '</select>'
+    + '<div class="rc-seg">'+chip('density','large','▭ Grand',rcDensity==='large')+chip('density','compact','▦ Compact',rcDensity==='compact')+'</div>'
+    + '</div>'
+    + '<div class="rc-qrow rc-scroll">'
+    +   chip('cond','all','Tout',rcCondFilter==='all')+chip('cond','neuf','Neuf',rcCondFilter==='neuf')+chip('cond','occasion','Occasion',rcCondFilter==='occasion')
+    +   '<span class="rc-qdiv"></span>'
+    +   chip('ed','all','Toutes éditions',rcEdFilter==='all')+eds.map(e=>chip('ed',e,e,rcEdFilter===e)).join('')
+    + '</div>';
+  return bar;
+}
+function rcQuick(grp,val){
+  if(grp==='sort'){ rcSortMode=val; rcSetPref('sort',val); }
+  else if(grp==='density'){ rcDensity=val; rcSetPref('density',val); }
+  else if(grp==='cond'){ rcCondFilter=val; }
+  else if(grp==='ed'){ rcEdFilter=val; }
+  render();
+}
+// petite vignette : photo, nom, édition · état, valeur
+function rcCompactCard(item){
+  const img=rcItemImage(item);
+  const st=rcCondLabel(item.condition);
+  return '<div class="cc-cover">'+(img?'<div class="cover-bg" style="background-image:url(&quot;'+escHtml(img)+'&quot;)"></div><img src="'+escHtml(img)+'" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'"/>':'<span class="no-img">'+getIcon(item.type)+'</span>')
+    + (st?'<span class="cc-st'+(rcCondRank(item.condition)===0?' neuf':'')+'">'+st+'</span>':'')+'</div>'
+    + '<div class="cc-txt"><div class="cc-name">'+escHtml(item.name||'')+'</div>'
+    + '<div class="cc-meta">'+escHtml([rcEditionLabel(item), item.region&&String(item.region).split(' ')[0]].filter(Boolean).join(' · '))+'</div>'
+    + (item.cur_value!=null?'<div class="cc-val">'+fmtEur(item.cur_value)+'</div>':'')+'</div>';
+}
+
 // Returns the image to show for an R&C item: catalog photo ALWAYS wins, else the item's own.
 function rcItemImage(item){
   // la fiche liée d'abord : le nom seul est partagé par plusieurs éditions et régions
@@ -4104,6 +4182,8 @@ function render(){
   if(activeStatus) filtered=filtered.filter(i=>i.status===activeStatus);
   if(activePlatform!=='all') filtered=filtered.filter(i=>(i.platform||'')===activePlatform);
   if(activeRegion!=='all') filtered=filtered.filter(i=>(i.region||'')===activeRegion);
+  if(rcCondFilter!=='all') filtered=filtered.filter(i=>(rcCondRank(i.condition)===0)===(rcCondFilter==='neuf'));
+  if(rcEdFilter!=='all') filtered=filtered.filter(i=>rcEditionLabel(i)===rcEdFilter);
 
   const container=document.getElementById('grid-container');
   container.innerHTML='';
@@ -4154,6 +4234,8 @@ function render(){
     container.appendChild(back);
   }
 
+  container.appendChild(rcQuickBar());
+  container.classList.toggle('compact', rcDensity==='compact');
   const typesToShow=activeType==='all'?getTypes():[activeType];
   let anyItem=false;
 
@@ -4192,13 +4274,13 @@ function render(){
     container.appendChild(sec);
 
     const grid=sec.querySelector('.items-grid');
-    const sorted=rcSortItems(catItems);
+    const sorted=rcSortByMode(catItems);
     const severalPlatforms=new Set(sorted.map(i=>i.platform||'')).size>1;
     let lastSep=null;
     sorted.forEach(item=>{
       const pf=item.platform||'—', ed=rcEditionLabel(item), st=rcCondLabel(item.condition);
       const sep=(severalPlatforms?pf+' · ':'')+ed+(st?' · '+st:'');
-      if(sep!==lastSep){
+      if(rcSortMode==='serie' && sep!==lastSep){
         lastSep=sep;
         const h=document.createElement('div');
         h.className='pf-sep';
@@ -4214,12 +4296,19 @@ function render(){
 
       // Build card HTML using string concatenation to avoid backtick issues
       let html = '';
+      if(rcDensity==='compact'){
+        card.innerHTML = rcCompactCard(item);
+        card.onclick=()=>openDetail(item.id);
+        grid.appendChild(card);
+        return;
+      }
 
       // Cover image — catalog photo always wins, else the item's own
       html += '<div class="card-cover">';
       const coverImg = rcItemImage(item);
       if(coverImg){
-        html += '<img src="'+escHtml(coverImg)+'" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:contain" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;"/>';
+        html += '<div class="cover-bg" style="background-image:url(&quot;'+escHtml(coverImg)+'&quot;)"></div>';
+        html += '<img src="'+escHtml(coverImg)+'" referrerpolicy="no-referrer" onerror="this.style.display=&quot;none&quot;;this.nextElementSibling.style.display=&quot;flex&quot;"/>';
         html += '<span class="no-img" style="display:none">'+getIcon(item.type)+'</span>';
       } else {
         html += '<span class="no-img">'+getIcon(item.type)+'</span>';
