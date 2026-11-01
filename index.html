@@ -3907,6 +3907,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
+const RC_APP_VERSION = '2026.11.01-b';   // à changer à chaque mise en ligne
 let rcCatalogByName = {};
 let rcCatalogById = {};
 let rcFirstYear = {};   // année de sortie d'origine d'un titre (plus petite année parmi ses fiches)
@@ -8656,6 +8657,12 @@ function openMobileMenu(){
   if(avEl){ if(avatar && avatar.startsWith('http')){ avEl.innerHTML='<img src="'+avatar+'"/>'; } else { avEl.textContent=avatar; } }
   const adminBtn = document.getElementById('mobile-admin-btn');
   if(adminBtn) adminBtn.style.display = isAdmin()?'flex':'none';
+  const panel=document.getElementById('mobile-menu-panel');
+  if(panel && !document.getElementById('rc-app-version')){
+    const v=document.createElement('div'); v.id='rc-app-version';
+    v.style.cssText='text-align:center;font-size:.65rem;color:var(--text-dim);opacity:.6;padding:14px 0 6px';
+    v.textContent='Version '+RC_APP_VERSION; panel.appendChild(v);
+  }
   // Also update theme/lang display
   const themeBtn = document.getElementById('mobile-theme-btn');
   const currentThemeIcon = document.getElementById('theme-btn')?document.getElementById('theme-btn').textContent:'🌌';
@@ -10060,7 +10067,11 @@ let deferredInstallPrompt = null;
 // never becomes active on PC.
 if('serviceWorker' in navigator){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{ /* non-fatal */ });
+    // updateViaCache 'none' : chaque visite vérifie s'il existe une nouvelle version ;
+    // quand elle prend la main, on recharge une fois pour l'afficher tout de suite.
+    navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{ try{ r.update(); }catch(e){} }).catch(()=>{ /* non-fatal */ });
+    let rcReloaded=false;
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(rcReloaded) return; rcReloaded=true; location.reload(); });
   });
 }
 

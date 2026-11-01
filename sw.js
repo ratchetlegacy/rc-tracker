@@ -6,7 +6,7 @@
 // v2 : le nom change volontairement. Le gestionnaire 'activate' efface
 // tout cache dont le nom differe de CACHE, donc ce simple renommage
 // purge l'ancien cache chez tous les visiteurs des leur prochaine visite.
-const CACHE = 'rc-tracker-v22';
+const CACHE = 'rc-tracker-v23';
 
 self.addEventListener('install', (event) => {
   // Activate immediately, don't wait for old SW to be released
@@ -48,7 +48,9 @@ self.addEventListener('fetch', (event) => {
   // Network-first, avec repli sur le cache seulement s'il contient
   // vraiment quelque chose.
   event.respondWith(
-    fetch(req)
+    // no-cache : le navigateur revalide toujours aupres du serveur, pour
+    // que chaque mise en ligne arrive tout de suite (GitHub Pages met 10 min en cache).
+    fetch(req, { cache: 'no-cache' })
       .then((res) => {
         // Cache a copy of successful, same-origin responses
         if (res && res.status === 200 && res.type === 'basic') {
