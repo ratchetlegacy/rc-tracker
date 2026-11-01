@@ -3998,7 +3998,7 @@ function rcEditionRank(e){
 // libellé du groupe d'édition affiché en intertitre
 function rcEditionLabel(i){
   const e=String(i.edition||'').trim();
-  if(!e||/classique|standard|divers/i.test(e)) return 'Classique';
+  if(!e||/classique|standard/i.test(e)) return 'Classique';
   if(/d[ée]mo/i.test(e)) return 'Démo';
   if(/press/i.test(e)) return 'Presse';
   return e;
@@ -9335,10 +9335,15 @@ function rcOpenPlat(plat){
 function rcOpenReg(reg){
   rcNavReg=reg;
   const list=catalogData.filter(c=>(c.category||'Misc')===rcNavCat && ((c.platform&&c.platform!=='-')?c.platform:'—')===rcNavPlat && rcZoneOf(c)===reg)
-    .slice().sort((a,b)=>((+a.year||9999)-(+b.year||9999))||String(a.name).localeCompare(String(b.name)));
+    ;
+  const sorted = rcSortItems(list);   // même ordre que la collection : édition, puis ordre de la série
   let html = rcCrumb();
   html += '<input type="text" id="rccat-search" placeholder="🔍 Search here..." oninput="filterRcCatalog()" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:11px 14px;color:var(--text);font-family:Inter,sans-serif;font-size:.85rem;outline:none;margin-bottom:12px"/>';
-  html += '<div class="cvcat-grid" id="rccat-list">' + list.map(c=>catalogCard(c)).join('') + '</div>';
+  let lastEd=null;
+  html += '<div class="cvcat-grid" id="rccat-list">' + sorted.map(c=>{
+    const ed=rcEditionLabel(c), sep = ed!==lastEd ? '<div class="pf-sep rccat-sep">'+escHtml(ed)+'</div>' : '';
+    lastEd=ed; return sep+catalogCard(c);
+  }).join('') + '</div>';
   html += '<div id="rccat-empty" style="display:none;text-align:center;padding:20px;color:var(--text-dim);font-size:.82rem">No match found.</div>';
   document.getElementById('catalog-list').innerHTML = html;
 }
@@ -9388,6 +9393,8 @@ function filterRcCatalog(){
     r.style.display = ok?'':'none';
     if(ok) shown++;
   });
+  // pendant une recherche, les intertitres d'édition gênent : on les masque
+  document.querySelectorAll('.rccat-sep').forEach(h=>h.style.display=q?'none':'');
   const empty=document.getElementById('rccat-empty');
   if(empty) empty.style.display = shown===0?'block':'none';
 }
