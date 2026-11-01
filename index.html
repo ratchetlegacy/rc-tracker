@@ -3379,14 +3379,14 @@ function openModal(id){
   document.getElementById('inp-status').value=item?(item.status||'owned'):'owned';
   document.getElementById('inp-condition').value=item?(item.condition||'neuf_blister'):'neuf_blister';
   document.getElementById('inp-grade').value=item?(item.grade||'excellent'):'excellent';
-  document.getElementById('inp-buy').value=item&&item.buy_price!=null?item.buy_price:'';
+  document.getElementById('inp-buy').value=item&&item.buy_price!=null?(function(x){const u=eurToUser(x);return u==null?x:Math.round(u*100)/100;})(item.buy_price):'';
   fillMonthYear('inp-buymonth','inp-buyyear',(item&&item.buy_date)?String(item.buy_date).slice(0,7):'',true);
   fillProgress(item);
   document.getElementById('inp-gift').checked = !!(item && item.gift);
   document.getElementById('inp-gift-from').value = (item && item.gift_from) || '';
   document.getElementById('inp-gift-for').value  = (item && item.gift_for)  || '';
   toggleGift();
-  document.getElementById('inp-val').value=item&&item.cur_value!=null?item.cur_value:'';
+  document.getElementById('inp-val').value=item&&item.cur_value!=null?(function(x){const u=eurToUser(x);return u==null?x:Math.round(u*100)/100;})(item.cur_value):'';
   document.getElementById('inp-img').value=item?(item.img_url||''):'';
   document.getElementById('inp-wish-url').value=item?(item.wish_url||''):'';
   document.getElementById('inp-notes').value=item?(item.notes||''):'';
@@ -3602,7 +3602,7 @@ async function saveItem(){
     condition:document.getElementById('inp-condition').value,
     grade:gradeEl?gradeEl.value:'excellent',
     bonus:bonusEl?bonusEl.value.trim():'',
-    buy_price:buy!==''?parseFloat(buy):null,
+    buy_price:userToEur(buy),
     buy_date:(function(){ const v=readMonthYear('inp-buymonth','inp-buyyear'); return v?v+'-01':null; })(),
     gift:      !!(document.getElementById('inp-gift')||{}).checked,
     gift_from: (document.getElementById('inp-gift-from')||{}).value ? document.getElementById('inp-gift-from').value.trim() : null,
@@ -3610,7 +3610,7 @@ async function saveItem(){
     completed_100: !!(document.getElementById('inp-done100')||{}).checked,
     trophies_100:  (document.getElementById('inp-trophies-na')||{}).checked ? false : !!(document.getElementById('inp-trophies')||{}).checked,
     trophies_na:   !!(document.getElementById('inp-trophies-na')||{}).checked,
-    cur_value:val!==''?parseFloat(val):null,
+    cur_value:userToEur(val),
     img_url:document.getElementById('inp-img').value.trim(),
     rating:currentRating||null,
     wish_url:document.getElementById('inp-wish-url').value.trim(),
@@ -3782,7 +3782,7 @@ function renderRank(owned){
     +'<div class="rank-bar-bg"><div class="rank-bar-fill" style="width:'+progress+'%;background:'+rank.color+'"></div></div>'
     +'</div>';
 }
-function fmtEur(v){ if(v==null) return '—'; return parseFloat(v).toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:2}); }
+function fmtEur(v){ if(v==null) return '—'; const u=eurToUser(v), c=userCur(); return (u==null?parseFloat(v):u).toLocaleString('fr-FR',{style:'currency',currency:u==null?'EUR':c,currencyDisplay:'narrowSymbol',maximumFractionDigits:(c==='JPY'||c==='KRW')&&u!=null?0:2}); }
 function renderDelta(buy,cur){
   if(buy==null||cur==null) return '';
   const d=parseFloat(cur)-parseFloat(buy), pct=buy>0?((d/buy)*100).toFixed(0):0;
@@ -3934,7 +3934,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.01-g';
+const RC_APP_VERSION = '2026.11.01-h';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -4498,6 +4498,7 @@ function show(id){
 
 async function launchApp(){
   window._rcLaunched=true;
+  try{ applyCurLabels(); }catch(e){}
   // email display handled by profile
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>'+t('loading')+'</div>';
@@ -5662,7 +5663,7 @@ function openGuide(){
 }
 function closeGuide(){ document.getElementById('guide-screen').classList.remove('open'); }
 
-function fmtEurS(v){ if(v==null) return '—'; return parseFloat(v).toLocaleString('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}); }
+function fmtEurS(v){ if(v==null) return '—'; const u=eurToUser(v), c=userCur(); return (u==null?parseFloat(v):u).toLocaleString('fr-FR',{style:'currency',currency:u==null?'EUR':c,currencyDisplay:'narrowSymbol',maximumFractionDigits:0}); }
 
 function renderStats(target, embedded){
   const body = target || window._statsTarget || document.getElementById('profile-stats-embed');
@@ -8581,6 +8582,7 @@ function loadLang(){
 }
 
 function applyTranslations(){
+  setTimeout(()=>{ try{ applyCurLabels(); }catch(e){} },0);
   // Apply to elements with data-i18n attribute
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -8754,6 +8756,14 @@ function openMobileMenu(){
     const v=document.createElement('div'); v.id='rc-app-version';
     v.style.cssText='text-align:center;font-size:.65rem;color:var(--text-dim);opacity:.6;padding:14px 0 6px';
     v.textContent='Version '+RC_APP_VERSION; panel.appendChild(v);
+  }
+  if(panel && !document.getElementById('rc-cur-row')){
+    const row=document.createElement('div'); row.id='rc-cur-row';
+    row.style.cssText='display:flex;align-items:center;gap:10px;margin:14px 0 4px;padding:12px 14px;background:var(--bg2);border:1px solid rgba(255,255,255,.08);border-radius:12px';
+    row.innerHTML='<span style="font-size:1.1rem">💱</span><span style="flex:1;font-weight:600;font-size:.88rem">Ma devise<br><span style="font-weight:400;font-size:.7rem;color:var(--text-dim)">Prix, valeurs et cotes affichés dans cette devise</span></span>'
+      +'<select onchange="setUserCur(this.value)" style="background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px;color:var(--text);font-size:.8rem">'
+      + USER_CURS.map(([c,l])=>'<option value="'+c+'"'+(userCur()===c?' selected':'')+'>'+l+'</option>').join('')+'</select>';
+    const ver=document.getElementById('rc-app-version'); panel.insertBefore(row, ver);
   }
   // Also update theme/lang display
   const themeBtn = document.getElementById('mobile-theme-btn');
@@ -9460,6 +9470,23 @@ let FX={EUR:1};
     .then(r=>r.json()).then(d=>{ if(d&&d.rates){ FX=Object.assign({EUR:1},d.rates); try{ localStorage.setItem('rc_fx',JSON.stringify({t:Date.now(),r:FX})); }catch(e){} } })
     .catch(()=>{});
 })();
+// Devise de l'utilisateur : celle du pays où il collectionne. Tous les prix sont
+// enregistrés en euros ; on les affiche et on les saisit dans sa devise.
+const USER_CURS=[['EUR','€ Euro'],['USD','$ Dollar US'],['GBP','£ Livre sterling'],['JPY','¥ Yen'],['CAD','$ Dollar canadien'],['AUD','$ Dollar australien'],['BRL','R$ Real'],['MXN','$ Peso mexicain'],['KRW','₩ Won'],['HKD','$ Dollar de Hong Kong']];
+function guessUserCur(){ const l=(navigator.language||'fr-FR'); if(/^ja/.test(l)) return 'JPY'; if(/en-US/.test(l)) return 'USD'; if(/en-GB/.test(l)) return 'GBP'; if(/en-CA|fr-CA/.test(l)) return 'CAD'; if(/en-AU/.test(l)) return 'AUD'; if(/pt-BR/.test(l)) return 'BRL'; if(/es-MX/.test(l)) return 'MXN'; if(/^ko/.test(l)) return 'KRW'; return 'EUR'; }
+function userCur(){ try{ return localStorage.getItem('rc_currency')||guessUserCur(); }catch(e){ return 'EUR'; } }
+function curSym(cur){ return ({EUR:'€',USD:'$',GBP:'£',JPY:'¥',CAD:'$ CA',AUD:'$ AU',BRL:'R$',MXN:'$ MX',KRW:'₩',HKD:'$ HK'})[cur]||cur; }
+function userRate(){ const c=userCur(); return c==='EUR'?1:(FX[c]||null); }
+// euros → devise de l'utilisateur (null si le taux n'est pas encore chargé)
+function eurToUser(v){ const r=userRate(); return (v==null||r==null)?null:parseFloat(v)*r; }
+// saisie dans la devise de l'utilisateur → euros pour l'enregistrement
+function userToEur(v){ if(v===''||v==null) return null; const n=parseFloat(String(v).replace(',','.')); if(isNaN(n)) return null; const r=userRate(); return r?Math.round(n/r*100)/100:n; }
+function setUserCur(c){ try{ localStorage.setItem('rc_currency',c); }catch(e){} if(typeof render==='function') render(); applyCurLabels(); showToast('Devise : '+c,'success'); }
+// libellés des champs de prix avec la bonne devise
+function applyCurLabels(){
+  const s=curSym(userCur());
+  document.querySelectorAll('label').forEach(l=>{ if(/^(Purchase price|Current value|Prix d'achat|Valeur actuelle)/.test(l.textContent)) l.textContent=l.textContent.replace(/\(.*\)\s*$/,'').trim()+' ('+s+')'; });
+}
 function fmtCur(v,cur){
   const dec=(cur==='JPY'||cur==='KRW')?0:2;
   let s=new Intl.NumberFormat('fr-FR',{style:'currency',currency:cur,currencyDisplay:'narrowSymbol',minimumFractionDigits:(Number.isInteger(+v)?0:dec),maximumFractionDigits:dec}).format(v);
@@ -9467,10 +9494,14 @@ function fmtCur(v,cur){
 }
 // prix en euros → { main: dans la monnaie de la version, eur: équivalent en € ou '' }
 function priceFor(eur,c){
-  eur=parseFloat(eur); const cur=curOf(c);
-  if(cur==='EUR'||!FX[cur]) return {main:fmtCur(eur,'EUR'),eur:''};
-  let v=eur*FX[cur]; if(cur==='JPY'||cur==='KRW') v=Math.round(v/100)*100;
-  return {main:fmtCur(v,cur),eur:'≈ '+fmtCur(eur,'EUR')};
+  eur=parseFloat(eur);
+  const uc=userCur(), cur=curOf(c);
+  const conv=(to)=>{ if(to==='EUR') return eur; if(!FX[to]) return null; let v=eur*FX[to]; if(to==='JPY'||to==='KRW') v=Math.round(v/100)*100; return v; };
+  const um=conv(uc);
+  const main = um==null ? fmtCur(eur,'EUR') : fmtCur(um,uc);
+  // prix sur le marché du pays de la version, quand ce n'est pas la même devise
+  const lm = (cur!==uc) ? conv(cur) : null;
+  return {main, eur: lm==null ? '' : 'Marché '+cur+' : '+fmtCur(lm,cur)};
 }
 
 // Cote affichee sur la vignette du catalogue (neuf / occasion)
@@ -9812,7 +9843,7 @@ function awRender(){
       }).join('');
     }
   } else if(step==='price'){
-    q.textContent = 'Purchase price?';
+    q.textContent = 'Purchase price ('+curSym(userCur())+')?';
     body.innerHTML = '<input type="number" id="aw-price-input" value="'+(awState.buy_price||'')+'" placeholder="0.00" step="0.01" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:14px;color:var(--text);font-size:1.1rem;outline:none;text-align:center" oninput="awState.buy_price=this.value"/>'
       + '<div style="display:flex;gap:8px;margin-top:10px">'
       +   '<select id="aw-month" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:13px;color:var(--text);font-size:.95rem;font-family:Inter,sans-serif;flex:1.4" onchange="awSyncDate()"></select>'
@@ -9844,7 +9875,7 @@ async function awNext(){
     condition: awState.condition,
     catalog_id: c.id,
     edition: c.edition || '',
-    buy_price: awState.buy_price!==''?parseFloat(awState.buy_price):null,
+    buy_price: userToEur(awState.buy_price),
     buy_date: awState.buy_date ? awState.buy_date+'-01' : null
   };
   // Pre-fill current value from the catalog reference price, based on condition
@@ -10875,7 +10906,7 @@ function impRenderAdd(){
               return '<button onclick="impAdd.comp[\''+fl.k+'\']=(impAdd.comp[\''+fl.k+'\']===\'present\')?\'absent\':\'present\';impRenderAdd()" style="border-radius:20px;padding:7px 11px;font-size:.78rem;cursor:pointer;border:1px solid '+(on?'var(--owned,#3ddc97)':'rgba(255,255,255,.12)')+';background:'+(on?'rgba(61,220,151,.15)':'transparent')+';color:var(--text)">'+fl.i+' '+fl.l+(on?' ✓':'')+'</button>'; }).join('')+'</div>'
         : '')
     + '<div style="display:flex;gap:10px">'
-    +   '<div style="flex:1">'+lbl(impL('Prix d\'achat (€)','Purchase price (€)'))+'<input type="number" step="0.01" min="0" value="'+impEsc(impAdd.price)+'" oninput="impAdd.price=this.value" style="'+inp+'"/></div>'
+    +   '<div style="flex:1">'+lbl(impL('Prix d\'achat ('+curSym(userCur())+')','Purchase price ('+curSym(userCur())+')'))+'<input type="number" step="0.01" min="0" value="'+impEsc(impAdd.price)+'" oninput="impAdd.price=this.value" style="'+inp+'"/></div>'
     +   '<div style="flex:1">'+lbl(impL('Date d\'achat','Purchase date'))+'<input type="date" value="'+impEsc(impAdd.date)+'" oninput="impAdd.date=this.value" style="'+inp+'"/></div>'
     + '</div>'
     + '<div style="display:flex;gap:8px;margin-top:18px">'
@@ -10889,13 +10920,13 @@ async function impDoAdd(){
   if(!c) return;
   if(!(await confirmIfAlreadyHave(c))) return;
   const type = IMP_TYPEMAP[c.category] || c.category || 'Misc';
-  const price = a.price===''||a.price==null ? null : parseFloat(String(a.price).replace(',','.'));
+  const price = userToEur(a.price);
   const row = {
     user_id: currentUser.id, name: c.name, type,
     platform: (c.platform&&c.platform!=='-')?c.platform:null, region: c.region||null,
     img_url: c.image_url||null, status:'owned', condition: a.cond,
     catalog_id: c.id, edition: c.edition||'',
-    buy_price: isNaN(price)?null:price,
+    buy_price: price,
     buy_date: a.date || null,
     notes: impL('Importé : ','Imported: ')+r.title+(r.source?' ('+r.source+')':'')
   };
