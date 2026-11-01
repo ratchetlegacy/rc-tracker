@@ -1354,7 +1354,8 @@
       background:linear-gradient(135deg,var(--purple),var(--orange));
       border:none;color:#fff;font-weight:700;
     }
-  </style>
+  .pf-sep{grid-column:1/-1;font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--purple-light,#9B6FF4);padding:10px 2px 2px;border-bottom:1px solid rgba(255,255,255,.08)}
+</style>
 </head>
 <body>
 <div id="theme-bg"></div>
@@ -3908,6 +3909,7 @@ function setAllSections(open){
 // become the default image on collection items too.
 let rcCatalogByName = {};
 let rcCatalogById = {};
+let rcFirstYear = {};   // année de sortie d'origine d'un titre (plus petite année parmi ses fiches)
 // Annonces d'echange actives de l'utilisateur (pour le bouton de la fiche).
 // Sans cette variable, ouvrir la fiche d'un objet possede plantait.
 let marketItems = [];
@@ -3960,12 +3962,13 @@ function applyRatingToItems(){
 }
 async function loadRcCatalogIndex(){
   try {
-    const { data } = await sbClient.from('catalog').select('id,name,image_url');
+    const { data } = await sbClient.from('catalog').select('id,name,image_url,year');
     rcCatalogByName = {}; rcCatalogById = {};
     const nb = {};
     (data||[]).forEach(c=>{
       if(c.id!=null) rcCatalogById[String(c.id)] = c.image_url||'';
-      if(c.name){ const k=c.name.trim().toLowerCase(); nb[k]=(nb[k]||0)+1; rcCatalogByName[k] = c.image_url||''; }
+      if(c.name){ const k=c.name.trim().toLowerCase(); nb[k]=(nb[k]||0)+1; rcCatalogByName[k] = c.image_url||'';
+        if(c.year && (!rcFirstYear[k] || +c.year<rcFirstYear[k])) rcFirstYear[k]=+c.year; }
     });
     // un nom porté par plusieurs fiches (éditions, régions) ne désigne aucune photo sûre
     Object.keys(nb).forEach(k=>{ if(nb[k]>1) delete rcCatalogByName[k]; });
@@ -3974,6 +3977,41 @@ async function loadRcCatalogIndex(){
   loadMyExchanges();
   applyRatingToItems();
 }
+// Ordre d'affichage de la collection : console dans l'ordre de sortie, démos et
+// versions presse en tête, puis les jeux dans l'ordre de la série (année de
+// sortie d'origine), puis l'édition (classique avant les rééditions) et la région.
+const RC_CONSOLES=['playstation 2','psp','playstation 3','ps vita','playstation 4','playstation 5'];
+const RC_PF_ALIAS={ps2:'playstation 2',ps3:'playstation 3',ps4:'playstation 4',ps5:'playstation 5',vita:'ps vita','playstation vita':'ps vita','psvita':'ps vita'};
+function rcConsoleRank(p){ let k=String(p||'').trim().toLowerCase(); k=RC_PF_ALIAS[k]||k; const i=RC_CONSOLES.indexOf(k); return i>=0?i:(p?50:99); }
+// année d'un titre absent du catalogue (saisie libre) : repérée par mots-clés
+const RC_SERIES=[[/rift apart/,2021],[/\(?2016\)?|\bps4\b|film|movie/,2016],[/nexus/,2013],[/q-?force|full frontal/,2012],[/all 4 one|all for one/,2011],[/crack in time/,2009],[/quest for booty/,2008],[/secret agent/,2008],[/tools of destruction|op[ée]ration destruction/,2007],[/size matters|taille/,2007],[/gladiator|deadlock/,2005],[/\b3\b|up your arsenal/,2004],[/\b2\b|going commando/,2003],[/trilog/,2009]];
+function rcTitleYear(k){ if(rcFirstYear[k]) return rcFirstYear[k]; for(const [re,y] of RC_SERIES) if(re.test(k)) return y; return /ratchet/.test(k)?2002:9999; }
+function rcEditionRank(e){
+  e=String(e||'').toLowerCase();
+  if(/d[ée]mo|press|promo/.test(e)) return 0;
+  if(!e||/classique|standard/.test(e)) return 1;
+  if(/platinum|greatest|essential|the best|hit/.test(e)) return 2;
+  if(/collector|limit|sp[ée]ciale/.test(e)) return 3;
+  return 4;
+}
+const rcCollator=new Intl.Collator('fr',{numeric:true,sensitivity:'base'});
+function rcSortItems(list){
+  return list.slice().sort((a,b)=>{
+    const pa=rcConsoleRank(a.platform), pb=rcConsoleRank(b.platform);
+    if(pa!==pb) return pa-pb;
+    if(pa===50 && (a.platform||'')!==(b.platform||'')) return rcCollator.compare(a.platform||'',b.platform||'');
+    const isDemo=i=>rcEditionRank(i.edition)===0||/d[ée]mo/i.test(i.name||''); const da=isDemo(a)?0:1, db=isDemo(b)?0:1;
+    if(da!==db) return da-db;
+    const ka=(a.name||'').trim().toLowerCase(), kb=(b.name||'').trim().toLowerCase();
+    const ya=rcTitleYear(ka), yb=rcTitleYear(kb);
+    if(ya!==yb) return ya-yb;
+    const n=rcCollator.compare(ka,kb); if(n) return n;
+    const ea=rcEditionRank(a.edition), eb=rcEditionRank(b.edition);
+    if(ea!==eb) return ea-eb;
+    return rcCollator.compare(a.region||'',b.region||'') || rcCollator.compare(a.edition||'',b.edition||'');
+  });
+}
+
 // Returns the image to show for an R&C item: catalog photo ALWAYS wins, else the item's own.
 function rcItemImage(item){
   // la fiche liée d'abord : le nom seul est partagé par plusieurs éditions et régions
@@ -4137,7 +4175,17 @@ function render(){
     container.appendChild(sec);
 
     const grid=sec.querySelector('.items-grid');
-    catItems.forEach(item=>{
+    const sorted=rcSortItems(catItems);
+    const severalPlatforms=new Set(sorted.map(i=>i.platform||'')).size>1;
+    let lastPf=null;
+    sorted.forEach(item=>{
+      if(severalPlatforms && (item.platform||'')!==lastPf){
+        lastPf=item.platform||'';
+        const h=document.createElement('div');
+        h.className='pf-sep';
+        h.textContent=lastPf||'—';
+        grid.appendChild(h);
+      }
       const card=document.createElement('div');
       card.className='item-card '+item.status;
       const condCls=COND_CLASSES[item.condition||'occasion']||'cond-used';
