@@ -9350,7 +9350,7 @@ function setCatalogFilter(cat){
 }
 
 function catalogIcon(cat){
-  const m = {'Game':'🎮','Console/Pack':'📦','Figure':'🎯','Plush':'🧸','Goodie':'🎁','Clothing':'👕','Print':'🖼️','Book':'📖','Guide':'📗','Media':'🎬','Misc':'📌'};
+  const m = {'Game':'🎮','Console/Pack':'📦','Figure':'🎯','Plush':'🧸','Goodie':'🎁','Press Kit':'📰','Clothing':'👕','Print':'🖼️','Book':'📖','Guide':'📗','Media':'🎬','Misc':'📌'};
   return m[cat]||'📌';
 }
 
@@ -9773,7 +9773,7 @@ async function addFromCatalog(id){
   if(!(await confirmIfAlreadyHave(c))) return;
   closeCatalogDetail();
   // Map catalog category to an item type that has completeness config
-  const typeMap = {'Game':'Physical game','Console/Pack':'Console Pack','Figure':'Figure','Plush':'Plush','Goodie':'Goodie','Clothing':'Clothing','Print':'Print','Book':'Book','Guide':'Guide','Media':'Film','Misc':'Misc'};
+  const typeMap = {'Game':'Physical game','Console/Pack':'Console Pack','Figure':'Figure','Plush':'Plush','Goodie':'Goodie','Press Kit':'Press Kit','Clothing':'Clothing','Print':'Print','Book':'Book','Guide':'Guide','Media':'Film','Misc':'Misc'};
   const type = typeMap[c.category] || c.category || 'Misc';
   awState = {
     catalog: c,
@@ -10650,7 +10650,7 @@ boot();
 let impRows = [];          // {title, price, date, source, note, cond, status:'todo'|'done'|'skip', pick, sugg:[ids]}
 let impView = 'todo';
 let impCatFilter = 'all';
-const IMP_CATS = {Game:['Jeux','Games'],'Console/Pack':['Consoles & packs','Consoles & packs'],Figure:['Figurines','Figures'],Plush:['Peluches','Plushies'],Goodie:['Goodies','Goodies'],Clothing:['Vêtements','Clothing'],Print:['Affiches & PLV','Prints & displays'],Book:['Livres','Books'],Guide:['Guides','Guides'],Media:['Films & musique','Movies & music'],none:['Sans fiche','No entry']};
+const IMP_CATS = {Game:['Jeux','Games'],'Console/Pack':['Consoles & packs','Consoles & packs'],Figure:['Figurines','Figures'],Plush:['Peluches','Plushies'],Goodie:['Goodies','Goodies'],'Press Kit':['Kits presse','Press kits'],Clothing:['Vêtements','Clothing'],Print:['Affiches & PLV','Prints & displays'],Book:['Livres','Books'],Guide:['Guides','Guides'],Media:['Films & musique','Movies & music'],none:['Sans fiche','No entry']};
 const impRowCat = r => { const c=impCat(r.pick); return c ? (c.category||'Misc') : 'none'; };
 const impCatName = k => IMP_CATS[k] ? impL(IMP_CATS[k][0],IMP_CATS[k][1]) : k;
 const IMP_KEY = 'rl_import_queue_v1';
@@ -10867,7 +10867,7 @@ function impSearch(i,q){
 }
 function impSkip(i){ impRows[i].status='skip'; impSave(); impRender(); }
 // Fenêtre de contrôle avant ajout : fiche, état, complétude, prix et date d'achat
-const IMP_TYPEMAP = {'Game':'Physical game','Console/Pack':'Console Pack','Figure':'Figure','Plush':'Plush','Goodie':'Goodie','Clothing':'Clothing','Print':'Print','Book':'Book','Guide':'Guide','Media':'Film','Misc':'Misc'};
+const IMP_TYPEMAP = {'Game':'Physical game','Console/Pack':'Console Pack','Figure':'Figure','Plush':'Plush','Goodie':'Goodie','Press Kit':'Press Kit','Clothing':'Clothing','Print':'Print','Book':'Book','Guide':'Guide','Media':'Film','Misc':'Misc'};
 let impAdd = null;   // {i, pick, cond, price, date, comp:{}}
 function impOpenAdd(i){
   const r = impRows[i]; if(!impCat(r.pick)) return;
