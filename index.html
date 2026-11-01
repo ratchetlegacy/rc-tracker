@@ -4003,9 +4003,13 @@ function rcEditionLabel(i){
   if(/press/i.test(e)) return 'Presse';
   return e;
 }
+// état : neuf sous blister, neuf, puis occasion
+function rcCondRank(c){ c=String(c||'occasion').toLowerCase(); return c==='neuf_blister'?0:(c==='neuf'?1:(c==='non_concerne'?3:2)); }
+function rcCondLabel(c){ const r=rcCondRank(c); return r===0?'Neuf sous blister':(r===1?'Neuf':(r===2?'Occasion':'')); }
 const rcCollator=new Intl.Collator('fr',{numeric:true,sensitivity:'base'});
 // Ordre : console (ordre de sortie) → édition (Classique, rééditions,
-// démos, presse, collectors) → jeux dans l'ordre de la série → région.
+// démos, presse, collectors) → état (neuf avant occasion) → jeux dans
+// l'ordre de la série → région.
 function rcSortItems(list){
   return list.slice().sort((a,b)=>{
     const pa=rcConsoleRank(a.platform), pb=rcConsoleRank(b.platform);
@@ -4015,6 +4019,8 @@ function rcSortItems(list){
     if(ea!==eb) return ea-eb;
     const la=rcEditionLabel(a), lb=rcEditionLabel(b);
     if(la!==lb) return rcCollator.compare(la,lb);
+    const ca=rcCondRank(a.condition), cb=rcCondRank(b.condition);
+    if(ca!==cb) return ca-cb;
     const ka=(a.name||'').trim().toLowerCase(), kb=(b.name||'').trim().toLowerCase();
     const ya=rcTitleYear(ka), yb=rcTitleYear(kb);
     if(ya!==yb) return ya-yb;
@@ -4189,8 +4195,8 @@ function render(){
     const severalPlatforms=new Set(sorted.map(i=>i.platform||'')).size>1;
     let lastSep=null;
     sorted.forEach(item=>{
-      const pf=item.platform||'—', ed=rcEditionLabel(item);
-      const sep=(severalPlatforms?pf+' · ':'')+ed;
+      const pf=item.platform||'—', ed=rcEditionLabel(item), st=rcCondLabel(item.condition);
+      const sep=(severalPlatforms?pf+' · ':'')+ed+(st?' · '+st:'');
       if(sep!==lastSep){
         lastSep=sep;
         const h=document.createElement('div');
