@@ -3988,27 +3988,37 @@ const RC_SERIES=[[/rift apart/,2021],[/\(?2016\)?|\bps4\b|film|movie/,2016],[/ne
 function rcTitleYear(k){ if(rcFirstYear[k]) return rcFirstYear[k]; for(const [re,y] of RC_SERIES) if(re.test(k)) return y; return /ratchet/.test(k)?2002:9999; }
 function rcEditionRank(e){
   e=String(e||'').toLowerCase();
-  if(/d[ée]mo|press|promo/.test(e)) return 0;
-  if(!e||/classique|standard/.test(e)) return 1;
-  if(/platinum|greatest|essential|the best|hit/.test(e)) return 2;
-  if(/collector|limit|sp[ée]ciale/.test(e)) return 3;
-  return 4;
+  if(!e||/classique|standard|divers/.test(e)) return 0;
+  if(/platinum|greatest|essential|the best|hit/.test(e)) return 1;
+  if(/d[ée]mo/.test(e)) return 2;
+  if(/press|promo/.test(e)) return 3;
+  if(/collector|limit|sp[ée]ciale/.test(e)) return 4;
+  return 5;
+}
+// libellé du groupe d'édition affiché en intertitre
+function rcEditionLabel(i){
+  const e=String(i.edition||'').trim();
+  if(!e||/classique|standard|divers/i.test(e)) return 'Classique';
+  if(/d[ée]mo/i.test(e)) return 'Démo';
+  if(/press/i.test(e)) return 'Presse';
+  return e;
 }
 const rcCollator=new Intl.Collator('fr',{numeric:true,sensitivity:'base'});
+// Ordre : console (ordre de sortie) → édition (Classique, rééditions,
+// démos, presse, collectors) → jeux dans l'ordre de la série → région.
 function rcSortItems(list){
   return list.slice().sort((a,b)=>{
     const pa=rcConsoleRank(a.platform), pb=rcConsoleRank(b.platform);
     if(pa!==pb) return pa-pb;
     if(pa===50 && (a.platform||'')!==(b.platform||'')) return rcCollator.compare(a.platform||'',b.platform||'');
-    const isDemo=i=>rcEditionRank(i.edition)===0||/d[ée]mo/i.test(i.name||''); const da=isDemo(a)?0:1, db=isDemo(b)?0:1;
-    if(da!==db) return da-db;
+    const ea=rcEditionRank(a.edition), eb=rcEditionRank(b.edition);
+    if(ea!==eb) return ea-eb;
+    const la=rcEditionLabel(a), lb=rcEditionLabel(b);
+    if(la!==lb) return rcCollator.compare(la,lb);
     const ka=(a.name||'').trim().toLowerCase(), kb=(b.name||'').trim().toLowerCase();
     const ya=rcTitleYear(ka), yb=rcTitleYear(kb);
     if(ya!==yb) return ya-yb;
-    const n=rcCollator.compare(ka,kb); if(n) return n;
-    const ea=rcEditionRank(a.edition), eb=rcEditionRank(b.edition);
-    if(ea!==eb) return ea-eb;
-    return rcCollator.compare(a.region||'',b.region||'') || rcCollator.compare(a.edition||'',b.edition||'');
+    return rcCollator.compare(ka,kb) || rcCollator.compare(a.region||'',b.region||'');
   });
 }
 
@@ -4177,13 +4187,15 @@ function render(){
     const grid=sec.querySelector('.items-grid');
     const sorted=rcSortItems(catItems);
     const severalPlatforms=new Set(sorted.map(i=>i.platform||'')).size>1;
-    let lastPf=null;
+    let lastSep=null;
     sorted.forEach(item=>{
-      if(severalPlatforms && (item.platform||'')!==lastPf){
-        lastPf=item.platform||'';
+      const pf=item.platform||'—', ed=rcEditionLabel(item);
+      const sep=(severalPlatforms?pf+' · ':'')+ed;
+      if(sep!==lastSep){
+        lastSep=sep;
         const h=document.createElement('div');
         h.className='pf-sep';
-        h.textContent=lastPf||'—';
+        h.textContent=sep;
         grid.appendChild(h);
       }
       const card=document.createElement('div');
