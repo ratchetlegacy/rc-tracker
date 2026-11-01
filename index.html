@@ -3933,7 +3933,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.01-e';
+const RC_APP_VERSION = '2026.11.01-f';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -4496,6 +4496,7 @@ function show(id){
 }
 
 async function launchApp(){
+  window._rcLaunched=true;
   // email display handled by profile
   show('app-screen');
   document.getElementById('grid-container').innerHTML='<div class="loading"><span class="spin">⚙️</span>'+t('loading')+'</div>';
@@ -10185,8 +10186,17 @@ if('serviceWorker' in navigator){
     // updateViaCache 'none' : chaque visite vérifie s'il existe une nouvelle version ;
     // quand elle prend la main, on recharge une fois pour l'afficher tout de suite.
     navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{ try{ r.update(); }catch(e){} }).catch(()=>{ /* non-fatal */ });
-    let rcReloaded=false;
-    navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(rcReloaded) return; rcReloaded=true; location.reload(); });
+    // Recharger seulement pour une vraie mise à jour (une ancienne version
+    // contrôlait déjà la page), et jamais plus d'une fois par minute :
+    // évite toute boucle de rechargement.
+    const hadController=!!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{
+      if(!hadController) return;
+      let last=0; try{ last=+sessionStorage.getItem('rc_sw_reload')||0; }catch(e){}
+      if(Date.now()-last<60000) return;
+      try{ sessionStorage.setItem('rc_sw_reload',String(Date.now())); }catch(e){}
+      location.reload();
+    });
   });
 }
 
@@ -10524,7 +10534,14 @@ async function boot(){
     else{ show('auth-screen'); }
   } catch(e) { show('auth-screen'); }
   sbClient.auth.onAuthStateChange((event,session)=>{
-    if(event==='SIGNED_IN'&&session){ currentUser=session.user; launchApp(); }
+    // Supabase renvoie SIGNED_IN à chaque retour sur l'appli (onglet ou appli
+    // remise au premier plan) : on ne relance l'application que si
+    // l'utilisateur change vraiment, sinon tout se rechargeait à chaque fois.
+    if(event==='SIGNED_IN'&&session){
+      const same = currentUser && currentUser.id===session.user.id && window._rcLaunched;
+      currentUser=session.user;
+      if(!same) launchApp();
+    }
     if(event==='SIGNED_OUT') show('auth-screen');
   });
 }
