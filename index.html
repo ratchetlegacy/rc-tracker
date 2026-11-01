@@ -538,7 +538,7 @@
 
     /* CARD */
     .item-card{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:var(--r);padding:0;transition:border-color .2s,transform .15s;overflow:hidden}
-    .item-card:hover{border-color:rgba(123,79,212,.35);transform:translateY(-2px)}
+    @media (hover:hover){ .item-card:hover{border-color:rgba(123,79,212,.35);transform:translateY(-2px)} }
     .item-card.owned{border-left:3px solid var(--owned)}
     .item-card.wishlist{border-left:3px solid var(--wishlist)}
     .item-card.missing{border-left:3px solid var(--missing)}
@@ -1358,7 +1358,8 @@
 
     /* couverture : photo entière sur un fond flouté de la même photo */
     .card-cover{height:210px}
-    .cover-bg{position:absolute;inset:-24px;background-size:cover;background-position:center;filter:blur(20px) brightness(.5) saturate(1.2);transform:scale(1.08)}
+    .cover-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.28}
+    .cover-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,20,.35),rgba(10,11,20,.7))}
     .card-cover img,.cc-cover img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;background:transparent!important}
     /* barre rapide */
     .rc-qbar{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
@@ -3933,7 +3934,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.01-f';
+const RC_APP_VERSION = '2026.11.01-g';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -8538,9 +8539,10 @@ async function loadRcTotal(){
       total = data ? parseInt(data.value) : 0;
     }
     if(total > 0){
+      const changed = rcCollectionTotal !== total;
       rcCollectionTotal = total;
       updateRcProgressBar(total);
-      if(typeof render === 'function') render();
+      if(changed && typeof render === 'function') render();
       // the home card was drawn before the total arrived ("0 / ? owned")
       if(typeof renderHome === 'function' && document.body.classList.contains('on-home')) renderHome();
     }
