@@ -3933,7 +3933,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.01-d';
+const RC_APP_VERSION = '2026.11.01-e';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -9444,15 +9444,40 @@ function rcOpenReg(reg){
   document.getElementById('catalog-list').innerHTML = html;
 }
 
+// ══ DEVISE DE LA COTE ══
+// Les cotes sont stockées en euros. On les affiche dans la monnaie du pays de
+// la version (yen pour une version japonaise, dollar pour une version US…),
+// avec l'équivalent en euros à côté. Taux BCE du jour, gardés 12 h.
+const CUR_BY_REGION=[[/jap|ntsc-j/i,'JPY'],[/usa|ntsc-u/i,'USD'],[/\buk\b|royaume/i,'GBP'],[/\bkr\b|cor[ée]e/i,'KRW'],[/\bau\b|austral/i,'AUD'],[/\bbr\b|br[ée]sil/i,'BRL'],[/\bmx\b|mexi/i,'MXN'],[/\bca\b|canad/i,'CAD'],[/asia|hong/i,'HKD']];
+function curOf(c){ const r=String((c&&c.region)||''); for(const [re,cur] of CUR_BY_REGION) if(re.test(r)) return cur; return 'EUR'; }
+let FX={EUR:1};
+(function loadFx(){
+  try{ const s=JSON.parse(localStorage.getItem('rc_fx')||'null'); if(s&&s.t>Date.now()-12*36e5){ FX=s.r; return; } }catch(e){}
+  fetch('https://api.frankfurter.dev/v1/latest?from=EUR&to=JPY,USD,GBP,KRW,AUD,BRL,MXN,CAD,HKD')
+    .then(r=>r.json()).then(d=>{ if(d&&d.rates){ FX=Object.assign({EUR:1},d.rates); try{ localStorage.setItem('rc_fx',JSON.stringify({t:Date.now(),r:FX})); }catch(e){} } })
+    .catch(()=>{});
+})();
+function fmtCur(v,cur){
+  const dec=(cur==='JPY'||cur==='KRW')?0:2;
+  let s=new Intl.NumberFormat('fr-FR',{style:'currency',currency:cur,currencyDisplay:'narrowSymbol',minimumFractionDigits:(Number.isInteger(+v)?0:dec),maximumFractionDigits:dec}).format(v);
+  return s.replace(/ | /g,' ');
+}
+// prix en euros → { main: dans la monnaie de la version, eur: équivalent en € ou '' }
+function priceFor(eur,c){
+  eur=parseFloat(eur); const cur=curOf(c);
+  if(cur==='EUR'||!FX[cur]) return {main:fmtCur(eur,'EUR'),eur:''};
+  let v=eur*FX[cur]; if(cur==='JPY'||cur==='KRW') v=Math.round(v/100)*100;
+  return {main:fmtCur(v,cur),eur:'≈ '+fmtCur(eur,'EUR')};
+}
+
 // Cote affichee sur la vignette du catalogue (neuf / occasion)
 function catalogCardRating(c){
   const rr = marketRating[String(c.id)] || {};
   const fmt = v => parseFloat(v).toFixed(2).replace(/\.00$/,'') + ' \u20ac';
   // estimate (no real price yet) shown in amber with "≈", real rating in green
-  const cell = (lbl,r) => (r && r.median!=null)
-    ? (r.count ? '<div><b>'+fmt(r.median)+'</b>'+lbl+'</div>'
-               : '<div title="Estimate from current listings — no completed sale yet"><b style="color:#F5B941">≈ '+fmt(r.median)+'</b>'+lbl+' est.</div>')
-    : '';
+  const cell = (lbl,r) => { if(!(r && r.median!=null)) return ''; const p=priceFor(r.median,c);
+    return r.count ? '<div title="'+escHtml(p.eur)+'"><b>'+p.main+'</b>'+lbl+'</div>'
+                   : '<div title="Estimate from current listings — no completed sale yet '+escHtml(p.eur)+'"><b style="color:#F5B941">≈ '+p.main+'</b>'+lbl+' est.</div>'; };
   const a = cell('new', rr.neuf), b = cell('used', rr.occasion);
   if(!a && !b) return '';
   return '<div class="cvcat-rate">'+a+b+'</div>';
@@ -9599,7 +9624,8 @@ function openCatalogDetail(id){
         const line = (lbl,r)=> (r && r.median!=null)
           ? '<div style="flex:1">'
             + '<div style="font-size:.58rem;color:var(--text-dim);letter-spacing:.08em">'+lbl+'</div>'
-            + '<div style="font-family:Orbitron,sans-serif;font-weight:700;font-size:1.15rem;color:'+(r.count?'var(--owned)':'#F5B941')+'">'+(r.count?'':'≈ ')+parseFloat(r.median).toFixed(2).replace(/\.00$/,'')+' €</div>'
+            + '<div style="font-family:Orbitron,sans-serif;font-weight:700;font-size:1.15rem;color:'+(r.count?'var(--owned)':'#F5B941')+'">'+(r.count?'':'≈ ')+priceFor(r.median,c).main+'</div>'
+            + (priceFor(r.median,c).eur ? '<div style="font-size:.6rem;color:var(--text-dim)">'+priceFor(r.median,c).eur+'</div>' : '')
             + '<div style="font-size:.56rem;color:var(--text-dim)">'+(r.count ? r.count+' real price'+(r.count>1?'s':'') : 'estimate from current listings · no sale yet')+'</div>'
             + (r.count && r.sources ? '<div style="font-size:.54rem;color:var(--text-dim);margin-top:2px">'+escHtml(r.sources)+'</div>' : '')
             + '</div>'
