@@ -1220,6 +1220,7 @@
     .cmp-img{cursor:pointer;aspect-ratio:3/4;background:#0b0d16;display:flex;align-items:center;justify-content:center;font-size:2rem}
     .cmp-img img{width:100%;height:100%;object-fit:contain}
     .cmp-card-name{cursor:pointer;font-size:.74rem;font-weight:600;line-height:1.25;padding:8px 8px 6px;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .cmp-card-meta{font-size:.62rem;color:var(--purple-light);padding:0 8px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .cmp-wish{margin:0 8px 8px;border:none;border-radius:8px;padding:7px 6px;font-weight:700;font-size:.7rem;cursor:pointer;background:linear-gradient(135deg,#FFD447,#FF9D2E);color:#1a1200;font-family:Inter,sans-serif}
     .cmp-wish:disabled{background:rgba(255,255,255,.12);color:var(--text-dim);cursor:default}
     .public-header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 50%,#0D1520 100%);border-bottom:1px solid rgba(123,79,212,.3);padding:32px;text-align:center;position:relative}
@@ -3946,7 +3947,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.02-c';
+const RC_APP_VERSION = '2026.11.02-d';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -7512,13 +7513,26 @@ async function compareWithFriend(friendId){
     const frRank = getRank(frOwned.length);
 
     // Overlap: the linked catalog entry first (same name = several editions/regions), name otherwise
-    const norm = i => i.catalog_id!=null ? 'c'+i.catalog_id : 'n'+(i.name||'').trim().toLowerCase();
-    const myWish = new Set(items.filter(i=>i.status==='wishlist').map(norm));
-    const mySet = new Set(myOwned.map(norm));
-    const frSet = new Set(frOwned.map(norm));
-    const common = [...mySet].filter(n=>frSet.has(n)).length;
-    const onlyMine = myOwned.length - common;
-    const onlyFriend = frOwned.length - common;
+    // Matching: same catalog entry when both are linked; otherwise same title on the same console
+    // (hand-typed items from the old tracker have no catalog link and often an English name)
+    await cmpLoadCatalog();
+    const norm = i => i.catalog_id!=null ? 'c'+i.catalog_id : 'n'+cmpTitleKey(i.name)+'|'+cmpPlatKey(i.platform);
+    const loose = i => cmpTitleKey(i.name)+'|'+cmpPlatKey(i.platform);
+    const mineExact = new Set(myOwned.filter(i=>i.catalog_id!=null).map(i=>'c'+i.catalog_id));
+    const mineLooseAll = new Set(myOwned.map(loose));
+    const mineLooseUnlinked = new Set(myOwned.filter(i=>i.catalog_id==null).map(loose));
+    const iOwn = i => i.catalog_id!=null
+      ? (mineExact.has('c'+i.catalog_id) || mineLooseUnlinked.has(loose(i)))
+      : mineLooseAll.has(loose(i));
+    const myWishItems = items.filter(i=>i.status==='wishlist');
+    const wishExact = new Set(myWishItems.filter(i=>i.catalog_id!=null).map(i=>'c'+i.catalog_id));
+    const wishLoose = new Set(myWishItems.map(loose));
+    const inMyWish = i => i.catalog_id!=null ? wishExact.has('c'+i.catalog_id) : wishLoose.has(loose(i));
+    const frDistinct = []; { const sn=new Set(); frOwned.forEach(i=>{ const k=norm(i); if(!sn.has(k)){ sn.add(k); frDistinct.push(i); } }); }
+    const common = frDistinct.filter(iOwn).length;
+    const onlyFriend = frDistinct.length - common;
+    const myDistinct = new Set(myOwned.map(norm)).size;
+    const onlyMine = Math.max(0, myDistinct - common);
 
     function col(p, rank, count, color){
       return '<div class="cmp-col"><div class="cmp-av">'+escHtml(p.avatar||'🦊')+'</div>'
@@ -7542,10 +7556,8 @@ async function compareWithFriend(friendId){
 
     // Items the friend has that you don't (wishlist inspiration!)
     // old entries typed by hand (no catalog link, no photo): borrow a photo from the matching catalog entry
-    await cmpLoadCatalog();
     // one card per distinct entry the friend owns and I don't
-    const seen = new Set();
-    const missingFromMe = frOwned.filter(i=>{ const k=norm(i); if(mySet.has(k)||seen.has(k)) return false; seen.add(k); return true; });
+    const missingFromMe = frDistinct.filter(i=>!iOwn(i));
     window._cmpMissing = missingFromMe;
     if(missingFromMe.length){
       html += '<div class="fr-section-title">💡 They own, you don\'t ('+missingFromMe.length+')</div>';
@@ -7554,10 +7566,11 @@ async function compareWithFriend(friendId){
       missingFromMe.forEach((i,idx)=>{
         const g = (i.catalog_id==null) ? cmpGuessEntry(i) : null; if(g) i._cid = g.id;
         const img = rcItemImage(i) || (g ? g.image_url : '');
-        const inWish = myWish.has(norm(i));
+        const inWish = inMyWish(i);
         html += '<div class="cmp-card'+(inWish?' added':'')+'" id="cmp-miss-'+idx+'">'
           + '<div class="cmp-img" onclick="cmpOpen('+idx+')">'+(img?'<img src="'+escHtml(img)+'" alt="" loading="lazy">':'<span>'+(TYPE_ICONS[i.type]||'📦')+'</span>')+'</div>'
           + '<div class="cmp-card-name" onclick="cmpOpen('+idx+')">'+escHtml(i.name||'')+'</div>'
+          + '<div class="cmp-card-meta">'+escHtml([i.platform, i.catalog_id!=null?(i.region||'').replace(/\s*\(.*\)/,''):'', i.catalog_id!=null&&!/^(classique|standard)$/i.test(i.edition||'')?i.edition:''].filter(Boolean).join(' · '))+'</div>'
           + '<button class="cmp-wish" '+(inWish?'disabled':'')+' onclick="addToWishlistFromCompare('+idx+')">'+(inWish?'✓ Wishlist':'★ Wishlist')+'</button>'
           + '</div>';
       });
