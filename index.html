@@ -1214,6 +1214,14 @@
     .cmp-stat{flex:1;text-align:center;background:var(--bg3);border-radius:12px;padding:14px 6px}
     .cmp-stat-v{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:800;color:var(--owned)}
     .cmp-stat-l{font-size:.64rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+    .cmp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+    .cmp-card{display:flex;flex-direction:column;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;transition:opacity .2s}
+    .cmp-card.added{opacity:.55}
+    .cmp-img{aspect-ratio:3/4;background:#0b0d16;display:flex;align-items:center;justify-content:center;font-size:2rem}
+    .cmp-img img{width:100%;height:100%;object-fit:contain}
+    .cmp-card-name{font-size:.74rem;font-weight:600;line-height:1.25;padding:8px 8px 6px;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .cmp-wish{margin:0 8px 8px;border:none;border-radius:8px;padding:7px 6px;font-weight:700;font-size:.7rem;cursor:pointer;background:linear-gradient(135deg,#FFD447,#FF9D2E);color:#1a1200;font-family:Inter,sans-serif}
+    .cmp-wish:disabled{background:rgba(255,255,255,.12);color:var(--text-dim);cursor:default}
     .public-header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 50%,#0D1520 100%);border-bottom:1px solid rgba(123,79,212,.3);padding:32px;text-align:center;position:relative}
     .public-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--orange));border:3px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2.5rem;margin:0 auto 12px}
     .public-pseudo{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;background:linear-gradient(90deg,#fff 40%,var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
@@ -3938,7 +3946,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.01-h';
+const RC_APP_VERSION = '2026.11.02-a';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -7498,15 +7506,16 @@ async function compareWithFriend(friendId){
     const fr = profiles[friendId] || {pseudo:'Friend', avatar:'🦊'};
     // My items are already in `items`; fetch friend's items (RLS allows it now)
     const myOwned = items.filter(i=>i.status==='owned');
-    const { data:frItems } = await sbClient.from('items').select('name,type,status').eq('user_id',friendId);
+    const { data:frItems } = await sbClient.from('items').select('name,type,status,catalog_id,img_url,platform,region,edition').eq('user_id',friendId);
     const frOwned = (frItems||[]).filter(i=>i.status==='owned');
     const myRank = getRank(myOwned.length);
     const frRank = getRank(frOwned.length);
 
-    // Build name sets for overlap
-    const norm = s => (s||'').trim().toLowerCase();
-    const mySet = new Set(myOwned.map(i=>norm(i.name)));
-    const frSet = new Set(frOwned.map(i=>norm(i.name)));
+    // Overlap: the linked catalog entry first (same name = several editions/regions), name otherwise
+    const norm = i => i.catalog_id!=null ? 'c'+i.catalog_id : 'n'+(i.name||'').trim().toLowerCase();
+    const myWish = new Set(items.filter(i=>i.status==='wishlist').map(norm));
+    const mySet = new Set(myOwned.map(norm));
+    const frSet = new Set(frOwned.map(norm));
     const common = [...mySet].filter(n=>frSet.has(n)).length;
     const onlyMine = myOwned.length - common;
     const onlyFriend = frOwned.length - common;
@@ -7532,19 +7541,21 @@ async function compareWithFriend(friendId){
     html += '</div>';
 
     // Items the friend has that you don't (wishlist inspiration!)
-    const missingFromMe = frOwned.filter(i=>!mySet.has(norm(i.name)));
+    // one card per distinct entry the friend owns and I don't
+    const seen = new Set();
+    const missingFromMe = frOwned.filter(i=>{ const k=norm(i); if(mySet.has(k)||seen.has(k)) return false; seen.add(k); return true; });
+    window._cmpMissing = missingFromMe;
     if(missingFromMe.length){
       html += '<div class="fr-section-title">💡 They own, you don\'t ('+missingFromMe.length+')</div>';
-      html += '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:8px">Tap the ★ to add an item to your wishlist</div>';
-      html += '<div style="display:flex;flex-direction:column;gap:6px">';
-      missingFromMe.slice(0,60).forEach((i,idx)=>{
-        const nm = escHtml(i.name);
-        const tp = escHtml(i.type||'');
-        html += '<div id="cmp-miss-'+idx+'" style="display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:8px;padding:8px 12px">'
-          + '<div style="flex:1;min-width:0"><div style="font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+nm+'</div>'
-          + (tp?'<div style="font-size:.66rem;color:var(--text-dim)">'+tp+'</div>':'')+'</div>'
-          + '<button onclick="addToWishlistFromCompare('+idx+',\''+encodeURIComponent(i.name)+'\',\''+encodeURIComponent(i.type||'')+'\')" '
-          + 'style="border:none;border-radius:8px;padding:8px 12px;font-weight:700;font-size:.72rem;cursor:pointer;background:linear-gradient(135deg,#FFD447,#FF9D2E);color:#1a1200;white-space:nowrap;flex-shrink:0">★ Wishlist</button>'
+      html += '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:10px">Tap ★ to add an item to your wishlist</div>';
+      html += '<div class="cmp-grid">';
+      missingFromMe.forEach((i,idx)=>{
+        const img = rcItemImage(i);
+        const inWish = myWish.has(norm(i));
+        html += '<div class="cmp-card'+(inWish?' added':'')+'" id="cmp-miss-'+idx+'">'
+          + '<div class="cmp-img">'+(img?'<img src="'+escHtml(img)+'" alt="" loading="lazy">':'<span>'+(TYPE_ICONS[i.type]||'📦')+'</span>')+'</div>'
+          + '<div class="cmp-card-name">'+escHtml(i.name||'')+'</div>'
+          + '<button class="cmp-wish" '+(inWish?'disabled':'')+' onclick="addToWishlistFromCompare('+idx+')">'+(inWish?'✓ Wishlist':'★ Wishlist')+'</button>'
           + '</div>';
       });
       html += '</div>';
@@ -7557,13 +7568,15 @@ async function compareWithFriend(friendId){
 function closeCompare(){ document.getElementById('compare-screen').classList.remove('open'); }
 
 // Add an item seen in a friend's collection straight to my wishlist
-async function addToWishlistFromCompare(idx, encName, encType){
+async function addToWishlistFromCompare(idx){
   if(!currentUser){ showToast('Please sign in first','error'); return; }
-  const name = decodeURIComponent(encName);
-  const type = decodeURIComponent(encType) || 'Misc';
+  const src = (window._cmpMissing||[])[idx];
+  if(!src) return;
   try {
     const { data, error } = await sbClient.from('items').insert([{
-      user_id: currentUser.id, name: name, type: type,
+      user_id: currentUser.id, name: src.name, type: src.type || 'Misc',
+      catalog_id: src.catalog_id ?? null, platform: src.platform || null,
+      region: src.region || null, edition: src.edition || null, img_url: src.img_url || null,
       status: 'wishlist', condition: 'used', lang: 'FR', grade: 'excellent'
     }]).select();
     if(error){ console.log('wishlist add error:', error); showToast('Error: '+error.message,'error'); return; }
@@ -7571,11 +7584,11 @@ async function addToWishlistFromCompare(idx, encName, encType){
     if(data && data[0]) items.push(data[0]);
     render();
     // Visually mark the row as added
-    const row = document.getElementById('cmp-miss-'+idx);
-    if(row){
-      row.style.opacity = '0.5';
-      const btn = row.querySelector('button');
-      if(btn){ btn.textContent='✓ Added'; btn.disabled=true; btn.style.background='rgba(255,255,255,.12)'; btn.style.color='var(--text-dim)'; btn.style.cursor='default'; }
+    const card = document.getElementById('cmp-miss-'+idx);
+    if(card){
+      card.classList.add('added');
+      const btn = card.querySelector('button');
+      if(btn){ btn.textContent='✓ Wishlist'; btn.disabled=true; }
     }
     showToast('★ Added to your wishlist!','success');
   } catch(e){ showToast('Error: '+e.message,'error'); }
