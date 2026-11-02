@@ -772,7 +772,7 @@
     .pf-months-bars{display:flex;align-items:flex-end;gap:6px;height:130px;min-width:100%}
     .pf-marrow{width:30px;height:30px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--text);cursor:pointer;font-size:1.1rem;line-height:1}
     .pf-myear{font-size:.56rem;color:var(--purple-light);height:10px}
-    .pf-mcol{flex:1 0 38px;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;min-width:38px}
+    .pf-mcol{cursor:pointer;flex:1 0 38px;display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end;min-width:38px}
     .pf-mbar{width:100%;max-width:26px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,var(--orange,#ff8a2a),var(--purple,#7b4fd4));min-height:2px;transition:height .8s ease}
     .pf-mlbl{font-size:.6rem;color:var(--text-dim)}
     .pf-mval{font-size:.58rem;color:var(--text);white-space:nowrap}
@@ -1383,6 +1383,8 @@
     .cc-meta{font-size:.62rem;color:var(--text-dim);margin-top:3px}
     .cc-val{font-family:Orbitron,sans-serif;font-size:.72rem;font-weight:700;color:var(--owned);margin-top:4px}
 </style>
+<script>window.RL_TOUR_NO_SITE=true;</script>
+<script src="rl-tour.js" defer></script>
 </head>
 <body>
 <div id="theme-bg"></div>
@@ -2197,6 +2199,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <div class="guide-hero-badge">RATCHET &amp; CLANK · COLLECTION TRACKER</div>
         <h2 class="guide-hero-title">How to use the Tracker</h2>
         <p class="guide-hero-sub">Everything you need to manage, track and show off your collection.</p>
+        <button class="guide-pdf-btn" onclick="closeGuide();startTrackerTour()" style="margin-right:8px">🎓 Start the guided tour</button>
         <button class="guide-pdf-btn" onclick="downloadGuidePDF()">📄 Download this guide as PDF</button>
       </div>
 
@@ -3072,6 +3075,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin panel</div>
 
   <div class="menu-section-title">Help &amp; app</div>
+  <div class="menu-item" onclick="closeMobileMenu();startTrackerTour()"><span class="atl-ic">🎓</span><span style="flex:1">Guided tour</span><span class="atl-chev">›</span></div>
   <div class="menu-item" onclick="closeMobileMenu();openGuide()"><span class="atl-ic">❓</span><span style="flex:1">How to use</span><span class="atl-chev">›</span></div>
   <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)"><span class="atl-ic">📲</span><span style="flex:1">Install the app</span></div>
   <a href="https://ko-fi.com/ratchetlegacy" target="_blank" rel="noopener" class="menu-item atl-kofi"><span class="atl-ic">☕</span><span style="flex:1">Fuel the collection!</span><span class="atl-chev">↗</span></a>
@@ -4633,6 +4637,35 @@ function openProfile(){
 
 // ===== Profil : tableau de bord tout-en-un (rang, collection, argent, dépenses, statistiques) =====
 const pfL = (fr,en) => (typeof currentLang!=='undefined' && currentLang==='fr') ? fr : en;
+// Clic sur une colonne de mois : fenêtre avec les objets achetés ce mois-là
+function pfOpenMonth(y,m){
+  const fr = (typeof currentLang!=='undefined' && currentLang==='fr');
+  const list = items.filter(i=>{ if(i.status!=='owned'||!i.buy_date) return false; const d=new Date(i.buy_date); return d.getFullYear()===y && d.getMonth()===m; })
+                    .sort((a,b)=>String(a.buy_date).localeCompare(String(b.buy_date)));
+  const monthName = new Date(y,m,1).toLocaleDateString(fr?'fr-FR':'en-GB',{month:'long',year:'numeric'});
+  const money = v => { if(v==null||v==='') return '—'; const u=(typeof eurToUser==='function')?eurToUser(v):null, c=(typeof userCur==='function')?userCur():'EUR';
+    return (u==null?parseFloat(v):u).toLocaleString('fr-FR',{style:'currency',currency:u==null?'EUR':c,currencyDisplay:'narrowSymbol',maximumFractionDigits:2}); };
+  const total = list.reduce((s,i)=>s+(i.buy_price!=null?parseFloat(i.buy_price):0),0);
+  const old=document.getElementById('pf-month-ov'); if(old) old.remove();
+  const ov=document.createElement('div'); ov.id='pf-month-ov';
+  ov.style.cssText='position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:16px';
+  const rows = list.length ? list.map(i=>{
+      const img = i.img_url ? '<img src="'+escHtml(i.img_url)+'" style="width:44px;height:44px;object-fit:contain;border-radius:8px;background:var(--bg3);flex-shrink:0" onerror="this.style.visibility=\'hidden\'"/>' : '<div style="width:44px;height:44px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;flex-shrink:0">📦</div>';
+      const meta=[i.platform,i.edition&&i.edition!=='Standard'?i.edition:'',i.region].filter(Boolean).join(' · ');
+      const day=new Date(i.buy_date).toLocaleDateString(fr?'fr-FR':'en-GB',{day:'numeric',month:'short'});
+      return '<div data-id="'+i.id+'" onclick="document.getElementById(\'pf-month-ov\').remove();openModal(this.dataset.id)" style="display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;cursor:pointer;background:rgba(255,255,255,.03);margin-bottom:6px">'
+        + img + '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(i.name)+'</div>'
+        + '<div style="font-size:.7rem;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escHtml(day+(meta?' · '+meta:''))+'</div></div>'
+        + '<div style="font-weight:700;font-size:.84rem;color:var(--purple-light);white-space:nowrap">'+money(i.buy_price)+'</div></div>';
+    }).join('') : '<div style="text-align:center;color:var(--text-dim);padding:24px 0">'+(fr?'Aucun achat daté ce mois-ci.':'No dated purchase this month.')+'</div>';
+  ov.innerHTML='<div style="background:var(--bg2);border:1px solid rgba(255,255,255,.08);border-radius:16px;width:100%;max-width:440px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden">'
+    + '<div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.06)"><div style="flex:1"><div style="font-weight:800;font-size:1rem;text-transform:capitalize">📅 '+escHtml(monthName)+'</div>'
+    + '<div style="font-size:.74rem;color:var(--text-dim)">'+list.length+' '+(fr?'objet(s)':'item(s)')+' · '+money(total)+'</div></div>'
+    + '<button onclick="document.getElementById(\'pf-month-ov\').remove()" aria-label="Close" style="background:none;border:none;color:var(--text-dim);font-size:1.2rem;cursor:pointer">✕</button></div>'
+    + '<div style="overflow-y:auto;padding:10px 12px">'+rows+'</div></div>';
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.remove(); });
+  document.body.appendChild(ov);
+}
 function pfScrollMonths(dir){ const sc=document.getElementById('pf-months-scroll'); if(sc) sc.scrollBy({left:dir*Math.max(200, sc.clientWidth*0.8), behavior:'smooth'}); }
 function renderProfileDashboard(){
   const owned = items.filter(i=>i.status==='owned');
@@ -4695,7 +4728,7 @@ function renderProfileDashboard(){
     +'<div class="pf-months"><div style="display:flex;align-items:center;gap:8px">'
     +  '<div style="font-weight:700;font-size:.86rem;flex:1">📅 '+pfL('Achats par mois','Purchases per month')+' <span class="pf-mini" style="font-weight:400">· '+fmt0(sumM)+' '+pfL('depuis','since')+' '+mNames[months[0].m]+(pfL(' ',' '))+months[0].y+'</span></div>'
     +  '<button class="pf-marrow" onclick="pfScrollMonths(-1)" aria-label="‹">‹</button><button class="pf-marrow" onclick="pfScrollMonths(1)" aria-label="›">›</button></div>'
-    +  '<div class="pf-months-scroll" id="pf-months-scroll"><div class="pf-months-bars">'+months.map(x=>'<div class="pf-mcol" title="'+mNames[x.m]+' '+x.y+' · '+x.n+' '+pfL('achat(s)','purchase(s)')+' · '+fmt0(x.v)+'"><div class="pf-mval">'+(x.v?Math.round(x.v):'')+'</div><div class="pf-mbar" style="height:'+Math.round(x.v/maxM*78)+'%"></div><div class="pf-mlbl">'+mNames[x.m]+'</div><div class="pf-myear">'+((x.m===0||x===months[0])?x.y:'')+'</div></div>').join('')+'</div></div>'
+    +  '<div class="pf-months-scroll" id="pf-months-scroll"><div class="pf-months-bars">'+months.map(x=>'<div class="pf-mcol" onclick="pfOpenMonth('+x.y+','+x.m+')" title="'+mNames[x.m]+' '+x.y+' · '+x.n+' '+pfL('achat(s)','purchase(s)')+' · '+fmt0(x.v)+'"><div class="pf-mval">'+(x.v?Math.round(x.v):'')+'</div><div class="pf-mbar" style="height:'+Math.round(x.v/maxM*78)+'%"></div><div class="pf-mlbl">'+mNames[x.m]+'</div><div class="pf-myear">'+((x.m===0||x===months[0])?x.y:'')+'</div></div>').join('')+'</div></div>'
     +'</div>';
   // on démarre sur le mois en cours (tout à droite)
   setTimeout(()=>{ const sc=document.getElementById('pf-months-scroll'); if(sc) sc.scrollLeft = sc.scrollWidth; }, 60);
@@ -7792,6 +7825,38 @@ function showHome(){
   loadNews();
   renderHomeCollections();
   setNavActive('home');
+  // Première visite : la visite guidée se lance toute seule (une seule fois)
+  if(!window._tourAutoTried){ window._tourAutoTried=true;
+    setTimeout(()=>{ if(window.RLTour && !RLTour.isDone('tracker') && document.body.classList.contains('on-home')) startTrackerTour(); }, 1500); }
+}
+
+// ── Visite guidée du tracker (moteur : rl-tour.js) ──
+function startTrackerTour(){
+  if(!window.RLTour){ showToast('Loading…','info'); setTimeout(()=>window.RLTour&&startTrackerTour(),800); return; }
+  if(!document.body.classList.contains('on-home') && typeof navGo==='function') navGo('collections');
+  const steps=[
+    { title:{fr:'Bienvenue dans ton tracker 👋',en:'Welcome to your tracker 👋'},
+      text:{fr:'En 1 minute, voici l’essentiel pour suivre ta collection Ratchet &amp; Clank. Tu pourras relancer cette visite depuis l’<b>Atelier</b>.',en:'In one minute, here’s everything you need to track your Ratchet &amp; Clank collection. You can replay this tour from the <b>Atelier</b>.'} },
+    { el:'.home-stats-compact', title:{fr:'Tes chiffres',en:'Your numbers'},
+      text:{fr:'Objets possédés, wishlist, <b>% du catalogue</b> complété et <b>valeur</b> actuelle de ta collection.',en:'Items owned, wishlist, <b>% of the catalog</b> completed and the current <b>value</b> of your collection.'} },
+    { el:'.home-featured-tile', title:{fr:'Ta collection',en:'Your collection'},
+      text:{fr:'Touche-la pour voir tous tes objets, triés par console et par édition, avec filtres et recherche.',en:'Tap it to see all your items, sorted by console and edition, with filters and search.'} },
+    { el:'.bnav-add-btn', title:{fr:'Ajouter un objet',en:'Add an item'},
+      text:{fr:'Choisis la fiche dans le catalogue, puis vérifie l’<b>état</b> et le <b>prix d’achat</b>. Si tu l’as déjà, le tracker te prévient.',en:'Pick the item from the catalog, then check its <b>condition</b> and <b>purchase price</b>. If you already own it, the tracker warns you.'} },
+    { el:'.bnav-item[data-tab="search"]', title:{fr:'Rechercher',en:'Search'},
+      text:{fr:'Retrouve n’importe quel objet de ta collection ou du catalogue.',en:'Find any item in your collection or in the catalog.'} },
+    { el:'.bnav-item[data-tab="profile"]', title:{fr:'Ton profil',en:'Your profile'},
+      text:{fr:'Ton rang, tes dépenses, la valeur, la plus-value, tes objets les plus chers et tes <b>achats par mois</b> : touche un mois pour voir ce que tu as acheté.',en:'Your rank, spending, value, gain, most valuable items and <b>purchases per month</b>: tap a month to see what you bought.'} },
+    { el:'.bnav-item[data-tab="collections"]', title:{fr:'L’accueil',en:'Home'},
+      text:{fr:'Pour revenir ici et ouvrir tes autres collections.',en:'Come back here and open your other collections.'} },
+    { el:'#mobile-menu-panel', before:()=>{ if(typeof openMobileMenu==='function') openMobileMenu(); },
+      title:{fr:'L’Atelier 🔧',en:'The Atelier 🔧'},
+      text:{fr:'Le <b>catalogue</b> complet, l’<b>import Excel</b> de tes achats, l’<b>export PDF</b>, les <b>thèmes</b>, tes amis et l’aide. La visite se relance d’ici.',en:'The full <b>catalog</b>, <b>Excel import</b> of your purchases, <b>PDF export</b>, <b>themes</b>, friends and help. Replay the tour from here.'} },
+    { before:()=>{ if(typeof closeMobileMenu==='function') closeMobileMenu(); },
+      title:{fr:'À toi de jouer 🚀',en:'Your turn 🚀'},
+      text:{fr:'Commence par ajouter un objet avec le bouton <b>+</b>. Bonne chasse !',en:'Start by adding an item with the <b>+</b> button. Happy hunting!'} },
+  ];
+  RLTour.start(steps,{id:'tracker', onEnd:()=>{ if(typeof closeMobileMenu==='function') closeMobileMenu(); }});
 }
 
 // ── Bottom navigation bar ──
