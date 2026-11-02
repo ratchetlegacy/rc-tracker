@@ -3946,7 +3946,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.02-a';
+const RC_APP_VERSION = '2026.11.02-b';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -7541,6 +7541,8 @@ async function compareWithFriend(friendId){
     html += '</div>';
 
     // Items the friend has that you don't (wishlist inspiration!)
+    // old entries typed by hand (no catalog link, no photo): borrow a photo from the matching catalog entry
+    await cmpLoadCatalog();
     // one card per distinct entry the friend owns and I don't
     const seen = new Set();
     const missingFromMe = frOwned.filter(i=>{ const k=norm(i); if(mySet.has(k)||seen.has(k)) return false; seen.add(k); return true; });
@@ -7550,7 +7552,7 @@ async function compareWithFriend(friendId){
       html += '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:10px">Tap ★ to add an item to your wishlist</div>';
       html += '<div class="cmp-grid">';
       missingFromMe.forEach((i,idx)=>{
-        const img = rcItemImage(i);
+        const img = rcItemImage(i) || cmpGuessImage(i);
         const inWish = myWish.has(norm(i));
         html += '<div class="cmp-card'+(inWish?' added':'')+'" id="cmp-miss-'+idx+'">'
           + '<div class="cmp-img">'+(img?'<img src="'+escHtml(img)+'" alt="" loading="lazy">':'<span>'+(TYPE_ICONS[i.type]||'📦')+'</span>')+'</div>'
@@ -7566,6 +7568,38 @@ async function compareWithFriend(friendId){
   }
 }
 function closeCompare(){ document.getElementById('compare-screen').classList.remove('open'); }
+
+// Photo for a hand-typed item: same title (FR or EN names) on the same console, French standard edition first
+let cmpCatalog = null;
+async function cmpLoadCatalog(){
+  if(cmpCatalog) return;
+  try {
+    const { data } = await sbClient.from('catalog').select('id,name,name_en,platform,region,edition,image_url').not('image_url','is',null);
+    cmpCatalog = (data||[]).filter(c=>c.image_url);
+  } catch(e){ cmpCatalog = []; }
+}
+function cmpTitleKey(s){
+  let t = String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  const alias = [[/size matters/,'la taille ca compte'],[/tools of destruction/,'operation destruction'],[/going commando|locked and loaded/,' 2 '],
+    [/up your arsenal/,' 3 '],[/deadlocked/,'gladiator'],[/full frontal assault/,'qforce'],[/q-?\s?force/,'qforce'],[/into the nexus/,'nexus'],[/all 4 one|all for one/,'all 4 one']];
+  alias.forEach(([re,v])=>{ t = t.replace(re,v); });
+  t = t.replace(/ratchet\s*(&|and|et)\s*clank|r\s*&\s*c|\bfuture\b|\bratchet\b(?=\s*:)/g,' ').replace(/[^a-z0-9]+/g,' ').trim();
+  return [...new Set(t.split(' ').filter(Boolean))].join(' ') || '#base';
+}
+function cmpPlatKey(p){
+  const s = String(p||'').toLowerCase().replace(/playstation\s*/,'ps').replace(/\s+/g,'');
+  return s.replace(/^ps(vita)$/,'psvita');
+}
+function cmpGuessImage(item){
+  if(!cmpCatalog || !cmpCatalog.length) return '';
+  const k = cmpTitleKey(item.name), pk = cmpPlatKey(item.platform);
+  if(!k) return '';
+  const hits = cmpCatalog.filter(c=>(cmpTitleKey(c.name)===k || (c.name_en && cmpTitleKey(c.name_en)===k)) && (!pk || cmpPlatKey(c.platform)===pk));
+  if(!hits.length) return '';
+  const score = c => (/^FR/.test(c.region||'')?0:2) + (/^(classique|standard|)$/i.test(c.edition||'')?0:1);
+  hits.sort((a,b)=>score(a)-score(b));
+  return hits[0].image_url;
+}
 
 // Add an item seen in a friend's collection straight to my wishlist
 async function addToWishlistFromCompare(idx){
