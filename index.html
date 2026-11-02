@@ -4165,11 +4165,12 @@ function render(){
 
   // Collection % bar
   const collectionTotal = getCollectionTotal();
-  const collectionPct = collectionTotal > 0 ? Math.min(100, Math.round((owned/collectionTotal)*100)) : 0;
+  const ownedCat = ownedCatalogCount();
+  const collectionPct = collectionTotal > 0 ? Math.min(100, Math.round((ownedCat/collectionTotal)*100)) : 0;
   document.getElementById('collection-pct').textContent=collectionPct+'%';
   document.getElementById('collection-bar').style.width=collectionPct+'%';
   const collCount=document.getElementById('collection-count');
-  if(collCount) collCount.textContent = owned+' / '+(collectionTotal||'?');
+  if(collCount) collCount.textContent = ownedCat+' / '+(collectionTotal||'?');
 
   renderRank(owned);
 
@@ -5728,7 +5729,7 @@ function renderStats(target, embedded){
   html += kpi('✅','Owned','owned',owned.length);
   html += kpi('🎯','Wishlist','wish',wish.length);
   const rcTotal = getCollectionTotal();
-  const collPct = rcTotal > 0 ? Math.min(100, Math.round(owned.length/rcTotal*100)) : 0;
+  const collPct = rcTotal > 0 ? Math.min(100, Math.round(ownedCatalogCount()/rcTotal*100)) : 0;
   html += kpi('🌍','Collection','coll', rcTotal>0 ? (collPct+'%') : '—');
   html += kpi('💸','Invested','inv',hasBuy?fmtEurS(invested):'—');
   html += kpi('💰','Value','val',hasCur?fmtEurS(market):'—');
@@ -7574,6 +7575,8 @@ let currentThemeId = '';
 
 // How many owned items the user has (for rank-based unlocks)
 function ownedCount(){ return items.filter(i=>i.status==='owned').length; }
+// Fiches distinctes du catalogue possédées (sans doublons) — base de tous les % de collection
+function ownedCatalogCount(){ return new Set(items.filter(i=>i.status==='owned'&&i.catalog_id!=null).map(i=>String(i.catalog_id))).size; }
 
 // Ko-fi unlocks are stored locally for now (SQL sync comes in step 2)
 function kofiUnlocked(themeId){
@@ -8419,13 +8422,14 @@ function renderHome(){
   const wish = items.filter(i=>i.status==='wishlist').length;
   const _owned=document.getElementById('home-owned'); if(_owned) _owned.textContent = owned;
   const _wish=document.getElementById('home-wish'); if(_wish) _wish.textContent = wish;
-  const pct = (rcCollectionTotal>0) ? Math.round((owned/rcCollectionTotal)*100) : 0;
+  const ownedCat = ownedCatalogCount();
+  const pct = (rcCollectionTotal>0) ? Math.min(100, Math.round((ownedCat/rcCollectionTotal)*100)) : 0;
   const _comp=document.getElementById('home-completion'); if(_comp) _comp.textContent = pct+'%';
   // total value
   const val = items.filter(i=>i.status==='owned').reduce((s,i)=>s+(parseFloat(i.cur_value)||0),0);
   const _val=document.getElementById('home-value'); if(_val) _val.textContent = val>0 ? fmtEurS(val) : '—';
   const rcCount=document.getElementById('home-rc-count');
-  if(rcCount) rcCount.textContent = owned+' / '+(rcCollectionTotal||'?')+' owned';
+  if(rcCount) rcCount.textContent = ownedCat+' / '+(rcCollectionTotal||'?')+' owned';
   const rcFill=document.getElementById('home-rc-fill');
   if(rcFill) rcFill.style.width = pct+'%';
   loadRcLogo();
@@ -8556,8 +8560,8 @@ async function loadRcTotal(){
 }
 
 function updateRcProgressBar(total){
-  const owned = items.filter(i=>i.status==='owned').length;
-  const pct = total > 0 ? Math.round((owned/total)*100) : 0;
+  const owned = ownedCatalogCount();
+  const pct = total > 0 ? Math.min(100, Math.round((owned/total)*100)) : 0;
   const bar = document.getElementById('collection-bar');
   const label = document.getElementById('collection-pct');
   const countLabel = document.getElementById('collection-count');
