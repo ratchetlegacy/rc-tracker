@@ -553,7 +553,7 @@
     /* notification de palier */
     #tier-pop{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;background:rgba(4,6,14,.72);backdrop-filter:blur(6px)}
     #tier-pop.open{display:flex}
-    .tier-box{width:min(360px,92vw);border-radius:22px;padding:26px 22px 20px;text-align:center;background:var(--bg2);border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 80px -20px rgba(0,0,0,.8);animation:tierIn .5s cubic-bezier(.2,1.4,.4,1)}
+    .tier-box{position:relative;z-index:2;width:min(360px,92vw);border-radius:22px;padding:26px 22px 20px;text-align:center;background:var(--bg2);border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 80px -20px rgba(0,0,0,.8);animation:tierIn .5s cubic-bezier(.2,1.4,.4,1)}
     @keyframes tierIn{from{transform:scale(.6) translateY(20px);opacity:0}to{transform:none;opacity:1}}
     .tier-kicker{font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:.2em;color:var(--wishlist)}
     .tier-icon{font-size:3.2rem;margin:10px 0 4px;animation:tierSpin 1.2s ease}
@@ -565,7 +565,7 @@
     .tier-btns button{flex:1;border:none;border-radius:12px;padding:12px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:Inter,sans-serif}
     .tier-try{color:#0b0b10}
     .tier-later{background:rgba(255,255,255,.08);color:var(--text)}
-    .tier-bolt{position:fixed;top:-20px;font-size:1.2rem;z-index:3001;pointer-events:none;animation:tierFall linear forwards}
+    .tier-bolt{position:fixed;top:-20px;font-size:1.2rem;z-index:1;pointer-events:none;animation:tierFall linear forwards}
     @keyframes tierFall{to{transform:translateY(110vh) rotate(540deg);opacity:.2}}
     @media(max-width:480px){
       .header-titles h1{font-size:.75rem}
@@ -4115,7 +4115,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.02-h';
+const RC_APP_VERSION = '2026.11.02-i';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -8079,7 +8079,7 @@ function showTierPopup(t, n){
   for(let k=0;k<26;k++){
     const b=document.createElement('div'); b.className='tier-bolt'; b.textContent=k%3?'🔩':t.icon;
     b.style.left=Math.random()*100+'vw'; b.style.animationDuration=(2.2+Math.random()*2.2)+'s'; b.style.animationDelay=(Math.random()*.8)+'s';
-    document.body.appendChild(b); setTimeout(()=>b.remove(),5500);
+    pop.appendChild(b); setTimeout(()=>b.remove(),5500);
   }
   try{ if(navigator.vibrate) navigator.vibrate([60,40,120]); }catch(e){}
   try{
