@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>R&C Collection Tracker</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Black+Ops+One&family=Chakra+Petch:wght@700&family=Exo+2:wght@800&family=Russo+One&family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="manifest" href="manifest.json"/>
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -322,7 +322,7 @@
     }
 
     /* ══ IMMERSIVE THEME BACKGROUNDS ══ */
-    #theme-bg{position:fixed;inset:0;z-index:-2;pointer-events:none;transition:opacity .4s;background-color:var(--bg)}
+    #theme-bg{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden;transition:opacity .4s;background-color:var(--bg)}
     /* Floating decorative elements layer */
     #theme-deco{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
     #theme-deco .deco{position:absolute;opacity:.5}
@@ -569,6 +569,42 @@
     [data-theme]:not([data-theme=""]) body.on-home #theme-bg{opacity:1}
     [data-theme]:not([data-theme=""]) #home-screen{background:transparent}
     [data-theme]:not([data-theme=""]) #theme-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,0,.45) 100%)}
+    /* ══ Thèmes v3 : Gadgetron, Nebula, Up Your Arsenal, Rivet — formes, typo, animations ══ */
+    /* GADGETRON — atelier : plaques boulonnées, typo industrielle, engrenage qui tourne */
+    [data-theme="gadgetron"] .header-titles h1,[data-theme="gadgetron"] .cc-card h3,[data-theme="gadgetron"] .home-section-label,
+    [data-theme="gadgetron"] .fr-section-title,[data-theme="gadgetron"] h2,[data-theme="gadgetron"] .cc-name{font-family:'Russo One','Orbitron',sans-serif!important;letter-spacing:.04em;font-weight:400!important;text-transform:uppercase}
+    [data-theme="gadgetron"] .header-titles h1{-webkit-text-fill-color:#FFB21E;color:#FFB21E;background:none;text-shadow:0 2px 0 #3a2400}
+    html[data-theme="gadgetron"] .cc-card,html[data-theme="gadgetron"] .item-card,html[data-theme="gadgetron"] .cmp-card,html[data-theme="gadgetron"] .home-coll-featured{border-radius:5px!important;border:2px solid #6B4E1A!important;box-shadow:inset 0 0 0 1px rgba(255,210,120,.12),0 6px 0 -2px #241806,0 10px 20px -8px rgba(0,0,0,.7)!important}
+    [data-theme="gadgetron"] .cc-card::after,[data-theme="gadgetron"] .item-card::after,[data-theme="gadgetron"] .home-coll-featured::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:3;background:radial-gradient(circle at 9px 9px,#C9A35A 2.6px,rgba(0,0,0,.6) 3.4px,transparent 4px),radial-gradient(circle at calc(100% - 9px) 9px,#C9A35A 2.6px,rgba(0,0,0,.6) 3.4px,transparent 4px),radial-gradient(circle at 9px calc(100% - 9px),#C9A35A 2.6px,rgba(0,0,0,.6) 3.4px,transparent 4px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#C9A35A 2.6px,rgba(0,0,0,.6) 3.4px,transparent 4px)}
+    html[data-theme="gadgetron"] .cc-card:hover,html[data-theme="gadgetron"] .item-card:hover{border-color:#FFB21E!important;box-shadow:0 0 0 1px #FFB21E,0 10px 26px -8px rgba(255,150,20,.6)!important}
+    [data-theme="gadgetron"] #theme-bg::before{content:'';position:absolute;width:520px;height:520px;right:-170px;top:-150px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-100 -100 200 200'%3E%3Cg fill='none' stroke='%23FFB21E' stroke-opacity='.35' stroke-width='6'%3E%3Ccircle r='62'/%3E%3Ccircle r='22'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(0)'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(30)'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(60)'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(90)'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(120)'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(150)'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(180)'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(210)'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(240)'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(270)'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(300)'/%3E%3Crect x='-11' y='-92' width='22' height='26' rx='3' transform='rotate(330)'/%3E%3Cpath d='M0-62V-22M0 22V62M-62 0H-22M22 0H62' stroke-opacity='.25'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;animation:gearSpin 40s linear infinite;opacity:.9}
+    @keyframes gearSpin{to{transform:rotate(360deg)}}
+    /* NEBULA — cartes en verre, étoiles filantes, typo spatiale */
+    [data-theme="nebula"] .header-titles h1,[data-theme="nebula"] .cc-card h3,[data-theme="nebula"] .home-section-label,
+    [data-theme="nebula"] .fr-section-title,[data-theme="nebula"] h2{font-family:'Exo 2','Orbitron',sans-serif!important;font-weight:800!important;letter-spacing:.08em}
+    html[data-theme="nebula"] .item-card,html[data-theme="nebula"] .cmp-card,html[data-theme="nebula"] .home-stats-compact,html[data-theme="nebula"] .home-news,html[data-theme="nebula"] .home-welcome,html[data-theme="nebula"] #filters-toggle{background:rgba(14,28,60,.38)!important;-webkit-backdrop-filter:blur(12px) saturate(140%);backdrop-filter:blur(12px) saturate(140%);border:1px solid rgba(127,242,232,.28)!important;border-radius:16px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 10px 30px -14px rgba(46,230,214,.45)!important}
+    html[data-theme="nebula"] .cc-card{border-radius:18px!important;border:1px solid rgba(127,242,232,.3)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 10px 30px -14px rgba(46,230,214,.5)!important}
+    html[data-theme="nebula"] .bnav{background:rgba(8,16,40,.55)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+    [data-theme="nebula"] #theme-bg::before{content:'';position:absolute;top:12%;left:-20%;width:180px;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#fff,rgba(127,242,232,.9));box-shadow:0 0 12px #7FF2E8;transform:rotate(18deg);animation:shootStar 9s ease-in 2s infinite;opacity:0}
+    @keyframes shootStar{0%{opacity:0;transform:translate(0,0) rotate(18deg)}3%{opacity:1}14%{opacity:0;transform:translate(130vw,42vw) rotate(18deg)}100%{opacity:0;transform:translate(130vw,42vw) rotate(18deg)}}
+    [data-theme="nebula"] #theme-deco{display:block!important}
+    /* UP YOUR ARSENAL — métal brûlant, braises qui montent, typo militaire */
+    [data-theme="arsenal"] .header-titles h1,[data-theme="arsenal"] .cc-card h3,[data-theme="arsenal"] .home-section-label,
+    [data-theme="arsenal"] .fr-section-title,[data-theme="arsenal"] h2,[data-theme="arsenal"] .cc-name{font-family:'Black Ops One','Orbitron',sans-serif!important;font-weight:400!important;letter-spacing:.05em}
+    [data-theme="arsenal"] .header-titles h1{-webkit-text-fill-color:#FFB38A;color:#FFB38A;background:none;text-shadow:0 0 14px rgba(255,80,20,.8)}
+    html[data-theme="arsenal"] .cc-card,html[data-theme="arsenal"] .item-card,html[data-theme="arsenal"] .cmp-card,html[data-theme="arsenal"] .home-coll-featured{border-radius:3px 14px 3px 14px!important;border:1px solid rgba(255,90,40,.45)!important;box-shadow:inset 0 -3px 0 #FF4A1A,0 12px 26px -12px rgba(255,70,20,.75)!important}
+    html[data-theme="arsenal"] .cc-card:hover,html[data-theme="arsenal"] .item-card:hover{box-shadow:inset 0 -4px 0 #FFA126,0 0 0 1px #FF5A1F,0 16px 34px -10px rgba(255,90,20,.9)!important}
+    [data-theme="arsenal"] #theme-bg::before{content:'';position:absolute;left:0;right:0;bottom:-10%;height:55%;background:radial-gradient(ellipse at 30% 100%,rgba(255,110,20,.55),transparent 60%),radial-gradient(ellipse at 75% 100%,rgba(255,50,10,.5),transparent 60%);filter:blur(6px);animation:lavaPulse 4.5s ease-in-out infinite alternate}
+    @keyframes lavaPulse{0%{opacity:.55;transform:scaleY(.92)}100%{opacity:1;transform:scaleY(1.08)}}
+    /* RIVET — plaques rivetées cuivre, faille dimensionnelle qui pulse, typo technique */
+    [data-theme="rivet"] .header-titles h1,[data-theme="rivet"] .cc-card h3,[data-theme="rivet"] .home-section-label,
+    [data-theme="rivet"] .fr-section-title,[data-theme="rivet"] h2,[data-theme="rivet"] .cc-name{font-family:'Chakra Petch','Orbitron',sans-serif!important;font-weight:700!important;letter-spacing:.04em}
+    html[data-theme="rivet"] .cc-card,html[data-theme="rivet"] .item-card,html[data-theme="rivet"] .cmp-card,html[data-theme="rivet"] .home-coll-featured{border-radius:10px 2px 10px 2px!important;border:2px solid #7A3F22!important;box-shadow:inset 0 0 0 1px rgba(255,164,119,.15),0 10px 22px -10px rgba(0,0,0,.8)!important}
+    [data-theme="rivet"] .cc-card::after,[data-theme="rivet"] .item-card::after,[data-theme="rivet"] .home-coll-featured::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:3;background:radial-gradient(circle at 9px 9px,#E08A5A 2.6px,rgba(0,0,0,.6) 3.4px,transparent 4px),radial-gradient(circle at calc(100% - 9px) 9px,#E08A5A 2.6px,rgba(0,0,0,.6) 3.4px,transparent 4px),radial-gradient(circle at 9px calc(100% - 9px),#E08A5A 2.6px,rgba(0,0,0,.6) 3.4px,transparent 4px),radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#E08A5A 2.6px,rgba(0,0,0,.6) 3.4px,transparent 4px)}
+    html[data-theme="rivet"] .cc-card:hover,html[data-theme="rivet"] .item-card:hover{border-color:#A67CFF!important;box-shadow:0 0 0 1px #A67CFF,0 0 26px -4px rgba(166,124,255,.8)!important}
+    [data-theme="rivet"] #theme-bg::before{content:'';position:absolute;right:6%;top:-5%;width:110px;height:110%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 600' preserveAspectRatio='none'%3E%3Cpath d='M60 0 48 80 72 140 40 220 70 300 52 360 78 440 46 520 62 600' fill='none' stroke='%23C4A8FF' stroke-width='3'/%3E%3Cpath d='M60 0 48 80 72 140 40 220 70 300 52 360 78 440 46 520 62 600' fill='none' stroke='%23A67CFF' stroke-opacity='.5' stroke-width='14'/%3E%3Cpath d='M72 140 96 170M40 220 18 250M78 440 104 470' stroke='%23C4A8FF' stroke-opacity='.7' stroke-width='2'/%3E%3C/svg%3E") center/100% 100% no-repeat;filter:drop-shadow(0 0 14px rgba(166,124,255,.9));animation:riftPulse 3.2s ease-in-out infinite;opacity:.75}
+    @keyframes riftPulse{0%,100%{opacity:.45}50%{opacity:.95}}
+    @media (prefers-reduced-motion:reduce){#theme-bg::before{animation:none!important}}
     /* page Thèmes : aperçu en vignette */
     .theme-prev{height:62px;border-radius:10px;margin-bottom:10px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.1)}
     .theme-prev i{position:absolute;left:10px;right:10px;bottom:10px;height:6px;border-radius:3px}
@@ -4142,7 +4178,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.02-k';
+const RC_APP_VERSION = '2026.11.02-l';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
