@@ -400,6 +400,173 @@
         radial-gradient(circle at 78% 72%, rgba(90,200,224,.16), transparent 50%),
         repeating-linear-gradient(0deg, rgba(216,144,48,.04) 0 1px, transparent 1px 44px);
     }
+    /* ══ THEMES v2 — ambiance complète par thème (Lombax inchangé) ══
+       Chaque thème fixe ses couleurs + quelques variables d'habillage :
+       --th-hdr (bandeau), --th-nav (barre du bas), --th-grad (accents),
+       --th-edge (bordures), --th-glow (halo), --th-surface (cartes). */
+    [data-theme="clank"]{
+      --bg:#061019;--bg2:#0A1824;--bg3:#0F2333;
+      --purple:#33C2EE;--purple-light:#7FDCF7;--orange:#38E39A;--orange-light:#7DF0BE;--chrome:#A9CFDE;
+      --owned:#38E39A;--text:#E6F5FB;--text-dim:#7FA6B6;--gold:#7DF0BE;
+      --th-hdr:linear-gradient(135deg,#061019 0%,#0B2232 55%,#062019 100%);
+      --th-nav:rgba(8,22,32,.92);--th-grad:linear-gradient(90deg,#33C2EE,#38E39A);
+      --th-edge:rgba(51,194,238,.35);--th-glow:rgba(51,194,238,.45);
+      --th-surface:linear-gradient(160deg,rgba(51,194,238,.08),rgba(56,227,154,.03));
+    }
+    [data-theme="gadgetron"]{
+      --bg:#110C06;--bg2:#1B140A;--bg3:#271D0F;
+      --purple:#FFB21E;--purple-light:#FFCB5C;--orange:#FF6A13;--orange-light:#FF9450;--chrome:#E6CFA0;
+      --owned:#B5E03A;--text:#FAF0D8;--text-dim:#B8A27A;--gold:#FFCB5C;
+      --th-hdr:linear-gradient(135deg,#110C06 0%,#2A1C08 60%,#1A0F05 100%);
+      --th-nav:rgba(26,19,9,.94);--th-grad:linear-gradient(90deg,#FFB21E,#FF6A13);
+      --th-edge:rgba(255,178,30,.35);--th-glow:rgba(255,140,20,.45);
+      --th-surface:linear-gradient(160deg,rgba(255,178,30,.08),rgba(255,106,19,.03));
+    }
+    [data-theme="nebula"]{
+      --bg:#040914;--bg2:#091327;--bg3:#0F1F3A;
+      --purple:#2EE6D6;--purple-light:#7FF2E8;--orange:#8C9BFF;--orange-light:#B3BDFF;--chrome:#A8C8E0;
+      --owned:#2EE6D6;--text:#E6F4FA;--text-dim:#7896B4;--gold:#B3BDFF;
+      --th-hdr:linear-gradient(135deg,#040914 0%,#0C1B3A 55%,#071A26 100%);
+      --th-nav:rgba(6,14,32,.9);--th-grad:linear-gradient(90deg,#2EE6D6,#8C9BFF);
+      --th-edge:rgba(46,230,214,.3);--th-glow:rgba(46,230,214,.4);
+      --th-surface:linear-gradient(160deg,rgba(46,230,214,.07),rgba(140,155,255,.05));
+    }
+    [data-theme="qwark"]{
+      --bg:#0A0820;--bg2:#120F30;--bg3:#1B1747;
+      --purple:#5BE03A;--purple-light:#96F07C;--orange:#A06BFF;--orange-light:#C29CFF;--chrome:#C0B4E0;
+      --owned:#5BE03A;--text:#EFE9FB;--text-dim:#9D93BD;--gold:#96F07C;
+      --th-hdr:linear-gradient(135deg,#0A0820 0%,#1E1550 55%,#0E2214 100%);
+      --th-nav:rgba(16,13,44,.92);--th-grad:linear-gradient(90deg,#5BE03A,#A06BFF);
+      --th-edge:rgba(160,107,255,.38);--th-glow:rgba(91,224,58,.4);
+      --th-surface:linear-gradient(160deg,rgba(160,107,255,.09),rgba(91,224,58,.04));
+    }
+    [data-theme="arsenal"]{
+      --bg:#120303;--bg2:#1F0707;--bg3:#2E0C0C;
+      --purple:#FF3B1F;--purple-light:#FF7A5C;--orange:#FFA126;--orange-light:#FFC065;--chrome:#E6B0A2;
+      --owned:#9BDB4A;--text:#FBEAE6;--text-dim:#B88E86;--gold:#FFC065;
+      --th-hdr:linear-gradient(135deg,#120303 0%,#3A0A06 55%,#251004 100%);
+      --th-nav:rgba(30,7,7,.93);--th-grad:linear-gradient(90deg,#FF3B1F,#FFA126);
+      --th-edge:rgba(255,80,40,.38);--th-glow:rgba(255,70,30,.5);
+      --th-surface:linear-gradient(160deg,rgba(255,59,31,.1),rgba(255,161,38,.04));
+    }
+    [data-theme="rivet"]{
+      --bg:#110B09;--bg2:#1C1411;--bg3:#2A1E19;
+      --purple:#FF7A3D;--purple-light:#FFA477;--orange:#A67CFF;--orange-light:#C4A8FF;--chrome:#D6BFAE;
+      --owned:#9BDB4A;--text:#FAEFE8;--text-dim:#B39C8F;--gold:#FFA477;
+      --th-hdr:linear-gradient(135deg,#110B09 0%,#2C1A14 55%,#1A1230 100%);
+      --th-nav:rgba(28,20,17,.93);--th-grad:linear-gradient(90deg,#FF7A3D,#A67CFF);
+      --th-edge:rgba(255,122,61,.35);--th-glow:rgba(166,124,255,.4);
+      --th-surface:linear-gradient(160deg,rgba(255,122,61,.08),rgba(166,124,255,.05));
+    }
+    [data-theme="nefarious"]{
+      --bg:#0A0614;--bg2:#130C24;--bg3:#1E1438;
+      --purple:#A46BFF;--purple-light:#C49CFF;--orange:#FF3D2E;--orange-light:#FF7666;--chrome:#BDAEE0;
+      --owned:#C49CFF;--text:#F0E9FB;--text-dim:#9C90BA;--gold:#FF7666;
+      --th-hdr:linear-gradient(135deg,#0A0614 0%,#22123F 55%,#2A0A0A 100%);
+      --th-nav:rgba(18,11,34,.93);--th-grad:linear-gradient(90deg,#A46BFF,#FF3D2E);
+      --th-edge:rgba(164,107,255,.38);--th-glow:rgba(255,61,46,.4);
+      --th-surface:linear-gradient(160deg,rgba(164,107,255,.09),rgba(255,61,46,.04));
+    }
+    [data-theme="kit"]{
+      --bg:#0F0A05;--bg2:#1A1209;--bg3:#271B0E;
+      --purple:#E8A43A;--purple-light:#F5C676;--orange:#4FD8F0;--orange-light:#8BE7F7;--chrome:#DCC8A2;
+      --owned:#9BDB4A;--text:#FAF1DE;--text-dim:#B49F78;--gold:#F5C676;
+      --th-hdr:linear-gradient(135deg,#0F0A05 0%,#2A1C0A 55%,#0A1F24 100%);
+      --th-nav:rgba(26,18,9,.93);--th-grad:linear-gradient(90deg,#E8A43A,#4FD8F0);
+      --th-edge:rgba(232,164,58,.38);--th-glow:rgba(79,216,240,.38);
+      --th-surface:linear-gradient(160deg,rgba(232,164,58,.08),rgba(79,216,240,.04));
+    }
+    /* habillage commun à tous les thèmes sauf Lombax */
+    [data-theme]:not([data-theme=""]) header,
+    [data-theme]:not([data-theme=""]) .header-top{background:var(--th-hdr)!important;border-bottom:1px solid var(--th-edge)!important}
+    [data-theme]:not([data-theme=""]) header::before{background:radial-gradient(circle,var(--th-glow) 0%,transparent 70%);opacity:.35}
+    [data-theme]:not([data-theme=""]) .header-titles h1{background:linear-gradient(90deg,#fff 30%,var(--purple-light));-webkit-background-clip:text;background-clip:text}
+    [data-theme]:not([data-theme=""]) .logo-img,
+    [data-theme]:not([data-theme=""]) .header-profile-avatar{box-shadow:0 0 0 2px var(--th-edge),0 4px 18px var(--th-glow)}
+    [data-theme]:not([data-theme=""]) .header-profile-btn{border-color:var(--th-edge)}
+    [data-theme]:not([data-theme=""]) .bnav{background:var(--th-nav);border-top:1px solid var(--th-edge);box-shadow:0 -6px 24px rgba(0,0,0,.45),0 -1px 18px -8px var(--th-glow)}
+    [data-theme]:not([data-theme=""]) .bnav-item.active{color:var(--purple-light);text-shadow:0 0 12px var(--th-glow)}
+    [data-theme]:not([data-theme=""]) .bnav-add-btn,
+    [data-theme]:not([data-theme=""]) .home-cta{background:var(--th-grad)!important;box-shadow:0 6px 20px -4px var(--th-glow)}
+    [data-theme]:not([data-theme=""]) .energy-bar-fill,
+    [data-theme]:not([data-theme=""]) #collection-bar{background:var(--th-grad)!important;box-shadow:0 0 12px var(--th-glow)}
+    [data-theme]:not([data-theme=""]) .cc-card,
+    [data-theme]:not([data-theme=""]) .home-coll-featured,
+    [data-theme]:not([data-theme=""]) .home-stats-compact,
+    [data-theme]:not([data-theme=""]) .home-news,
+    [data-theme]:not([data-theme=""]) .home-welcome,
+    [data-theme]:not([data-theme=""]) .cmp-card,
+    [data-theme]:not([data-theme=""]) #filters-toggle{border:1px solid var(--th-edge)!important;background-image:var(--th-surface)}
+    [data-theme]:not([data-theme=""]) .cc-card:hover,
+    [data-theme]:not([data-theme=""]) .cmp-card:hover{box-shadow:0 10px 28px -10px var(--th-glow),0 0 0 1px var(--th-edge)}
+    [data-theme]:not([data-theme=""]) .home-section-label,
+    [data-theme]:not([data-theme=""]) .fr-section-title{color:var(--purple-light);letter-spacing:.12em}
+    /* fonds signature */
+    [data-theme="clank"] #theme-bg{background-image:
+      radial-gradient(ellipse at 15% 0%,rgba(51,194,238,.22),transparent 55%),
+      radial-gradient(ellipse at 90% 100%,rgba(56,227,154,.16),transparent 55%),
+      linear-gradient(rgba(51,194,238,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(51,194,238,.06) 1px,transparent 1px),
+      radial-gradient(rgba(56,227,154,.35) 1.5px,transparent 2px);
+      background-size:auto,auto,40px 40px,40px 40px,80px 80px;background-position:0 0,0 0,0 0,0 0,20px 20px}
+    [data-theme="gadgetron"] #theme-bg{background-image:
+      radial-gradient(ellipse at 80% -10%,rgba(255,178,30,.24),transparent 55%),
+      radial-gradient(ellipse at 10% 110%,rgba(255,106,19,.2),transparent 55%),
+      repeating-linear-gradient(-45deg,rgba(255,178,30,.05) 0 18px,transparent 18px 36px)}
+    [data-theme="gadgetron"] .header-top{border-image:repeating-linear-gradient(-45deg,#FFB21E 0 10px,#111 10px 20px) 1!important;border-bottom-width:3px!important}
+    [data-theme="nebula"] #theme-bg{background-image:
+      radial-gradient(ellipse at 20% 15%,rgba(46,230,214,.2),transparent 50%),
+      radial-gradient(ellipse at 85% 60%,rgba(140,155,255,.22),transparent 50%),
+      radial-gradient(ellipse at 40% 100%,rgba(90,60,200,.18),transparent 55%),
+      radial-gradient(1px 1px at 12% 22%,#fff,transparent),radial-gradient(1px 1px at 34% 68%,#cfe,transparent),
+      radial-gradient(1.5px 1.5px at 58% 38%,#fff,transparent),radial-gradient(1px 1px at 78% 18%,#dde,transparent),
+      radial-gradient(2px 2px at 46% 86%,rgba(127,242,232,.8),transparent),radial-gradient(1px 1px at 91% 81%,#fff,transparent),
+      radial-gradient(1px 1px at 5% 90%,#fff,transparent),radial-gradient(1.5px 1.5px at 70% 92%,#bcf,transparent)}
+    [data-theme="qwark"] #theme-bg{background-image:
+      radial-gradient(ellipse at 50% -20%,rgba(160,107,255,.32),transparent 55%),
+      radial-gradient(ellipse at 10% 100%,rgba(91,224,58,.18),transparent 55%),
+      radial-gradient(rgba(160,107,255,.16) 1.2px,transparent 1.6px);
+      background-size:auto,auto,14px 14px}
+    [data-theme="arsenal"] #theme-bg{background-image:
+      radial-gradient(ellipse at 50% 120%,rgba(255,90,20,.38),transparent 60%),
+      radial-gradient(ellipse at 15% 10%,rgba(200,30,10,.3),transparent 55%),
+      radial-gradient(ellipse at 90% 30%,rgba(255,161,38,.16),transparent 50%)}
+    [data-theme="rivet"] #theme-bg{background-image:
+      radial-gradient(ellipse at 10% 10%,rgba(255,122,61,.22),transparent 55%),
+      radial-gradient(ellipse at 95% 90%,rgba(166,124,255,.22),transparent 55%),
+      repeating-linear-gradient(115deg,rgba(255,122,61,.04) 0 2px,transparent 2px 26px)}
+    [data-theme="nefarious"] #theme-bg{background-image:
+      radial-gradient(ellipse at 50% 35%,rgba(164,107,255,.26),transparent 55%),
+      radial-gradient(circle at 50% 35%,rgba(255,61,46,.14),transparent 30%),
+      repeating-linear-gradient(0deg,rgba(196,156,255,.05) 0 1px,transparent 1px 4px)}
+    [data-theme="kit"] #theme-bg{background-image:
+      radial-gradient(ellipse at 20% 0%,rgba(232,164,58,.24),transparent 55%),
+      radial-gradient(ellipse at 85% 100%,rgba(79,216,240,.18),transparent 55%),
+      repeating-radial-gradient(circle at 100% 0%,rgba(232,164,58,.05) 0 2px,transparent 2px 22px)}
+    /* page Thèmes : aperçu en vignette */
+    .theme-prev{height:62px;border-radius:10px;margin-bottom:10px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.1)}
+    .theme-prev i{position:absolute;left:10px;right:10px;bottom:10px;height:6px;border-radius:3px}
+    .theme-prev b{position:absolute;right:10px;top:10px;width:22px;height:22px;border-radius:50%}
+    .theme-card.locked .theme-prev{filter:grayscale(.85) brightness(.6)}
+    .theme-tier{font-size:.66rem;color:var(--text-dim);margin-top:6px}
+    .theme-tier .bar{height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:4px;overflow:hidden}
+    .theme-tier .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--purple),var(--orange))}
+    /* notification de palier */
+    #tier-pop{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;background:rgba(4,6,14,.72);backdrop-filter:blur(6px)}
+    #tier-pop.open{display:flex}
+    .tier-box{width:min(360px,92vw);border-radius:22px;padding:26px 22px 20px;text-align:center;background:var(--bg2);border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 80px -20px rgba(0,0,0,.8);animation:tierIn .5s cubic-bezier(.2,1.4,.4,1)}
+    @keyframes tierIn{from{transform:scale(.6) translateY(20px);opacity:0}to{transform:none;opacity:1}}
+    .tier-kicker{font-family:'Orbitron',sans-serif;font-size:.62rem;letter-spacing:.2em;color:var(--wishlist)}
+    .tier-icon{font-size:3.2rem;margin:10px 0 4px;animation:tierSpin 1.2s ease}
+    @keyframes tierSpin{0%{transform:rotate(-30deg) scale(.4)}60%{transform:rotate(12deg) scale(1.15)}100%{transform:none}}
+    .tier-name{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.25rem;margin-bottom:6px}
+    .tier-txt{font-size:.84rem;color:var(--text-dim);line-height:1.5;margin-bottom:16px}
+    .tier-prev{height:70px;border-radius:12px;margin-bottom:16px;position:relative;overflow:hidden}
+    .tier-btns{display:flex;gap:8px}
+    .tier-btns button{flex:1;border:none;border-radius:12px;padding:12px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:Inter,sans-serif}
+    .tier-try{color:#0b0b10}
+    .tier-later{background:rgba(255,255,255,.08);color:var(--text)}
+    .tier-bolt{position:fixed;top:-20px;font-size:1.2rem;z-index:3001;pointer-events:none;animation:tierFall linear forwards}
+    @keyframes tierFall{to{transform:translateY(110vh) rotate(540deg);opacity:.2}}
     @media(max-width:480px){
       .header-titles h1{font-size:.75rem}
       .header-titles span{display:none}
@@ -3947,7 +4114,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.02-f';
+const RC_APP_VERSION = '2026.11.02-g';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -4393,6 +4560,7 @@ function render(){
   if(!anyItem) container.innerHTML=`<div class="empty-state"><div class="icon">🔧</div>${t('empty_state')}</div>`;
   const secCtrl=document.getElementById('section-controls');
   if(secCtrl) secCtrl.style.display = anyItem ? 'flex' : 'none';
+  clearTimeout(window._tierT); window._tierT = setTimeout(()=>{ try{ checkThemeUnlocks(); }catch(e){} }, 900);
 }
 
 // ══ DETAIL ══
@@ -7666,13 +7834,13 @@ async function refreshFriendBadge(){
 // ══ UNIVERSE THEMES ══
 const THEMES = [
   {id:'',          icon:'🦊', name:'Lombax',    unlock:'free', desc:'The classic Ratchet look — purple & orange.'},
-  {id:'clank',     icon:'🤖', name:'Clank',     unlock:'free', desc:'Metallic blue & emerald green, robotic edges.'},
-  {id:'gadgetron', icon:'🔧', name:'Gadgetron', unlock:'rank', req:50,  desc:'Industrial yellow & orange.'},
-  {id:'nebula',    icon:'🌌', name:'Nebula',    unlock:'rank', req:100, desc:'Deep teal station lights & asteroid grey.'},
-  {id:'qwark',     icon:'⚡', name:'Qwark',     unlock:'rank', req:150, desc:'Heroic green & violet, superhero vibes.'},
-  {id:'arsenal',   icon:'🔴', name:'Up Your Arsenal', unlock:'rank', req:250, desc:'Blazing Martian red & lava orange.'},
-  {id:'rivet',     icon:'🔩', name:'Rivet',     unlock:'rank', req:300, desc:'Rust orange, violet & metal.'},
-  {id:'nefarious', icon:'👑', name:'Nefarious', unlock:'kofi', tier:'GOLD',     desc:'Villain purple & orange glow. Robotic edges.'},
+  {id:'clank',     icon:'🤖', name:'Clank',     unlock:'rank', req:10,  desc:'Cyan circuits & emerald glow, robotic edges.'},
+  {id:'gadgetron', icon:'🔧', name:'Gadgetron', unlock:'rank', req:25,  desc:'Workshop amber, hazard stripes & orange sparks.'},
+  {id:'nebula',    icon:'🌌', name:'Nebula',    unlock:'rank', req:50,  desc:'Deep-space teal, periwinkle nebula & starfield.'},
+  {id:'qwark',     icon:'⚡', name:'Qwark',     unlock:'rank', req:100, desc:'Comic-book hero green & violet halftone.'},
+  {id:'arsenal',   icon:'🔴', name:'Up Your Arsenal', unlock:'rank', req:150, desc:'Martian red & lava glow rising from below.'},
+  {id:'rivet',     icon:'🔩', name:'Rivet',     unlock:'rank', req:250, desc:'Rust orange & dimensional violet.'},
+  {id:'nefarious', icon:'👑', name:'Nefarious', unlock:'kofi', tier:'GOLD',     desc:'Villain purple, red eye glow & monitor scanlines.'},
   {id:'kit',       icon:'✨', name:'Kit',       unlock:'kofi', tier:'PLATINUM', desc:'Brass warbot gold & cyan. Robotic edges.'},
 ];
 let currentThemeId = '';
@@ -7686,10 +7854,12 @@ function ownedCatalogCount(){ return new Set(items.filter(i=>i.status==='owned'&
 function kofiUnlocked(themeId){
   return localStorage.getItem('rc_kofi_theme_'+themeId)==='1';
 }
+// Theme tiers count distinct pieces (one per catalog entry, or per name for hand-typed items)
+function themeScore(){ return new Set(items.filter(i=>i.status==='owned').map(i=>i.catalog_id!=null?'c'+i.catalog_id:'n'+(i.name||'').trim().toLowerCase())).size; }
 function isThemeUnlocked(t){
   if(isAdmin()) return true;          // admin gets every theme 😎
   if(t.unlock==='free') return true;
-  if(t.unlock==='rank') return ownedCount() >= t.req;
+  if(t.unlock==='rank') return themeScore() >= t.req;
   if(t.unlock==='kofi') return kofiUnlocked(t.id);
   return false;
 }
@@ -7792,15 +7962,22 @@ function closeThemes(){
   applyThemeId(saved, false);
 }
 
+function themePreviewHtml(id, cls){
+  const sw = THEME_SWATCHES[id||'lombax'];
+  return '<div class="'+cls+'" style="background:radial-gradient(ellipse at 15% 0%,'+sw[0]+'55,transparent 60%),radial-gradient(ellipse at 90% 100%,'+sw[1]+'44,transparent 60%),'+sw[2]+'">'
+    + '<b style="background:linear-gradient(135deg,'+sw[0]+','+sw[1]+');box-shadow:0 0 12px '+sw[0]+'"></b>'
+    + '<i style="background:linear-gradient(90deg,'+sw[0]+','+sw[1]+')"></i></div>';
+}
 function renderThemes(){
-  const owned = ownedCount();
+  const score = themeScore();
   const box = document.getElementById('themes-list');
   let html = '';
-  // intro / rules card
+  const next = THEMES.filter(t=>t.unlock==='rank' && score < t.req).sort((a,b)=>a.req-b.req)[0];
   html += '<div class="themes-intro">'
     + '<div class="themes-intro-title">🎨 Dress the app in your favorite hero\'s colors</div>'
-    + '<div class="themes-intro-text">Tap a theme to preview it live, then confirm. Some themes unlock as your collection grows — others are Ko-fi supporter exclusives. 🌌</div>'
-    + '<div class="themes-legend"><span>🆓 Free</span><span>🏆 By rank</span><span>☕ Ko-fi exclusive</span></div>'
+    + '<div class="themes-intro-text">Themes unlock by tiers as your collection grows (one point per different piece you own). Tap an unlocked theme to preview it live, then confirm.'
+    + (next ? ' Next unlock: <b>'+next.icon+' '+next.name+'</b> at '+next.req+' pieces — you have '+score+'.' : ' You have unlocked every tier! 🏆')+'</div>'
+    + '<div class="themes-legend"><span>🆓 Free</span><span>🏆 By tier</span><span>☕ Ko-fi exclusive</span></div>'
     + '</div>';
   html += '<div class="themes-grid">';
   THEMES.forEach(t=>{
@@ -7808,22 +7985,16 @@ function renderThemes(){
     const active = t.id===currentThemeId;
     let tag='';
     if(t.unlock==='free') tag='<span class="theme-tag free">FREE</span>';
-    else if(t.unlock==='rank') tag='<span class="theme-tag rank">RANK</span>';
+    else if(t.unlock==='rank') tag='<span class="theme-tag rank">TIER '+t.req+'</span>';
     else if(t.unlock==='kofi') tag='<span class="theme-tag kofi">'+(t.tier==='PLATINUM'?'☕ PLATINUM':'☕ GOLD')+'</span>';
     let lockInfo='';
     if(!unlocked){
-      if(t.unlock==='rank') lockInfo='<div class="theme-lock">🔒 Unlocks at '+t.req+' items ('+owned+'/'+t.req+')</div>';
+      if(t.unlock==='rank') lockInfo='<div class="theme-tier">🔒 '+score+' / '+t.req+' pieces<div class="bar"><span style="width:'+Math.min(100,Math.round(score/t.req*100))+'%"></span></div></div>';
       else if(t.unlock==='kofi') lockInfo='<div class="theme-lock">🔒 Ko-fi supporter exclusive</div>';
     }
-    // swatch preview using the theme's key colors (hardcoded map for the dots)
-    const sw = THEME_SWATCHES[t.id||'lombax'];
-    const dots = '<div class="theme-swatch">'
-      + '<span style="background:'+sw[0]+'"></span>'
-      + '<span style="background:'+sw[1]+'"></span>'
-      + '<span style="background:'+sw[2]+'"></span></div>';
     html += '<div class="theme-card'+(active?' active':'')+(unlocked?'':' locked')+'" onclick="'+(unlocked?'previewTheme(\''+t.id+'\')':'showLockedInfo(\''+t.id+'\')')+'">'
-      + '<div class="theme-card-top">'+dots+tag+'</div>'
-      + '<div class="theme-card-name">'+t.icon+' '+t.name+'</div>'
+      + themePreviewHtml(t.id,'theme-prev')
+      + '<div class="theme-card-top"><div class="theme-card-name">'+t.icon+' '+t.name+'</div>'+tag+'</div>'
       + '<div class="theme-card-desc">'+t.desc+'</div>'
       + lockInfo
       + (active?'<div class="theme-current">● Current</div>':'')
@@ -7836,14 +8007,14 @@ function renderThemes(){
 // swatch colors for the preview dots (primary, secondary, bg)
 const THEME_SWATCHES = {
   lombax:['#7B4FD4','#FF6B1A','#0D0F1A'],
-  clank:['#3FA9C9','#46E08C','#0A1016'],
-  gadgetron:['#FFB020','#FF7A1A','#14100A'],
-  qwark:['#4FC22A','#8A4FE0','#0C0A1E'],
-  arsenal:['#E01800','#FF8A1A','#180000'],
-  nebula:['#00D4C4','#4A7AC8','#08101C'],
-  rivet:['#E0703A','#9B6FF4','#14100C'],
-  nefarious:['#5A3AD4','#FF6A1A','#0C0A1A'],
-  kit:['#D89030','#5AC8E0','#100C08'],
+  clank:['#33C2EE','#38E39A','#061019'],
+  gadgetron:['#FFB21E','#FF6A13','#110C06'],
+  qwark:['#5BE03A','#A06BFF','#0A0820'],
+  arsenal:['#FF3B1F','#FFA126','#120303'],
+  nebula:['#2EE6D6','#8C9BFF','#040914'],
+  rivet:['#FF7A3D','#A67CFF','#110B09'],
+  nefarious:['#A46BFF','#FF3D2E','#0A0614'],
+  kit:['#E8A43A','#4FD8F0','#0F0A05'],
 };
 
 // Live preview: apply theme + show a confirm/cancel bar
@@ -7870,12 +8041,52 @@ function showLockedInfo(id){
   const t=THEMES.find(x=>x.id===id);
   if(!t) return;
   if(t.unlock==='rank'){
-    const owned=ownedCount();
-    showToast('🔒 '+t.name+' unlocks at '+t.req+' items — you have '+owned+'.', 'info');
+    showToast('🔒 '+t.name+' unlocks at '+t.req+' different pieces — you have '+themeScore()+'.', 'info');
   } else if(t.unlock==='kofi'){
     showToast('🔒 '+t.name+' is a Ko-fi supporter exclusive ☕', 'info');
   }
 }
+
+// ── Tier unlocks: popup when a new theme tier is reached ──
+function checkThemeUnlocks(){
+  if(!currentUser || !Array.isArray(items) || !window._rcLaunched) return;
+  if(isAdmin()) return;                           // admin sees every theme anyway
+  const key = 'rc_tiers_seen_'+currentUser.id;
+  const now = THEMES.filter(t=>t.unlock==='rank' && isThemeUnlocked(t)).map(t=>t.id);
+  let seen = null;
+  try { seen = JSON.parse(localStorage.getItem(key)||'null'); } catch(e){}
+  if(!Array.isArray(seen)){ try{ localStorage.setItem(key, JSON.stringify(now)); }catch(e){} return; }   // first run: no flood
+  const fresh = now.filter(id=>!seen.includes(id));
+  if(!fresh.length) return;
+  try{ localStorage.setItem(key, JSON.stringify(seen.concat(fresh))); }catch(e){}
+  const t = THEMES.filter(x=>fresh.includes(x.id)).sort((a,b)=>b.req-a.req)[0];
+  showTierPopup(t, fresh.length);
+}
+function showTierPopup(t, n){
+  let pop = document.getElementById('tier-pop');
+  if(!pop){ pop=document.createElement('div'); pop.id='tier-pop'; document.body.appendChild(pop); }
+  const sw = THEME_SWATCHES[t.id];
+  pop.innerHTML = '<div class="tier-box" style="border-color:'+sw[0]+'66;box-shadow:0 0 60px -20px '+sw[0]+'">'
+    + '<div class="tier-kicker">TIER '+t.req+' REACHED</div>'
+    + '<div class="tier-icon">'+t.icon+'</div>'
+    + '<div class="tier-name" style="color:'+sw[0]+'">'+t.name+' theme unlocked!</div>'
+    + '<div class="tier-txt">You now own '+themeScore()+' different pieces.'+(n>1?' '+n+' new themes are waiting for you.':'')+' '+t.desc+'</div>'
+    + themePreviewHtml(t.id,'tier-prev theme-prev')
+    + '<div class="tier-btns"><button class="tier-later" onclick="closeTierPopup()">Later</button>'
+    + '<button class="tier-try" style="background:linear-gradient(135deg,'+sw[0]+','+sw[1]+')" onclick="closeTierPopup();openThemes();previewTheme(\''+t.id+'\')">Try it</button></div></div>';
+  pop.classList.add('open');
+  for(let k=0;k<26;k++){
+    const b=document.createElement('div'); b.className='tier-bolt'; b.textContent=k%3?'🔩':t.icon;
+    b.style.left=Math.random()*100+'vw'; b.style.animationDuration=(2.2+Math.random()*2.2)+'s'; b.style.animationDelay=(Math.random()*.8)+'s';
+    document.body.appendChild(b); setTimeout(()=>b.remove(),5500);
+  }
+  try{ if(navigator.vibrate) navigator.vibrate([60,40,120]); }catch(e){}
+  try{
+    if('Notification' in window && Notification.permission==='granted' && document.hidden)
+      new Notification('New theme unlocked: '+t.name, { body:'You reached tier '+t.req+' in your R&C collection!', icon:'icon-192.png' });
+  }catch(e){}
+}
+function closeTierPopup(){ const p=document.getElementById('tier-pop'); if(p) p.classList.remove('open'); }
 
 function showMainMenu(){
   // Close all screens and go to main collection view
