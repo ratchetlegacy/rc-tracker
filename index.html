@@ -1217,9 +1217,9 @@
     .cmp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
     .cmp-card{display:flex;flex-direction:column;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;transition:opacity .2s}
     .cmp-card.added{opacity:.55}
-    .cmp-img{aspect-ratio:3/4;background:#0b0d16;display:flex;align-items:center;justify-content:center;font-size:2rem}
+    .cmp-img{cursor:pointer;aspect-ratio:3/4;background:#0b0d16;display:flex;align-items:center;justify-content:center;font-size:2rem}
     .cmp-img img{width:100%;height:100%;object-fit:contain}
-    .cmp-card-name{font-size:.74rem;font-weight:600;line-height:1.25;padding:8px 8px 6px;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .cmp-card-name{cursor:pointer;font-size:.74rem;font-weight:600;line-height:1.25;padding:8px 8px 6px;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
     .cmp-wish{margin:0 8px 8px;border:none;border-radius:8px;padding:7px 6px;font-weight:700;font-size:.7rem;cursor:pointer;background:linear-gradient(135deg,#FFD447,#FF9D2E);color:#1a1200;font-family:Inter,sans-serif}
     .cmp-wish:disabled{background:rgba(255,255,255,.12);color:var(--text-dim);cursor:default}
     .public-header{background:linear-gradient(135deg,#0D0F1A 0%,#1A1035 50%,#0D1520 100%);border-bottom:1px solid rgba(123,79,212,.3);padding:32px;text-align:center;position:relative}
@@ -3946,7 +3946,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.02-b';
+const RC_APP_VERSION = '2026.11.02-c';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -7552,11 +7552,12 @@ async function compareWithFriend(friendId){
       html += '<div style="font-size:.72rem;color:var(--text-dim);margin-bottom:10px">Tap ★ to add an item to your wishlist</div>';
       html += '<div class="cmp-grid">';
       missingFromMe.forEach((i,idx)=>{
-        const img = rcItemImage(i) || cmpGuessImage(i);
+        const g = (i.catalog_id==null) ? cmpGuessEntry(i) : null; if(g) i._cid = g.id;
+        const img = rcItemImage(i) || (g ? g.image_url : '');
         const inWish = myWish.has(norm(i));
         html += '<div class="cmp-card'+(inWish?' added':'')+'" id="cmp-miss-'+idx+'">'
-          + '<div class="cmp-img">'+(img?'<img src="'+escHtml(img)+'" alt="" loading="lazy">':'<span>'+(TYPE_ICONS[i.type]||'📦')+'</span>')+'</div>'
-          + '<div class="cmp-card-name">'+escHtml(i.name||'')+'</div>'
+          + '<div class="cmp-img" onclick="cmpOpen('+idx+')">'+(img?'<img src="'+escHtml(img)+'" alt="" loading="lazy">':'<span>'+(TYPE_ICONS[i.type]||'📦')+'</span>')+'</div>'
+          + '<div class="cmp-card-name" onclick="cmpOpen('+idx+')">'+escHtml(i.name||'')+'</div>'
           + '<button class="cmp-wish" '+(inWish?'disabled':'')+' onclick="addToWishlistFromCompare('+idx+')">'+(inWish?'✓ Wishlist':'★ Wishlist')+'</button>'
           + '</div>';
       });
@@ -7590,15 +7591,24 @@ function cmpPlatKey(p){
   const s = String(p||'').toLowerCase().replace(/playstation\s*/,'ps').replace(/\s+/g,'');
   return s.replace(/^ps(vita)$/,'psvita');
 }
-function cmpGuessImage(item){
-  if(!cmpCatalog || !cmpCatalog.length) return '';
+function cmpGuessEntry(item){
+  if(!cmpCatalog || !cmpCatalog.length) return null;
   const k = cmpTitleKey(item.name), pk = cmpPlatKey(item.platform);
-  if(!k) return '';
   const hits = cmpCatalog.filter(c=>(cmpTitleKey(c.name)===k || (c.name_en && cmpTitleKey(c.name_en)===k)) && (!pk || cmpPlatKey(c.platform)===pk));
-  if(!hits.length) return '';
+  if(!hits.length) return null;
   const score = c => (/^FR/.test(c.region||'')?0:2) + (/^(classique|standard|)$/i.test(c.edition||'')?0:1);
   hits.sort((a,b)=>score(a)-score(b));
-  return hits[0].image_url;
+  return hits[0];
+}
+// Card tap: open the catalog entry (linked one, or the matching one for hand-typed items)
+async function cmpOpen(idx){
+  const it = (window._cmpMissing||[])[idx]; if(!it) return;
+  const id = it.catalog_id!=null ? it.catalog_id : it._cid;
+  if(id==null){ showToast('No catalog entry for this item yet','error'); return; }
+  if(!catalogData.length){
+    try { const { data } = await sbClient.from('catalog').select('*'); catalogData = data||[]; } catch(e){}
+  }
+  openCatalogDetail(id);
 }
 
 // Add an item seen in a friend's collection straight to my wishlist
