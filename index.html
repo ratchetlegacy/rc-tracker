@@ -10593,6 +10593,7 @@ async function addCatalogToCollection(id, status){
   if(!currentUser){ showToast('Please sign in first', 'error'); return; }
   const c = catalogData.find(x=>String(x.id)===String(id));
   if(!c) return;
+  if(c.category==='Press Kit'){ return addFromCatalog(id); }
   if(!(await confirmIfAlreadyHave(c))) return;
   // Map catalog category → item type (best effort)
   const typeMap = {Game:'Game',Figure:'Figure',Plush:'Plush',Statue:'Statue',Music:'Music',Artbook:'Artbook',Print:'Print',Clothing:'Clothing',Comic:'Comic',Manga:'Manga',Movie:'Movie',Misc:'Misc'};
@@ -10645,6 +10646,8 @@ async function addFromCatalog(id){
   (COMPLETENESS_CONFIG[type]||[]).forEach(f=>{ awState.completeness[f.k]='present'; });
   // Build steps list (skip completeness step if this type has none)
   awState.steps = ['status','condition'];
+  // Kits presse : une seule fiche par kit, sans région — la langue se choisit à l'ajout
+  if(c.category==='Press Kit'){ awState.steps.splice(1,0,'lang'); const L=rcLangs(c); awState.lang = L[0] || 'FR'; }
   if((COMPLETENESS_CONFIG[type]||[]).length) awState.steps.push('completeness');
   awState.steps.push('price');
   // Header
@@ -10678,6 +10681,16 @@ function awRender(){
     body.innerHTML =
       bigBtn(awState.status==='owned',"awSet('status','owned')",'✓','I own it','In my collection')
       + bigBtn(awState.status==='wishlist',"awSet('status','wishlist')",'★','Wishlist','I want it');
+  } else if(step==='lang'){
+    q.textContent = 'Which language is your kit in?';
+    const L = rcLangs(awState.catalog);
+    const opts = L.length ? L : ['FR','EN','DE','ES','IT','NL','PT','JP','KR','ZH'];
+    const names = {FR:'Français',EN:'English',DE:'Deutsch',ES:'Español',IT:'Italiano',NL:'Nederlands',PT:'Português',JP:'日本語',KR:'한국어',ZH:'中文',RU:'Русский',PL:'Polski'};
+    body.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' + opts.map(l=>
+      '<div onclick="awSet(\'lang\',\''+l+'\')" style="background:var(--bg2);border:2px solid '+(awState.lang===l?'var(--purple)':'rgba(255,255,255,.1)')+';border-radius:12px;padding:12px;cursor:pointer;display:flex;align-items:center;gap:10px">'
+      + '<span style="font-family:Orbitron,sans-serif;font-weight:800;font-size:.8rem;color:var(--purple-light);min-width:28px">'+l+'</span>'
+      + '<span style="color:var(--text);font-size:.85rem;flex:1">'+(names[l]||l)+'</span>'
+      + (awState.lang===l?'<span style="color:var(--purple-light)">✓</span>':'') + '</div>').join('') + '</div>';
   } else if(step==='condition'){
     q.textContent = 'What condition?';
     body.innerHTML =
@@ -10732,6 +10745,7 @@ async function awNext(){
     catalog_id: c.id,
     edition: c.edition || '',
     buy_price: userToEur(awState.buy_price),
+    ...(awState.lang ? { lang: awState.lang } : {}),
     buy_date: awState.buy_date ? awState.buy_date+'-01' : null
   };
   // Pre-fill current value from the catalog reference price, based on condition
