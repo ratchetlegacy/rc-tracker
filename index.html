@@ -3689,6 +3689,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
   <div class="menu-section-title" id="menu-admin-title" style="display:none">Admin</div>
   <div class="menu-item" id="menu-collmanage" onclick="closeMobileMenu();openCollManager()" style="display:none!important;color:var(--purple-light)">🗂️ Manage collections</div>
+  <a class="menu-item" id="menu-retro" href="retro.html" style="display:none;color:var(--purple-light);text-decoration:none">🎮 Ma collection rétro</a>
   <div class="menu-item" id="menu-catreq" onclick="openCatReqReview()" style="display:none!important;color:var(--purple-light)">📥 Catalog requests <span id="catreq-badge"></span></div>
   <div class="menu-item" id="menu-photomod" onclick="openPhotoMod()" style="display:none;color:var(--owned)">📷 Photo moderation <span id="photomod-badge"></span></div>
   <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin panel</div>
@@ -5247,6 +5248,7 @@ async function launchApp(){
   if(isAdmin()) refreshPhotoModBadge();
   if(isAdmin()){
     const mc=document.getElementById('menu-collmanage'); if(mc) mc.style.display='block';
+    const mr=document.getElementById('menu-retro'); if(mr) mr.style.display='block';
     const at=document.getElementById('menu-admin-title'); if(at) at.style.display='block';
     refreshCatReqBadge();
     loadCollections();

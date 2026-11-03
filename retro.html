@@ -1,0 +1,215 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body class="locked">
+<title>Ma collection rétro · R&amp;C Tracker</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#0b0c10">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Barlow:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout : en-tête à onglets par console, puis sections de lignes cochables ; couleur d'accent = celle de la console active */
+:root{
+  --bg:#0b0c10; --panel:#14161d; --line:#252935; --fg:#e9ecf2; --muted:#8c94a7;
+  --sms:#e8243c; --ps3:#4a86ff; --moto:#ff8a1f; --col:#3fc2b5; --loose:#e9b13c; --cib:#3fc27f;
+  --display:"Chakra Petch",system-ui,sans-serif; --body:"Barlow",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  color-scheme:dark; --acc:var(--sms);
+}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.45}
+body[data-tab="ps3"]{--acc:var(--ps3)}
+body[data-tab="moto"]{--acc:var(--moto)}
+body[data-tab="col"]{--acc:var(--col)}
+body[data-tab="oop"]{--acc:#dfe4ee}
+body[data-tab="cards"]{--acc:#ff6fae}
+body[data-tab="rel"]{--acc:#b48cff}
+.tag.soon{border-color:#b48cff;color:#cdb6ff}
+.tag.new{border-color:var(--cib);color:var(--cib)}
+.row.soonrow .t{color:#cdb6ff}
+.tab .badge{display:inline-block;min-width:18px;margin-left:5px;padding:0 5px;border-radius:9px;background:#b48cff;color:#0b0c10;font:700 11px var(--body);line-height:18px;text-align:center;vertical-align:1px}
+body[data-tab="cards"] .sech h2{font-size:15px;line-height:1.25}
+.vsel{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 2px}
+.vsel .chip{padding:5px 10px;font-size:12.5px}
+.vsel .chip b{font-family:var(--mono);font-weight:500;color:var(--muted);margin-left:4px}
+.cgrp{margin:12px 0 4px}
+.cgl{display:flex;justify-content:space-between;gap:8px;font:600 12px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.cgl span{font-family:var(--mono);letter-spacing:0}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:5px}
+.cd{height:38px;min-width:0;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--muted);font:500 12.5px var(--mono);cursor:pointer;padding:0 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cd.wide{grid-column:span 2}
+.cd[aria-pressed="true"]{background:color-mix(in srgb,var(--cib) 22%,transparent);border-color:var(--cib);color:var(--fg)}
+.cd:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.cd{transition:background .12s,border-color .12s}}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 60px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,5vw,38px);margin:0;letter-spacing:.02em;text-wrap:balance}
+.head{display:flex;flex-direction:column;gap:6px}
+h1{font-size:24px}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--line);margin:0 -2px}
+.tabs::-webkit-scrollbar,.scroller::-webkit-scrollbar{display:none}
+.tab{flex:none;font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;background:none;color:var(--muted);border:0;border-bottom:3px solid transparent;padding:8px 10px 9px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--acc)}
+.tab:focus-visible,.st:focus-visible,.chip:focus-visible,.ibtn:focus-visible,.fab:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.top{position:sticky;top:0;z-index:6;background:var(--bg);padding:10px 0 8px;margin:-20px 0 12px;display:grid;gap:8px;border-bottom:1px solid var(--line);box-shadow:0 8px 14px -10px rgba(0,0,0,.8);grid-template-columns:minmax(0,1fr)}
+.top>*{min-width:0}
+.titlerow{display:flex;align-items:center;gap:8px}
+.titlerow h1{flex:1;min-width:0;font-size:21px;line-height:1.1}
+.titlerow .ibtn{margin-left:0}
+.bar-sticky{display:grid;gap:8px}
+.sec{scroll-margin-top:var(--sh,0px)}
+.top{position:sticky}
+.cur{position:absolute;left:0;right:0;top:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 2px 7px;box-shadow:0 8px 14px -10px rgba(0,0,0,.8);cursor:pointer;user-select:none}
+.cur b{font-family:var(--display);font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--acc);display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cur b i{font-style:normal;font-size:12px;color:var(--muted)}
+.cur span{font-family:var(--mono);font-size:13px;color:var(--muted);white-space:nowrap}
+.cur #curN{font:inherit;color:inherit;letter-spacing:inherit;overflow:hidden;text-overflow:ellipsis}
+.cur em{font-style:normal;font:600 12px var(--body);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 9px;margin-left:8px}
+.scroller{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}
+.scroller .chip{flex:none}
+.ctrls{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;gap:2px}
+.seg .chip{border:0;padding:5px 6px;border-radius:999px;font-size:12px}
+.seg .chip[aria-pressed="true"]{background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--fg)}
+.ibtn{margin-left:auto;font-size:17px!important;width:32px;height:32px;padding:0!important;flex:none;background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:5px 11px;font:600 13px var(--body);cursor:pointer}
+.links{display:flex;gap:14px;flex-wrap:wrap;margin:6px 0 0}
+.links:not(:has(.lnk:not([hidden]))){display:none}
+.lnk{background:none;border:0;padding:4px 0;color:var(--acc);font:600 13.5px var(--body);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.fab{position:fixed;z-index:9;right:max(16px,env(safe-area-inset-right,0px));bottom:max(18px,env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:6px;background:var(--acc);color:#0b0c10;border:0;border-radius:999px;padding:12px 18px;font:700 15px var(--body);box-shadow:0 6px 20px rgba(0,0,0,.5);cursor:pointer}
+.fab span{font-size:18px;line-height:1}
+.wrap{padding-bottom:90px!important}
+.sum{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:8px;margin-bottom:4px}
+.sumrow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.big{font-family:var(--mono);font-size:22px}.big small{font-size:14px;color:var(--muted)}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.legend{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12.5px}
+.legend b{font-family:var(--mono);color:var(--fg);font-weight:500}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.chip{background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font:600 13px var(--body);cursor:pointer}
+.chip[aria-pressed="true"]{color:var(--fg);border-color:var(--acc)}
+input[type=search]{flex:1 1 180px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--fg);padding:8px 10px;font:15px var(--body)}
+.sec{margin-top:22px}
+.sech{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:4px}
+.sech h2{font-family:var(--display);font-size:17px;letter-spacing:.04em;text-transform:uppercase;margin:0;color:var(--acc)}
+.sech span{white-space:nowrap;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.row{display:flex;align-items:center;gap:12px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.row .txt{flex:1;min-width:0}
+.cov{flex:none;width:34px;height:46px;object-fit:cover;border-radius:3px;border:1px solid var(--line);background:var(--panel)}
+.cov.none{display:flex;align-items:center;justify-content:center;color:var(--muted);font:600 10px var(--mono)}
+.row .t{font-weight:600}
+.row .n{color:var(--muted);font-size:13.5px}
+.row .n:empty{display:none}
+.star{color:var(--loose)}
+.tag.hd{border-color:var(--ps3)}
+.tag{display:inline-block;font:600 11px var(--body);letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--acc);color:var(--fg);border-radius:4px;padding:0 5px;margin-left:6px;vertical-align:2px}
+.parts{flex:none;display:flex;gap:6px}
+.st{flex:none;width:94px;font:600 12.5px var(--body);border-radius:6px;padding:7px 0;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--muted)}
+.st[aria-pressed="true"]{background:color-mix(in srgb,var(--cib) 20%,transparent);border-color:var(--cib);color:var(--fg)}
+.st[aria-pressed="true"]::before{content:"✓ "}
+@media (max-width:560px){.row{flex-wrap:wrap;row-gap:6px;padding:8px 2px}.row .txt{flex:1 1 0}.parts{width:100%;gap:5px}.st{flex:1;padding:5px 0;font-size:12px}}
+.row[data-s="2"] .t,.row[data-s="1"] .t{color:var(--fg)}
+.row[data-s="0"] .t{color:#cfd4de}
+.foot{color:var(--muted);font-size:12.5px;margin-top:26px;line-height:1.5}
+.save{font-size:12.5px;color:var(--muted)}
+.empty{color:var(--muted);padding:12px 2px}
+.porth{margin:12px 0 2px;padding:5px 10px;border-radius:6px;background:color-mix(in srgb,#b48cff 14%,transparent);color:#cdb6ff;font:700 12px var(--body);letter-spacing:.06em;text-transform:uppercase}
+.row.port{border-left:3px solid #b48cff;padding-left:10px}
+.row.port .n{color:#cdb6ff}
+.sech{cursor:pointer;user-select:none}
+.sech h2{display:flex;align-items:center;gap:8px}
+.sech h2 .chev{display:inline-block;width:14px;font-size:12px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.sech h2 .chev{transition:transform .15s}}
+.sec.closed .chev{transform:rotate(-90deg)}
+.sech .mini{display:inline-block;width:70px;height:5px;background:var(--line);border-radius:3px;overflow:hidden;vertical-align:middle;margin-left:8px}
+.sech .mini i{display:block;height:100%;background:var(--acc)}
+.armed{background:#c2413f!important;border-color:#c2413f!important;color:#fff!important;opacity:1!important}
+.st.pl{width:40px;flex:none;font-size:15px;filter:grayscale(1);opacity:.45}
+.st.pl[aria-pressed="true"]{filter:none;opacity:1;background:color-mix(in srgb,#e9b13c 22%,transparent);border-color:#e9b13c}
+.st.pl[aria-pressed="true"]::before{content:none}
+.pltag{margin-left:6px;font-size:13px}
+.st.del{border-color:transparent;color:var(--muted);opacity:.7}
+.del{flex:none;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;width:30px;height:30px;cursor:pointer}
+.mine{font:600 10.5px var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--acc);margin-left:6px}
+dialog{background:var(--panel);color:var(--fg);border:1px solid var(--acc);border-radius:12px;padding:18px;width:min(420px,calc(100vw - 32px))}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+dialog h3{font-family:var(--display);margin:0 0 12px;font-size:19px}
+dialog label{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+dialog input,dialog select{width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--fg);padding:9px 10px;font:15px var(--body)}
+dialog .ck{display:flex;gap:8px;align-items:center;margin-top:12px;color:var(--fg);font-size:14px}
+dialog .ck input{width:auto}
+dialog .btns{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.btn{font:700 14px var(--body);border-radius:8px;padding:9px 16px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--fg)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#0b0c10}
+@media (prefers-reduced-motion:no-preference){.st{transition:background .15s,border-color .15s}}
+body.locked .wrap{display:none}
+#lock{display:none;max-width:420px;margin:30vh auto 0;padding:0 16px;text-align:center;color:var(--muted);font-family:var(--body)}
+body.locked #lock{display:block}
+#lock a{color:var(--acc)}
+</style>
+<div id="lock"><p id="lockMsg">Chargement…</p><p><a href="./">← Retour au tracker</a></p></div>
+<div class="wrap">
+  <div class="top" id="top">
+  <header class="head">
+    <div class="titlerow"><a href="./" class="ibtn" title="Retour au tracker" aria-label="Retour au tracker" style="display:flex;align-items:center;justify-content:center;text-decoration:none">←</a><h1>Ma collection rétro</h1><button class="ibtn" id="expBtn" title="Exporter" aria-label="Exporter">⤓</button><button class="ibtn" id="foldAll" title="Tout replier" aria-label="Tout replier">⊟</button><button class="ibtn" id="openAll" title="Tout déplier" aria-label="Tout déplier" hidden>⊞</button></div>
+    <nav class="tabs" role="tablist" aria-label="Listes">
+      <button class="tab" role="tab" id="tab-col" data-tab="col">Ma collection</button>
+      <button class="tab" role="tab" id="tab-sms" data-tab="sms">Master System</button>
+      <button class="tab" role="tab" id="tab-ps3" data-tab="ps3">PS3 HD</button>
+      <button class="tab" role="tab" id="tab-moto" data-tab="moto" hidden>Moto</button>
+      <button class="tab" role="tab" id="tab-oop" data-tab="oop">Only on PS</button>
+      <button class="tab" role="tab" id="tab-cards" data-tab="cards">Cartes &amp; Pop</button>
+      <button class="tab" role="tab" id="tab-rel" data-tab="rel" hidden>Sorties</button>
+    </nav>
+  </header>
+  <div class="bar-sticky">
+    <input type="search" id="q" placeholder="Chercher un jeu…" aria-label="Chercher un jeu">
+    <div class="scroller" id="cons" hidden></div>
+  </div>
+  <div class="cur" id="cur" role="button" tabindex="0" hidden><b><i>▾</i><span id="curN"></span></b><span><span id="curC"></span><em>Replier</em></span></div>
+  </div>
+  <div class="sum" id="sum"></div>
+  <div class="ctrls">
+      <div class="seg" role="group" aria-label="Filtre">
+        <button class="chip" data-f="all" aria-pressed="true">Tout</button><button class="chip" data-f="miss" aria-pressed="false">À trouver</button><button class="chip" data-f="own" aria-pressed="false">Possédés</button><button class="chip" data-f="star" aria-pressed="false" id="starChip">★</button><button class="chip" data-f="plat" aria-pressed="false" id="platChip" title="Platinés / 100 %">🏆</button>
+      </div>
+      <div class="seg" id="grp" role="group" aria-label="Classer" hidden><button class="chip" data-g="series" aria-pressed="false">Séries</button><button class="chip" data-g="plat" aria-pressed="true">Consoles</button></div>
+    </div>
+  <div class="links"><button class="lnk" id="photoBtn" hidden>📷 Cocher les jeux de ma photo d'étagère</button><span id="photo" hidden></span><button class="lnk" id="restBtn" hidden>↺ Remettre les jeux retirés</button><button class="lnk" id="xBtn">⇄ Transférer mes coches</button></div>
+  <dialog id="eDlg"><form method="dialog" id="eForm">
+    <h3>Exporter</h3>
+    <label>Listes</label>
+    <div id="eLists" style="display:grid;gap:2px"></div>
+    <label for="eWhat">Quels jeux</label><select id="eWhat"><option value="all">Tout</option><option value="own">Seulement ce que j'ai</option><option value="miss">Seulement ce qui me manque</option><option value="plat">Seulement mes platinés / 100 %</option></select>
+    <label for="eFmt">Format</label><select id="eFmt"><option value="csv">Tableau Excel (.csv)</option><option value="txt">Liste texte (.txt), pratique en brocante</option><option value="jpg">Image (.jpg), à partager ou garder en photo</option></select>
+    <p id="eMsg" style="font-size:13px;margin:10px 0 0" aria-live="polite"></p>
+    <div class="btns"><button class="btn" value="cancel" formnovalidate>Fermer</button><button class="btn pri" id="eGo" type="button">Exporter</button></div>
+  </form></dialog>
+  <dialog id="xDlg"><div>
+    <h3>Transférer mes coches</h3>
+    <p style="font-size:13.5px;color:var(--muted);margin:0 0 10px">1. Dans l'ancienne page (fichier téléchargé), touche <b>Copier mes coches</b>.<br>2. Dans la page en ligne, colle le texte ici et touche <b>Importer</b>. Tes coches sont ajoutées à celles déjà présentes, rien n'est effacé.</p>
+    <textarea id="xTxt" rows="6" style="width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--fg);padding:9px 10px;font:12px var(--mono)" placeholder="Colle ici le texte copié depuis l'autre page"></textarea>
+    <div class="btns" style="flex-wrap:wrap"><button class="btn" id="xClose">Fermer</button><button class="btn" id="xCopy">Copier mes coches</button><button class="btn pri" id="xImp">Importer</button></div>
+    <p id="xMsg" style="font-size:13px;color:var(--fg);margin:10px 0 0" aria-live="polite"></p>
+  </div></dialog>
+  <button class="fab" id="addBtn" hidden aria-label="Ajouter un jeu"><span>＋</span> Ajouter un jeu</button>
+  <div class="save" id="save" aria-live="polite"></div>
+  <div id="list"></div>
+  <dialog id="addDlg"><form method="dialog" id="addForm">
+    <h3>Ajouter un jeu</h3>
+    <label for="fT">Titre</label><input id="fT" required autocomplete="off">
+    <label for="fP">Console</label><select id="fP"></select>
+    <label for="fS">Série</label><select id="fS"></select>
+    <div id="fNwrap" hidden><label for="fN">Nom de la nouvelle série</label><input id="fN" autocomplete="off"></div>
+    <label for="fY">Année (facultatif)</label><input id="fY" inputmode="numeric" pattern="[0-9]{4}" placeholder="2024">
+    <label for="fO">Je l'ai déjà ?</label><select id="fO"><option value="c">Oui, le jeu seul</option><option value="cib">Oui, complet (boîte + notice + jeu)</option><option value="no">Pas encore</option></select>
+    <label class="ck" hidden><input type="checkbox" id="fR"> Ajouter aussi les autres jeux de la série</label>
+    <div class="btns"><button class="btn" value="cancel" formnovalidate>Annuler</button><button class="btn pri" value="ok" id="fOk">Ajouter</button></div>
+  </form></dialog>
+  <p class="foot">Page privée : visible et modifiable seulement avec ton compte administrateur du tracker.<br>🏆 = jeu platiné ou terminé à 100 % (le toucher coche aussi la case Jeu). Le bouton 🏆 des filtres n'affiche que ceux-là.<br>Un jeu compte comme <b>possédé</b> dès que vous avez la cartouche ou le disque, et comme <b>complet</b> avec la boîte et la notice en plus. Pour les jeux en téléchargement, une seule case : Acheté. Une compilation PS3 (trilogie, collection HD) cochée dans Ma collection est aussi cochée dans l'onglet PS3 HD, et inversement.<br>
+  Master System : le full set PAL sorti en France (269 jeux, plus les 10 versions Sega Card), d'après les listes fullset PAL de collectionneurs français et de full-set.net. ★ = incontournable, sélection d'après Time Extension et d'autres sites de collection. Liste PS3 d'après l'article Wikipédia sur les remasters HD PlayStation. Moto : MotoGP, SBK et motocross/supercross sortis sur PS1 à PS5, PSP et Vita, d'après Wikipédia, gamepressure et mx-gear.com ; vérifiez la région avant d'acheter un import.<br>Only on PlayStation : les 10 rééditions PS4 à jaquette spéciale de 2019. Cartes &amp; Pop : listes reprises de ton fichier « Collection générale », avec tes possessions.</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+window.RETRO_SB={url:"https://ihucxnmqnhevfvlamgwc.supabase.co",key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlodWN4bm1xbmhldmZ2bGFtZ3djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDQ5ODcsImV4cCI6MjA5NzI4MDk4N30.RhH778it6rcz44fdqdMLz7v-j8BWyKGGIJN4vHauhgU"};
+window.retroLock=m=>{ document.body.classList.add("locked"); document.getElementById("lockMsg").textContent=m; };
+fetch("retro/data.json",{cache:"no-cache"}).then(r=>r.json()).then(d=>{ window.RETRO_DATA=d; const s=document.createElement("script"); s.src="retro/app.js?v=1"; document.body.append(s); })
+  .catch(()=>window.retroLock("Impossible de charger la liste. Vérifie ta connexion."));
+</script>
+</body></html>
