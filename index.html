@@ -4517,14 +4517,30 @@ function sfxCustomUrl(c){
     let rest=m[2].replace(/^(so_[^/]*|eo_[^/]*)\//,'').replace(/\.[a-z0-9]+$/i,'')+'.mp3'; u=m[1]+(tr.length?tr.join(',')+'/':'')+rest; }
   return u;
 }
+// plays a custom sound, honouring start/end, with a soft fade-out at the end (no abrupt cut)
+function sfxFadePlay(c,url,vol){
+  const au=new Audio(url), FADE=1.5, cloud=/res\.cloudinary\.com/.test(c.url||'');
+  au.volume=vol;
+  const so=(!cloud&&c.so)?c.so:0;
+  if(so){ au.currentTime=so; au.addEventListener('loadedmetadata',()=>{ if(au.currentTime<so) au.currentTime=so; },{once:true}); }
+  const tick=setInterval(()=>{
+    const dur=isFinite(au.duration)?au.duration:0;
+    const end=(!cloud&&c.eo)?Math.min(c.eo,dur||c.eo):dur;
+    if(!end){ return; }
+    const left=end-au.currentTime;
+    if(left<=0.02 || au.ended){ au.pause(); clearInterval(tick); return; }
+    au.volume = left<FADE ? Math.max(0,vol*left/FADE) : vol;
+  },40);
+  au.addEventListener('pause',()=>clearInterval(tick));
+  au.play().catch(()=>clearInterval(tick));
+  return au;
+}
 function rcSfx(kind){
   if(!sfxOn()) return;
   const nowMs=Date.now(); if(nowMs-_sfxLast<250) return; _sfxLast=nowMs;
   const cust=_sfxCustom[currentThemeId||'lombax'];
   if(cust && cust.url){
-    try{ if(_sfxAudio) _sfxAudio.pause(); const au=_sfxAudio=new Audio(sfxCustomUrl(cust)); au.volume=Math.min(1,(cust.vol||0.6)*(kind==='cat'?0.7:1));
-      if(!/res\.cloudinary\.com/.test(cust.url)){ if(cust.so){ au.currentTime=cust.so; au.addEventListener('loadedmetadata',()=>{ if(au.currentTime<cust.so) au.currentTime=cust.so; },{once:true}); } if(cust.eo) au.addEventListener('timeupdate',()=>{ if(au.currentTime>=cust.eo) au.pause(); }); }
-      au.play().catch(()=>{}); return; }catch(e){}
+    try{ if(_sfxAudio) _sfxAudio.pause(); const au=_sfxAudio=sfxFadePlay(cust,sfxCustomUrl(cust),Math.min(1,(cust.vol||0.6)*(kind==='cat'?0.7:1))); return; }catch(e){}
   }
   try{
     const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
@@ -4655,7 +4671,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-u';
+const RC_APP_VERSION = '2026.11.03-v';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
