@@ -4446,7 +4446,9 @@ function rcSfx(kind){
   const nowMs=Date.now(); if(nowMs-_sfxLast<250) return; _sfxLast=nowMs;
   const cust=_sfxCustom[currentThemeId||'lombax'];
   if(cust && cust.url){
-    try{ if(_sfxAudio) _sfxAudio.pause(); _sfxAudio=new Audio(sfxCustomUrl(cust)); _sfxAudio.volume=Math.min(1,(cust.vol||0.6)*(kind==='cat'?0.7:1)); _sfxAudio.play().catch(()=>{}); return; }catch(e){}
+    try{ if(_sfxAudio) _sfxAudio.pause(); const au=_sfxAudio=new Audio(sfxCustomUrl(cust)); au.volume=Math.min(1,(cust.vol||0.6)*(kind==='cat'?0.7:1));
+      if(!/res\.cloudinary\.com/.test(cust.url)){ if(cust.so){ au.currentTime=cust.so; au.addEventListener('loadedmetadata',()=>{ if(au.currentTime<cust.so) au.currentTime=cust.so; },{once:true}); } if(cust.eo) au.addEventListener('timeupdate',()=>{ if(au.currentTime>=cust.eo) au.pause(); }); }
+      au.play().catch(()=>{}); return; }catch(e){}
   }
   try{
     const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
@@ -4577,7 +4579,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-i';
+const RC_APP_VERSION = '2026.11.03-j';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
