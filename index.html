@@ -4577,7 +4577,7 @@ function rcSfx(kind){
     (S[th]||S[''])();
   }catch(e){}
 }
-function openCatCard(type){ rcSfx('cat'); activeType = type || ''; render(); updateFiltersBadge(); }
+function openCatCard(type){ activeType = type || ''; render(); updateFiltersBadge(); }
 function backToCats(){ activeType='all'; render(); updateFiltersBadge(); }
 // Vrai quand on est entre dans une categorie en vue cartes : le piege
 // de retour du tracker s'en sert pour remonter d'un cran au lieu de
@@ -4655,7 +4655,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-t';
+const RC_APP_VERSION = '2026.11.03-u';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
