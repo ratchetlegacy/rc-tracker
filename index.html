@@ -3630,6 +3630,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openGuide()"><span class="atl-ic">❓</span><span style="flex:1">How to use</span><span class="atl-chev">›</span></div>
   <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)"><span class="atl-ic">📲</span><span style="flex:1">Install the app</span></div>
   <a href="https://ko-fi.com/ratchetlegacy" target="_blank" rel="noopener" class="menu-item atl-kofi"><span class="atl-ic">☕</span><span style="flex:1">Fuel the collection!</span><span class="atl-chev">↗</span></a>
+  <div class="menu-item" onclick="toggleSfx()"><span class="atl-ic" id="sfx-toggle-ic">🔊</span><span style="flex:1" id="sfx-toggle-lbl">Sound effects: on</span></div>
   <a href="https://ratchetlegacy.com/supporters.html" target="_blank" rel="noopener" class="menu-item"><span class="atl-ic">💜</span><span style="flex:1">Thank you, supporters</span><span class="atl-chev">↗</span></a>
   <!-- "Start over" moved to Profile > Danger zone: too easy to hit by mistake in the everyday menu -->
 
@@ -4413,7 +4414,54 @@ function refreshViewToggle(){
   const b=document.getElementById('view-toggle');
   if(b) b.textContent = (collectionView==='cards') ? '☰ List' : '🗂️ Cards';
 }
-function openCatCard(type){ activeType = type || ''; render(); updateFiltersBadge(); }
+// ── Sound effects (synthesised live with Web Audio — no audio files) ──
+// One short themed jingle when a collection opens. Off switch in the menu.
+function sfxOn(){ try{ return localStorage.getItem('rc_sfx')!=='0'; }catch(e){ return true; } }
+function toggleSfx(){
+  const on=!sfxOn();
+  try{ localStorage.setItem('rc_sfx', on?'1':'0'); }catch(e){}
+  updateSfxLabel();
+  showToast(on?'🔊 Sound effects on':'🔇 Sound effects off','info');
+  if(on) rcSfx('open');
+}
+function updateSfxLabel(){
+  const el=document.getElementById('sfx-toggle-lbl'); if(el) el.textContent = sfxOn()?'Sound effects: on':'Sound effects: off';
+  const ic=document.getElementById('sfx-toggle-ic'); if(ic) ic.textContent = sfxOn()?'🔊':'🔇';
+}
+let _sfxCtx=null, _sfxLast=0;
+function rcSfx(kind){
+  if(!sfxOn()) return;
+  const nowMs=Date.now(); if(nowMs-_sfxLast<250) return; _sfxLast=nowMs;
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    if(!_sfxCtx) _sfxCtx=new AC();
+    const ac=_sfxCtx; if(ac.state==='suspended') ac.resume();
+    const t0=ac.currentTime+0.02;
+    const master=ac.createGain(); master.gain.value=kind==='cat'?0.13:0.18; master.connect(ac.destination);
+    const tone=(f,st,d,type='sine',g=0.6,f2)=>{const o=ac.createOscillator(),v=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t0+st);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+st+d);
+      v.gain.setValueAtTime(0,t0+st);v.gain.linearRampToValueAtTime(g,t0+st+0.01);v.gain.exponentialRampToValueAtTime(0.0008,t0+st+d);o.connect(v);v.connect(master);o.start(t0+st);o.stop(t0+st+d+0.05);};
+    const noise=(st,d,g=0.5,ff=2000,ff2,q=1,ftype='bandpass')=>{const len=Math.ceil(ac.sampleRate*d),b=ac.createBuffer(1,len,ac.sampleRate),ch=b.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
+      const src=ac.createBufferSource();src.buffer=b;const fl=ac.createBiquadFilter();fl.type=ftype;fl.Q.value=q;fl.frequency.setValueAtTime(ff,t0+st);if(ff2)fl.frequency.exponentialRampToValueAtTime(ff2,t0+st+d);
+      const v=ac.createGain();v.gain.setValueAtTime(g,t0+st);v.gain.exponentialRampToValueAtTime(0.0008,t0+st+d);src.connect(fl);fl.connect(v);v.connect(master);src.start(t0+st);};
+    const th=currentThemeId||'';
+    const short=kind==='cat';
+    const S={
+      '':()=>{[988,1319,1760].forEach((f,i)=>tone(f,i*0.07,0.22,'triangle',0.5)); if(!short) tone(2637,0.22,0.35,'sine',0.25);},
+      clank:()=>{[1200,1600,1350,2000].slice(0,short?2:4).forEach((f,i)=>tone(f,i*0.08,0.07,'square',0.25));},
+      gadgetron:()=>{for(let i=0;i<(short?3:5);i++) noise(i*0.05,0.03,0.6,3500,null,6); tone(1568,short?0.16:0.27,0.3,'triangle',0.45);},
+      nebula:()=>{tone(440,0,0.9,'sine',0.35,880); tone(660,0.05,0.9,'sine',0.25,1320); if(!short) [1760,2093,2637].forEach((f,i)=>tone(f,0.3+i*0.12,0.5,'sine',0.15));},
+      qwark:()=>{noise(0,0.28,0.7,400,4000,1.5); tone(180,0.22,0.25,'square',0.5,60); if(!short) tone(880,0.32,0.25,'triangle',0.35,1320);},
+      arsenal:()=>{noise(0,short?0.4:0.8,0.35,900,1600,0.6); [392,494,587].forEach(f=>tone(f,0.1,short?0.35:0.6,'sawtooth',0.12));},
+      cracktime:()=>{noise(0,0.03,0.8,3000,null,8); noise(0.25,0.03,0.6,2200,null,8); tone(1046,0.45,0.8,'sine',0.35); if(!short) tone(1568,0.6,0.8,'sine',0.2);},
+      rivet:()=>{tone(120,0,0.35,'sawtooth',0.25,420); noise(0.33,0.08,0.7,600,null,2); if(!short) [784,988].forEach((f,i)=>tone(f,0.45+i*0.08,0.2,'triangle',0.35));},
+      courtney:()=>{[523,659,784,1046].forEach(f=>tone(f,0,short?0.3:0.55,'sawtooth',0.1)); [2093,2637,3136].forEach((f,i)=>tone(f,0.15+i*0.08,0.25,'sine',0.18)); if(!short) noise(0,0.5,0.15,8000,null,0.7,'highpass');},
+      nefarious:()=>{tone(110,0,short?0.5:0.9,'sawtooth',0.25,55); tone(116,0,short?0.5:0.9,'sawtooth',0.2,58); if(!short) [622,587,554,523].forEach((f,i)=>tone(f,0.3+i*0.12,0.18,'square',0.15));},
+      kit:()=>{tone(220,0,0.45,'square',0.18,1760); tone(1760,0.42,0.15,'sawtooth',0.2,440); if(!short) tone(2637,0.55,0.3,'sine',0.2);}
+    };
+    (S[th]||S[''])();
+  }catch(e){}
+}
+function openCatCard(type){ rcSfx('cat'); activeType = type || ''; render(); updateFiltersBadge(); }
 function backToCats(){ activeType='all'; render(); updateFiltersBadge(); }
 // Vrai quand on est entre dans une categorie en vue cartes : le piege
 // de retour du tracker s'en sert pour remonter d'un cran au lieu de
@@ -4491,7 +4539,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-f';
+const RC_APP_VERSION = '2026.11.03-g';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -8565,6 +8613,7 @@ function navGo(tab){
   } else if(tab==='add'){
     navContextualAdd();
   } else if(tab==='collections'){
+    rcSfx('open');
     closeAnyCollectionScreens();
     if(typeof showHome==='function'){ showHome(); }
     setNavActive('collections');
@@ -9494,6 +9543,7 @@ async function deleteExchange(id){
 }
 
 function openMobileMenu(){
+  updateSfxLabel();
   document.getElementById('mobile-menu-overlay').classList.add('open');
   document.getElementById('mobile-menu-panel').classList.add('open');
   const pseudo = localStorage.getItem('rc_pseudo_'+currentUser.id)||'My profile';
