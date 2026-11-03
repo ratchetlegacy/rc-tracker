@@ -1001,6 +1001,9 @@
     #mc-ov .mc-actions button{flex:1;min-width:140px}
     #mc-ov .mc-main{border:none;border-radius:12px;padding:11px;font-weight:700;font-size:.82rem;cursor:pointer;color:#0b0b10;background:linear-gradient(135deg,var(--purple),var(--orange))}
     #mc-ov .mc-ghost{border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px;font-weight:700;font-size:.78rem;cursor:pointer;color:var(--text);background:rgba(255,255,255,.05)}
+    #mc-ov .mc-main:disabled{opacity:.55;cursor:not-allowed;filter:grayscale(.4)}
+    #mc-ov .mc-it-a{gap:8px}
+    #mc-ov .mc-del{color:#FF8A9A!important}
     #mc-ov .mc-foot{font-size:.7rem;color:var(--text-dim);margin-top:10px;text-align:center}
     #mc-ov .mc-item{border-top:1px solid rgba(255,255,255,.08);padding:12px 0 6px}
     #mc-ov .mc-it-h{display:flex;flex-direction:column;margin-bottom:8px}
@@ -4717,7 +4720,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-za';
+const RC_APP_VERSION = '2026.11.03-zb';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -8748,9 +8751,10 @@ function mcScore(it,c){
 }
 function mcMatches(it,n){ return (_mcCat||[]).map(c=>({c,s:mcScore(it,c)})).filter(x=>x.s>=.35).sort((a,b)=>b.s-a.s).slice(0,n||6).map(x=>x.c); }
 function mcMeta(c){ return [c.platform&&c.platform!=='-'?c.platform:'',c.region,c.edition,c.year].filter(Boolean).join(' · '); }
-function mcOverlay(html){
+function mcOverlay(html,locked){
   let ov=document.getElementById('mc-ov');
-  if(!ov){ ov=document.createElement('div'); ov.id='mc-ov'; ov.addEventListener('click',e=>{ if(e.target===ov) mcClose(); }); document.body.appendChild(ov); }
+  if(!ov){ ov=document.createElement('div'); ov.id='mc-ov'; ov.addEventListener('click',e=>{ if(e.target===ov && !ov.dataset.locked) mcClose(); }); document.body.appendChild(ov); }
+  if(locked) ov.dataset.locked='1'; else delete ov.dataset.locked;
   ov.innerHTML='<div class="mc-box">'+html+'</div>'; ov.classList.add('open');
 }
 function mcClose(){ const ov=document.getElementById('mc-ov'); if(ov) ov.classList.remove('open'); }
@@ -8834,37 +8838,52 @@ async function mcLinkPrompt(force){
   if(!currentUser) return;
   const manual=items.filter(i=>i.catalog_id==null && !/add yours here/i.test(i.name||''));
   if(!manual.length){ if(force) showToast('All your pieces are linked to the Vault ✓','success'); return; }
-  const key='rc_link_prompt_'+currentUser.id, today=new Date().toISOString().slice(0,10);
-  if(!force){ try{ if(localStorage.getItem(key)===today) return; }catch(e){} const tp=document.getElementById('tier-pop'); if(tp&&tp.classList.contains('open')) return; }
+  if(!force){ const tp=document.getElementById('tier-pop'); if(tp&&tp.classList.contains('open')){ setTimeout(()=>mcLinkPrompt(false),4000); return; } }
   let pendingIds=new Set();
   try{ const {data}=await sbClient.from('catalog_suggestions').select('item_id').eq('user_id',currentUser.id).eq('status','pending'); (data||[]).forEach(r=>{ if(r.item_id) pendingIds.add(r.item_id); }); }catch(e){}
   const todo=manual.filter(i=>!pendingIds.has(i.id));
   if(!todo.length){ if(force) showToast('Your hand-typed pieces are waiting for validation ✓','info'); return; }
-  try{ localStorage.setItem(key,today); }catch(e){}
   await mcLoadCatalog();
   window._mcTodo=todo;
   const rows=todo.slice(0,40).map(it=>{
     const m=mcMatches(it,3);
     return '<div class="mc-item" id="mc-it-'+it.id+'"><div class="mc-it-h"><b>'+escHtml(it.name)+'</b><span>'+escHtml([it.platform,it.region,it.edition].filter(Boolean).join(' · '))+'</span></div>'
       +(m.length?'<div class="mc-list">'+m.map(c=>mcCard(c,'<button class="mc-btn" onclick="mcLinkItem(\''+it.id+'\','+c.id+')">🔗 Link</button>')).join('')+'</div>':'<div class="mc-sub" style="margin:4px 0">No close match in the Vault.</div>')
-      +'<div class="mc-it-a"><button class="mc-ghost" onclick="mcSuggestItem(\''+it.id+'\')">➕ Not listed — suggest it</button></div></div>';
+      +'<div class="mc-it-a"><button class="mc-ghost mc-del" onclick="mcRemoveItem(\''+it.id+'\')">🗑 Remove</button><button class="mc-ghost" onclick="mcSuggestItem(\''+it.id+'\')">➕ Not listed — suggest it</button></div></div>';
   }).join('');
   mcOverlay('<div class="mc-title">🔗 Link your pieces to the Vault</div>'
-    +'<div class="mc-sub"><b>'+todo.length+'</b> piece'+(todo.length>1?'s were':' was')+' added by hand. Link each one to its Megacorp Vault entry so your stats, prices, photos and themes are right. Nothing changes until you tap a button.</div>'
-    +rows+(todo.length>40?'<div class="mc-sub">…and '+(todo.length-40)+' more next time.</div>':'')
-    +'<div class="mc-actions"><button class="mc-main" onclick="mcClose()">Later</button></div>');
+    +'<div class="mc-sub"><b>'+todo.length+'</b> piece'+(todo.length>1?'s were':' was')+' added by hand. To keep the Megacorp Vault clean, choose for each one: <b>link</b> it to its Vault entry, <b>suggest</b> it if it is missing, or <b>remove</b> it.</div>'
+    +rows
+    +'<div class="mc-actions"><button class="mc-main" id="mc-finish" disabled onclick="mcFinishLink()">Choose an option for each piece (<span id="mc-left">'+Math.min(todo.length,40)+'</span> left)</button></div>', true);
+  window._mcLeft=Math.min(todo.length,40); window._mcMore=todo.length>40;
 }
 async function mcLinkItem(iid,cid){
   const it=items.find(i=>String(i.id)===String(iid)), c=(_mcCat||[]).find(x=>x.id===cid); if(!it||!c) return;
   try{ const patch=mcFromCatalog(c,it); await dbUpdate(iid,patch); Object.assign(it,patch);
     const row=document.getElementById('mc-it-'+iid); if(row) row.outerHTML='<div class="mc-done">✓ '+escHtml(c.name)+' linked</div>';
-    render();
+    mcStep(); render();
   }catch(e){ showToast('Error: '+e.message,'error'); }
 }
+async function mcRemoveItem(iid){
+  const it=items.find(i=>String(i.id)===String(iid)); if(!it) return;
+  if(!confirm('Remove "'+it.name+'" from your collection?')) return;
+  try{ await dbDelete(it.id); items=items.filter(i=>String(i.id)!==String(iid));
+    const row=document.getElementById('mc-it-'+iid); if(row) row.outerHTML='<div class="mc-done" style="color:var(--text-dim)">🗑 '+escHtml(it.name)+' removed</div>';
+    mcStep(); render();
+  }catch(e){ showToast('Error: '+e.message,'error'); }
+}
+function mcStep(){
+  window._mcLeft=Math.max(0,(window._mcLeft||1)-1);
+  const l=document.getElementById('mc-left'), b=document.getElementById('mc-finish');
+  if(l) l.textContent=window._mcLeft;
+  if(b && !window._mcLeft){ b.disabled=false; b.textContent=window._mcMore?'Next pieces →':'All done ✓'; }
+}
+function mcFinishLink(){ if(window._mcLeft) return; mcClose(); if(window._mcMore) setTimeout(()=>mcLinkPrompt(true),300); else showToast('Thanks! Your collection is linked to the Vault 💜','success'); }
 async function mcSuggestItem(iid){
   const it=items.find(i=>String(i.id)===String(iid)); if(!it) return;
   try{ await mcSendSuggestion(it,iid);
     const row=document.getElementById('mc-it-'+iid); if(row) row.outerHTML='<div class="mc-done">💜 '+escHtml(it.name)+' sent for validation</div>';
+    mcStep();
   }catch(e){ showToast('Error: '+e.message,'error'); }
 }
 // ── New piece added: little celebration + progress to the next theme tier ──
