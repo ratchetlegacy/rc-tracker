@@ -2225,6 +2225,18 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <span id="home-rc-edit" style="display:none;position:absolute;top:12px;right:12px;color:#fff;font-size:.9rem;background:rgba(0,0,0,.4);border-radius:6px;padding:4px 7px;z-index:3" onclick="event.stopPropagation();editRcLogo()">✏️</span>
     </div>
 
+    <!-- Collection rétro privée (admin seulement) -->
+    <div class="home-featured-tile" id="home-retro-tile" style="display:none;margin-top:12px" onclick="rcSfx('open');location.href='retro.html'">
+      <div class="home-featured-bg" style="background:linear-gradient(135deg,rgba(63,194,181,.5),rgba(74,134,255,.35))"></div>
+      <div class="home-featured-overlay"></div>
+      <span class="home-featured-badge" style="background:linear-gradient(135deg,#3fc2b5,#4a86ff)">PRIVÉ</span>
+      <div class="home-featured-logo">🎮</div>
+      <div class="home-featured-content">
+        <div class="home-featured-name">Collection rétro</div>
+        <div class="home-featured-count" id="home-retro-count">Jeux, Master System, cartes &amp; Pop</div>
+      </div>
+    </div>
+
     <!-- Section label -->
     <div class="home-section-label" style="display:none;justify-content:space-between;align-items:center;margin-top:22px">
       <span>My collections</span>
@@ -3730,7 +3742,6 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 
   <div class="menu-section-title" id="menu-admin-title" style="display:none">Admin</div>
   <div class="menu-item" id="menu-collmanage" onclick="closeMobileMenu();openCollManager()" style="display:none!important;color:var(--purple-light)">🗂️ Manage collections</div>
-  <a class="menu-item" id="menu-retro" href="retro.html" style="display:none;color:var(--purple-light);text-decoration:none">🎮 Ma collection rétro</a>
   <div class="menu-item" id="menu-catreq" onclick="openCatReqReview()" style="display:none!important;color:var(--purple-light)">📥 Catalog requests <span id="catreq-badge"></span></div>
   <div class="menu-item" id="menu-photomod" onclick="openPhotoMod()" style="display:none;color:var(--owned)">📷 Photo moderation <span id="photomod-badge"></span></div>
   <div class="menu-item" id="mobile-admin-btn" onclick="closeMobileMenu();openAdmin()" style="display:none">🛠️ Admin panel</div>
@@ -5298,7 +5309,7 @@ async function launchApp(){
   if(isAdmin()) refreshPhotoModBadge();
   if(isAdmin()){
     const mc=document.getElementById('menu-collmanage'); if(mc) mc.style.display='block';
-    const mr=document.getElementById('menu-retro'); if(mr) mr.style.display='block';
+    const rt=document.getElementById('home-retro-tile'); if(rt){ rt.style.display='flex'; loadRetroCount(); }
     const at=document.getElementById('menu-admin-title'); if(at) at.style.display='block';
     refreshCatReqBadge();
     loadCollections();
@@ -5800,6 +5811,9 @@ async function submitPhoto(){
 
 // ══ ADMIN: ADD IMAGE TO BANK ══
 const ADMIN_EMAILS = ['ratchetlegacy@gmail.com'];
+async function loadRetroCount(){ try{ const {data}=await sbClient.from('retro_state').select('state').eq('user_id',currentUser.id).maybeSingle(); if(!data) return;
+  let g=0,c=0; for(const [k,v] of Object.entries(data.state||{})){ if(k.startsWith('__')||!v) continue; if(k.startsWith('alb-')){ if(v.v) c++; } else if(v.c) g++; }
+  const el=document.getElementById('home-retro-count'); if(el) el.textContent=g+' jeux et Pop · '+c+' cartes'; }catch(e){} }
 function isAdmin(){ return currentUser && ADMIN_EMAILS.includes((currentUser.email||'').toLowerCase()); }
 
 async function addImageToBank(name, url, folder, platform, region, edition){
