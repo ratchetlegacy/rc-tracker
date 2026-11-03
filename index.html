@@ -2103,7 +2103,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     </div>
 
     <!-- Featured: Ratchet & Clank (big Netflix tile) -->
-    <div class="home-featured-tile" onclick="goToCollection()">
+    <div class="home-featured-tile" onclick="rcSfx('open');goToCollection()">
       <div class="home-featured-bg" id="home-rc-bg"></div>
       <div class="home-featured-overlay"></div>
       <span class="home-featured-badge">MAIN</span>
@@ -4579,7 +4579,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-j';
+const RC_APP_VERSION = '2026.11.03-k';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -8653,7 +8653,6 @@ function navGo(tab){
   } else if(tab==='add'){
     navContextualAdd();
   } else if(tab==='collections'){
-    rcSfx('open');
     closeAnyCollectionScreens();
     if(typeof showHome==='function'){ showHome(); }
     setNavActive('collections');
