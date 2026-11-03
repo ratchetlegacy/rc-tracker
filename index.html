@@ -3589,6 +3589,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openGuide()"><span class="atl-ic">❓</span><span style="flex:1">How to use</span><span class="atl-chev">›</span></div>
   <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)"><span class="atl-ic">📲</span><span style="flex:1">Install the app</span></div>
   <a href="https://ko-fi.com/ratchetlegacy" target="_blank" rel="noopener" class="menu-item atl-kofi"><span class="atl-ic">☕</span><span style="flex:1">Fuel the collection!</span><span class="atl-chev">↗</span></a>
+  <a href="https://ratchetlegacy.com/supporters.html" target="_blank" rel="noopener" class="menu-item"><span class="atl-ic">💜</span><span style="flex:1">Thank you, supporters</span><span class="atl-chev">↗</span></a>
   <!-- "Start over" moved to Profile > Danger zone: too easy to hit by mistake in the everyday menu -->
 
   <div class="atl-foot">
@@ -3838,6 +3839,7 @@ async function fetchItems(){
   const {data,error}=await sbClient.from('items').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:true});
   if(error){ showToast('Error: '+error.message,'error'); return; }
   items=(data||[]).map(migrateItemLang);
+  loadSupporterTier();
   await loadRcCatalogIndex();  // so catalog photos become default images
 }
 async function dbInsert(obj){ const {data,error}=await sbClient.from('items').insert([obj]).select().single(); if(error) throw error; return data; }
@@ -4448,7 +4450,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-d';
+const RC_APP_VERSION = '2026.11.03-e';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -8186,7 +8188,27 @@ function ownedCount(){ return items.filter(i=>i.status==='owned').length; }
 function ownedCatalogCount(){ return new Set(items.filter(i=>i.status==='owned'&&i.catalog_id!=null).map(i=>String(i.catalog_id))).size; }
 
 // Ko-fi unlocks are stored locally for now (SQL sync comes in step 2)
+// Ko-fi supporters: tier set by the admin in the supporters table
+// (supporter = every tier theme, gold = + Nefarious, platinum = + Kit)
+const SUP_RANK={supporter:1,gold:2,platinum:3};
+window._supTier=null;
+async function loadSupporterTier(){
+  if(!currentUser || !sbClient) return;
+  try{ window._supTier = localStorage.getItem('rc_sup_tier_'+currentUser.id) || null; }catch(e){}
+  try{
+    const {data,error}=await sbClient.from('supporters').select('tier').eq('user_id',currentUser.id);
+    if(error) return;
+    const best=(data||[]).map(r=>r.tier).sort((a,b)=>(SUP_RANK[b]||0)-(SUP_RANK[a]||0))[0]||null;
+    window._supTier=best;
+    try{ if(best) localStorage.setItem('rc_sup_tier_'+currentUser.id,best); else localStorage.removeItem('rc_sup_tier_'+currentUser.id); }catch(e){}
+    const tl=document.getElementById('themes-list'); if(tl && tl.offsetParent) renderThemes();
+    clearTimeout(window._tierT); window._tierT=setTimeout(()=>{ try{ checkThemeUnlocks(); }catch(e){} },900);
+  }catch(e){}
+}
+function supRank(){ return SUP_RANK[window._supTier]||0; }
 function kofiUnlocked(themeId){
+  if(themeId==='nefarious' && supRank()>=2) return true;
+  if(themeId==='kit' && supRank()>=3) return true;
   return localStorage.getItem('rc_kofi_theme_'+themeId)==='1';
 }
 // Theme tiers count distinct pieces (one per catalog entry, or per name for hand-typed items)
@@ -8194,7 +8216,7 @@ function themeScore(){ return new Set(items.filter(i=>i.status==='owned').map(i=
 function isThemeUnlocked(t){
   if(isAdmin()) return true;          // admin gets every theme 😎
   if(t.unlock==='free') return true;
-  if(t.unlock==='rank') return themeScore() >= t.req;
+  if(t.unlock==='rank') return themeScore() >= t.req || supRank()>=1;
   if(t.unlock==='kofi') return kofiUnlocked(t.id);
   return false;
 }
@@ -8311,7 +8333,9 @@ function renderThemes(){
   html += '<div class="themes-intro">'
     + '<div class="themes-intro-title">🎨 Dress the app in your favorite hero\'s colors</div>'
     + '<div class="themes-intro-text">Themes unlock by tiers as your collection grows (one point per different piece you own). Tap an unlocked theme to preview it live, then confirm.'
-    + (next ? ' Next unlock: <b>'+next.icon+' '+next.name+'</b> at '+next.req+' pieces — you have '+score+'.' : ' You have unlocked every tier! 🏆')+'</div>'
+    + ' ☕ Ko-fi supporters unlock every tier theme straight away.'
+    + (next && !supRank() ? ' Next unlock: <b>'+next.icon+' '+next.name+'</b> at '+next.req+' pieces — you have '+score+'.' : ' You have unlocked every tier! 🏆')+'</div>'
+    + (supRank() ? '<div class="themes-intro-text" style="color:#FFC850;font-weight:700">☕ Thank you for supporting Ratchet Legacy! Your Ko-fi perks are active.</div>' : '')
     + '<div class="themes-legend"><span>🆓 Free</span><span>🏆 By tier</span><span>☕ Ko-fi exclusive</span></div>'
     + '</div>';
   html += '<div class="themes-grid">';
@@ -8324,7 +8348,7 @@ function renderThemes(){
     else if(t.unlock==='kofi') tag='<span class="theme-tag kofi">'+(t.tier==='PLATINUM'?'☕ PLATINUM':'☕ GOLD')+'</span>';
     let lockInfo='';
     if(!unlocked){
-      if(t.unlock==='rank') lockInfo='<div class="theme-tier">🔒 '+score+' / '+t.req+' pieces<div class="bar"><span style="width:'+Math.min(100,Math.round(score/t.req*100))+'%"></span></div></div>';
+      if(t.unlock==='rank') lockInfo='<div class="theme-tier">🔒 '+score+' / '+t.req+' pieces · or ☕ Ko-fi<div class="bar"><span style="width:'+Math.min(100,Math.round(score/t.req*100))+'%"></span></div></div>';
       else if(t.unlock==='kofi') lockInfo='<div class="theme-lock">🔒 Ko-fi supporter exclusive</div>';
     }
     html += '<div class="theme-card'+(active?' active':'')+(unlocked?'':' locked')+'" onclick="'+(unlocked?'previewTheme(\''+t.id+'\')':'showLockedInfo(\''+t.id+'\')')+'">'
@@ -8377,9 +8401,9 @@ function showLockedInfo(id){
   const t=THEMES.find(x=>x.id===id);
   if(!t) return;
   if(t.unlock==='rank'){
-    showToast('🔒 '+t.name+' unlocks at '+t.req+' different pieces — you have '+themeScore()+'.', 'info');
+    showToast('🔒 '+t.name+' unlocks at '+t.req+' different pieces — you have '+themeScore()+'. Ko-fi supporters get it right away ☕', 'info');
   } else if(t.unlock==='kofi'){
-    showToast('🔒 '+t.name+' is a Ko-fi supporter exclusive ☕', 'info');
+    showToast('🔒 '+t.name+' is a Ko-fi '+(t.tier==='PLATINUM'?'Platinum':'Gold')+' supporter exclusive ☕', 'info');
   }
 }
 
@@ -8403,10 +8427,10 @@ function showTierPopup(t, n){
   if(!pop){ pop=document.createElement('div'); pop.id='tier-pop'; document.body.appendChild(pop); }
   const sw = THEME_SWATCHES[t.id];
   pop.innerHTML = '<div class="tier-box" style="border-color:'+sw[0]+'66;box-shadow:0 0 60px -20px '+sw[0]+'">'
-    + '<div class="tier-kicker">TIER '+t.req+' REACHED</div>'
+    + '<div class="tier-kicker">'+(themeScore()<t.req && supRank() ? '☕ KO-FI SUPPORTER PERK' : 'TIER '+t.req+' REACHED')+'</div>'
     + '<div class="tier-icon">'+t.icon+'</div>'
     + '<div class="tier-name" style="color:'+sw[0]+'">'+t.name+' theme unlocked!</div>'
-    + '<div class="tier-txt">You now own '+themeScore()+' different pieces.'+(n>1?' '+n+' new themes are waiting for you.':'')+' '+t.desc+'</div>'
+    + '<div class="tier-txt">'+(themeScore()<t.req && supRank() ? 'Thank you for supporting Ratchet Legacy!' : 'You now own '+themeScore()+' different pieces.')+(n>1?' '+n+' new themes are waiting for you.':'')+' '+t.desc+'</div>'
     + themePreviewHtml(t.id,'tier-prev theme-prev')
     + '<div class="tier-btns"><button class="tier-later" onclick="closeTierPopup()">Later</button>'
     + '<button class="tier-try" style="background:linear-gradient(135deg,'+sw[0]+','+sw[1]+')" onclick="closeTierPopup();openThemes();previewTheme(\''+t.id+'\')">Try it</button></div></div>';
