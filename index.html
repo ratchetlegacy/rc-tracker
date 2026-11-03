@@ -984,6 +984,29 @@
     @keyframes kitFlow{50%{filter:brightness(1.4)}}
     html[data-theme="kit"][data-theme] .bnav{background:linear-gradient(180deg,#141A22,#07090D)!important;border-top:0!important;box-shadow:0 -3px 0 #E8A43A,0 -4px 0 #000,0 -6px 20px rgba(79,216,240,.3)!important}
     html[data-theme="kit"][data-theme] .bnav-add-btn{background:radial-gradient(circle,#bff6ff 0 14%,#4FD8F0 15% 30%,#E8A43A 31%)!important;border:0!important;border-radius:0!important;clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%);box-shadow:none!important;filter:drop-shadow(0 0 12px rgba(79,216,240,.8));animation:none}
+    /* Vault matching overlay */
+    #mc-ov{position:fixed;inset:0;z-index:3100;display:none;align-items:center;justify-content:center;background:rgba(4,6,14,.75);backdrop-filter:blur(6px);padding:14px}
+    #mc-ov.open{display:flex}
+    #mc-ov .mc-box{width:min(520px,100%);max-height:88vh;overflow:auto;background:var(--bg2);border:1px solid var(--th-edge,rgba(255,255,255,.12));border-radius:20px;padding:18px 16px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+    #mc-ov .mc-title{font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.02rem;margin-bottom:6px}
+    #mc-ov .mc-sub{font-size:.8rem;color:var(--text-dim);line-height:1.5;margin-bottom:12px}
+    #mc-ov .mc-list{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+    #mc-ov .mc-card{display:flex;align-items:center;gap:10px;padding:8px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+    #mc-ov .mc-card img,#mc-ov .mc-noimg{width:48px;height:48px;border-radius:8px;object-fit:cover;flex:0 0 auto;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+    #mc-ov .mc-txt{flex:1;min-width:0}
+    #mc-ov .mc-n{font-size:.82rem;font-weight:700;color:var(--text)}
+    #mc-ov .mc-m{font-size:.7rem;color:var(--text-dim)}
+    #mc-ov .mc-btn{flex:0 0 auto;border:none;border-radius:10px;padding:8px 10px;font-weight:700;font-size:.74rem;cursor:pointer;color:#0b0b10;background:linear-gradient(135deg,var(--purple),var(--orange))}
+    #mc-ov .mc-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+    #mc-ov .mc-actions button{flex:1;min-width:140px}
+    #mc-ov .mc-main{border:none;border-radius:12px;padding:11px;font-weight:700;font-size:.82rem;cursor:pointer;color:#0b0b10;background:linear-gradient(135deg,var(--purple),var(--orange))}
+    #mc-ov .mc-ghost{border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px;font-weight:700;font-size:.78rem;cursor:pointer;color:var(--text);background:rgba(255,255,255,.05)}
+    #mc-ov .mc-foot{font-size:.7rem;color:var(--text-dim);margin-top:10px;text-align:center}
+    #mc-ov .mc-item{border-top:1px solid rgba(255,255,255,.08);padding:12px 0 6px}
+    #mc-ov .mc-it-h{display:flex;flex-direction:column;margin-bottom:8px}
+    #mc-ov .mc-it-h b{font-size:.86rem}#mc-ov .mc-it-h span{font-size:.7rem;color:var(--text-dim)}
+    #mc-ov .mc-it-a{display:flex;justify-content:flex-end}
+    #mc-ov .mc-done{border-top:1px solid rgba(255,255,255,.08);padding:10px 0;font-size:.8rem;color:var(--owned)}
     /* ajout de pièce : bandeau de progression */
     #piece-pop{position:fixed;left:50%;bottom:92px;z-index:2900;width:min(380px,92vw);transform:translate(-50%,30px) scale(.9);opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.2,1.4,.4,1),opacity .25s}
     #piece-pop.show{transform:translate(-50%,0) scale(1);opacity:1}
@@ -3713,6 +3736,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
   <div class="menu-item" onclick="closeMobileMenu();openGuide()"><span class="atl-ic">❓</span><span style="flex:1">How to use</span><span class="atl-chev">›</span></div>
   <div class="menu-item" id="menu-install-item" onclick="installFromMenu()" style="display:none;color:#9B6FF4;border-color:rgba(155,111,244,.3)"><span class="atl-ic">📲</span><span style="flex:1">Install the app</span></div>
   <a href="https://ko-fi.com/ratchetlegacy" target="_blank" rel="noopener" class="menu-item atl-kofi"><span class="atl-ic">☕</span><span style="flex:1">Fuel the collection!</span><span class="atl-chev">↗</span></a>
+  <div class="menu-item" onclick="closeMobileMenu();mcLinkPrompt(true)"><span class="atl-ic">🔗</span><span style="flex:1">Link my pieces to the Vault</span><span class="atl-chev">›</span></div>
   <div class="menu-item" onclick="toggleSfx()"><span class="atl-ic" id="sfx-toggle-ic">🔊</span><span style="flex:1" id="sfx-toggle-lbl">Sound effects: on</span></div>
   <a href="https://ratchetlegacy.com/supporters.html" target="_blank" rel="noopener" class="menu-item"><span class="atl-ic">💜</span><span style="flex:1">Thank you, supporters</span><span class="atl-chev">↗</span></a>
   <!-- "Start over" moved to Profile > Danger zone: too easy to hit by mistake in the everyday menu -->
@@ -3966,6 +3990,7 @@ async function fetchItems(){
   items=(data||[]).map(migrateItemLang);
   loadSupporterTier();
   loadCustomSfx();
+  setTimeout(async()=>{ try{ await mcClaimSuggestions(); }catch(e){} setTimeout(()=>{ try{ mcLinkPrompt(false); }catch(e){} }, 2500); }, 1500);
   await loadRcCatalogIndex();  // so catalog photos become default images
 }
 async function dbInsert(obj){ const {data,error}=await sbClient.from('items').insert([obj]).select().single(); if(error) throw error; return data; }
@@ -4273,6 +4298,12 @@ async function saveItem(){
       // Share the barcode mapping too (e.g. when adding a barcode to an existing item)
       if(barcodeVal){ shareBarcode(barcodeVal, {name, type:typeVal, platform:pfVal, region:payload.region, edition:edVal, manufacturer:mfVal, img_url:payload.img_url}); }
       if(payload.img_url){ maybeSubmitUserImage(payload.img_url, name, typeVal); }
+    }else if(!payload.catalog_id){
+      // Pieces can only be added from the Megacorp Vault: propose the closest entries,
+      // or send the piece as a suggestion that the admin validates.
+      closeModal();
+      mcStartNew(payload, barcodeVal);
+      return;
     }else{
       const newItem=await dbInsert(payload);
       const {data:fullItem} = await sbClient.from('items').select('*').eq('id',newItem.id).single();
@@ -4686,7 +4717,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-z';
+const RC_APP_VERSION = '2026.11.03-za';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -8371,10 +8402,12 @@ async function addToWishlistFromCompare(idx){
   if(!currentUser){ showToast('Please sign in first','error'); return; }
   const src = (window._cmpMissing||[])[idx];
   if(!src) return;
+  const cid = src.catalog_id ?? src._cid ?? null;
+  if(cid==null){ showToast('This piece is not in the Megacorp Vault yet — your friend can suggest it 🙂','info'); return; }
   try {
     const { data, error } = await sbClient.from('items').insert([{
       user_id: currentUser.id, name: src.name, type: src.type || 'Misc',
-      catalog_id: src.catalog_id ?? null, platform: src.platform || null,
+      catalog_id: cid, platform: src.platform || null,
       region: src.region || null, edition: src.edition || null, img_url: src.img_url || null,
       status: 'wishlist', condition: 'used', lang: 'FR', grade: 'excellent'
     }]).select();
@@ -8689,6 +8722,151 @@ function showThemesUpdate(){
   return true;
 }
 function closeThemesUpdate(open){ try{ localStorage.setItem(window._themesUpdKey,'1'); }catch(e){} closeTierPopup(); if(open) openThemes(); }
+// ══ VAULT MATCHING: every piece must point to a Megacorp Vault entry ══
+const CAT_OF_TYPE={'Physical game':'Game','Console Pack':'Console/Pack','Figure':'Figure','Plush':'Plush','Goodie':'Goodie','Press Kit':'Press Kit','Clothing':'Clothing','Print':'Print','Book':'Book','Guide':'Guide','Film':'Media','Soundtrack':'Music','Misc':'Misc'};
+const TYPE_OF_CAT=Object.fromEntries(Object.entries(CAT_OF_TYPE).map(([a,b])=>[b,a]));
+let _mcCat=null;
+async function mcLoadCatalog(){
+  if(_mcCat) return _mcCat;
+  try{ const {data}=await sbClient.from('catalog').select('id,name,name_en,platform,region,edition,image_url,category,year'); _mcCat=data||[]; }catch(e){ _mcCat=[]; }
+  return _mcCat;
+}
+const MC_STOP=new Set(['1','greatest','hits','hit','platinum','essentials','essential','edition','collector','collectors','classique','standard','game','jeu','pal','ntsc','fr','us','usa','eu','uk','jp','version','de','la','le','les','et','and','of','du','des','a']);
+function mcTokens(s){ return cmpTitleKey(s).split(' ').filter(t=>t&&t!=='#base'&&!MC_STOP.has(t)); }
+function mcScore(it,c){
+  const a=new Set(mcTokens(it.name)); let best=0;
+  [c.name,c.name_en].forEach(nm=>{ if(!nm) return; const b=new Set(mcTokens(nm));
+    if(!a.size&&!b.size){ best=Math.max(best,1); return; }
+    let inter=0; a.forEach(t=>{ if(b.has(t)) inter++; }); best=Math.max(best, 2*inter/((a.size+b.size)||1)); });
+  let sc=best;
+  const pk=cmpPlatKey(it.platform);
+  if(pk && c.platform){ sc += cmpPlatKey(c.platform)===pk ? .25 : -.1; }
+  const cat=CAT_OF_TYPE[it.type]; if(cat && c.category===cat) sc+=.15;
+  if(it.region && c.region && it.region===c.region) sc+=.05;
+  if(it.edition && c.edition && it.edition===c.edition) sc+=.05;
+  return sc;
+}
+function mcMatches(it,n){ return (_mcCat||[]).map(c=>({c,s:mcScore(it,c)})).filter(x=>x.s>=.35).sort((a,b)=>b.s-a.s).slice(0,n||6).map(x=>x.c); }
+function mcMeta(c){ return [c.platform&&c.platform!=='-'?c.platform:'',c.region,c.edition,c.year].filter(Boolean).join(' · '); }
+function mcOverlay(html){
+  let ov=document.getElementById('mc-ov');
+  if(!ov){ ov=document.createElement('div'); ov.id='mc-ov'; ov.addEventListener('click',e=>{ if(e.target===ov) mcClose(); }); document.body.appendChild(ov); }
+  ov.innerHTML='<div class="mc-box">'+html+'</div>'; ov.classList.add('open');
+}
+function mcClose(){ const ov=document.getElementById('mc-ov'); if(ov) ov.classList.remove('open'); }
+function mcCard(c,btn){
+  return '<div class="mc-card">'+(c.image_url?'<img src="'+escHtml(c.image_url)+'" loading="lazy" onerror="this.style.visibility=\'hidden\'"/>':'<div class="mc-noimg">'+(getIcon(TYPE_OF_CAT[c.category])||'📦')+'</div>')
+    +'<div class="mc-txt"><div class="mc-n">'+escHtml(c.name)+'</div><div class="mc-m">'+escHtml(mcMeta(c))+'</div></div>'+btn+'</div>';
+}
+// fields a linked piece takes from its Vault entry
+function mcFromCatalog(c,base){
+  return { catalog_id:c.id, name:c.name, platform:c.platform||base.platform||'', region:c.region||base.region||'', edition:c.edition||base.edition||'',
+    type:TYPE_OF_CAT[c.category]||base.type||'', img_url:base.img_url||c.image_url||'' };
+}
+async function mcStartNew(payload, barcode){
+  window._mcPending={payload, barcode};
+  mcOverlay('<div class="mc-title">🗃️ Is it one of these?</div><div class="mc-sub">Searching the Megacorp Vault…</div>');
+  await mcLoadCatalog();
+  const m=mcMatches(payload,6);
+  mcOverlay('<div class="mc-title">🗃️ Is it one of these?</div>'
+    +'<div class="mc-sub">To keep everyone\'s collection clean, pieces are added from the Megacorp Vault. Pick the matching entry'+(m.length?'':' — no close match found for <b>'+escHtml(payload.name)+'</b>')+'.</div>'
+    +'<div class="mc-list">'+m.map(c=>mcCard(c,'<button class="mc-btn" onclick="mcAddLinked('+c.id+')">✓ This one</button>')).join('')+'</div>'
+    +'<div class="mc-actions"><button class="mc-ghost" onclick="mcClose();openCatalog()">🔎 Search the Vault</button>'
+    +'<button class="mc-main" onclick="mcSuggest()">➕ None of these — suggest it</button></div>'
+    +'<div class="mc-foot">A suggestion is checked by Ratchet Legacy, then the piece is added to your collection automatically.</div>');
+}
+async function mcAddLinked(cid){
+  const pend=window._mcPending; if(!pend) return;
+  const c=(_mcCat||[]).find(x=>x.id===cid); if(!c) return;
+  try{
+    const obj=Object.assign({}, pend.payload, mcFromCatalog(c,pend.payload));
+    const newItem=await dbInsert(obj);
+    const {data:full}=await sbClient.from('items').select('*').eq('id',newItem.id).single();
+    items.push(full||newItem);
+    if(pend.barcode){ try{ shareBarcode(pend.barcode,{name:c.name,type:obj.type,platform:obj.platform,region:obj.region,edition:obj.edition,img_url:obj.img_url}); }catch(e){} }
+    window._mcPending=null; mcClose(); render(); showToast('Added: '+c.name,'success');
+  }catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function mcSendSuggestion(it, itemId){
+  const pseudo=(localStorage.getItem('rc_pseudo_'+currentUser.id)||'').trim();
+  const item=Object.assign({}, it); delete item.user_id; delete item.id; delete item.created_at;
+  const row={ kind:'add', status:'pending', name:String(it.name||'').slice(0,120), category:CAT_OF_TYPE[it.type]||'Misc', platform:it.platform||null,
+    note:(String(it.notes||it.comment||'').slice(0,500))||null, suggested_by:pseudo||currentUser.email||null, user_id:currentUser.id, item_id:itemId||null,
+    proposed:{ region:it.region||null, edition:it.edition||null, manufacturer:it.manufacturer||null, image_url:it.img_url||null, type:it.type||null, item } };
+  const {error}=await sbClient.from('catalog_suggestions').insert([row]);
+  if(error) throw error;
+}
+async function mcSuggest(){
+  const pend=window._mcPending; if(!pend) return;
+  try{ await mcSendSuggestion(pend.payload,null); window._mcPending=null;
+    mcOverlay('<div class="mc-title">💜 Suggestion sent!</div><div class="mc-sub"><b>'+escHtml(pend.payload.name)+'</b> will be checked by Ratchet Legacy. As soon as it is validated, the Vault gets a new entry and the piece is added to your collection automatically.</div><div class="mc-actions"><button class="mc-main" onclick="mcClose()">OK</button></div>');
+  }catch(e){ showToast('Error: '+e.message,'error'); }
+}
+// approved / rejected suggestions come back to the collection
+async function mcClaimSuggestions(){
+  if(!currentUser) return;
+  try{
+    const {data}=await sbClient.from('catalog_suggestions').select('*').eq('user_id',currentUser.id).eq('imported',false).in('status',['approved','rejected']);
+    if(!data||!data.length) return;
+    let added=0, refused=[];
+    for(const sg of data){
+      if(sg.status==='approved' && sg.catalog_id){
+        const {data:c}=await sbClient.from('catalog').select('id,name,platform,region,edition,image_url,category').eq('id',sg.catalog_id).maybeSingle();
+        if(!c) continue;
+        if(sg.item_id && items.some(i=>String(i.id)===String(sg.item_id))){
+          const it=items.find(i=>String(i.id)===String(sg.item_id)); const patch=mcFromCatalog(c,it);
+          await dbUpdate(it.id,patch); Object.assign(it,patch);
+        }else if(!sg.item_id){
+          const base=Object.assign({}, (sg.proposed&&sg.proposed.item)||{name:sg.name}); base.user_id=currentUser.id;
+          const obj=Object.assign(base, mcFromCatalog(c,base));
+          const ni=await dbInsert(obj); items.push(ni);
+        }
+        added++;
+      }else if(sg.status==='rejected'){ refused.push(sg.name); }
+      await sbClient.rpc('mark_suggestion_imported',{sid:sg.id});
+    }
+    if(added||refused.length){ render();
+      showToast((added?'✅ '+added+' of your suggestion'+(added>1?'s were':' was')+' validated and added to your collection. ':'')+(refused.length?'✕ Not added: '+refused.slice(0,3).join(', ')+(refused.length>3?'…':''):''),'success'); }
+  }catch(e){ console.warn('[suggestions]',e); }
+}
+// hand-typed pieces from before: propose the closest Vault entries
+async function mcLinkPrompt(force){
+  if(!currentUser) return;
+  const manual=items.filter(i=>i.catalog_id==null && !/add yours here/i.test(i.name||''));
+  if(!manual.length){ if(force) showToast('All your pieces are linked to the Vault ✓','success'); return; }
+  const key='rc_link_prompt_'+currentUser.id, today=new Date().toISOString().slice(0,10);
+  if(!force){ try{ if(localStorage.getItem(key)===today) return; }catch(e){} const tp=document.getElementById('tier-pop'); if(tp&&tp.classList.contains('open')) return; }
+  let pendingIds=new Set();
+  try{ const {data}=await sbClient.from('catalog_suggestions').select('item_id').eq('user_id',currentUser.id).eq('status','pending'); (data||[]).forEach(r=>{ if(r.item_id) pendingIds.add(r.item_id); }); }catch(e){}
+  const todo=manual.filter(i=>!pendingIds.has(i.id));
+  if(!todo.length){ if(force) showToast('Your hand-typed pieces are waiting for validation ✓','info'); return; }
+  try{ localStorage.setItem(key,today); }catch(e){}
+  await mcLoadCatalog();
+  window._mcTodo=todo;
+  const rows=todo.slice(0,40).map(it=>{
+    const m=mcMatches(it,3);
+    return '<div class="mc-item" id="mc-it-'+it.id+'"><div class="mc-it-h"><b>'+escHtml(it.name)+'</b><span>'+escHtml([it.platform,it.region,it.edition].filter(Boolean).join(' · '))+'</span></div>'
+      +(m.length?'<div class="mc-list">'+m.map(c=>mcCard(c,'<button class="mc-btn" onclick="mcLinkItem(\''+it.id+'\','+c.id+')">🔗 Link</button>')).join('')+'</div>':'<div class="mc-sub" style="margin:4px 0">No close match in the Vault.</div>')
+      +'<div class="mc-it-a"><button class="mc-ghost" onclick="mcSuggestItem(\''+it.id+'\')">➕ Not listed — suggest it</button></div></div>';
+  }).join('');
+  mcOverlay('<div class="mc-title">🔗 Link your pieces to the Vault</div>'
+    +'<div class="mc-sub"><b>'+todo.length+'</b> piece'+(todo.length>1?'s were':' was')+' added by hand. Link each one to its Megacorp Vault entry so your stats, prices, photos and themes are right. Nothing changes until you tap a button.</div>'
+    +rows+(todo.length>40?'<div class="mc-sub">…and '+(todo.length-40)+' more next time.</div>':'')
+    +'<div class="mc-actions"><button class="mc-main" onclick="mcClose()">Later</button></div>');
+}
+async function mcLinkItem(iid,cid){
+  const it=items.find(i=>String(i.id)===String(iid)), c=(_mcCat||[]).find(x=>x.id===cid); if(!it||!c) return;
+  try{ const patch=mcFromCatalog(c,it); await dbUpdate(iid,patch); Object.assign(it,patch);
+    const row=document.getElementById('mc-it-'+iid); if(row) row.outerHTML='<div class="mc-done">✓ '+escHtml(c.name)+' linked</div>';
+    render();
+  }catch(e){ showToast('Error: '+e.message,'error'); }
+}
+async function mcSuggestItem(iid){
+  const it=items.find(i=>String(i.id)===String(iid)); if(!it) return;
+  try{ await mcSendSuggestion(it,iid);
+    const row=document.getElementById('mc-it-'+iid); if(row) row.outerHTML='<div class="mc-done">💜 '+escHtml(it.name)+' sent for validation</div>';
+  }catch(e){ showToast('Error: '+e.message,'error'); }
+}
 // ── New piece added: little celebration + progress to the next theme tier ──
 function pieceGainCheck(){
   if(!currentUser || !Array.isArray(items) || !window._rcLaunched) return;
@@ -11043,9 +11221,9 @@ async function submitSuggestion(){
     category: document.getElementById('sg-category').value,
     platform: platform || null,
     note: document.getElementById('sg-note').value.trim() || null,
-    image_url: (imgEl && imgEl.value.trim()) || null,
+    proposed: { image_url: (imgEl && imgEl.value.trim()) || null },
     suggested_by: document.getElementById('sg-by').value.trim() || (currentUser&&currentUser.email) || null,
-    status: 'pending',
+    status: 'pending', kind: 'add',
   };
   try {
     const { error } = await sbClient.from('catalog_suggestions').insert([payload]);
@@ -11109,12 +11287,14 @@ async function approveSuggestion(id){
       platform: data.platform || null,
       year: data.year || null,
       image_url: data.image_url || null,
-      description: data.note || null,
+      region: (data.proposed&&data.proposed.region) || null,
+      edition: (data.proposed&&data.proposed.edition) || null,
     };
-    const { error: insErr } = await sbClient.from('catalog').insert([entry]);
+    if(data.proposed&&data.proposed.image_url && !entry.image_url) entry.image_url=data.proposed.image_url;
+    const { data: ins, error: insErr } = await sbClient.from('catalog').insert([entry]).select('id').single();
     if(insErr) throw insErr;
-    // mark as approved
-    await sbClient.from('catalog_suggestions').update({status:'approved'}).eq('id', id);
+    // mark as approved: the piece goes into the suggester's collection
+    await sbClient.from('catalog_suggestions').update({status:'approved', catalog_id: ins.id}).eq('id', id);
     showToast('Added to catalog!', 'success');
     openSuggestionsReview();
     refreshSuggestBadge();
