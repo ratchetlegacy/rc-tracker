@@ -3025,7 +3025,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
         <button class="catalog-suggest-btn" onclick="openSuggest()">💡 Suggest an addition</button>
       </div>
       <div id="catalog-admin-bar" style="display:none;text-align:right;margin:10px 0">
-        <button class="add-btn" onclick="openCatalogEdit()">+ ADD ENTRY</button>
+        <button class="add-btn" onclick="openCatalogEdit()" title="Crée une fiche dans le catalogue (n'ajoute rien à ta collection)">🛠️ NOUVELLE FICHE VAULT</button>
         <button class="add-btn" style="background:linear-gradient(135deg,#2a9d8f,#264653)" onclick="openSuggestionsReview()">📥 Review suggestions <span id="suggest-count-badge"></span></button>
       </div>
       <div id="catalog-list" class="catalog-list">
@@ -11151,7 +11151,7 @@ async function awNext(){
 function openCatalogEdit(id){
   if(!isAdmin()) return;
   const entry = id ? catalogData.find(c=>String(c.id)===String(id)) : null;
-  document.getElementById('catalog-edit-title').textContent = entry ? '✏️ Edit catalog entry' : '➕ Add catalog entry';
+  document.getElementById('catalog-edit-title').textContent = entry ? '✏️ Edit catalog entry' : '🛠️ Nouvelle fiche Vault (catalogue)';
   document.getElementById('cat-edit-id').value = entry ? entry.id : '';
   document.getElementById('cat-edit-name').value = entry ? (entry.name||'') : '';
   document.getElementById('cat-edit-category').value = entry ? (entry.category||'Game') : 'Game';
