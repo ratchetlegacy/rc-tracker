@@ -4650,7 +4650,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-o';
+const RC_APP_VERSION = '2026.11.03-p';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -8408,7 +8408,7 @@ async function loadSupporterTier(){
     window._supTier=best;
     try{ if(best) localStorage.setItem('rc_sup_tier_'+currentUser.id,best); else localStorage.removeItem('rc_sup_tier_'+currentUser.id); }catch(e){}
     const tl=document.getElementById('themes-list'); if(tl && tl.offsetParent) renderThemes();
-    clearTimeout(window._tierT); window._tierT=setTimeout(()=>{ try{ checkThemeUnlocks(); }catch(e){} },900);
+    clearTimeout(window._tierT); window._tierT=setTimeout(()=>{ try{ if(!showThemesUpdate()) checkThemeUnlocks(); }catch(e){} },900);
   }catch(e){}
 }
 function supRank(){ return SUP_RANK[window._supTier]||0; }
