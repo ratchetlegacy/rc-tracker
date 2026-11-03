@@ -8791,9 +8791,11 @@ async function mcStartNew(payload, barcode){
   mcOverlay('<div class="mc-title">🗃️ Is it one of these?</div>'
     +'<div class="mc-sub">To keep everyone\'s collection clean, pieces are added from the Megacorp Vault. Pick the matching entry'+(m.length?'':' — no close match found for <b>'+escHtml(payload.name)+'</b>')+'.</div>'
     +'<div class="mc-list">'+m.map(c=>mcCard(c,'<button class="mc-btn" onclick="mcAddLinked('+c.id+')">✓ This one</button>')).join('')+'</div>'
-    +'<div class="mc-actions"><button class="mc-ghost" onclick="mcClose();openCatalog()">🔎 Search the Vault</button>'
+    +'<div class="mc-actions"><button class="mc-ghost" onclick="mcCancelNew()">✕ Cancel</button><button class="mc-ghost" onclick="mcClose();openCatalog()">🔎 Search the Vault</button>'
     +'<button class="mc-main" onclick="mcSuggest()">➕ None of these — suggest it</button></div>'
-    +'<div class="mc-foot">A suggestion is checked by Ratchet Legacy, then the piece is added to your collection automatically.</div>');
+    +'<div class="mc-foot">⚠️ The piece is <b>not saved yet</b>: tap <b>✓ This one</b> on the matching entry, or suggest it. A suggestion is checked by Ratchet Legacy, then the piece is added to your collection automatically.</div>', true);
+}
+function mcCancelNew(){ window._mcPending=null; mcClose(); showToast('Not added to your collection','info');
 }
 async function mcAddLinked(cid){
   const pend=window._mcPending; if(!pend) return;
