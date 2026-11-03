@@ -4443,6 +4443,28 @@ function rcSfx(kind){
     const noise=(st,d,g=0.5,ff=2000,ff2,q=1,ftype='bandpass')=>{const len=Math.ceil(ac.sampleRate*d),b=ac.createBuffer(1,len,ac.sampleRate),ch=b.getChannelData(0);for(let i=0;i<len;i++)ch[i]=Math.random()*2-1;
       const src=ac.createBufferSource();src.buffer=b;const fl=ac.createBiquadFilter();fl.type=ftype;fl.Q.value=q;fl.frequency.setValueAtTime(ff,t0+st);if(ff2)fl.frequency.exponentialRampToValueAtTime(ff2,t0+st+d);
       const v=ac.createGain();v.gain.setValueAtTime(g,t0+st);v.gain.exponentialRampToValueAtTime(0.0008,t0+st+d);src.connect(fl);fl.connect(v);v.connect(master);src.start(t0+st);};
+    // Synthesised "voice": each syllable = buzzing source shaped by vowel formants, optional robot ring-mod & echo
+    const laugh=(o)=>{
+      const out=ac.createGain(); out.gain.value=o.gain||0.9;
+      if(o.echo){const dl=ac.createDelay(1);dl.delayTime.value=o.echo;const fb=ac.createGain();fb.gain.value=0.35;out.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(master);}
+      out.connect(master);
+      let dest=out;
+      if(o.ring){const rg=ac.createGain();rg.gain.value=0;const ro=ac.createOscillator();ro.frequency.value=o.ring;const rd=ac.createGain();rd.gain.value=1;ro.connect(rd);rd.connect(rg.gain);
+        const dry=ac.createGain();dry.gain.value=0.55;rg.connect(out);dry.connect(out);ro.start(t0+o.st);ro.stop(t0+o.st+o.syl.length*o.step+1);
+        const split=ac.createGain();split.connect(rg);split.connect(dry);dest=split;}
+      o.syl.forEach((f,i)=>{
+        const st=o.st+i*o.step, d=o.len;
+        const src=ac.createOscillator();src.type='sawtooth';src.frequency.setValueAtTime(f*1.08,t0+st);src.frequency.exponentialRampToValueAtTime(f*(o.fall||0.85),t0+st+d);
+        const vib=ac.createOscillator(),vg=ac.createGain();vib.frequency.value=o.vib||6;vg.gain.value=f*0.03;vib.connect(vg);vg.connect(src.frequency);
+        const env=ac.createGain();env.gain.setValueAtTime(0,t0+st);env.gain.linearRampToValueAtTime(1,t0+st+0.03);env.gain.setValueAtTime(1,t0+st+d*0.55);env.gain.exponentialRampToValueAtTime(0.001,t0+st+d);
+        (o.formants||[[800,6,1],[1200,8,.7],[2600,10,.25]]).forEach(([ff,q,g])=>{const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=ff;bp.Q.value=q;const fg=ac.createGain();fg.gain.value=g*2.2;src.connect(bp);bp.connect(fg);fg.connect(env);});
+        env.connect(dest);
+        src.start(t0+st);vib.start(t0+st);src.stop(t0+st+d+0.05);vib.stop(t0+st+d+0.05);
+        // breathy "h" at the start of each syllable
+        const len=Math.ceil(ac.sampleRate*0.06),b=ac.createBuffer(1,len,ac.sampleRate),ch=b.getChannelData(0);for(let k=0;k<len;k++)ch[k]=(Math.random()*2-1)*(1-k/len);
+        const ns=ac.createBufferSource();ns.buffer=b;const nb=ac.createBiquadFilter();nb.type='bandpass';nb.frequency.value=1600;nb.Q.value=1;const ng=ac.createGain();ng.gain.value=o.breath||0.5;ns.connect(nb);nb.connect(ng);ng.connect(dest);ns.start(t0+st);
+      });
+    };
     const th=currentThemeId||'';
     const short=kind==='cat';
     const S={
@@ -4450,12 +4472,12 @@ function rcSfx(kind){
       clank:()=>{[1200,1600,1350,2000].slice(0,short?2:4).forEach((f,i)=>tone(f,i*0.08,0.07,'square',0.25));},
       gadgetron:()=>{for(let i=0;i<(short?3:5);i++) noise(i*0.05,0.03,0.6,3500,null,6); tone(1568,short?0.16:0.27,0.3,'triangle',0.45);},
       nebula:()=>{tone(440,0,0.9,'sine',0.35,880); tone(660,0.05,0.9,'sine',0.25,1320); if(!short) [1760,2093,2637].forEach((f,i)=>tone(f,0.3+i*0.12,0.5,'sine',0.15));},
-      qwark:()=>{noise(0,0.28,0.7,400,4000,1.5); tone(180,0.22,0.25,'square',0.5,60); if(!short) tone(880,0.32,0.25,'triangle',0.35,1320);},
+      qwark:()=>{noise(0,0.22,0.5,400,4000,1.5); laugh({st:0.15,syl:short?[196,175]:[220,196,185,175,165],step:0.17,len:0.15,fall:0.9,formants:[[700,6,1],[1150,8,.7],[2500,10,.3]],gain:0.45});},
       arsenal:()=>{noise(0,short?0.4:0.8,0.35,900,1600,0.6); [392,494,587].forEach(f=>tone(f,0.1,short?0.35:0.6,'sawtooth',0.12));},
       cracktime:()=>{noise(0,0.03,0.8,3000,null,8); noise(0.25,0.03,0.6,2200,null,8); tone(1046,0.45,0.8,'sine',0.35); if(!short) tone(1568,0.6,0.8,'sine',0.2);},
       rivet:()=>{tone(120,0,0.35,'sawtooth',0.25,420); noise(0.33,0.08,0.7,600,null,2); if(!short) [784,988].forEach((f,i)=>tone(f,0.45+i*0.08,0.2,'triangle',0.35));},
-      courtney:()=>{[523,659,784,1046].forEach(f=>tone(f,0,short?0.3:0.55,'sawtooth',0.1)); [2093,2637,3136].forEach((f,i)=>tone(f,0.15+i*0.08,0.25,'sine',0.18)); if(!short) noise(0,0.5,0.15,8000,null,0.7,'highpass');},
-      nefarious:()=>{tone(110,0,short?0.5:0.9,'sawtooth',0.25,55); tone(116,0,short?0.5:0.9,'sawtooth',0.2,58); if(!short) [622,587,554,523].forEach((f,i)=>tone(f,0.3+i*0.12,0.18,'square',0.15));},
+      courtney:()=>{laugh({st:0,syl:short?[660,700,740]:[620,660,700,740,784,880],step:0.11,len:0.1,fall:1.05,ring:90,vib:9,formants:[[900,7,1],[1700,9,.8],[3000,10,.4]],breath:0.25,gain:0.24}); [2093,2637,3136].forEach((f,i)=>tone(f,(short?0.3:0.62)+i*0.07,0.25,'sine',0.15));},
+      nefarious:()=>{tone(55,0,short?0.6:1.4,'sawtooth',0.18,45); if(!short) laugh({st:0,syl:[130],step:0.5,len:0.45,fall:0.95,ring:45,formants:[[650,5,1],[1000,7,.6],[2400,10,.2]],breath:0.2,echo:0.18,gain:0.3}); laugh({st:short?0:0.5,syl:short?[150,140,130]:[165,155,147,139,131,123],step:0.16,len:0.14,fall:0.88,ring:45,formants:[[700,6,1],[1100,8,.7],[2400,10,.25]],echo:0.18,gain:0.3});},
       kit:()=>{tone(220,0,0.45,'square',0.18,1760); tone(1760,0.42,0.15,'sawtooth',0.2,440); if(!short) tone(2637,0.55,0.3,'sine',0.2);}
     };
     (S[th]||S[''])();
@@ -4539,7 +4561,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-g';
+const RC_APP_VERSION = '2026.11.03-h';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
