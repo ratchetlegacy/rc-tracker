@@ -847,6 +847,65 @@
     html[data-theme="courtney"][data-theme] .bnav{background:linear-gradient(180deg,rgba(60,10,70,.92),rgba(26,5,38,.96))!important;border-top:0!important;box-shadow:0 -3px 0 #FF3FA4,0 -5px 0 #7FE7FF,0 -8px 24px rgba(255,63,164,.45)!important}
     html[data-theme="courtney"][data-theme] .bnav-add-btn{background:radial-gradient(circle,#fff 0 7%,#FF3FA4 8% 30%,#1a0620 31% 33%,#2a0a30 34% 40%,#1a0620 41% 43%,#2a0a30 44% 52%,#1a0620 53% 55%,#2a0a30 56%)!important;border:3px solid #fff!important;box-shadow:0 0 26px rgba(255,63,164,.9)!important;animation:cgSpin 3s linear infinite}
     @keyframes cgSpin{to{transform:rotate(360deg)}}
+    /* ══ ZONI (palier 700) : le royaume des Zonis (orbes de lumière dorés qui s'élèvent, auras turquoise, anneaux sacrés qui tournent) ══ */
+    html[data-theme="zoni"][data-theme]{--bg:#071A22;--bg2:#0D2530;--bg3:#143340;--purple:#FFD36A;--purple-light:#FFE7A0;--orange:#4FE8D8;--orange-light:#9FF6EE;--chrome:#F3E7C0;--gold:#FFD36A;
+      --owned:#7FFFC4;--wishlist:#FFD447;--missing:#FF8A8A;--profit:#7FFFC4;--loss:#FF8A8A;--neutral:#8FB3B8;--text:#F4FBF8;--text-dim:#A9C8C6;
+      --th-hdr:linear-gradient(135deg,#0B2A33,#173C45 55%,#2A3A22);--th-nav:rgba(7,26,34,.93);--th-grad:linear-gradient(90deg,#FFD36A,#4FE8D8);
+      --th-edge:rgba(255,211,106,.38);--th-glow:rgba(79,232,216,.45);--th-surface:linear-gradient(160deg,rgba(255,211,106,.08),rgba(79,232,216,.05))}
+    html[data-theme="zoni"][data-theme] body{background:transparent!important}
+    html[data-theme="zoni"][data-theme] #theme-bg{background:radial-gradient(ellipse at 50% 35%,rgba(255,211,106,.28),transparent 45%),radial-gradient(ellipse at 15% 85%,rgba(79,232,216,.3),transparent 50%),radial-gradient(ellipse at 90% 70%,rgba(79,232,216,.18),transparent 45%),linear-gradient(180deg,#0A2430,#071A22 60%,#04121A)!important;animation:none}
+    html[data-theme="zoni"][data-theme] #theme-bg::before{content:'';position:absolute;inset:-10% 0 -110% 0;width:auto;height:auto;border-radius:0;border:0;-webkit-mask:none;mask:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cdefs%3E%3CradialGradient id='o0'%3E%3Cstop offset='0' stop-color='%23FFFBE0'/%3E%3Cstop offset='.35' stop-color='%23FFD36A' stop-opacity='.9'/%3E%3Cstop offset='1' stop-color='%23FFD36A' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='o1'%3E%3Cstop offset='0' stop-color='%23E6FFFB'/%3E%3Cstop offset='.35' stop-color='%234FE8D8' stop-opacity='.85'/%3E%3Cstop offset='1' stop-color='%234FE8D8' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='284' cy='391' r='12' fill='url(%23o0)'/%3E%3Ccircle cx='60' cy='28' r='4' fill='url(%23o1)'/%3E%3Ccircle cx='145' cy='109' r='4' fill='url(%23o0)'/%3E%3Ccircle cx='383' cy='187' r='6' fill='url(%23o0)'/%3E%3Ccircle cx='334' cy='164' r='9' fill='url(%23o0)'/%3E%3Ccircle cx='262' cy='139' r='12' fill='url(%23o1)'/%3E%3Ccircle cx='3' cy='181' r='12' fill='url(%23o1)'/%3E%3Ccircle cx='284' cy='201' r='4' fill='url(%23o1)'/%3E%3Ccircle cx='94' cy='351' r='12' fill='url(%23o0)'/%3E%3Ccircle cx='16' cy='186' r='12' fill='url(%23o0)'/%3E%3Ccircle cx='32' cy='76' r='6' fill='url(%23o0)'/%3E%3Ccircle cx='61' cy='162' r='12' fill='url(%23o0)'/%3E%3Ccircle cx='29' cy='209' r='9' fill='url(%23o1)'/%3E%3Ccircle cx='178' cy='103' r='9' fill='url(%23o0)'/%3E%3Ccircle cx='346' cy='334' r='6' fill='url(%23o1)'/%3E%3Ccircle cx='234' cy='306' r='3' fill='url(%23o1)'/%3E%3Ccircle cx='183' cy='301' r='6' fill='url(%23o1)'/%3E%3Ccircle cx='157' cy='248' r='9' fill='url(%23o0)'/%3E%3Ccircle cx='4' cy='246' r='6' fill='url(%23o1)'/%3E%3Ccircle cx='194' cy='388' r='12' fill='url(%23o1)'/%3E%3Ccircle cx='56' cy='341' r='9' fill='url(%23o0)'/%3E%3Ccircle cx='7' cy='277' r='3' fill='url(%23o1)'/%3E%3Ccircle cx='370' cy='161' r='12' fill='url(%23o0)'/%3E%3Ccircle cx='253' cy='373' r='9' fill='url(%23o1)'/%3E%3Ccircle cx='17' cy='353' r='6' fill='url(%23o0)'/%3E%3Ccircle cx='308' cy='373' r='6' fill='url(%23o1)'/%3E%3C/svg%3E") 0 0/400px 400px;will-change:transform;animation:zoRise 40s linear infinite;opacity:.9}
+    @keyframes zoRise{from{transform:translateY(0)}to{transform:translateY(-400px)}}
+    html[data-theme="zoni"][data-theme] #theme-bg::after{content:'';position:absolute;inset:auto;width:min(120vw,700px);height:min(120vw,700px);left:50%;top:50%;margin:min(-60vw,-350px) 0 0 min(-60vw,-350px);border-radius:0;border:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cg fill='none' stroke='%23FFD36A' stroke-opacity='.55'%3E%3Ccircle cx='200' cy='200' r='190' stroke-width='1.5'/%3E%3Ccircle cx='200' cy='200' r='150' stroke-width='3' stroke-dasharray='2 10'/%3E%3Cpolygon points='200.0,50.0 329.9,125.0 329.9,275.0 200.0,350.0 70.1,275.0 70.1,125.0' stroke-width='1.5'/%3E%3Cpolygon points='200.0,50.0 329.9,275.0 70.1,275.0' stroke-width='1.2' stroke='%234FE8D8'/%3E%3Cpolygon points='200.0;50.0 329.9;275.0 70.1;275.0' stroke-width='0'/%3E%3Ccircle cx='200' cy='200' r='75' stroke='%234FE8D8' stroke-width='2'/%3E%3Ccircle cx='200' cy='200' r='24' stroke-width='3'/%3E%3Ccircle cx='200.0' cy='50.0' r='12' stroke-width='2'/%3E%3Ccircle cx='329.9' cy='125.0' r='12' stroke-width='2'/%3E%3Ccircle cx='329.9' cy='275.0' r='12' stroke-width='2'/%3E%3Ccircle cx='200.0' cy='350.0' r='12' stroke-width='2'/%3E%3Ccircle cx='70.1' cy='275.0' r='12' stroke-width='2'/%3E%3Ccircle cx='70.1' cy='125.0' r='12' stroke-width='2'/%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='rotate' values='0 200 200;360 200 200' dur='60s' repeatCount='indefinite'/%3E%3Cpolygon points='200.0,50.0 329.9,275.0 70.1,275.0' transform='rotate(180 200 200)' stroke='%234FE8D8' stroke-width='1.2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;opacity:.55;filter:drop-shadow(0 0 10px rgba(255,211,106,.6));animation:zoPulse 8s ease-in-out infinite}
+    @keyframes zoPulse{0%,100%{opacity:.4;transform:scale(.96)}50%{opacity:.7;transform:scale(1.02)}}
+    html[data-theme="zoni"][data-theme] header,html[data-theme="zoni"][data-theme] .header-top{background:linear-gradient(180deg,rgba(11,42,51,.9),rgba(7,26,34,.9))!important;border-bottom:0!important;box-shadow:0 2px 0 #FFD36A,0 6px 26px rgba(255,211,106,.35)!important;clip-path:none}
+    html[data-theme="zoni"][data-theme] .header-titles h1{font-family:'Cinzel',serif!important;font-weight:700!important;letter-spacing:.12em!important;text-transform:uppercase;background:linear-gradient(180deg,#FFFBE0,#FFD36A 55%,#C89A2E)!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;filter:drop-shadow(0 0 10px rgba(255,211,106,.6));text-shadow:none;animation:none}
+    html[data-theme="zoni"][data-theme] .header-titles span{color:#9FF6EE!important;letter-spacing:.2em}
+    html[data-theme="zoni"][data-theme] .header-titles span::before{content:'✧ ';color:#FFD36A}
+    html[data-theme="zoni"][data-theme] header [style*='color:var(--text-dim)']{color:#CFE6E2!important}
+    html[data-theme="zoni"][data-theme] .home-section-label,html[data-theme="zoni"][data-theme] .fr-section-title{font-family:'Cinzel',serif!important;font-weight:700!important;letter-spacing:.24em!important;color:#FFE7A0!important;text-shadow:0 0 12px rgba(255,211,106,.8)}
+    html[data-theme="zoni"][data-theme] .home-section-label::before,html[data-theme="zoni"][data-theme] .fr-section-title::before{content:'✧ ';color:#4FE8D8}
+    html[data-theme="zoni"][data-theme] .cc-card,html[data-theme="zoni"][data-theme] .item-card,html[data-theme="zoni"][data-theme] .cmp-card,html[data-theme="zoni"][data-theme] .home-coll-featured{border-radius:20px!important;border:1px solid rgba(255,211,106,.55)!important;clip-path:none;animation:none!important;
+      box-shadow:0 0 0 4px rgba(79,232,216,.12),0 0 26px rgba(255,211,106,.25),inset 0 0 30px rgba(79,232,216,.12)!important}
+    html[data-theme="zoni"][data-theme] .cc-card::after,html[data-theme="zoni"][data-theme] .item-card::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:4;border-radius:inherit;background:radial-gradient(circle at 50% -20%,rgba(255,231,160,.35),transparent 55%);opacity:1;animation:none}
+    html[data-theme="zoni"][data-theme] .cc-card:hover,html[data-theme="zoni"][data-theme] .item-card:hover{transform:translateY(-6px)!important;box-shadow:0 0 0 4px rgba(79,232,216,.3),0 0 40px rgba(255,211,106,.6)!important}
+    html[data-theme="zoni"][data-theme] .cc-card h3,html[data-theme="zoni"][data-theme] .cc-name{font-family:'Cinzel',serif!important;font-weight:700!important;letter-spacing:.04em;text-shadow:0 0 8px rgba(255,211,106,.6),0 2px 0 #000}
+    html[data-theme="zoni"][data-theme] .energy-bar-bg{height:10px;border-radius:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,211,106,.5)}
+    html[data-theme="zoni"][data-theme] .energy-bar-fill,html[data-theme="zoni"][data-theme] #collection-bar{background:linear-gradient(90deg,#4FE8D8,#FFD36A,#FFFBE0)!important;box-shadow:0 0 16px rgba(255,211,106,.9)!important;animation:none}
+    html[data-theme="zoni"][data-theme] .bnav{background:linear-gradient(180deg,rgba(11,42,51,.92),rgba(4,18,26,.96))!important;border-top:0!important;box-shadow:0 -2px 0 #FFD36A,0 -6px 22px rgba(255,211,106,.3)!important}
+    html[data-theme="zoni"][data-theme] .bnav-add-btn{background:radial-gradient(circle at 40% 35%,#FFFBE0,#FFD36A 40%,#C89A2E 75%)!important;border:2px solid #4FE8D8!important;box-shadow:0 0 0 6px rgba(79,232,216,.18),0 0 34px rgba(255,211,106,.9)!important;animation:zoPulse 4s ease-in-out infinite}
+    /* ══ EMPEROR TACHYON (Ko-fi Platinum) : la salle du trône impériale (violet cragmite, énergie verte toxique, bannières, sceau impérial qui pulse) ══ */
+    html[data-theme="tachyon"][data-theme]{--bg:#0C0614;--bg2:#160B24;--bg3:#221236;--purple:#9B3DFF;--purple-light:#C49BFF;--orange:#7CFF3A;--orange-light:#B8FF8E;--chrome:#D8C8F0;--gold:#7CFF3A;
+      --owned:#7CFF3A;--wishlist:#FFD447;--missing:#FF5A7A;--profit:#7CFF3A;--loss:#FF5A7A;--neutral:#A08CC0;--text:#F2ECFF;--text-dim:#A894C8;
+      --th-hdr:linear-gradient(135deg,#1A0A30,#2E0F55 55%,#0F2A0A);--th-nav:rgba(12,6,20,.94);--th-grad:linear-gradient(90deg,#9B3DFF,#7CFF3A);
+      --th-edge:rgba(155,61,255,.45);--th-glow:rgba(124,255,58,.45);--th-surface:linear-gradient(160deg,rgba(155,61,255,.1),rgba(124,255,58,.04))}
+    html[data-theme="tachyon"][data-theme] body{background:transparent!important}
+    html[data-theme="tachyon"][data-theme] #theme-bg{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 400' preserveAspectRatio='none'%3E%3Cpath d='M0 0H80V360L40 400L0 360Z' fill='%233A0F6E'/%3E%3Cpath d='M8 0V350L40 382L72 350V0' fill='none' stroke='%237CFF3A' stroke-width='3'/%3E%3Cpath d='M40 60 L55 90 L40 120 L25 90Z' fill='%237CFF3A'/%3E%3Cpath d='M20 160H60M20 175H60' stroke='%23B98CFF' stroke-width='3'/%3E%3C/svg%3E") 4% 0/40px 36% no-repeat,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 400' preserveAspectRatio='none'%3E%3Cpath d='M0 0H80V360L40 400L0 360Z' fill='%233A0F6E'/%3E%3Cpath d='M8 0V350L40 382L72 350V0' fill='none' stroke='%237CFF3A' stroke-width='3'/%3E%3Cpath d='M40 60 L55 90 L40 120 L25 90Z' fill='%237CFF3A'/%3E%3Cpath d='M20 160H60M20 175H60' stroke='%23B98CFF' stroke-width='3'/%3E%3C/svg%3E") 96% 0/40px 36% no-repeat,
+      radial-gradient(ellipse at 50% 60%,rgba(124,255,58,.18),transparent 45%),radial-gradient(ellipse at 50% 0%,rgba(155,61,255,.45),transparent 60%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='24'%3E%3Cpath d='M0 24 Q10 4 20 24 Q30 4 40 24' fill='none' stroke='%239B3DFF' stroke-opacity='.22' stroke-width='1.5'/%3E%3Cpath d='M-20 12 Q-10 -8 0 12 Q10 -8 20 12 Q30 -8 40 12 Q50 -8 60 12' fill='none' stroke='%239B3DFF' stroke-opacity='.14' stroke-width='1.5'/%3E%3C/svg%3E") 0 0/40px 24px,linear-gradient(180deg,#1A0A30,#0C0614 70%)!important;animation:none}
+    html[data-theme="tachyon"][data-theme] #theme-bg::before{content:'';position:absolute;inset:auto;width:min(90vw,460px);height:min(90vw,460px);left:50%;top:42%;margin:min(-45vw,-230px) 0 0 min(-45vw,-230px);border-radius:0;border:0;-webkit-mask:none;mask:none;
+      background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cdefs%3E%3CradialGradient id='e'%3E%3Cstop offset='0' stop-color='%23E9FFD0'/%3E%3Cstop offset='.4' stop-color='%237CFF3A'/%3E%3Cstop offset='1' stop-color='%232A7A00' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg fill='none' stroke='%23B98CFF' stroke-width='3'%3E%3Cpolygon points='150.0,20.0 262.6,85.0 262.6,215.0 150.0,280.0 37.4,215.0 37.4,85.0'/%3E%3Cpolygon points='150.0,38.0 247.0,94.0 247.0,206.0 150.0,262.0 53.0,206.0 53.0,94.0' stroke-width='1.5' stroke-dasharray='6 6'/%3E%3C/g%3E%3Cpath d='M80 120 L105 150 L125 105 L150 150 L175 105 L195 150 L220 120 L210 190 L90 190Z' fill='%235A1FA0' stroke='%23E0C8FF' stroke-width='3' stroke-linejoin='round'/%3E%3Cpath d='M95 205 Q150 175 205 205 Q150 235 95 205Z' fill='%231a0a2a' stroke='%237CFF3A' stroke-width='3'/%3E%3Ccircle cx='150' cy='205' r='22' fill='url(%23e)'%3E%3Canimate attributeName='r' values='18;24;18' dur='3s' repeatCount='indefinite'/%3E%3C/circle%3E%3Cellipse cx='150' cy='205' rx='4' ry='12' fill='%230a0512'/%3E%3Cg fill='%237CFF3A'%3E%3Ccircle cx='105' cy='150' r='5'/%3E%3Ccircle cx='150' cy='150' r='6'/%3E%3Ccircle cx='195' cy='150' r='5'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;opacity:.6;filter:drop-shadow(0 0 24px rgba(124,255,58,.55));animation:taSeal 6s ease-in-out infinite}
+    @keyframes taSeal{0%,100%{opacity:.45;transform:scale(.97)}50%{opacity:.75;transform:scale(1.02)}}
+    html[data-theme="tachyon"][data-theme] #theme-bg::after{content:'';position:absolute;inset:0;border-radius:0;border:0;background:linear-gradient(180deg,transparent 60%,rgba(124,255,58,.14) 85%,rgba(124,255,58,.3));will-change:opacity;animation:taGlow 3s ease-in-out infinite}
+    @keyframes taGlow{0%,100%{opacity:.5}50%{opacity:1}}
+    html[data-theme="tachyon"][data-theme] header,html[data-theme="tachyon"][data-theme] .header-top{background:linear-gradient(180deg,#2A0D4E,#14072A)!important;border-bottom:0!important;box-shadow:0 3px 0 #7CFF3A,0 5px 0 #000,0 8px 26px rgba(155,61,255,.55)!important;clip-path:none}
+    html[data-theme="tachyon"][data-theme] .header-titles h1{font-family:'Cinzel',serif!important;font-weight:700!important;letter-spacing:.14em!important;text-transform:uppercase;background:linear-gradient(180deg,#F2ECFF,#C49BFF 55%,#7A3AD0)!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;filter:drop-shadow(0 0 10px rgba(155,61,255,.8)) drop-shadow(0 2px 0 #000);text-shadow:none;animation:none}
+    html[data-theme="tachyon"][data-theme] .header-titles span{color:#B8FF8E!important;letter-spacing:.2em}
+    html[data-theme="tachyon"][data-theme] .header-titles span::before{content:'⚜ BY IMPERIAL DECREE · ';color:#7CFF3A;font-weight:800}
+    html[data-theme="tachyon"][data-theme] header [style*='color:var(--text-dim)']{color:#D8C8F0!important}
+    html[data-theme="tachyon"][data-theme] .home-section-label,html[data-theme="tachyon"][data-theme] .fr-section-title{display:inline-block;font-family:'Cinzel',serif!important;font-weight:700!important;letter-spacing:.22em!important;color:#0C0614!important;text-shadow:none;
+      background:linear-gradient(90deg,#7CFF3A,#B8FF8E);padding:4px 20px 3px;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%)}
+    html[data-theme="tachyon"][data-theme] .home-section-label::before,html[data-theme="tachyon"][data-theme] .fr-section-title::before{content:'⚜ ';color:#3A0F6E}
+    html[data-theme="tachyon"][data-theme] .cc-card,html[data-theme="tachyon"][data-theme] .item-card,html[data-theme="tachyon"][data-theme] .cmp-card,html[data-theme="tachyon"][data-theme] .home-coll-featured{border-radius:6px!important;border:2px solid #9B3DFF!important;clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%,0 14px);animation:none!important;
+      box-shadow:inset 0 0 0 1px rgba(124,255,58,.35),0 0 24px rgba(155,61,255,.45)!important}
+    html[data-theme="tachyon"][data-theme] .cc-card::after,html[data-theme="tachyon"][data-theme] .item-card::after{content:'';position:absolute;left:0;right:0;top:0;height:3px;pointer-events:none;z-index:4;background:linear-gradient(90deg,transparent,#7CFF3A,transparent);box-shadow:0 0 10px #7CFF3A;opacity:.9;animation:none;border-radius:0}
+    html[data-theme="tachyon"][data-theme] .cc-card:hover,html[data-theme="tachyon"][data-theme] .item-card:hover{transform:translateY(-5px)!important;border-color:#7CFF3A!important;box-shadow:0 0 34px rgba(124,255,58,.55)!important}
+    html[data-theme="tachyon"][data-theme] .cc-name{letter-spacing:0!important;font-size:.92em}
+    html[data-theme="tachyon"][data-theme] .cc-card h3,html[data-theme="tachyon"][data-theme] .cc-name{font-family:'Cinzel',serif!important;font-weight:700!important;letter-spacing:.03em;text-shadow:0 0 8px rgba(155,61,255,.8),0 2px 0 #000}
+    html[data-theme="tachyon"][data-theme] .energy-bar-bg{height:12px;border-radius:2px;background:#0C0614;border:1px solid #9B3DFF}
+    html[data-theme="tachyon"][data-theme] .energy-bar-fill,html[data-theme="tachyon"][data-theme] #collection-bar{background:linear-gradient(90deg,#3A7A10,#7CFF3A,#E9FFD0)!important;box-shadow:0 0 14px rgba(124,255,58,.9)!important;animation:none}
+    html[data-theme="tachyon"][data-theme] .bnav{background:linear-gradient(180deg,#1A0A30,#0C0614)!important;border-top:0!important;box-shadow:0 -3px 0 #7CFF3A,0 -5px 0 #000,0 -8px 22px rgba(155,61,255,.45)!important}
+    html[data-theme="tachyon"][data-theme] .bnav-add-btn{background:radial-gradient(circle,#E9FFD0 0 12%,#7CFF3A 13% 32%,#5A1FA0 33%)!important;border:3px solid #C49BFF!important;box-shadow:0 0 28px rgba(124,255,58,.8)!important;animation:none}
     /* ══ NEFARIOUS v4 : repaire diabolique (rouge sang, yeux qui fixent, éclairs, néon qui grésille) ══ */
     html[data-theme="nefarious"][data-theme]{--bg:#060104;--bg2:#110308;--bg3:#1C050D;--purple:#FF1E1E;--purple-light:#FF5A4A;--orange:#7A2CFF;--orange-light:#A46BFF;--text:#F6E8EC;--text-dim:#B58C96;--owned:#FF5A4A;--gold:#FF5A4A;
       --th-edge:rgba(255,30,30,.45);--th-glow:rgba(255,20,20,.55);--th-grad:linear-gradient(90deg,#7A0000,#FF1E1E,#FF6A4A)}
@@ -4591,7 +4650,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-n';
+const RC_APP_VERSION = '2026.11.03-o';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -5037,7 +5096,7 @@ function render(){
   if(!anyItem) container.innerHTML=`<div class="empty-state"><div class="icon">🔧</div>${t('empty_state')}</div>`;
   const secCtrl=document.getElementById('section-controls');
   if(secCtrl) secCtrl.style.display = anyItem ? 'flex' : 'none';
-  clearTimeout(window._tierT); window._tierT = setTimeout(()=>{ try{ checkThemeUnlocks(); }catch(e){} }, 900);
+  clearTimeout(window._tierT); window._tierT = setTimeout(()=>{ try{ if(!showThemesUpdate()) checkThemeUnlocks(); }catch(e){} }, 900);
 }
 
 // ══ DETAIL ══
@@ -8318,9 +8377,11 @@ const THEMES = [
   {id:'arsenal',   icon:'🔴', name:'Up Your Arsenal', unlock:'rank', req:400, desc:'Live on Annihilation Nation: spotlights, LED ticker, roaring crowd.'},
   {id:'cracktime', icon:'⏳', name:'A Crack in Time', unlock:'rank', req:500, desc:'The Great Clock: a giant ticking dial, gold & time-teal.'},
   {id:'rivet',     icon:'🔩', name:'Rivet',     unlock:'rank', req:600, desc:'Her robotic arm: riveted metal plates, a moving mechanical arm, gears & glowing violet-and-gold LEDs.'},
-  {id:'courtney',  icon:'💖', name:'Courtney Gears', unlock:'kofi', tier:'GOLD', desc:'Robot pop diva live on stage: pink & cyan spotlights, a disco ball, glitter & a dancing equalizer.'},
+  {id:'zoni',      icon:'🌟', name:'Zoni',      unlock:'rank', req:700, desc:'The mystic Zoni realm: drifting golden orbs of light, turquoise auras & floating sacred rings.'},
+  {id:'courtney',  icon:'💖', name:'Courtney Gears', unlock:'kofi', tier:'BRONZE', desc:'Robot pop diva live on stage: pink & cyan spotlights, a disco ball, glitter & a dancing equalizer.'},
   {id:'nefarious', icon:'👑', name:'Nefarious', unlock:'kofi', tier:'GOLD',     desc:'Villain purple, red eye glow & monitor scanlines.'},
-  {id:'kit',       icon:'✨', name:'Kit',       unlock:'kofi', tier:'PLATINUM', desc:'Warbot mode: hex brass armour, a HUD that locks on target & a cyan scanner.'},
+  {id:'kit',       icon:'✨', name:'Kit',       unlock:'kofi', tier:'SILVER', desc:'Warbot mode: hex brass armour, a HUD that locks on target & a cyan scanner.'},
+  {id:'tachyon',   icon:'🦎', name:'Emperor Tachyon', unlock:'kofi', tier:'PLATINUM', desc:'The imperial throne room: Cragmite purple, toxic green energy, banners & a glowing imperial seal.'},
 ];
 let currentThemeId = '';
 
@@ -8331,8 +8392,11 @@ function ownedCatalogCount(){ return new Set(items.filter(i=>i.status==='owned'&
 
 // Ko-fi unlocks are stored locally for now (SQL sync comes in step 2)
 // Ko-fi supporters: tier set by the admin in the supporters table
-// (supporter = every tier theme, gold = + Nefarious, platinum = + Kit)
-const SUP_RANK={supporter:1,gold:2,platinum:3};
+// PlayStation-style trophies: bronze = every tier theme + Courtney Gears, silver = + Kit,
+// gold = + Nefarious, platinum = + Emperor Tachyon (each level includes the ones below)
+const SUP_RANK={supporter:1,bronze:1,silver:2,gold:3,platinum:4};
+const KOFI_LEVEL={BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4};
+const KOFI_LABEL={BRONZE:'🥉 Bronze',SILVER:'🥈 Silver',GOLD:'🥇 Gold',PLATINUM:'🏆 Platinum'};
 window._supTier=null;
 async function loadSupporterTier(){
   if(!currentUser || !sbClient) return;
@@ -8349,8 +8413,8 @@ async function loadSupporterTier(){
 }
 function supRank(){ return SUP_RANK[window._supTier]||0; }
 function kofiUnlocked(themeId){
-  if((themeId==='nefarious'||themeId==='courtney') && supRank()>=2) return true;
-  if(themeId==='kit' && supRank()>=3) return true;
+  const t=THEMES.find(x=>x.id===themeId);
+  if(t && t.tier && supRank()>=(KOFI_LEVEL[t.tier]||9)) return true;
   return localStorage.getItem('rc_kofi_theme_'+themeId)==='1';
 }
 // Theme tiers count distinct pieces (one per catalog entry, or per name for hand-typed items)
@@ -8394,6 +8458,8 @@ const DECO_THEMES = {
   arsenal:     [['star',7,14,'#FF8A1A','twinkle'],['bolt',4,44,'#FF4A28','spin-slow'],['ship',1,60,'#E01800','fly']],
   rivet:       [['bolt',4,44,'#E0703A','spin-slow'],['gear',3,46,'#9B6FF4','drift'],['star',5,12,'#F0925F','twinkle']],
   courtney:    [['star',10,16,'#FF8ACB','twinkle'],['star',6,12,'#C7F5FF','twinkle']],
+  zoni:        [['star',10,14,'#FFE7A0','twinkle'],['star',6,10,'#9FF6EE','twinkle']],
+  tachyon:     [['star',6,12,'#B98CFF','twinkle'],['chip',3,40,'#7CFF3A','drift']],
   nefarious:   [['chip',4,44,'#FF6A1A','drift'],['star',7,14,'#7F5FF0','twinkle'],['gear',3,42,'#5A3AD4','spin-slow']],
 };
 
@@ -8488,11 +8554,11 @@ function renderThemes(){
     let tag='';
     if(t.unlock==='free') tag='<span class="theme-tag free">FREE</span>';
     else if(t.unlock==='rank') tag='<span class="theme-tag rank">TIER '+t.req+'</span>';
-    else if(t.unlock==='kofi') tag='<span class="theme-tag kofi">'+(t.tier==='PLATINUM'?'☕ PLATINUM':'☕ GOLD')+'</span>';
+    else if(t.unlock==='kofi') tag='<span class="theme-tag kofi">☕ '+(KOFI_LABEL[t.tier]||t.tier)+'</span>';
     let lockInfo='';
     if(!unlocked){
       if(t.unlock==='rank') lockInfo='<div class="theme-tier">🔒 '+score+' / '+t.req+' pieces · or ☕ Ko-fi<div class="bar"><span style="width:'+Math.min(100,Math.round(score/t.req*100))+'%"></span></div></div>';
-      else if(t.unlock==='kofi') lockInfo='<div class="theme-lock">🔒 Ko-fi supporter exclusive</div>';
+      else if(t.unlock==='kofi') lockInfo='<div class="theme-lock">🔒 Ko-fi '+(KOFI_LABEL[t.tier]||'')+' supporters</div>';
     }
     html += '<div class="theme-card'+(active?' active':'')+(unlocked?'':' locked')+'" onclick="'+(unlocked?'previewTheme(\''+t.id+'\')':'showLockedInfo(\''+t.id+'\')')+'">'
       + themePreviewHtml(t.id,'theme-prev')
@@ -8516,6 +8582,8 @@ const THEME_SWATCHES = {
   nebula:['#C46BFF','#2EE6D6','#02030C'],
   rivet:['#9B4DFF','#FFD23E','#14121E'],
   courtney:['#FF3FA4','#7FE7FF','#14051A'],
+  zoni:['#FFD36A','#4FE8D8','#071A22'],
+  tachyon:['#9B3DFF','#7CFF3A','#0C0614'],
   cracktime:['#E8C15A','#2FD3C8','#050B1C'],
   nefarious:['#A46BFF','#FF3D2E','#0A0614'],
   kit:['#E8A43A','#4FD8F0','#0F0A05'],
@@ -8547,10 +8615,41 @@ function showLockedInfo(id){
   if(t.unlock==='rank'){
     showToast('🔒 '+t.name+' unlocks at '+t.req+' different pieces — you have '+themeScore()+'. Ko-fi supporters get it right away ☕', 'info');
   } else if(t.unlock==='kofi'){
-    showToast('🔒 '+t.name+' is a Ko-fi '+(t.tier==='PLATINUM'?'Platinum':'Gold')+' supporter exclusive ☕', 'info');
+    showToast('🔒 '+t.name+' is a Ko-fi '+(KOFI_LABEL[t.tier]||'')+' supporter exclusive ☕ — see ratchetlegacy.com/supporters.html', 'info');
   }
 }
 
+// ── One-time announcement of the new theme tiers & Ko-fi trophies ──
+function showThemesUpdate(){
+  if(!currentUser || !Array.isArray(items) || !window._rcLaunched) return false;
+  const key='rc_themes_update_v2_'+currentUser.id;
+  try{ if(localStorage.getItem(key)) return false; localStorage.setItem(key,'1'); }catch(e){ return false; }
+  // the tier popup must not fire for themes already reached before this update
+  try{ localStorage.setItem('rc_tiers_seen_'+currentUser.id, JSON.stringify(THEMES.filter(t=>t.unlock==='rank'&&isThemeUnlocked(t)).map(t=>t.id))); }catch(e){}
+  const score=themeScore();
+  const rank=THEMES.filter(t=>t.unlock==='rank');
+  const mine=THEMES.filter(t=>isThemeUnlocked(t)).length;
+  let pop=document.getElementById('tier-pop'); if(!pop){ pop=document.createElement('div'); pop.id='tier-pop'; document.body.appendChild(pop); }
+  const row=(a,b,ok)=>'<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.8rem'+(ok?';color:#7FFFC4':'')+'"><span>'+a+'</span><span>'+b+'</span></div>';
+  pop.innerHTML='<div class="tier-box" style="max-height:86vh;overflow:auto;text-align:left">'
+   +'<div class="tier-kicker" style="text-align:center">TRACKER UPDATE</div>'
+   +'<div class="tier-name" style="text-align:center;margin:8px 0 4px">🎨 Themes got a big update!</div>'
+   +'<div class="tier-txt" style="text-align:center;margin-bottom:12px">'+THEMES.length+' themes, unlocked by tiers like PlayStation trophies.</div>'
+   +'<div style="font-weight:800;font-size:.85rem;margin:6px 0 4px">🏆 By collection tiers</div>'
+   +row('🦊 Lombax','Free',true)
+   +rank.map(t=>row(t.icon+' '+t.name, t.req+' pieces'+(score>=t.req?' ✓':''), score>=t.req)).join('')
+   +'<div style="font-weight:800;font-size:.85rem;margin:14px 0 4px">☕ Ko-fi supporter trophies</div>'
+   +row('🥉 Bronze · from €3','Every tier theme + 💖 Courtney Gears')
+   +row('🥈 Silver · from €10','+ ✨ Kit')
+   +row('🥇 Gold · from €25','+ 👑 Nefarious')
+   +row('🏆 Platinum · from €50','+ 🦎 Emperor Tachyon')
+   +'<div class="tier-txt" style="margin:14px 0;padding:10px 12px;border-radius:12px;background:rgba(127,255,196,.08);border:1px solid rgba(127,255,196,.3);color:var(--text)">'
+   +'✅ <b>Already passed some tiers?</b> Those themes are already unlocked for you — you own <b>'+score+'</b> different pieces, so <b>'+mine+'</b> theme'+(mine>1?'s are':' is')+' ready. Open <b>Menu → 🎨 Themes</b> and pick one!</div>'
+   +'<div class="tier-btns"><button class="tier-later" onclick="closeTierPopup()">Close</button>'
+   +'<button class="tier-try" style="background:linear-gradient(135deg,var(--purple),var(--orange))" onclick="closeTierPopup();openThemes()">See my themes</button></div></div>';
+  pop.classList.add('open');
+  return true;
+}
 // ── Tier unlocks: popup when a new theme tier is reached ──
 function checkThemeUnlocks(){
   if(!currentUser || !Array.isArray(items) || !window._rcLaunched) return;
