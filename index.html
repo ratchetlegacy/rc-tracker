@@ -4650,7 +4650,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-p';
+const RC_APP_VERSION = '2026.11.03-q';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -5096,7 +5096,7 @@ function render(){
   if(!anyItem) container.innerHTML=`<div class="empty-state"><div class="icon">🔧</div>${t('empty_state')}</div>`;
   const secCtrl=document.getElementById('section-controls');
   if(secCtrl) secCtrl.style.display = anyItem ? 'flex' : 'none';
-  clearTimeout(window._tierT); window._tierT = setTimeout(()=>{ try{ if(!showThemesUpdate()) checkThemeUnlocks(); }catch(e){} }, 900);
+  clearTimeout(window._tierT); window._tierT = setTimeout(()=>{ try{ if(!showThemesUpdate()) checkThemeUnlocks(); }catch(e){ console.warn('[themes popup]',e); } }, 900);
 }
 
 // ══ DETAIL ══
@@ -8408,7 +8408,7 @@ async function loadSupporterTier(){
     window._supTier=best;
     try{ if(best) localStorage.setItem('rc_sup_tier_'+currentUser.id,best); else localStorage.removeItem('rc_sup_tier_'+currentUser.id); }catch(e){}
     const tl=document.getElementById('themes-list'); if(tl && tl.offsetParent) renderThemes();
-    clearTimeout(window._tierT); window._tierT=setTimeout(()=>{ try{ if(!showThemesUpdate()) checkThemeUnlocks(); }catch(e){} },900);
+    clearTimeout(window._tierT); window._tierT=setTimeout(()=>{ try{ if(!showThemesUpdate()) checkThemeUnlocks(); }catch(e){ console.warn('[themes popup]',e); } },900);
   }catch(e){}
 }
 function supRank(){ return SUP_RANK[window._supTier]||0; }
@@ -8623,7 +8623,7 @@ function showLockedInfo(id){
 function showThemesUpdate(){
   if(!currentUser || !Array.isArray(items) || !window._rcLaunched) return false;
   const key='rc_themes_update_v2_'+currentUser.id;
-  try{ if(localStorage.getItem(key)) return false; localStorage.setItem(key,'1'); }catch(e){ return false; }
+  try{ if(localStorage.getItem(key)) return false; }catch(e){ return false; }
   // the tier popup must not fire for themes already reached before this update
   try{ localStorage.setItem('rc_tiers_seen_'+currentUser.id, JSON.stringify(THEMES.filter(t=>t.unlock==='rank'&&isThemeUnlocked(t)).map(t=>t.id))); }catch(e){}
   const score=themeScore();
@@ -8648,6 +8648,7 @@ function showThemesUpdate(){
    +'<div class="tier-btns"><button class="tier-later" onclick="closeTierPopup()">Close</button>'
    +'<button class="tier-try" style="background:linear-gradient(135deg,var(--purple),var(--orange))" onclick="closeTierPopup();openThemes()">See my themes</button></div></div>';
   pop.classList.add('open');
+  try{ localStorage.setItem(key,'1'); }catch(e){}
   return true;
 }
 // ── Tier unlocks: popup when a new theme tier is reached ──
