@@ -984,6 +984,21 @@
     @keyframes kitFlow{50%{filter:brightness(1.4)}}
     html[data-theme="kit"][data-theme] .bnav{background:linear-gradient(180deg,#141A22,#07090D)!important;border-top:0!important;box-shadow:0 -3px 0 #E8A43A,0 -4px 0 #000,0 -6px 20px rgba(79,216,240,.3)!important}
     html[data-theme="kit"][data-theme] .bnav-add-btn{background:radial-gradient(circle,#bff6ff 0 14%,#4FD8F0 15% 30%,#E8A43A 31%)!important;border:0!important;border-radius:0!important;clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%);box-shadow:none!important;filter:drop-shadow(0 0 12px rgba(79,216,240,.8));animation:none}
+    /* ajout de pièce : bandeau de progression */
+    #piece-pop{position:fixed;left:50%;bottom:92px;z-index:2900;width:min(380px,92vw);transform:translate(-50%,30px) scale(.9);opacity:0;pointer-events:none;transition:transform .35s cubic-bezier(.2,1.4,.4,1),opacity .25s}
+    #piece-pop.show{transform:translate(-50%,0) scale(1);opacity:1}
+    #piece-pop .pp-row{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;background:var(--bg2);border:1px solid var(--th-edge,rgba(255,255,255,.12));box-shadow:0 12px 34px rgba(0,0,0,.55),0 0 26px var(--th-glow,rgba(123,79,212,.35))}
+    #piece-pop .pp-plus{flex:0 0 auto;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-weight:900;font-size:1.05rem;color:#0b0b10;background:linear-gradient(135deg,var(--purple),var(--orange));animation:ppPop .6s cubic-bezier(.2,1.6,.4,1)}
+    @keyframes ppPop{from{transform:scale(.2) rotate(-90deg)}}
+    #piece-pop .pp-main{flex:1;min-width:0}
+    #piece-pop .pp-title{font-size:.82rem;font-weight:700;color:var(--text)}
+    #piece-pop .pp-sub{font-size:.74rem;color:var(--text-dim);margin:2px 0 6px}
+    #piece-pop .pp-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+    #piece-pop .pp-bar span{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--purple),var(--orange));animation:ppFill 1s ease-out}
+    @keyframes ppFill{from{width:0}}
+    #piece-pop .pp-bolt{position:absolute;left:36px;top:30px;font-style:normal;font-size:.9rem;opacity:0}
+    #piece-pop.show .pp-bolt{animation:ppBolt .9s ease-out forwards}
+    @keyframes ppBolt{0%{opacity:1;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1.1) rotate(200deg)}}
     /* page Thèmes : aperçu en vignette */
     .theme-prev{height:62px;border-radius:10px;margin-bottom:10px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.1)}
     .theme-prev i{position:absolute;left:10px;right:10px;bottom:10px;height:6px;border-radius:3px}
@@ -4671,7 +4686,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-y';
+const RC_APP_VERSION = '2026.11.03-z';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -5117,6 +5132,7 @@ function render(){
   if(!anyItem) container.innerHTML=`<div class="empty-state"><div class="icon">🔧</div>${t('empty_state')}</div>`;
   const secCtrl=document.getElementById('section-controls');
   if(secCtrl) secCtrl.style.display = anyItem ? 'flex' : 'none';
+  try{ pieceGainCheck(); }catch(e){}
   clearTimeout(window._tierT); window._tierT = setTimeout(()=>{ try{ if(!showThemesUpdate()) checkThemeUnlocks(); }catch(e){ console.warn('[themes popup]',e); } }, 900);
 }
 
@@ -8673,6 +8689,32 @@ function showThemesUpdate(){
   return true;
 }
 function closeThemesUpdate(open){ try{ localStorage.setItem(window._themesUpdKey,'1'); }catch(e){} closeTierPopup(); if(open) openThemes(); }
+// ── New piece added: little celebration + progress to the next theme tier ──
+function pieceGainCheck(){
+  if(!currentUser || !Array.isArray(items) || !window._rcLaunched) return;
+  const sc=themeScore();
+  const last=window._lastPieceScore;
+  window._lastPieceScore=sc;
+  if(last==null || sc<=last) return;
+  const gained=sc-last;
+  if(gained>50) return;   // first load / big import: no celebration
+  const tiers=THEMES.filter(t=>t.unlock==='rank').sort((a,b)=>a.req-b.req);
+  const next=tiers.find(t=>sc<t.req);
+  const prev=[...tiers].reverse().find(t=>sc>=t.req);
+  const from=prev?prev.req:0, to=next?next.req:sc;
+  const pct=next?Math.round((sc-from)/(to-from)*100):100;
+  const justHit=tiers.find(t=>last<t.req && sc>=t.req);
+  let el=document.getElementById('piece-pop');
+  if(!el){ el=document.createElement('div'); el.id='piece-pop'; document.body.appendChild(el); }
+  el.innerHTML='<div class="pp-row"><span class="pp-plus">+'+gained+'</span><div class="pp-main">'
+    +'<div class="pp-title">'+(gained>1?gained+' new pieces!':'New piece added!')+' <b>'+sc+'</b> in your collection</div>'
+    +'<div class="pp-sub">'+(justHit?'🎉 '+justHit.icon+' '+justHit.name+' theme reached!':(next?'Only <b>'+(next.req-sc)+'</b> more for '+next.icon+' '+next.name:'Every tier theme reached 🏆'))+'</div>'
+    +'<div class="pp-bar"><span style="width:'+pct+'%"></span></div></div></div>';
+  for(let k=0;k<10;k++){ const b=document.createElement('i'); b.className='pp-bolt'; b.textContent=k%3?'🔩':'✨';
+    b.style.setProperty('--x',(Math.random()*220-110)+'px'); b.style.setProperty('--y',(-40-Math.random()*90)+'px'); b.style.animationDelay=(Math.random()*.25)+'s'; el.appendChild(b); }
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  clearTimeout(window._ppT); window._ppT=setTimeout(()=>el.classList.remove('show'),3800);
+}
 // ── Tier unlocks: popup when a new theme tier is reached ──
 function checkThemeUnlocks(){
   if(!currentUser || !Array.isArray(items) || !window._rcLaunched) return;
