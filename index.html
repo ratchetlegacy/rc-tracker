@@ -3882,6 +3882,7 @@ async function fetchItems(){
   if(error){ showToast('Error: '+error.message,'error'); return; }
   items=(data||[]).map(migrateItemLang);
   loadSupporterTier();
+  loadCustomSfx();
   await loadRcCatalogIndex();  // so catalog photos become default images
 }
 async function dbInsert(obj){ const {data,error}=await sbClient.from('items').insert([obj]).select().single(); if(error) throw error; return data; }
@@ -4428,10 +4429,25 @@ function updateSfxLabel(){
   const el=document.getElementById('sfx-toggle-lbl'); if(el) el.textContent = sfxOn()?'Sound effects: on':'Sound effects: off';
   const ic=document.getElementById('sfx-toggle-ic'); if(ic) ic.textContent = sfxOn()?'🔊':'🔇';
 }
-let _sfxCtx=null, _sfxLast=0;
+let _sfxCtx=null, _sfxLast=0, _sfxCustom={}, _sfxAudio=null;
+// custom sounds uploaded from the admin (app_settings key 'theme_sfx')
+async function loadCustomSfx(){
+  try{ const {data}=await sbClient.from('app_settings').select('value').eq('key','theme_sfx').maybeSingle(); _sfxCustom=JSON.parse((data&&data.value)||'{}')||{}; }catch(e){ _sfxCustom={}; }
+}
+function sfxCustomUrl(c){
+  if(!c||!c.url) return '';
+  let u=c.url; const m=u.match(/^(https:\/\/res\.cloudinary\.com\/[^/]+\/video\/upload\/)(.*)$/);
+  if(m){ const tr=[]; if(c.so) tr.push('so_'+c.so); if(c.eo) tr.push('eo_'+c.eo);
+    let rest=m[2].replace(/^(so_[^/]*|eo_[^/]*)\//,'').replace(/\.[a-z0-9]+$/i,'')+'.mp3'; u=m[1]+(tr.length?tr.join(',')+'/':'')+rest; }
+  return u;
+}
 function rcSfx(kind){
   if(!sfxOn()) return;
   const nowMs=Date.now(); if(nowMs-_sfxLast<250) return; _sfxLast=nowMs;
+  const cust=_sfxCustom[currentThemeId||'lombax'];
+  if(cust && cust.url){
+    try{ if(_sfxAudio) _sfxAudio.pause(); _sfxAudio=new Audio(sfxCustomUrl(cust)); _sfxAudio.volume=Math.min(1,(cust.vol||0.6)*(kind==='cat'?0.7:1)); _sfxAudio.play().catch(()=>{}); return; }catch(e){}
+  }
   try{
     const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
     if(!_sfxCtx) _sfxCtx=new AC();
@@ -4561,7 +4577,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-h';
+const RC_APP_VERSION = '2026.11.03-i';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
