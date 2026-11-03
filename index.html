@@ -4424,7 +4424,7 @@ function refreshViewToggle(){
 (function(){ function mk(){ const bg=document.getElementById('theme-bg'); if(!bg||document.getElementById('cg-eq')) return;
   const eq=document.createElement('div'); eq.id='cg-eq';
   for(let i=0;i<18;i++){ const b=document.createElement('i'); const lo=(0.1+Math.random()*0.3).toFixed(2), hi=(0.5+Math.random()*0.5).toFixed(2);
-    b.style.cssText='--a:'+lo+';--b:'+hi+';--d:'+(0.35+Math.random()*0.5).toFixed(2)+'s;--dl:-'+(Math.random()).toFixed(2)+'s'; eq.appendChild(b); }
+    b.style.cssText='--a:'+lo+';--b:'+hi+';--d:'+(0.7+Math.random()*0.7).toFixed(2)+'s;--dl:-'+(Math.random()).toFixed(2)+'s'; eq.appendChild(b); }
   bg.appendChild(eq); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',mk); else mk(); })();
 // ── Sound effects (synthesised live with Web Audio — no audio files) ──
@@ -4591,7 +4591,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-m';
+const RC_APP_VERSION = '2026.11.03-n';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
