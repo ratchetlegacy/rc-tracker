@@ -124,6 +124,9 @@ input[type=search]{flex:1 1 180px;min-width:0;background:var(--panel);border:1px
 .st.pl[aria-pressed="true"]{filter:none;opacity:1;background:color-mix(in srgb,#e9b13c 22%,transparent);border-color:#e9b13c}
 .st.pl[aria-pressed="true"]::before{content:none}
 .pltag{margin-left:6px;font-size:13px}
+.st.gift{width:40px;flex:none;font-size:15px;filter:grayscale(1);opacity:.45}
+.st.gift[aria-pressed="true"]{filter:none;opacity:1;background:color-mix(in srgb,#ff6fae 22%,transparent);border-color:#ff6fae}
+.st.gift[aria-pressed="true"]::before{content:none}
 .st.del{border-color:transparent;color:var(--muted);opacity:.7}
 .del{flex:none;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;width:30px;height:30px;cursor:pointer}
 .mine{font:600 10.5px var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--acc);margin-left:6px}
@@ -147,7 +150,7 @@ body.locked #lock{display:block}
 <div class="wrap">
   <div class="top" id="top">
   <header class="head">
-    <div class="titlerow"><a href="./" class="ibtn" title="Retour au tracker" aria-label="Retour au tracker" style="display:flex;align-items:center;justify-content:center;text-decoration:none">←</a><h1>Ma collection rétro</h1><button class="ibtn" id="expBtn" title="Exporter" aria-label="Exporter">⤓</button><button class="ibtn" id="foldAll" title="Tout replier" aria-label="Tout replier">⊟</button><button class="ibtn" id="openAll" title="Tout déplier" aria-label="Tout déplier" hidden>⊞</button></div>
+    <div class="titlerow"><a href="./" class="ibtn" title="Retour au tracker" aria-label="Retour au tracker" style="display:flex;align-items:center;justify-content:center;text-decoration:none">←</a><h1>Ma collection rétro</h1><button class="ibtn" id="wishBtn" title="Partager ma liste d'envies" aria-label="Partager ma liste d'envies">🎁</button><button class="ibtn" id="expBtn" title="Exporter" aria-label="Exporter">⤓</button><button class="ibtn" id="foldAll" title="Tout replier" aria-label="Tout replier">⊟</button><button class="ibtn" id="openAll" title="Tout déplier" aria-label="Tout déplier" hidden>⊞</button></div>
     <nav class="tabs" role="tablist" aria-label="Listes">
       <button class="tab" role="tab" id="tab-col" data-tab="col">Ma collection</button>
       <button class="tab" role="tab" id="tab-sms" data-tab="sms">Master System</button>
@@ -167,16 +170,26 @@ body.locked #lock{display:block}
   <div class="sum" id="sum"></div>
   <div class="ctrls">
       <div class="seg" role="group" aria-label="Filtre">
-        <button class="chip" data-f="all" aria-pressed="true">Tout</button><button class="chip" data-f="miss" aria-pressed="false">À trouver</button><button class="chip" data-f="own" aria-pressed="false">Possédés</button><button class="chip" data-f="star" aria-pressed="false" id="starChip">★</button><button class="chip" data-f="plat" aria-pressed="false" id="platChip" title="Platinés / 100 %">🏆</button>
+        <button class="chip" data-f="all" aria-pressed="true">Tout</button><button class="chip" data-f="miss" aria-pressed="false">À trouver</button><button class="chip" data-f="own" aria-pressed="false">Possédés</button><button class="chip" data-f="star" aria-pressed="false" id="starChip">★</button><button class="chip" data-f="wish" aria-pressed="false" id="wishChip" title="Ma liste d'envies">🎁</button><button class="chip" data-f="plat" aria-pressed="false" id="platChip" title="Platinés / 100 %">🏆</button>
       </div>
       <div class="seg" id="grp" role="group" aria-label="Classer" hidden><button class="chip" data-g="series" aria-pressed="false">Séries</button><button class="chip" data-g="plat" aria-pressed="true">Consoles</button></div>
     </div>
   <div class="links"><button class="lnk" id="photoBtn" hidden>📷 Cocher les jeux de ma photo d'étagère</button><span id="photo" hidden></span><button class="lnk" id="restBtn" hidden>↺ Remettre les jeux retirés</button><button class="lnk" id="xBtn">⇄ Transférer mes coches</button></div>
+  <dialog id="wDlg"><form method="dialog">
+    <h3>🎁 Ma liste d'envies</h3>
+    <p id="wCount" style="font-size:14px;margin:0 0 6px"></p>
+    <p style="font-size:13px;color:var(--muted);margin:0">Touche 🎁 sur les jeux qui te manquent pour les ajouter. Un jeu que tu coches comme reçu (case Jeu) sort tout seul de la liste.</p>
+    <label for="wTitle">Titre de la liste</label><input id="wTitle" maxlength="80" autocomplete="off">
+    <div id="wLinkBox" hidden><label for="wLink">Lien à envoyer à ta famille</label><input id="wLink" readonly></div>
+    <p style="font-size:12.5px;color:var(--muted);margin:8px 0 0">La page partagée montre seulement les jeux de ta liste d'envies, rien d'autre de ta collection. Elle se met à jour toute seule.</p>
+    <p id="wMsg" style="font-size:13px;margin:8px 0 0" aria-live="polite"></p>
+    <div class="btns" style="flex-wrap:wrap"><button class="btn" value="cancel" formnovalidate>Fermer</button><button class="btn" type="button" id="wStop" hidden>Arrêter le partage</button><button class="btn" type="button" id="wSee">Voir la page</button><button class="btn" type="button" id="wCopy" hidden>Copier le lien</button><button class="btn pri" type="button" id="wShare" hidden>Partager…</button><button class="btn pri" type="button" id="wCreate">Créer le lien de partage</button></div>
+  </form></dialog>
   <dialog id="eDlg"><form method="dialog" id="eForm">
     <h3>Exporter</h3>
     <label>Listes</label>
     <div id="eLists" style="display:grid;gap:2px"></div>
-    <label for="eWhat">Quels jeux</label><select id="eWhat"><option value="all">Tout</option><option value="own">Seulement ce que j'ai</option><option value="miss">Seulement ce qui me manque</option><option value="plat">Seulement mes platinés / 100 %</option></select>
+    <label for="eWhat">Quels jeux</label><select id="eWhat"><option value="all">Tout</option><option value="own">Seulement ce que j'ai</option><option value="miss">Seulement ce qui me manque</option><option value="plat">Seulement mes platinés / 100 %</option><option value="wish">Seulement ma liste d'envies 🎁</option></select>
     <label for="eFmt">Format</label><select id="eFmt"><option value="csv">Tableau Excel (.csv)</option><option value="txt">Liste texte (.txt), pratique en brocante</option><option value="jpg">Image (.jpg), à partager ou garder en photo</option></select>
     <p id="eMsg" style="font-size:13px;margin:10px 0 0" aria-live="polite"></p>
     <div class="btns"><button class="btn" value="cancel" formnovalidate>Fermer</button><button class="btn pri" id="eGo" type="button">Exporter</button></div>
@@ -209,7 +222,7 @@ body.locked #lock{display:block}
 <script>
 window.RETRO_SB={url:"https://ihucxnmqnhevfvlamgwc.supabase.co",key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlodWN4bm1xbmhldmZ2bGFtZ3djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDQ5ODcsImV4cCI6MjA5NzI4MDk4N30.RhH778it6rcz44fdqdMLz7v-j8BWyKGGIJN4vHauhgU"};
 window.retroLock=m=>{ document.body.classList.add("locked"); document.getElementById("lockMsg").textContent=m; };
-fetch("retro/data.json",{cache:"no-cache"}).then(r=>r.json()).then(d=>{ window.RETRO_DATA=d; const s=document.createElement("script"); s.src="retro/app.js?v=1"; document.body.append(s); })
+fetch("retro/data.json",{cache:"no-cache"}).then(r=>r.json()).then(d=>{ window.RETRO_DATA=d; const s=document.createElement("script"); s.src="retro/app.js?v=2"; document.body.append(s); })
   .catch(()=>window.retroLock("Impossible de charger la liste. Vérifie ta connexion."));
 </script>
 </body></html>

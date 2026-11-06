@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Liste d'envies</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0b0c10">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Barlow:wght@400;600&display=swap">
+<style>
+:root{--bg:#0b0c10;--panel:#14161d;--line:#252935;--fg:#e9ecf2;--muted:#8c94a7;--acc:#ff6fae;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 Barlow,system-ui,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-left)) 60px}
+h1{font:700 clamp(24px,6vw,34px)/1.1 "Chakra Petch",system-ui,sans-serif;margin:0 0 6px;text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 18px}
+.how{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:10px;padding:10px 14px;font-size:14px;margin-bottom:8px}
+h2{font:700 15px "Chakra Petch",system-ui,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--acc);margin:22px 0 4px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.row{display:flex;gap:12px;align-items:center;padding:9px 2px;border-bottom:1px solid var(--line)}
+.cov{flex:none;width:44px;height:60px;object-fit:cover;border-radius:4px;border:1px solid var(--line);background:var(--panel)}
+.cov.none{display:flex;align-items:center;justify-content:center;font-size:20px}
+.t{font-weight:600}.n{color:var(--muted);font-size:13.5px}
+.empty{color:var(--muted);padding:40px 0;text-align:center}
+.foot{color:var(--muted);font-size:12.5px;margin-top:26px}
+</style></head><body>
+<div class="wrap">
+  <h1 id="title">🎁 Liste d'envies</h1>
+  <p class="sub" id="sub">Chargement…</p>
+  <div class="how" id="how" hidden>Ce sont des jeux qui manquent à la collection. Pour un cadeau, vérifie bien la <b>console</b> indiquée sous chaque titre.</div>
+  <div id="list"></div>
+  <p class="foot" id="foot"></p>
+</div>
+<script>
+const SB="https://ihucxnmqnhevfvlamgwc.supabase.co", KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlodWN4bm1xbmhldmZ2bGFtZ3djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDQ5ODcsImV4cCI6MjA5NzI4MDk4N30.RhH778it6rcz44fdqdMLz7v-j8BWyKGGIJN4vHauhgU";
+const t=new URLSearchParams(location.search).get("t")||"";
+const el=(tag,cls,txt)=>{ const e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; };
+(async()=>{
+  try{
+    if(t.length<16) throw new Error("lien");
+    const r=await fetch(SB+"/rest/v1/rpc/get_retro_wishlist",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+KEY,"Content-Type":"application/json"},body:JSON.stringify({t})});
+    const d=await r.json(); if(!d||!d.items) throw new Error("lien");
+    const title="🎁 "+(d.title||"Liste d'envies"); document.title=d.title||"Liste d'envies"; document.getElementById("title").textContent=title;
+    const items=Array.isArray(d.items)?d.items:[]; const list=document.getElementById("list");
+    document.getElementById("sub").textContent=items.length?items.length+" jeu"+(items.length>1?"x":"")+" sur la liste":"";
+    if(!items.length){ list.append(el("p","empty","La liste est vide pour le moment.")); }
+    else{ document.getElementById("how").hidden=false; let g=null;
+      for(const it of items){ if(it.g!==g){ g=it.g; list.append(el("h2",null,g)); }
+        const row=el("div","row");
+        if(it.img && /^retro\/covers\/[\w.-]+$/.test(it.img)){ const im=el("img","cov"); im.src=it.img; im.alt=""; im.loading="lazy"; row.append(im); } else row.append(el("div","cov none","🎮"));
+        const tx=el("div"); tx.append(el("div","t",it.t), el("div","n",[it.p,it.y||""].filter(Boolean).join(" · "))); row.append(tx); list.append(row); } }
+    if(d.updated_at) document.getElementById("foot").textContent="Mise à jour le "+new Date(d.updated_at).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})+".";
+  }catch(e){ document.getElementById("sub").textContent="Ce lien de liste d'envies n'existe pas ou n'est plus partagé."; }
+})();
+</script>
+</body></html>

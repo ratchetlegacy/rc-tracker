@@ -97,7 +97,7 @@ function render(){
     for(const [v,t] of [["all","Toutes"]].concat(DATA.colplats.filter(p=>p!=="PS4 / PS5").map(p=>[p,L[p]||p]))){ const b=document.createElement("button"); b.className="chip"; b.dataset.c=v; b.textContent=t;
       b.onclick=()=>{cons=v; try{localStorage.setItem("retro-cons",v)}catch(e){} render();}; $("#cons").append(b);} }
   document.querySelectorAll("#cons .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.c===cons));
-  $("#grp").hidden=!(tab==="moto"||tab==="col"); $("#photoBtn").hidden=tab!=="col"||PHOTO.every(i=>state[i]&&state[i].c); $("#starChip").hidden=tab!=="sms"; if(tab!=="sms"&&filt==="star") filt="all"; const PLT=tab==="col"||tab==="ps3"||tab==="oop"; $("#platChip").hidden=!PLT; if(!PLT&&filt==="plat") filt="all"; document.querySelectorAll("#grp .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===GRP[tab]));
+  $("#grp").hidden=!(tab==="moto"||tab==="col"); $("#photoBtn").hidden=tab!=="col"||PHOTO.every(i=>state[i]&&state[i].c); $("#starChip").hidden=tab!=="sms"; if(tab!=="sms"&&filt==="star") filt="all"; const PLT=tab==="col"||tab==="ps3"||tab==="oop"; $("#platChip").hidden=!PLT; if(!PLT&&filt==="plat") filt="all"; const WT=tab!=="cards"&&tab!=="rel"; $("#wishChip").hidden=!WT; if(!WT&&filt==="wish") filt="all"; document.querySelectorAll("#grp .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===GRP[tab]));
   const list=$("#list"); list.textContent="";
   if(tab==="rel"&&!secs.length){ const e=document.createElement("p"); e.className="empty"; e.textContent=REL.length?"Rien à afficher avec ce filtre.":"Les sorties se chargent… Elles sont mises à jour automatiquement chaque lundi."; list.append(e); }
   for(const sec of secs){
@@ -105,7 +105,7 @@ function render(){
     for(const it of sec.items){
       const v=state[it.id]||{}; const s=status(v,sec.digital); const has=s===1||s===2; if(it.soon&&!has){ if(filt==="own"||filt==="plat"||(q&&!fold(it.t+" "+it.n).includes(q))) continue; rows.push([it,v,s,sec.digital]); continue; } st++; tot++;
       if(has){so++;own++; if(s===2)cib++; else loose++;} if(v.pl) plat++;
-      if(filt==="miss"&&has) continue; if(filt==="own"&&!has) continue; if(filt==="star"&&!it.star) continue; if(filt==="plat"&&!v.pl) continue;
+      if(filt==="miss"&&has) continue; if(filt==="own"&&!has) continue; if(filt==="star"&&!it.star) continue; if(filt==="plat"&&!v.pl) continue; if(filt==="wish"&&!v.w) continue;
       if(q&&!fold(it.t+" "+it.n+" "+(it.tag||"")).includes(q)) continue;
       rows.push([it,v,s,sec.digital]);
     }
@@ -137,11 +137,13 @@ function render(){
       for(const [k,lab] of (dig?[["a","Acheté"]]:PARTS[tab].map(p=>p[0]==="c"&&it.card?["c","Carte"]:p))){
         const b=document.createElement("button"); b.className="st"; b.id="st-"+it.id+"-"+k; b.textContent=lab;
         b.setAttribute("aria-pressed",!!v[k]); b.setAttribute("aria-label",it.t+" : "+lab);
-        b.onclick=()=>{const cur=Object.assign({},state[it.id]||{}); if(cur[k])delete cur[k]; else cur[k]=1; setState(it.id,cur); render(); persist();};
+        b.onclick=()=>{const cur=Object.assign({},state[it.id]||{}); if(cur[k])delete cur[k]; else cur[k]=1; if(cur.c||cur.a) delete cur.w; setState(it.id,cur); render(); persist();};
         parts.append(b);
       }
       let cv; if(it.img){cv=document.createElement("img"); cv.src=it.img; cv.alt=""; cv.loading="lazy";} else {cv=document.createElement("div"); cv.textContent=dig?"PSN":"—"; cv.classList.add("none");}
       cv.classList.add("cov"); if(it.img||tab!=="oop") r.append(cv); r.append(tx,parts);
+      if(tab!=="cards"&&tab!=="rel"&&!(s===1||s===2)){ const gb=document.createElement("button"); gb.className="st gift"; gb.textContent="🎁"; gb.title="Liste d'envies"; gb.setAttribute("aria-pressed",!!v.w); gb.setAttribute("aria-label",it.t+" : liste d'envies");
+        gb.onclick=()=>{ const cur=Object.assign({},state[it.id]||{}); if(cur.w) delete cur.w; else cur.w=1; setState(it.id,cur); render(); persist(); }; parts.append(gb); }
       if(tab==="col"||tab==="ps3"||tab==="oop"){ const pb=document.createElement("button"); pb.className="st pl"; pb.textContent="🏆"; pb.title="Platiné / 100 %"; pb.setAttribute("aria-pressed",!!v.pl); pb.setAttribute("aria-label",it.t+" : platiné / 100 %");
         pb.onclick=()=>{ const cur=Object.assign({},state[it.id]||{}); if(cur.pl) delete cur.pl; else { cur.pl=1; if(!cur.c) cur.c=1; } setState(it.id,cur); render(); persist(); }; parts.append(pb); }
       if(tab==="col"){const d=document.createElement("button"); d.className="st del"; d.textContent="✕"; d.title="Retirer ce jeu"; d.setAttribute("aria-label","Retirer "+it.t); d.style.width="40px"; d.style.flex="none";
@@ -227,11 +229,35 @@ function renderCards(){
   $("#sum").append(a,bar,lg);
   if(typeof upCur==="function") requestAnimationFrame(upCur);
 }
+// ---------- Liste d'envies partageable (🎁) ----------
+let WISH={sb:null,uid:null,token:null,title:"Ma liste d'envies"};
+function wishItems(){ const idx=new Map(); const SH={"PlayStation":"PS1","PlayStation 2":"PS2","PlayStation 3":"PS3","PlayStation 4":"PS4","PlayStation 5":"PS5","PS4 / PS5":"PS4/PS5","PS Vita":"Vita","PSP":"PSP","Master System":"Master System"};
+  const put=(i,grp,plat)=>{ if(!idx.has(i.id)) idx.set(i.id,{t:i.t,g:grp,p:SH[plat]||plat||"",y:i.y||+((String(i.n||"").match(/\d{4}/)||[0])[0])||0,img:i.img||""}); };
+  for(const i of DATA.col[0].items) put(i,i.series,i.plat); for(const i of custom) put(i,i.series,i.plat);
+  for(const sc of DATA.moto) for(const i of sc.items) put(i,i.series,i.plat);
+  for(const sc of DATA.sms) for(const i of sc.items) put(i,"Master System","Master System");
+  for(const sc of DATA.ps3) for(const i of sc.items) put(i,"Compilations HD PS3","PlayStation 3");
+  for(const sc of DATA.oop) for(const i of sc.items) put(i,"Only on PlayStation","PlayStation 4");
+  for(const r of relItems()) put(r,r.series,r.plat);
+  const out=[]; for(const [k,v] of Object.entries(state)){ if(v&&v.w&&idx.has(k)) out.push(Object.assign({id:k},idx.get(k))); }
+  return out.sort((a,b)=>cmpT(a.g,b.g)||cmpT(a.t,b.t)); }
+let wishTimer=null;
+function wishSync(){ if(!WISH.sb||!WISH.token) return; clearTimeout(wishTimer); wishTimer=setTimeout(async()=>{ try{ await WISH.sb.from("retro_wishlist").update({items:wishItems(),title:WISH.title,updated_at:new Date().toISOString()}).eq("user_id",WISH.uid); }catch(e){} },400); }
+function wishUrl(){ return location.origin+location.pathname.replace(/[^/]*$/,"")+"envies.html?t="+WISH.token; }
+function wishDlgRender(){ const n=wishItems().length; $("#wCount").textContent=n?n+" jeu"+(n>1?"x":"")+" dans ta liste d'envies.":"Ta liste d'envies est vide : touche 🎁 sur les jeux que tu aimerais qu'on t'offre.";
+  $("#wTitle").value=WISH.title; $("#wLinkBox").hidden=!WISH.token; if(WISH.token) $("#wLink").value=wishUrl();
+  $("#wCreate").hidden=!!WISH.token; $("#wSee").hidden=!WISH.token; $("#wStop").hidden=!WISH.token; $("#wShare").hidden=!WISH.token||!navigator.share; $("#wCopy").hidden=!WISH.token; }
+async function wishCreate(){ if(!WISH.sb){ $("#wMsg").textContent="Connexion au tracker indisponible."; return; }
+  const a=new Uint8Array(18); crypto.getRandomValues(a); const tok=[...a].map(x=>x.toString(16).padStart(2,"0")).join("");
+  WISH.title=($("#wTitle").value||"").trim().slice(0,80)||"Ma liste d'envies";
+  const {error}=await WISH.sb.from("retro_wishlist").upsert({user_id:WISH.uid,token:tok,title:WISH.title,items:wishItems(),updated_at:new Date().toISOString()});
+  if(error){ $("#wMsg").textContent="Impossible de créer le lien : "+error.message; return; } WISH.token=tok; $("#wMsg").textContent="Lien créé. Il se met à jour tout seul quand tu modifies ta liste."; wishDlgRender(); }
+async function wishStop(){ if(!armed($("#wStop"),"Confirmer ?")) return; await WISH.sb.from("retro_wishlist").delete().eq("user_id",WISH.uid); WISH.token=null; $("#wMsg").textContent="Partage arrêté : l'ancien lien ne marche plus."; wishDlgRender(); }
 let dirty=false;
 function persist(){ if(!store) dirty=true;
   try{localStorage.setItem("retro-state",JSON.stringify(state));localStorage.setItem("retro-custom",JSON.stringify(custom));localStorage.setItem("retro-hidden",JSON.stringify(hidden));}catch(e){}
   if(!store) return; clearTimeout(timer);
-  timer=setTimeout(async()=>{try{await store.set({state,custom,hidden});$("#save").textContent="Sauvegardé dans ton compte du tracker.";}catch(e){$("#save").textContent="Sauvegarde en ligne impossible : tes coches restent sur cet appareil.";}},600);
+  timer=setTimeout(async()=>{try{await store.set({state,custom,hidden}); wishSync();$("#save").textContent="Sauvegardé dans ton compte du tracker.";}catch(e){$("#save").textContent="Sauvegarde en ligne impossible : tes coches restent sur cet appareil.";}},600);
 }
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{tab=b.dataset.tab; if(tab!=="sms"&&filt==="star")filt="all";try{localStorage.setItem("retro-tab2",tab)}catch(e){}render();});
 document.querySelectorAll(".chip[data-f]").forEach(b=>b.onclick=()=>{filt=b.dataset.f;render();});
@@ -365,7 +391,7 @@ const eDlg=$("#eDlg");
 $("#expBtn").onclick=()=>{ const box=$("#eLists"); box.textContent="";
   for(const [k,lab] of ELISTS){ const l=document.createElement("label"); l.className="ck"; l.style.marginTop="4px"; const c=document.createElement("input"); c.type="checkbox"; c.value=k; c.checked=k===tab; l.append(c,document.createTextNode(" "+lab)); box.append(l); }
   $("#eMsg").textContent=""; eDlg.showModal(); };
-function exportRows(k,what){ const rows=[]; const keep=(h,v)=>what==="all"||(what==="plat"?!!(v&&v.pl):what==="own"?h:!h);
+function exportRows(k,what){ const rows=[]; const keep=(h,v)=>what==="all"||(what==="plat"?!!(v&&v.pl):what==="wish"?!!(v&&v.w):what==="own"?h:!h);
   if(k==="cards"){ for(const al of DATA.cards){
       if(al.pop){ for(const it of al.items){ const h=!!(state[it.id]&&state[it.id].c); if(keep(h)) rows.push({sec:al.name,t:it.t,info:it.n,plat:"",parts:"",st:h?"Possédée":"Manquante"}); } continue; }
       for(const g of al.groups) for(const [id,code] of g.cards){ const v=state[id]||{}; const h=!!v.v; if(!keep(h)) continue;
@@ -392,7 +418,7 @@ $("#eGo").onclick=async()=>{ const ks=[...$("#eLists").querySelectorAll("input:c
     try{ pages=await makeJpgs(ks,what,name); }catch(e){ $("#eMsg").textContent="Impossible de créer l'image : "+(e&&e.message||e); return; }
     if(!pages.length){ $("#eMsg").textContent="Rien à exporter avec ces choix."; return; }
     const d=new Date(), stamp=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-    const base="Collection"+(ks.length===1?"-"+name(ks[0]).replace(/[^\w]+/g,"-"):"")+(what==="miss"?"-a-trouver":what==="own"?"-possedes":what==="plat"?"-platines":"")+"-"+stamp;
+    const base="Collection"+(ks.length===1?"-"+name(ks[0]).replace(/[^\w]+/g,"-"):"")+(what==="miss"?"-a-trouver":what==="own"?"-possedes":what==="plat"?"-platines":what==="wish"?"-envies":"")+"-"+stamp;
     let dl=DL;
     if(!dl){ $("#eMsg").textContent="Téléchargement indisponible ici."; return; }
     for(let i=0;i<pages.length;i++){ const fn=base+(pages.length>1?"-"+(i+1)+"sur"+pages.length:"")+".jpg";
@@ -402,7 +428,7 @@ $("#eGo").onclick=async()=>{ const ks=[...$("#eLists").querySelectorAll("input:c
     $("#eMsg").textContent=pages.length>1?pages.length+" images enregistrées (la liste était trop longue pour une seule).":"Image enregistrée."; return; }
   if(!n){ $("#eMsg").textContent="Rien à exporter avec ces choix."; return; }
   const d=new Date(), stamp=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-  const fname="Collection"+(ks.length===1?"-"+name(ks[0]).replace(/[^\w]+/g,"-"):"")+(what==="miss"?"-a-trouver":what==="own"?"-possedes":what==="plat"?"-platines":"")+"-"+stamp+"."+fmt;
+  const fname="Collection"+(ks.length===1?"-"+name(ks[0]).replace(/[^\w]+/g,"-"):"")+(what==="miss"?"-a-trouver":what==="own"?"-possedes":what==="plat"?"-platines":what==="wish"?"-envies":"")+"-"+stamp+"."+fmt;
   let dl=DL;
   if(!dl){ try{ await navigator.clipboard.writeText(out.replace(/^\ufeff/,"")); $("#eMsg").textContent="Téléchargement indisponible ici : "+n+" lignes copiées dans le presse-papiers."; }catch(e){ $("#eMsg").textContent="Téléchargement indisponible ici."; } return; }
   $("#eMsg").textContent="Préparation de "+n+" lignes…";
@@ -444,6 +470,7 @@ render();
     const {data:adm}=await sb.from("admins").select("user_id").eq("user_id",u.id).maybeSingle();
     if(!adm){ window.retroLock("Cette page est réservée à l'administrateur."); return; }
     document.body.classList.remove("locked");
+    WISH.sb=sb; WISH.uid=u.id; try{ const {data:w}=await sb.from("retro_wishlist").select("token,title").eq("user_id",u.id).maybeSingle(); if(w){ WISH.token=w.token; WISH.title=w.title||WISH.title; } }catch(e){}
     store={ get:async()=>{ const {data,error}=await sb.from("retro_state").select("state,custom,hidden").eq("user_id",u.id).maybeSingle(); if(error) throw error; return {exists:!!data,data:()=>data}; },
             set:async(o)=>{ const {error}=await sb.from("retro_state").upsert({user_id:u.id,state:o.state,custom:o.custom,hidden:o.hidden,updated_at:new Date().toISOString()}); if(error) throw error; } };
     const snap=await store.get();
@@ -457,3 +484,11 @@ render();
     $("#save").textContent="Tes coches sont sauvegardées dans ton compte du tracker.";
   }catch(e){ console.error(e); $("#save").textContent="Connexion au tracker impossible : tes coches restent sur cet appareil."; }
 })();
+
+// boutons de la liste d'envies
+$("#wishBtn").onclick=()=>{ $("#wMsg").textContent=""; wishDlgRender(); $("#wDlg").showModal(); };
+$("#wCreate").onclick=wishCreate; $("#wStop").onclick=wishStop;
+$("#wTitle").onchange=()=>{ WISH.title=($("#wTitle").value||"").trim().slice(0,80)||"Ma liste d'envies"; wishSync(); };
+$("#wCopy").onclick=async()=>{ try{ await navigator.clipboard.writeText(wishUrl()); $("#wMsg").textContent="Lien copié : colle-le dans un message."; }catch(e){ $("#wLink").select(); $("#wMsg").textContent="Sélectionne le lien et copie-le."; } };
+$("#wShare").onclick=async()=>{ try{ await navigator.share({title:WISH.title,text:WISH.title+" 🎁",url:wishUrl()}); }catch(e){} };
+$("#wSee").onclick=()=>{ if(WISH.token) window.open(wishUrl(),"_blank"); };
