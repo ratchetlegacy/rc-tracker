@@ -170,7 +170,7 @@ body.locked #lock{display:block}
   <div class="sum" id="sum"></div>
   <div class="ctrls">
       <div class="seg" role="group" aria-label="Filtre">
-        <button class="chip" data-f="all" aria-pressed="true">Tout</button><button class="chip" data-f="miss" aria-pressed="false">À trouver</button><button class="chip" data-f="own" aria-pressed="false">Possédés</button><button class="chip" data-f="star" aria-pressed="false" id="starChip">★</button><button class="chip" data-f="wish" aria-pressed="false" id="wishChip" title="Ma liste d'envies">🎁</button><button class="chip" data-f="plat" aria-pressed="false" id="platChip" title="Platinés / 100 %">🏆</button>
+        <button class="chip" data-f="all" aria-pressed="true">Tout</button><button class="chip" data-f="miss" aria-pressed="false">À trouver</button><button class="chip" data-f="own" aria-pressed="false">Possédés</button><button class="chip" data-f="half" aria-pressed="false" id="halfChip" title="Jeux sans boîte ou sans notice">Incomplets</button><button class="chip" data-f="star" aria-pressed="false" id="starChip">★</button><button class="chip" data-f="wish" aria-pressed="false" id="wishChip" title="Ma liste d'envies">🎁</button><button class="chip" data-f="plat" aria-pressed="false" id="platChip" title="Platinés / 100 %">🏆</button>
       </div>
       <div class="seg" id="grp" role="group" aria-label="Classer" hidden><button class="chip" data-g="series" aria-pressed="false">Séries</button><button class="chip" data-g="plat" aria-pressed="true">Consoles</button></div>
     </div>
@@ -222,7 +222,7 @@ body.locked #lock{display:block}
 <script>
 window.RETRO_SB={url:"https://ihucxnmqnhevfvlamgwc.supabase.co",key:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlodWN4bm1xbmhldmZ2bGFtZ3djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDQ5ODcsImV4cCI6MjA5NzI4MDk4N30.RhH778it6rcz44fdqdMLz7v-j8BWyKGGIJN4vHauhgU"};
 window.retroLock=m=>{ document.body.classList.add("locked"); document.getElementById("lockMsg").textContent=m; };
-fetch("retro/data.json",{cache:"no-cache"}).then(r=>r.json()).then(d=>{ window.RETRO_DATA=d; const s=document.createElement("script"); s.src="retro/app.js?v=3"; document.body.append(s); })
+fetch("retro/data.json",{cache:"no-cache"}).then(r=>r.json()).then(d=>{ window.RETRO_DATA=d; const s=document.createElement("script"); s.src="retro/app.js?v=4"; document.body.append(s); })
   .catch(()=>window.retroLock("Impossible de charger la liste. Vérifie ta connexion."));
 </script>
 </body></html>

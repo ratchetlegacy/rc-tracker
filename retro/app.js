@@ -97,7 +97,7 @@ function render(){
     for(const [v,t] of [["all","Toutes"]].concat(DATA.colplats.filter(p=>p!=="PS4 / PS5").map(p=>[p,L[p]||p]))){ const b=document.createElement("button"); b.className="chip"; b.dataset.c=v; b.textContent=t;
       b.onclick=()=>{cons=v; try{localStorage.setItem("retro-cons",v)}catch(e){} render();}; $("#cons").append(b);} }
   document.querySelectorAll("#cons .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.c===cons));
-  $("#grp").hidden=!(tab==="moto"||tab==="col"); $("#photoBtn").hidden=tab!=="col"||PHOTO.every(i=>state[i]&&state[i].c); $("#starChip").hidden=tab!=="sms"; if(tab!=="sms"&&filt==="star") filt="all"; const PLT=tab==="col"||tab==="ps3"||tab==="oop"; $("#platChip").hidden=!PLT; if(!PLT&&filt==="plat") filt="all"; const WT=tab!=="rel"; $("#wishChip").hidden=!WT; if(!WT&&filt==="wish") filt="all"; document.querySelectorAll("#grp .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===GRP[tab]));
+  $("#grp").hidden=!(tab==="moto"||tab==="col"); $("#photoBtn").hidden=tab!=="col"||PHOTO.every(i=>state[i]&&state[i].c); $("#starChip").hidden=tab!=="sms"; if(tab!=="sms"&&filt==="star") filt="all"; const PLT=tab==="col"||tab==="ps3"||tab==="oop"; $("#platChip").hidden=!PLT; if(!PLT&&filt==="plat") filt="all"; const WT=tab!=="rel"; const HT=tab!=="cards"&&tab!=="rel"; $("#halfChip").hidden=!HT; if(!HT&&filt==="half") filt="all"; $("#wishChip").hidden=!WT; if(!WT&&filt==="wish") filt="all"; document.querySelectorAll("#grp .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===GRP[tab]));
   const list=$("#list"); list.textContent="";
   if(tab==="rel"&&!secs.length){ const e=document.createElement("p"); e.className="empty"; e.textContent=REL.length?"Rien à afficher avec ce filtre.":"Les sorties se chargent… Elles sont mises à jour automatiquement chaque lundi."; list.append(e); }
   for(const sec of secs){
@@ -105,7 +105,7 @@ function render(){
     for(const it of sec.items){
       const v=state[it.id]||{}; const s=status(v,sec.digital); const has=s===1||s===2; if(it.soon&&!has){ if(filt==="own"||filt==="plat"||(q&&!fold(it.t+" "+it.n).includes(q))) continue; rows.push([it,v,s,sec.digital]); continue; } st++; tot++;
       if(has){so++;own++; if(s===2)cib++; else loose++;} if(v.pl) plat++;
-      if(filt==="miss"&&has) continue; if(filt==="own"&&!has) continue; if(filt==="star"&&!it.star) continue; if(filt==="plat"&&!v.pl) continue; if(filt==="wish"&&!v.w) continue;
+      if(filt==="miss"&&has) continue; if(filt==="own"&&!has) continue; if(filt==="star"&&!it.star) continue; if(filt==="plat"&&!v.pl) continue; if(filt==="wish"&&!v.w) continue; if(filt==="half"&&s!==1) continue;
       if(q&&!fold(it.t+" "+it.n+" "+(it.tag||"")).includes(q)) continue;
       rows.push([it,v,s,sec.digital]);
     }
@@ -171,7 +171,7 @@ function renderCards(){
   const albs=DATA.cards;
   if(!folded["cards|init"]){ for(const a of albs) folded[fkey(a.name)]=1; folded["cards|init"]=1; saveFold(); }
   { const anyOpen=albs.some(a=>!folded[fkey(a.name)]); $("#foldAll").hidden=!anyOpen; $("#openAll").hidden=anyOpen; }
-  for(const sel of ["#addBtn","#restBtn","#cons","#grp","#photoBtn","#starChip"]) $(sel).hidden=true; if(filt==="star") filt="all";
+  for(const sel of ["#addBtn","#restBtn","#cons","#grp","#photoBtn","#starChip","#halfChip","#platChip"]) $(sel).hidden=true; $("#wishChip").hidden=false; if(filt==="star"||filt==="half"||filt==="plat") filt="all";
   const list=$("#list"); list.textContent=""; let tot=0,own=0;
   for(const al of albs){
     const vi=al.pop?0:(albVar[al.name]||0), vk=al.pop?"c":(vi?"p"+vi:"v");
