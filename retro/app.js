@@ -97,7 +97,7 @@ function render(){
     for(const [v,t] of [["all","Toutes"]].concat(DATA.colplats.filter(p=>p!=="PS4 / PS5").map(p=>[p,L[p]||p]))){ const b=document.createElement("button"); b.className="chip"; b.dataset.c=v; b.textContent=t;
       b.onclick=()=>{cons=v; try{localStorage.setItem("retro-cons",v)}catch(e){} render();}; $("#cons").append(b);} }
   document.querySelectorAll("#cons .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.c===cons));
-  $("#grp").hidden=!(tab==="moto"||tab==="col"); $("#photoBtn").hidden=tab!=="col"||PHOTO.every(i=>state[i]&&state[i].c); $("#starChip").hidden=tab!=="sms"; if(tab!=="sms"&&filt==="star") filt="all"; const PLT=tab==="col"||tab==="ps3"||tab==="oop"; $("#platChip").hidden=!PLT; if(!PLT&&filt==="plat") filt="all"; const WT=tab!=="cards"&&tab!=="rel"; $("#wishChip").hidden=!WT; if(!WT&&filt==="wish") filt="all"; document.querySelectorAll("#grp .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===GRP[tab]));
+  $("#grp").hidden=!(tab==="moto"||tab==="col"); $("#photoBtn").hidden=tab!=="col"||PHOTO.every(i=>state[i]&&state[i].c); $("#starChip").hidden=tab!=="sms"; if(tab!=="sms"&&filt==="star") filt="all"; const PLT=tab==="col"||tab==="ps3"||tab==="oop"; $("#platChip").hidden=!PLT; if(!PLT&&filt==="plat") filt="all"; const WT=tab!=="rel"; $("#wishChip").hidden=!WT; if(!WT&&filt==="wish") filt="all"; document.querySelectorAll("#grp .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.g===GRP[tab]));
   const list=$("#list"); list.textContent="";
   if(tab==="rel"&&!secs.length){ const e=document.createElement("p"); e.className="empty"; e.textContent=REL.length?"Rien à afficher avec ce filtre.":"Les sorties se chargent… Elles sont mises à jour automatiquement chaque lundi."; list.append(e); }
   for(const sec of secs){
@@ -180,12 +180,12 @@ function renderCards(){
     // totaux de l'album (version de base) et de la variante choisie
     let at=0,ao=0,st=0,so=0; const groups=[];
     if(al.pop){ const cards=[]; for(const it of al.items){ at++; const h=has(it.id,"c"); if(h)ao++; st++; if(h)so++;
-        if(filt==="miss"&&h) continue; if(filt==="own"&&!h) continue; if(!nameHit&&!fold(it.t+" "+it.n).includes(q)) continue; cards.push(it); }
+        if(filt==="miss"&&h) continue; if(filt==="own"&&!h) continue; if(filt==="wish"&&!(state[it.id]&&state[it.id].w)) continue; if(!nameHit&&!fold(it.t+" "+it.n).includes(q)) continue; cards.push(it); }
       groups.push({g:null,cards}); }
     else for(const g of al.groups){ const cards=[]; let gt=0,go=0;
       for(const [id,code,vs] of g.cards){ at++; if(has(id,"v")) ao++;
         if(vi&&!vs) continue; const h=has(id,vk); st++; if(h)so++; gt++; if(h)go++;
-        if(filt==="miss"&&h) continue; if(filt==="own"&&!h) continue; if(!nameHit&&!fold(code).includes(q)) continue; cards.push([id,code]); }
+        if(filt==="miss"&&h) continue; if(filt==="own"&&!h) continue; if(filt==="wish"&&(h||!albWished(al))) continue; if(!nameHit&&!fold(code).includes(q)) continue; cards.push([id,code]); }
       if(gt) groups.push({g:g.g,cards,gt,go}); }
     tot+=at; own+=ao;
     if((q||filt!=="all")&&!groups.some(g=>g.cards.length)) continue;
@@ -197,6 +197,8 @@ function renderCards(){
       if(stuck){ const s2=[...document.querySelectorAll(".sec")].find(e=>e.dataset.name===al.name); if(s2) s2.scrollIntoView({block:"start"}); } };
     h.onclick=tg; h.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tg();}};
     h.append(h2,sp); el.append(h); list.append(el);
+    if(!closed&&!al.pop&&st>so){ const wb=document.createElement("button"); wb.className="chip"; const on=albWished(al); wb.setAttribute("aria-pressed",on); wb.style.margin="10px 0 0"; wb.textContent=on?"🎁 Cartes manquantes dans ma liste d'envies ✓":"🎁 Mettre les cartes manquantes dans ma liste d'envies";
+      wb.onclick=()=>{ const k="wa:"+al.name; if(albWished(al)) delete state[k]; else state[k]={w:1}; render(); persist(); }; el.append(wb); }
     if(closed) continue;
     if(!al.pop&&al.vars.length>1){ const vs=document.createElement("div"); vs.className="vsel"; vs.setAttribute("role","group"); vs.setAttribute("aria-label","Version");
       al.vars.forEach((nm,k)=>{ const key=k?"p"+k:"v"; let n=0,t=0; for(const g of al.groups) for(const [id,,v] of g.cards){ if(k&&!v) continue; t++; if(has(id,key)) n++; }
@@ -208,7 +210,10 @@ function renderCards(){
           const r=document.createElement("div"); r.className="row"; r.dataset.s=v.c?2:0;
           const tx=document.createElement("div"); tx.className="txt"; const t=document.createElement("div"); t.className="t"; t.textContent=it.t; const n=document.createElement("div"); n.className="n"; n.textContent=it.n; tx.append(t,n);
           const parts=document.createElement("div"); parts.className="parts"; const b=document.createElement("button"); b.className="st"; b.textContent="Possédée"; b.setAttribute("aria-pressed",!!v.c); b.setAttribute("aria-label",it.t+" "+it.n+" : possédée");
-          b.onclick=()=>{ const cur=Object.assign({},state[it.id]||{}); if(cur.c) delete cur.c; else cur.c=1; setState(it.id,cur); render(); persist(); }; parts.append(b); r.append(tx,parts); el.append(r); }
+          b.onclick=()=>{ const cur=Object.assign({},state[it.id]||{}); if(cur.c) delete cur.c; else { cur.c=1; delete cur.w; } setState(it.id,cur); render(); persist(); }; parts.append(b);
+          if(!v.c){ const gb=document.createElement("button"); gb.className="st gift"; gb.textContent="🎁"; gb.title="Liste d'envies"; gb.setAttribute("aria-pressed",!!v.w); gb.setAttribute("aria-label",it.t+" "+it.n+" : liste d'envies");
+            gb.onclick=()=>{ const cur=Object.assign({},state[it.id]||{}); if(cur.w) delete cur.w; else cur.w=1; setState(it.id,cur); render(); persist(); }; parts.append(gb); }
+          r.append(tx,parts); el.append(r); }
         continue; }
       const gw=document.createElement("div"); gw.className="cgrp";
       const gl=document.createElement("div"); gl.className="cgl"; const gn=document.createElement("b"); gn.textContent=g.g; const gc=document.createElement("span"); gc.textContent=g.go+" / "+g.gt; gl.append(gn,gc);
@@ -231,6 +236,8 @@ function renderCards(){
 }
 // ---------- Liste d'envies partageable (🎁) ----------
 let WISH={sb:null,uid:null,token:null,title:"Ma liste d'envies"};
+function albWished(al){ return !!(state["wa:"+al.name]&&state["wa:"+al.name].w); }
+function albMissing(al){ const out=[]; for(const g of al.groups) for(const [id,code] of g.cards){ if(!(state[id]&&state[id].v)) out.push(String(code)); } return out; }
 function wishItems(){ const idx=new Map(); const SH={"PlayStation":"PS1","PlayStation 2":"PS2","PlayStation 3":"PS3","PlayStation 4":"PS4","PlayStation 5":"PS5","PS4 / PS5":"PS4/PS5","PS Vita":"Vita","PSP":"PSP","Master System":"Master System"};
   const put=(i,grp,plat)=>{ if(!idx.has(i.id)) idx.set(i.id,{t:i.t,g:grp,p:SH[plat]||plat||"",y:i.y||+((String(i.n||"").match(/\d{4}/)||[0])[0])||0,img:i.img||""}); };
   for(const i of DATA.col[0].items) put(i,i.series,i.plat); for(const i of custom) put(i,i.series,i.plat);
@@ -239,12 +246,14 @@ function wishItems(){ const idx=new Map(); const SH={"PlayStation":"PS1","PlaySt
   for(const sc of DATA.ps3) for(const i of sc.items) put(i,"Compilations HD PS3","PlayStation 3");
   for(const sc of DATA.oop) for(const i of sc.items) put(i,"Only on PlayStation","PlayStation 4");
   for(const r of relItems()) put(r,r.series,r.plat);
-  const out=[]; for(const [k,v] of Object.entries(state)){ if(v&&v.w&&idx.has(k)) out.push(Object.assign({id:k},idx.get(k))); }
+  for(const al of DATA.cards) if(al.pop) for(const i of al.items) put(i,"Pop! "+al.name.replace(/^Pop! /,""),"");
+  const out=[]; for(const [k,v] of Object.entries(state)){ if(v&&v.w&&idx.has(k)){ const o=Object.assign({id:k},idx.get(k)); if(k.startsWith("pop-")){ o.p=String(DATA.cards.find(a=>a.pop).items.find(i=>i.id===k).n||""); o.y=0; } out.push(o); } }
+  for(const al of DATA.cards){ if(al.pop||!albWished(al)) continue; const m=albMissing(al); if(!m.length) continue; out.push({id:"wa:"+al.name,t:al.name,g:"Cartes à collectionner",p:m.length+" carte"+(m.length>1?"s":"")+" manquante"+(m.length>1?"s":""),y:0,img:"",m:m.join(", ")}); }
   return out.sort((a,b)=>cmpT(a.g,b.g)||cmpT(a.t,b.t)); }
 let wishTimer=null;
 function wishSync(){ if(!WISH.sb||!WISH.token) return; clearTimeout(wishTimer); wishTimer=setTimeout(async()=>{ try{ await WISH.sb.from("retro_wishlist").update({items:wishItems(),title:WISH.title,updated_at:new Date().toISOString()}).eq("user_id",WISH.uid); }catch(e){} },400); }
 function wishUrl(){ return location.origin+location.pathname.replace(/[^/]*$/,"")+"envies.html?t="+WISH.token; }
-function wishDlgRender(){ const n=wishItems().length; $("#wCount").textContent=n?n+" jeu"+(n>1?"x":"")+" dans ta liste d'envies.":"Ta liste d'envies est vide : touche 🎁 sur les jeux que tu aimerais qu'on t'offre.";
+function wishDlgRender(){ const n=wishItems().length; $("#wCount").textContent=n?n+" envie"+(n>1?"s":"")+" dans ta liste.":"Ta liste d'envies est vide : touche 🎁 sur ce que tu aimerais qu'on t'offre.";
   $("#wTitle").value=WISH.title; $("#wLinkBox").hidden=!WISH.token; if(WISH.token) $("#wLink").value=wishUrl();
   $("#wCreate").hidden=!!WISH.token; $("#wSee").hidden=!WISH.token; $("#wStop").hidden=!WISH.token; $("#wShare").hidden=!WISH.token||!navigator.share; $("#wCopy").hidden=!WISH.token; }
 async function wishCreate(){ if(!WISH.sb){ $("#wMsg").textContent="Connexion au tracker indisponible."; return; }
