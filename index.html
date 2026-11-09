@@ -1463,6 +1463,30 @@
     /* STATS PAGE */
     .stats-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto}
     .stats-screen.open{display:block}
+    .bg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:18px}
+    .bg-card{background:var(--bg2);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px}
+    .bg-card h3{margin:0 0 10px;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
+    .bg-big{font-size:1.7rem;font-weight:800;font-variant-numeric:tabular-nums}
+    .bg-sub{font-size:.78rem;color:var(--text-dim);margin-top:4px}
+    .bg-bar{height:10px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:10px}
+    .bg-bar>div{height:100%;border-radius:99px;background:linear-gradient(90deg,#7B4FD4,#FFC85A)}
+    .bg-bar.over>div{background:linear-gradient(90deg,#FF6B1A,#E5484D)}
+    .bg-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end}
+    .bg-form label{display:flex;flex-direction:column;gap:6px;font-size:.78rem;color:var(--text-dim)}
+    .bg-form input{background:var(--bg);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:9px 10px;color:var(--text);font-size:.9rem}
+    .bg-btn{padding:10px 16px;border-radius:10px;border:none;background:var(--purple);color:#fff;font-weight:700;cursor:pointer}
+    .bg-hist{display:flex;align-items:flex-end;gap:6px;height:150px;padding-top:10px;border-bottom:1px solid rgba(255,255,255,.1);position:relative}
+    .bg-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;min-width:0}
+    .bg-col i{display:block;width:100%;max-width:34px;border-radius:6px 6px 0 0;background:#7B4FD4}
+    .bg-col i.over{background:#FF6B1A}
+    .bg-col span{font-size:.62rem;color:var(--text-dim);white-space:nowrap}
+    .bg-col b{font-size:.62rem;font-weight:600;font-variant-numeric:tabular-nums}
+    .bg-cap{position:absolute;left:0;right:0;border-top:2px dashed #FFC85A;pointer-events:none}
+    .bg-list{display:flex;flex-direction:column;gap:6px}
+    .bg-row{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border:1px solid rgba(255,255,255,.06);border-radius:10px;font-size:.84rem}
+    .bg-row .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .bg-row .v{font-weight:700;font-variant-numeric:tabular-nums}
+    .bg-row label{display:flex;align-items:center;gap:4px;font-size:.7rem;color:var(--text-dim);cursor:pointer;white-space:nowrap}
     .stats-page-header{background:linear-gradient(135deg,#0D0F1A,#1A1035);border-bottom:1px solid rgba(123,79,212,.3);padding:20px 32px;display:flex;align-items:center;gap:14px}
     .stats-page-header h1{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;color:var(--purple-light);flex:1}
     .stats-back{padding:7px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text-dim);font-size:.78rem;cursor:pointer;font-family:'Inter',sans-serif}
@@ -3336,6 +3360,16 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 </div>
 
 <!-- THEMES SCREEN -->
+<div class="stats-screen" id="budget-screen">
+  <div class="stats-page-header">
+    <div class="logo-img" onclick="closeBudget();showMainMenu()" style="cursor:pointer;width:40px;height:40px" title="Home">
+      <img src="https://res.cloudinary.com/dmfq8hkvu/image/upload/v1788954181/Ratchet_Legacy_ikwdp6.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:10px"/>
+    </div>
+    <h1 id="budget-title">💰 BUDGET</h1>
+    <button class="stats-back" onclick="closeBudget()" id="budget-back">← Back</button>
+  </div>
+  <div class="stats-body"><div id="budget-body"></div></div>
+</div>
 <div class="stats-screen" id="themes-screen">
   <div class="stats-page-header">
     <div class="logo-img" onclick="closeThemes();showMainMenu()" style="cursor:pointer;width:40px;height:40px" title="Home">
@@ -3734,6 +3768,7 @@ CREATE POLICY "Users see own items" ON items FOR ALL
     <div class="menu-card" onclick="closeMobileMenu();openImport()"><span class="mc-ic">📥</span><span class="mc-lbl">Import</span><span class="mc-sub">Excel / CSV purchases</span></div>
     <div class="menu-card" onclick="closeMobileMenu();openExportModal()"><span class="mc-ic">📄</span><span class="mc-lbl">Export PDF</span><span class="mc-sub">Your list, printable</span></div>
     <div class="menu-card" onclick="closeMobileMenu();openThemes()" id="mobile-theme-btn"><span class="mc-ic">🎨</span><span class="mc-lbl">Themes</span><span class="mc-sub">Colours of the app</span></div>
+    <div class="menu-card" onclick="closeMobileMenu();openBudget()" id="mobile-budget-btn"><span class="mc-ic">💰</span><span class="mc-lbl" id="mc-budget-lbl">Budget</span><span class="mc-sub" id="mc-budget-sub">Monthly spending</span></div>
   </div>
 
   <div class="menu-section-title">Community</div>
@@ -4732,7 +4767,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.03-zb';
+const RC_APP_VERSION = '2026.11.09-budget';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -8605,6 +8640,93 @@ function loadTheme(){
 function cycleTheme(){ openThemes(); }
 
 // ── Themes page (explanation + palettes + unlock rules) ──
+/* ===== Budget mensuel ===== */
+function bgL(fr,en){ return currentLang==='fr'?fr:en; }
+function bgKey(d){ return d.slice(0,7); }
+function bgItemMonth(it){ const d=it.buy_date||it.created_at; return d?bgKey(String(d)):null; }
+function bgSettings(){
+  const m=(currentUser&&currentUser.user_metadata&&currentUser.user_metadata.rc_budget)||null;
+  if(m) return Object.assign({cap:0,save:0,start:null,saved0:0,rare:[]},m);
+  try{ const l=JSON.parse(localStorage.getItem('rc_budget_'+(currentUser?currentUser.id:''))||'null'); if(l) return Object.assign({cap:0,save:0,start:null,saved0:0,rare:[]},l); }catch(e){}
+  return {cap:0,save:0,start:null,saved0:0,rare:[]};
+}
+async function bgSave(cfg){
+  try{ localStorage.setItem('rc_budget_'+currentUser.id, JSON.stringify(cfg)); }catch(e){}
+  try{ const {data,error}=await sbClient.auth.updateUser({data:{rc_budget:cfg}}); if(!error&&data&&data.user) currentUser=data.user; }
+  catch(e){ console.warn('budget sync',e); }
+}
+function openBudget(){
+  try{ if(typeof closeMobileMenu==='function') closeMobileMenu(); }catch(e){}
+  document.getElementById('budget-screen').classList.add('open');
+  document.getElementById('budget-back').textContent='← '+bgL('Retour','Back');
+  renderBudget();
+}
+function closeBudget(){ document.getElementById('budget-screen').classList.remove('open'); }
+function bgSpendByMonth(){
+  const by={};
+  (items||[]).forEach(it=>{ if(it.status!=='owned'||it.gift) return; const p=parseFloat(it.buy_price); if(!(p>0)) return; const m=bgItemMonth(it); if(!m) return; (by[m]=by[m]||[]).push(it); });
+  return by;
+}
+function bgMonthsBetween(a,b){ const [y1,m1]=a.split('-').map(Number),[y2,m2]=b.split('-').map(Number); return (y2-y1)*12+(m2-m1)+1; }
+function bgMonthLabel(k,short){ const [y,m]=k.split('-').map(Number); const d=new Date(y,m-1,1); return short?d.toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{month:'short'}).replace('.','').slice(0,4):d.toLocaleDateString(currentLang==='fr'?'fr-FR':'en-GB',{month:'short',year:'2-digit'}); }
+function renderBudget(){
+  const box=document.getElementById('budget-body'); const cfg=bgSettings();
+  const now=new Date(); const cur=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  const by=bgSpendByMonth(); const rare=new Set(cfg.rare||[]);
+  const sum=arr=>(arr||[]).reduce((a,it)=>a+(parseFloat(it.buy_price)||0),0);
+  const sumNorm=arr=>(arr||[]).filter(it=>!rare.has(it.id)).reduce((a,it)=>a+(parseFloat(it.buy_price)||0),0);
+  const spentAll=sum(by[cur]), spentNorm=sumNorm(by[cur]);
+  const courant=Math.max(0,(cfg.cap||0)-(cfg.save||0));
+  const left=courant-spentNorm; const pct=courant>0?Math.min(100,spentNorm/courant*100):0;
+  // cagnotte : épargne mensuelle depuis le mois de départ + solde initial − pièces rares payées
+  let pot=null;
+  if(cfg.save>0&&cfg.start){ const n=cur>=cfg.start?bgMonthsBetween(cfg.start,cur):0; const used=Object.values(by).flat().filter(it=>rare.has(it.id)&&bgItemMonth(it)>=cfg.start).reduce((a,it)=>a+(parseFloat(it.buy_price)||0),0); pot=(cfg.saved0||0)+n*cfg.save-used; }
+  // 12 derniers mois
+  const months=[]; for(let i=11;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1); months.push(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')); }
+  const vals=months.map(m=>sum(by[m])); const past=months.slice(0,-1).map(m=>sum(by[m])).filter(v=>v>0);
+  const avg=past.length?past.reduce((a,b)=>a+b,0)/past.length:0;
+  const maxV=Math.max(cfg.cap||0,...vals,1);
+  const noDate=(by[cur]||[]).filter(it=>!it.buy_date).length;
+  let h='';
+  if(!cfg.cap){
+    h+='<div class="bg-card" style="margin-bottom:18px"><h3>'+bgL('Pour commencer','Getting started')+'</h3><div style="font-size:.88rem;line-height:1.5">'+bgL('Fixe ton plafond mensuel ci-dessous. Tes dépenses sont calculées à partir du prix et de la date d’achat de tes pièces. Sur les 11 derniers mois, tu as dépensé en moyenne ','Set your monthly cap below. Spending is computed from the purchase price and date of your items. Over the last 11 months you spent on average ')+'<b>'+fmtEurS(avg)+'</b>'+bgL(' par mois (mois avec achats).',' per month (months with purchases).')+'</div></div>';
+  }
+  h+='<div class="bg-grid">';
+  h+='<div class="bg-card"><h3>'+bgL('Ce mois-ci','This month')+' · '+bgMonthLabel(cur)+'</h3><div class="bg-big">'+fmtEur(spentNorm)+'</div><div class="bg-sub">'+(courant?bgL('sur ','of ')+fmtEurS(courant)+bgL(' de budget courant',' everyday budget'):bgL('aucun plafond fixé','no cap set'))+'</div>'+(courant?'<div class="bg-bar'+(left<0?' over':'')+'"><div style="width:'+pct+'%"></div></div>':'')+(noDate?'<div class="bg-sub">'+noDate+bgL(' pièce(s) sans date d’achat comptée(s) à leur date d’ajout',' item(s) without purchase date counted at their added date')+'</div>':'')+'</div>';
+  h+='<div class="bg-card"><h3>'+bgL('Reste à dépenser','Left to spend')+'</h3><div class="bg-big" style="color:'+(left<0?'#FF6B1A':'inherit')+'">'+(courant?fmtEur(left):'—')+'</div><div class="bg-sub">'+(courant?(left<0?bgL('Dépassement : attends le mois prochain ou paie avec la cagnotte.','Over budget: wait for next month or use the savings pot.'):bgL('jusqu’à la fin du mois','until the end of the month')):bgL('fixe un plafond','set a cap'))+'</div></div>';
+  h+='<div class="bg-card"><h3>'+bgL('Cagnotte pièces rares','Rare-piece pot')+'</h3><div class="bg-big">'+(pot==null?'—':fmtEur(pot))+'</div><div class="bg-sub">'+(pot==null?bgL('mets un montant d’épargne mensuelle','set a monthly saving'):'+'+fmtEurS(cfg.save)+bgL(' par mois depuis ',' per month since ')+bgMonthLabel(cfg.start))+'</div></div>';
+  h+='<div class="bg-card"><h3>'+bgL('Moyenne mensuelle','Monthly average')+'</h3><div class="bg-big">'+fmtEur(avg)+'</div><div class="bg-sub">'+bgL('mois passés avec au moins un achat','past months with at least one purchase')+'</div></div>';
+  h+='</div>';
+  // historique
+  h+='<div class="bg-card" style="margin-bottom:18px"><h3>'+bgL('12 derniers mois','Last 12 months')+'</h3><div class="bg-hist">';
+  if(cfg.cap) h+='<div class="bg-cap" style="bottom:'+(cfg.cap/maxV*100*0.82)+'%" title="'+bgL('plafond','cap')+'"></div>';
+  months.forEach((m,i)=>{ const v=vals[i]; h+='<div class="bg-col"><b>'+(v?Math.round(v):'')+'</b><i class="'+(cfg.cap&&v>cfg.cap?'over':'')+'" style="height:'+(v/maxV*82)+'%"></i><span>'+bgMonthLabel(m,true)+'</span></div>'; });
+  h+='</div>'+(cfg.cap?'<div class="bg-sub">'+bgL('Pointillé : ton plafond mensuel total.','Dashed line: your total monthly cap.')+'</div>':'')+'</div>';
+  // achats du mois
+  const list=(by[cur]||[]).slice().sort((a,b)=>(parseFloat(b.buy_price)||0)-(parseFloat(a.buy_price)||0));
+  h+='<div class="bg-card" style="margin-bottom:18px"><h3>'+bgL('Achats du mois','This month’s purchases')+' ('+list.length+')</h3>';
+  if(!list.length) h+='<div class="bg-sub">'+bgL('Aucun achat avec un prix ce mois-ci.','No purchase with a price this month.')+'</div>';
+  else{ h+='<div class="bg-sub" style="margin-bottom:8px">'+bgL('Coche « cagnotte » pour une pièce payée avec ta cagnotte : elle ne compte plus dans le budget courant.','Tick “pot” for a piece paid from your savings pot: it no longer counts in the everyday budget.')+'</div><div class="bg-list">';
+    list.forEach(it=>{ h+='<div class="bg-row"><span class="n">'+escapeHtmlBg(it.name||'')+'</span><span class="v">'+fmtEur(it.buy_price)+'</span><label><input type="checkbox" '+(rare.has(it.id)?'checked':'')+' onchange="bgToggleRare(\''+it.id+'\',this.checked)"> '+bgL('cagnotte','pot')+'</label></div>'; });
+    h+='</div>'; }
+  h+='</div>';
+  // réglages
+  h+='<div class="bg-card"><h3>'+bgL('Réglages','Settings')+'</h3><div class="bg-form">'
+    +'<label>'+bgL('Plafond mensuel total (€)','Total monthly cap (€)')+'<input type="number" min="0" step="10" id="bg-cap" value="'+(cfg.cap||'')+'"></label>'
+    +'<label>'+bgL('dont épargne pour la cagnotte (€/mois)','of which saved into the pot (€/month)')+'<input type="number" min="0" step="10" id="bg-save" value="'+(cfg.save||'')+'"></label>'
+    +'<label>'+bgL('Solde de départ de la cagnotte (€)','Pot starting balance (€)')+'<input type="number" min="0" step="10" id="bg-saved0" value="'+(cfg.saved0||'')+'"></label>'
+    +'<button class="bg-btn" onclick="bgSubmit()">'+bgL('Enregistrer','Save')+'</button></div>'
+    +'<div class="bg-sub" style="margin-top:10px">'+bgL('Budget courant = plafond − épargne. Montants en euros ; enregistrés sur ton compte, donc les mêmes sur tous tes appareils.','Everyday budget = cap − saving. Amounts in euros; stored on your account, so the same on all your devices.')+'</div></div>';
+  box.innerHTML=h;
+}
+function escapeHtmlBg(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+async function bgSubmit(){
+  const cfg=bgSettings(); const num=id=>Math.max(0,parseFloat(document.getElementById(id).value)||0);
+  cfg.cap=num('bg-cap'); cfg.save=Math.min(num('bg-save'),cfg.cap||num('bg-save')); cfg.saved0=num('bg-saved0');
+  if(cfg.save>0&&!cfg.start){ const d=new Date(); cfg.start=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+  await bgSave(cfg); renderBudget(); if(typeof showToast==='function') showToast(bgL('Budget enregistré','Budget saved'));
+}
+async function bgToggleRare(id,on){ const cfg=bgSettings(); const s=new Set(cfg.rare||[]); on?s.add(id):s.delete(id); cfg.rare=[...s]; await bgSave(cfg); renderBudget(); }
 function openThemes(){
   if(typeof closeMobileMenu==='function') closeMobileMenu();
   document.getElementById('themes-screen').classList.add('open');
@@ -9984,6 +10106,7 @@ function openMobileMenu(){
   const nameEl=document.getElementById('menu-user-name'); if(nameEl) nameEl.textContent=pseudo;
   const avEl=document.getElementById('menu-user-av');
   if(avEl){ if(avatar && avatar.startsWith('http')){ avEl.innerHTML='<img src="'+avatar+'"/>'; } else { avEl.textContent=avatar; } }
+  const bgSub=document.getElementById('mc-budget-sub'); if(bgSub) bgSub.textContent=(currentLang==='fr'?'Dépenses du mois':'Monthly spending');
   const adminBtn = document.getElementById('mobile-admin-btn');
   if(adminBtn) adminBtn.style.display = isAdmin()?'flex':'none';
   const panel=document.getElementById('mobile-menu-panel');
