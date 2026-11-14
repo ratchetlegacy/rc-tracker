@@ -2037,6 +2037,8 @@
       background:linear-gradient(135deg,var(--purple),var(--orange));
       border:none;color:#fff;font-weight:700;
     }
+  .pf-sep-count{float:right;font-family:'Inter',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.02em;color:var(--text-mid,#B8BED4);background:rgba(255,255,255,.07);padding:2px 9px;border-radius:10px;text-transform:none}
+  .pf-sep-count.done{color:#3DD68C;background:rgba(61,214,140,.12)}
   .pf-sep{grid-column:1/-1;font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--purple-light,#9B6FF4);padding:10px 2px 2px;border-bottom:1px solid rgba(255,255,255,.08)}
 
     /* couverture : photo entière sur un fond flouté de la même photo */
@@ -4767,7 +4769,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.09-budget';
+const RC_APP_VERSION = '2026.11.14-compteurs';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -4776,6 +4778,7 @@ let rcDensity  = rcPref('density','large');   // large | compact
 let rcCondFilter = 'all', rcEdFilter = 'all';   // à changer à chaque mise en ligne
 let rcCatalogByName = {};
 let rcCatalogById = {};
+let rcCatalogRows = [];   // catalogue complet (categorie, plateforme, edition) pour les compteurs « possede / total »
 let rcFirstYear = {};   // année de sortie d'origine d'un titre (plus petite année parmi ses fiches)
 // Annonces d'echange actives de l'utilisateur (pour le bouton de la fiche).
 // Sans cette variable, ouvrir la fiche d'un objet possede plantait.
@@ -4829,8 +4832,8 @@ function applyRatingToItems(){
 }
 async function loadRcCatalogIndex(){
   try {
-    const { data } = await sbClient.from('catalog').select('id,name,image_url,year');
-    rcCatalogByName = {}; rcCatalogById = {};
+    const { data } = await sbClient.from('catalog').select('id,name,image_url,year,category,platform,edition');
+    rcCatalogByName = {}; rcCatalogById = {}; rcCatalogRows = data||[];
     const nb = {};
     (data||[]).forEach(c=>{
       if(c.id!=null) rcCatalogById[String(c.id)] = c.image_url||'';
@@ -4843,6 +4846,38 @@ async function loadRcCatalogIndex(){
   await loadMarketRating();
   loadMyExchanges();
   applyRatingToItems();
+}
+// ── Compteurs « possédé / total du catalogue » ──
+// Le type d'un objet du tracker correspond à une catégorie du catalogue
+// (Physical game → Game…). La correspondance est apprise sur les objets
+// déjà liés au catalogue, avec quelques valeurs par défaut.
+const RC_TYPE_CAT={'Physical game':'Game','Console Pack':'Console/Pack','Film':'Media','Soundtrack':'Music'};
+const _rcTypeCatCache={};
+function rcTypeCategory(type){
+  const ck=(type||'')+'|'+(items||[]).length+'|'+rcCatalogRows.length;
+  if(_rcTypeCatCache[ck]) return _rcTypeCatCache[ck];
+  const byId={}; rcCatalogRows.forEach(r=>byId[String(r.id)]=r);
+  const votes={};
+  (items||[]).forEach(i=>{
+    if((i.type||'')!==(type||'') || i.catalog_id==null) return;
+    const c=byId[String(i.catalog_id)];
+    if(c&&c.category) votes[c.category]=(votes[c.category]||0)+1;
+  });
+  const best=Object.keys(votes).sort((a,b)=>votes[b]-votes[a])[0];
+  return (_rcTypeCatCache[ck] = best || RC_TYPE_CAT[type] || type);
+}
+// pf / edLabel facultatifs : sans eux, on compte toute la catégorie.
+function rcCatalogTally(type,pf,edLabel){
+  if(!rcCatalogRows.length || !type) return null;
+  const cat=rcTypeCategory(type);
+  const norm=v=>String(v||'').trim().toLowerCase();
+  const inGroup=c=> c.category===cat
+    && (pf==null || norm(c.platform)===norm(pf))
+    && (edLabel==null || rcEditionLabel(c)===edLabel);
+  const ids=new Set(rcCatalogRows.filter(inGroup).map(c=>String(c.id)));
+  if(!ids.size) return null;
+  const owned=new Set((items||[]).filter(i=>i.status==='owned' && i.catalog_id!=null && ids.has(String(i.catalog_id))).map(i=>String(i.catalog_id)));
+  return {owned:owned.size,total:ids.size};
 }
 // Ordre d'affichage de la collection : console dans l'ordre de sortie, démos et
 // versions presse en tête, puis les jeux dans l'ordre de la série (année de
@@ -5087,6 +5122,11 @@ function render(){
     const label=type||t('card_uncat');
     const ownedCat=items.filter(i=>(i.type||'')===(type||'')&&i.status==='owned').length;
     const totalCat=items.filter(i=>(i.type||'')===(type||'')).length;
+    // compteur par rapport au catalogue quand il est connu, sinon l'ancien
+    const tally=rcCatalogTally(type);
+    const countHtml=tally
+      ? '<span class="cat-count" title="Pièces différentes du catalogue possédées / total du catalogue">'+tally.owned+' / '+tally.total+'</span>'
+      : '<span class="cat-count">'+ownedCat+'/'+totalCat+'</span>';
 
     const sec=document.createElement('div');
     sec.className='category-section';
@@ -5102,7 +5142,7 @@ function render(){
         <span class="cat-chevron">▼</span>
         <span class="cat-icon">${icon}</span>
         <span class="cat-title">${label}</span>
-        <span class="cat-count">${ownedCat}/${totalCat}</span>
+        ${countHtml}
         <div class="cat-divider"></div>
       </div>
       <div class="items-grid"${collapsed?' style="display:none"':''}></div>`;
@@ -5111,7 +5151,7 @@ function render(){
     const grid=sec.querySelector('.items-grid');
     const sorted=rcSortByMode(catItems);
     const severalPlatforms=new Set(sorted.map(i=>i.platform||'')).size>1;
-    let lastSep=null;
+    let lastSep=null, lastTallyKey=null;
     sorted.forEach(item=>{
       const pf=item.platform||'—', ed=rcEditionLabel(item), st=rcCondLabel(item.condition);
       const sep=(severalPlatforms?pf+' · ':'')+ed+(st?' · '+st:'');
@@ -5120,6 +5160,20 @@ function render(){
         const h=document.createElement('div');
         h.className='pf-sep';
         h.textContent=sep;
+        // compteur catalogue une seule fois par plateforme + édition
+        // (les intertitres Neuf / Occasion d'un même groupe ne le répètent pas)
+        const grpKey=pf+'|'+ed;
+        if(grpKey!==lastTallyKey){
+          lastTallyKey=grpKey;
+          const tl=rcCatalogTally(type,item.platform||'',ed);
+          if(tl){
+            const c=document.createElement('span');
+            c.className='pf-sep-count'+(tl.owned>=tl.total?' done':'');
+            c.title='Pièces différentes du catalogue possédées / total du catalogue';
+            c.textContent=tl.owned+' / '+tl.total;
+            h.appendChild(c);
+          }
+        }
         grid.appendChild(h);
       }
       const card=document.createElement('div');
