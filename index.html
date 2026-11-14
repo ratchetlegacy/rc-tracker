@@ -2037,6 +2037,20 @@
       background:linear-gradient(135deg,var(--purple),var(--orange));
       border:none;color:#fff;font-weight:700;
     }
+  .pf-sep-count,.cat-count.tally{cursor:pointer;transition:.15s}
+  .pf-sep-count:hover,.cat-count.tally:hover{background:rgba(155,111,244,.25);color:#fff}
+  .pf-sep-count .ms-ico,.cat-count.tally .ms-ico{margin-left:5px;opacity:.75}
+  .ms-head{font-family:'Orbitron',sans-serif;font-size:.95rem;font-weight:700;margin:0 30px 4px 0}
+  .ms-sub{font-size:.78rem;color:var(--text-dim);margin-bottom:14px}
+  .ms-bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:16px}
+  .ms-bar div{height:100%;background:linear-gradient(90deg,#7B4FD4,#FF6B1A)}
+  .ms-row{display:flex;align-items:center;gap:12px;padding:8px;border-radius:12px;cursor:pointer;border:1px solid transparent}
+  .ms-row:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.08)}
+  .ms-row img,.ms-row .ms-ph{width:52px;height:52px;border-radius:8px;object-fit:cover;background:var(--bg3);flex:0 0 52px;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
+  .ms-row b{display:block;font-size:.86rem;line-height:1.25}
+  .ms-row span{font-size:.72rem;color:var(--text-dim)}
+  .ms-wish{font-size:.62rem;font-weight:700;color:#FFC85A;background:rgba(255,200,90,.12);padding:2px 7px;border-radius:8px;margin-left:6px}
+  .ms-done{text-align:center;padding:30px 10px;color:#3DD68C;font-weight:700}
   .pf-sep-count{float:right;font-family:'Inter',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.02em;color:var(--text-mid,#B8BED4);background:rgba(255,255,255,.07);padding:2px 9px;border-radius:10px;text-transform:none}
   .pf-sep-count.done{color:#3DD68C;background:rgba(61,214,140,.12)}
   .pf-sep{grid-column:1/-1;font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--purple-light,#9B6FF4);padding:10px 2px 2px;border-bottom:1px solid rgba(255,255,255,.08)}
@@ -2321,6 +2335,14 @@ CREATE POLICY "Users see own items" ON items FOR ALL
 </div>
 
 <!-- CATALOG ITEM DETAIL (public: add/edit to my collection) -->
+<!-- CE QUI MANQUE : fiches du catalogue pas encore possédées -->
+<div class="modal-overlay" id="missing-overlay" style="z-index:510" onclick="if(event.target===this)closeMissing()">
+  <div class="modal" style="max-width:560px;max-height:86vh;display:flex;flex-direction:column">
+    <button class="modal-close" onclick="closeMissing()">✕</button>
+    <div id="missing-body" style="overflow-y:auto"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="catitem-overlay" style="z-index:530">
   <div class="modal" style="max-width:420px">
     <button class="modal-close" onclick="closeCatItem()">✕</button>
@@ -4769,7 +4791,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.14-compteurs';
+const RC_APP_VERSION = '2026.11.14-manques';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -4878,6 +4900,43 @@ function rcCatalogTally(type,pf,edLabel){
   if(!ids.size) return null;
   const owned=new Set((items||[]).filter(i=>i.status==='owned' && i.catalog_id!=null && ids.has(String(i.catalog_id))).map(i=>String(i.catalog_id)));
   return {owned:owned.size,total:ids.size};
+}
+// Liste « ce qui manque » : fiches du groupe que l'on ne possède pas encore
+function rcMissingList(type,pf,edLabel){
+  const cat=rcTypeCategory(type);
+  const norm=v=>String(v||'').trim().toLowerCase();
+  const rows=rcCatalogRows.filter(c=> c.category===cat
+    && (pf==null || norm(c.platform)===norm(pf))
+    && (edLabel==null || rcEditionLabel(c)===edLabel));
+  const owned=new Set((items||[]).filter(i=>i.status==='owned'&&i.catalog_id!=null).map(i=>String(i.catalog_id)));
+  const wished=new Set((items||[]).filter(i=>i.status==='wishlist'&&i.catalog_id!=null).map(i=>String(i.catalog_id)));
+  const miss=rows.filter(c=>!owned.has(String(c.id)))
+    .sort((a,b)=>rcCollator.compare(a.platform||'',b.platform||'')||rcCollator.compare(a.name||'',b.name||'')||rcCollator.compare(a.region||'',b.region||''));
+  return {miss,wished,total:rows.length};
+}
+function openMissing(ev,type,pf,edLabel,title){
+  if(ev){ ev.stopPropagation(); ev.preventDefault(); }
+  const {miss,wished,total}=rcMissingList(type,pf,edLabel);
+  const have=total-miss.length, pct=total?Math.round(have/total*100):0;
+  let h='<div class="ms-head">🔍 '+escHtml(title)+'</div>'
+    +'<div class="ms-sub">'+have+' / '+total+' · il en manque '+miss.length+'</div>'
+    +'<div class="ms-bar"><div style="width:'+pct+'%"></div></div>';
+  if(!miss.length) h+='<div class="ms-done">🏆 Groupe complet !</div>';
+  else h+=miss.map(c=>{
+    const meta=[c.platform&&c.platform!=='-'?c.platform:'',c.edition,c.region,c.year].filter(Boolean).join(' · ');
+    const img=c.image_url?'<img src="'+escHtml(c.image_url)+'" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div class=&quot;ms-ph&quot;>'+getIcon(type)+'</div>\'"/>':'<div class="ms-ph">'+getIcon(type)+'</div>';
+    return '<div class="ms-row" onclick="missingOpenItem(\''+escHtml(String(c.id))+'\')">'+img
+      +'<div style="min-width:0"><b>'+escHtml(c.name||'')+(wished.has(String(c.id))?'<span class="ms-wish">★ Wishlist</span>':'')+'</b><span>'+escHtml(meta)+'</span></div></div>';
+  }).join('');
+  document.getElementById('missing-body').innerHTML=h;
+  document.getElementById('missing-overlay').classList.add('open');
+}
+function closeMissing(){ document.getElementById('missing-overlay').classList.remove('open'); }
+async function missingOpenItem(id){
+  if(!catalogData.length){
+    try { const { data } = await sbClient.from('catalog').select('*'); catalogData = data||[]; } catch(e){}
+  }
+  openCatalogDetail(id);
 }
 // Ordre d'affichage de la collection : console dans l'ordre de sortie, démos et
 // versions presse en tête, puis les jeux dans l'ordre de la série (année de
@@ -5125,7 +5184,7 @@ function render(){
     // compteur par rapport au catalogue quand il est connu, sinon l'ancien
     const tally=rcCatalogTally(type);
     const countHtml=tally
-      ? '<span class="cat-count" title="Pièces différentes du catalogue possédées / total du catalogue">'+tally.owned+' / '+tally.total+'</span>'
+      ? '<span class="cat-count tally" title="Voir ce qui manque" onclick="openMissing(event,'+escHtml(JSON.stringify(type))+',null,null,'+escHtml(JSON.stringify(label))+')">'+tally.owned+' / '+tally.total+'<span class="ms-ico">🔍</span></span>'
       : '<span class="cat-count">'+ownedCat+'/'+totalCat+'</span>';
 
     const sec=document.createElement('div');
@@ -5169,8 +5228,10 @@ function render(){
           if(tl){
             const c=document.createElement('span');
             c.className='pf-sep-count'+(tl.owned>=tl.total?' done':'');
-            c.title='Pièces différentes du catalogue possédées / total du catalogue';
-            c.textContent=tl.owned+' / '+tl.total;
+            c.title='Voir ce qui manque';
+            c.innerHTML=tl.owned+' / '+tl.total+'<span class="ms-ico">🔍</span>';
+            const mPf=item.platform||'', mEd=ed, mType=type, mTitle=(pf+' · '+ed);
+            c.onclick=e=>openMissing(e,mType,mPf,mEd,mTitle);
             h.appendChild(c);
           }
         }
