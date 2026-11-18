@@ -2218,6 +2218,14 @@ CREATE POLICY "Users see own items" ON items FOR ALL
       <input type="password" id="auth-password" placeholder="Password"/>
       <div id="auth-msg"></div>
       <button class="auth-submit" id="auth-btn" onclick="doAuth()">SIGN IN</button>
+      <button type="button" id="auth-forgot" onclick="forgotPassword()" style="background:transparent;border:none;color:var(--text-dim);font-size:.72rem;cursor:pointer;text-decoration:underline">Mot de passe oublié ? / Forgot password?</button>
+    </div>
+    <div class="auth-form" id="recovery-form" style="display:none">
+      <div style="font-size:.85rem;color:var(--text);text-align:center">Choisis ton nouveau mot de passe<br><span style="color:var(--text-dim);font-size:.72rem">Choose your new password</span></div>
+      <input type="password" id="recovery-pass1" placeholder="Nouveau mot de passe / New password" autocomplete="new-password"/>
+      <input type="password" id="recovery-pass2" placeholder="Confirmer / Confirm" autocomplete="new-password"/>
+      <div id="recovery-msg"></div>
+      <button class="auth-submit" onclick="saveNewPassword()">ENREGISTRER / SAVE</button>
     </div>
     <button onclick="resetSetup()" style="margin-top:14px;background:transparent;border:none;color:var(--text-dim);font-size:.7rem;cursor:pointer;text-decoration:underline">⚙️ Reconfigure Supabase</button>
   </div>
@@ -3948,6 +3956,46 @@ async function doAuth(){
 }
 async function doSignOut(){ await sbClient.auth.signOut(); currentUser=null; items=[]; show('auth-screen'); }
 
+// ── Mot de passe oublié ──
+// Le lien du mail ramène ici avec type=recovery : on capte ce marqueur
+// avant que supabase-js nettoie l'adresse, puis on affiche le formulaire
+// du nouveau mot de passe au lieu d'ouvrir directement l'appli.
+window._rcRecovery = /type=recovery/.test(location.hash + location.search);
+async function forgotPassword(){
+  const email=document.getElementById('auth-email').value.trim();
+  const msgEl=document.getElementById('auth-msg');
+  if(!email){ msgEl.innerHTML='<div class="auth-error">Entre ton email au-dessus, puis clique à nouveau. / Enter your email above, then click again.</div>'; return; }
+  try{
+    const {error}=await sbClient.auth.resetPasswordForEmail(email,{redirectTo:'https://tracker.ratchetlegacy.com/'});
+    if(error) throw error;
+    msgEl.innerHTML='<div class="auth-success">Mail envoyé ! Ouvre le lien reçu pour choisir un nouveau mot de passe. / Email sent! Open the link to choose a new password.</div>';
+  }catch(e){ msgEl.innerHTML=`<div class="auth-error">${e.message}</div>`; }
+}
+function showRecovery(){
+  show('auth-screen');
+  document.querySelector('#auth-screen .auth-tabs').style.display='none';
+  document.querySelector('#auth-screen .auth-form:not(#recovery-form)').style.display='none';
+  document.getElementById('recovery-form').style.display='';
+}
+async function saveNewPassword(){
+  const p1=document.getElementById('recovery-pass1').value;
+  const p2=document.getElementById('recovery-pass2').value;
+  const msgEl=document.getElementById('recovery-msg');
+  if(p1.length<6){ msgEl.innerHTML='<div class="auth-error">6 caractères minimum. / At least 6 characters.</div>'; return; }
+  if(p1!==p2){ msgEl.innerHTML='<div class="auth-error">Les deux mots de passe sont différents. / Passwords do not match.</div>'; return; }
+  try{
+    const {data,error}=await sbClient.auth.updateUser({password:p1});
+    if(error) throw error;
+    window._rcRecovery=false;
+    history.replaceState(null,'',location.pathname);
+    document.getElementById('recovery-form').style.display='none';
+    document.querySelector('#auth-screen .auth-tabs').style.display='';
+    document.querySelector('#auth-screen .auth-form:not(#recovery-form)').style.display='';
+    showToast('Mot de passe modifié ! / Password updated!','success');
+    currentUser=data.user; launchApp();
+  }catch(e){ msgEl.innerHTML=`<div class="auth-error">${e.message}</div>`; }
+}
+
 // ── Remise a zero de la collection ──
 // On vide les objets, on garde le compte. Trois freins : le nombre
 // d'objets annonce avant d'agir, un mot a taper, et un rappel que
@@ -4791,7 +4839,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.14-manques';
+const RC_APP_VERSION = '2026.11.18-mdp-oublie';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -12054,6 +12102,10 @@ async function boot(){
     const {data:{session}}=await sbClient.auth.getSession();
     if(session){ currentUser=session.user; }
   } catch(e){}
+  // Lien de réinitialisation du mot de passe : formulaire avant tout le reste
+  if(window._rcRecovery){
+    showRecovery();
+  } else {
   // Check if viewing a public profile
   const isPublic = await checkPublicProfile();
   if(isPublic) return;
@@ -12062,7 +12114,10 @@ async function boot(){
     if(session){ currentUser=session.user; launchApp(); }
     else{ show('auth-screen'); }
   } catch(e) { show('auth-screen'); }
+  }
   sbClient.auth.onAuthStateChange((event,session)=>{
+    if(event==='PASSWORD_RECOVERY'){ window._rcRecovery=true; showRecovery(); return; }
+    if(window._rcRecovery) return;
     // Supabase renvoie SIGNED_IN à chaque retour sur l'appli (onglet ou appli
     // remise au premier plan) : on ne relance l'application que si
     // l'utilisateur change vraiment, sinon tout se rechargeait à chaque fois.
