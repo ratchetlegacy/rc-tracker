@@ -3961,6 +3961,13 @@ async function doSignOut(){ await sbClient.auth.signOut(); currentUser=null; ite
 // avant que supabase-js nettoie l'adresse, puis on affiche le formulaire
 // du nouveau mot de passe au lieu d'ouvrir directement l'appli.
 window._rcRecovery = /type=recovery/.test(location.hash + location.search);
+// Lien expiré ou déjà utilisé : Supabase renvoie error_code dans l'adresse
+window._rcAuthError = /error_code=|error_description=/.test(location.hash + location.search);
+function showAuthLinkError(){
+  show('auth-screen');
+  history.replaceState(null,'',location.pathname);
+  document.getElementById('auth-msg').innerHTML='<div class="auth-error">Ce lien a expiré ou a déjà servi. Entre ton email puis clique sur « Mot de passe oublié ? » pour en recevoir un nouveau, et ouvre-le tout de suite.<br><br>This link has expired or was already used. Enter your email, then click “Forgot password?” to get a new one.</div>';
+}
 async function forgotPassword(){
   const email=document.getElementById('auth-email').value.trim();
   const msgEl=document.getElementById('auth-msg');
@@ -4839,7 +4846,7 @@ function setAllSections(open){
 
 // R&C catalog image index (name -> catalog image), so catalog photos
 // become the default image on collection items too.
-const RC_APP_VERSION = '2026.11.18-mdp-oublie';
+const RC_APP_VERSION = '2026.11.19-retour-anglais';
 // préférences d'affichage de la collection (gardées sur l'appareil)
 function rcPref(k,d){ try{ return localStorage.getItem('rc_'+k)||d; }catch(e){ return d; } }
 function rcSetPref(k,v){ try{ localStorage.setItem('rc_'+k,v); }catch(e){} }
@@ -4902,7 +4909,7 @@ function applyRatingToItems(){
 }
 async function loadRcCatalogIndex(){
   try {
-    const { data } = await sbClient.from('catalog').select('id,name,image_url,year,category,platform,edition');
+    const { data } = await sbClient.from('catalog').select('id,name,name_en,image_url,year,category,platform,edition');
     rcCatalogByName = {}; rcCatalogById = {}; rcCatalogRows = data||[];
     const nb = {};
     (data||[]).forEach(c=>{
@@ -4974,7 +4981,7 @@ function openMissing(ev,type,pf,edLabel,title){
     const meta=[c.platform&&c.platform!=='-'?c.platform:'',c.edition,c.region,c.year].filter(Boolean).join(' · ');
     const img=c.image_url?'<img src="'+escHtml(c.image_url)+'" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=\'<div class=&quot;ms-ph&quot;>'+getIcon(type)+'</div>\'"/>':'<div class="ms-ph">'+getIcon(type)+'</div>';
     return '<div class="ms-row" onclick="missingOpenItem(\''+escHtml(String(c.id))+'\')">'+img
-      +'<div style="min-width:0"><b>'+escHtml(c.name||'')+(wished.has(String(c.id))?'<span class="ms-wish">★ Wishlist</span>':'')+'</b><span>'+escHtml(meta)+'</span></div></div>';
+      +'<div style="min-width:0"><b>'+escHtml(c.name_en||c.name||'')+(wished.has(String(c.id))?'<span class="ms-wish">★ Wishlist</span>':'')+'</b><span>'+escHtml(meta)+'</span></div></div>';
   }).join('');
   document.getElementById('missing-body').innerHTML=h;
   document.getElementById('missing-overlay').classList.add('open');
@@ -4982,7 +4989,7 @@ function openMissing(ev,type,pf,edLabel,title){
 function closeMissing(){ document.getElementById('missing-overlay').classList.remove('open'); }
 async function missingOpenItem(id){
   if(!catalogData.length){
-    try { const { data } = await sbClient.from('catalog').select('*'); catalogData = data||[]; } catch(e){}
+    try { const { data } = await sbClient.from('catalog').select('*'); catalogData = rcLocalizeCatalog(data); } catch(e){}
   }
   openCatalogDetail(id);
 }
@@ -8609,7 +8616,7 @@ async function cmpOpen(idx){
   const id = it.catalog_id!=null ? it.catalog_id : it._cid;
   if(id==null){ showToast('No catalog entry for this item yet','error'); return; }
   if(!catalogData.length){
-    try { const { data } = await sbClient.from('catalog').select('*'); catalogData = data||[]; } catch(e){}
+    try { const { data } = await sbClient.from('catalog').select('*'); catalogData = rcLocalizeCatalog(data); } catch(e){}
   }
   openCatalogDetail(id);
 }
@@ -10829,6 +10836,18 @@ async function downloadGuidePDF(){
 
 // ══ CATALOG ══
 let catalogData = [];
+// Le catalogue est rédigé en français (name, description) avec une version
+// anglaise (name_en, description_en). L'appli affiche l'anglais ; le texte
+// français reste dans name_fr / description_fr pour le formulaire d'édition.
+function rcLocalizeCatalog(rows){
+  (rows||[]).forEach(c=>{
+    if(!c || c._loc) return; c._loc=1;
+    c.name_fr=c.name; c.description_fr=c.description;
+    if(c.name_en) c.name=c.name_en;
+    if(c.description_en) c.description=c.description_en;
+  });
+  return rows||[];
+}
 let catalogFilter = 'all';
 
 async function openCatalog(){
@@ -10846,7 +10865,7 @@ async function loadCatalog(){
   try {
     const { data, error } = await sbClient.from('catalog').select('*').order('sort_order').order('year');
     if(error) throw error;
-    catalogData = data || [];
+    catalogData = rcLocalizeCatalog(data);
     buildCatalogCats();
     renderCatalog();
   } catch(e){
@@ -11439,7 +11458,7 @@ function openCatalogEdit(id){
   const entry = id ? catalogData.find(c=>String(c.id)===String(id)) : null;
   document.getElementById('catalog-edit-title').textContent = entry ? '✏️ Edit catalog entry' : '🛠️ Nouvelle fiche Vault (catalogue)';
   document.getElementById('cat-edit-id').value = entry ? entry.id : '';
-  document.getElementById('cat-edit-name').value = entry ? (entry.name||'') : '';
+  document.getElementById('cat-edit-name').value = entry ? ((entry.name_fr!=null?entry.name_fr:entry.name)||'') : '';
   document.getElementById('cat-edit-category').value = entry ? (entry.category||'Game') : 'Game';
   document.getElementById('cat-edit-platform').value = entry ? (entry.platform||'') : '';
   document.getElementById('cat-edit-year').value = entry ? (entry.year||'') : '';
@@ -11452,7 +11471,7 @@ function openCatalogEdit(id){
   document.getElementById('cat-edit-price-used').value = entry ? (entry.price_used!=null?entry.price_used:'') : '';
   document.getElementById('cat-edit-image').value = entry ? (entry.image_url||'') : '';
   document.getElementById('cat-edit-imageback').value = entry ? (entry.image_back||'') : '';
-  document.getElementById('cat-edit-desc').value = entry ? (entry.description||'') : '';
+  document.getElementById('cat-edit-desc').value = entry ? ((entry.description_fr!=null?entry.description_fr:entry.description)||'') : '';
   document.getElementById('cat-delete-btn').style.display = entry ? 'block' : 'none';
   updateCatImagePreview();
   document.getElementById('catalog-edit-overlay').classList.add('open');
@@ -11934,18 +11953,33 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
     'guide-screen','public-screen','friends-screen','compare-screen',
     'other-screen','other-edit-overlay','other-detail-overlay','themes-screen',
     'news-edit-overlay','news-popup-overlay','catitem-overlay','photomod-overlay','catmanager-overlay','logobank-overlay',
-    'collmanager-overlay','catalogedit-overlay','catreq-overlay','collwiz-overlay','pasteimport-overlay','catreqreview-overlay','delacc-overlay','reset-overlay','addwiz-overlay','globalsearch-overlay','collection-view-screen','subcoll-screen'
+    'collmanager-overlay','catalogedit-overlay','catreq-overlay','collwiz-overlay','pasteimport-overlay','catreqreview-overlay','delacc-overlay','reset-overlay','addwiz-overlay','globalsearch-overlay','collection-view-screen','subcoll-screen',
+    'budget-screen','catalog-screen','import-overlay','missing-overlay','sold-overlay','suggest-overlay','suggest-review-overlay','detail-modal'
   ];
+  // Ordre d'ouverture : le bouton Retour ferme la DERNIÈRE fenêtre ouverte,
+  // pas la dernière de la liste. Avant, un écran plein (collection, catalogue)
+  // pouvait être fermé à la place de la fiche ouverte par-dessus, ce qui
+  // ramenait directement au menu.
+  const CLOSABLE_SET=new Set(CLOSABLE);
+  const openOrder=new Map(); let openSeq=0;
+  function trackOpen(el){
+    if(!el || !el.id || !CLOSABLE_SET.has(el.id)) return;
+    const isOpen=el.classList.contains('open');
+    if(isOpen && !openOrder.has(el.id)) openOrder.set(el.id, ++openSeq);
+    else if(!isOpen) openOrder.delete(el.id);
+  }
   // Return the topmost open closable element, or null
   function topOpen(){
-    // modals/overlays take priority over full screens (they sit on top)
-    let found=null;
-    for(const id of CLOSABLE){
-      const el=document.getElementById(id);
-      if(el && el.classList.contains('open')) found=el; // last match = highest in DOM order roughly
-    }
     const menu=document.getElementById('mobile-menu-panel');
     if(menu && menu.classList.contains('open')) return menu;
+    let found=null, best=-1;
+    for(const id of CLOSABLE){
+      const el=document.getElementById(id);
+      if(!el || !el.classList.contains('open')) continue;
+      if(id==='catalog-screen' && typeof rcNavCat!=='undefined' && rcNavCat) continue; // la cascade du catalogue est gérée à part
+      const rank=openOrder.has(id) ? 1e6+openOrder.get(id) : CLOSABLE.indexOf(id);
+      if(rank>best){ best=rank; found=el; }
+    }
     return found;
   }
   function closeEl(el){
@@ -11978,7 +12012,7 @@ function closeIosInstall(){ document.getElementById('ios-install-overlay').class
   }
 
   // React to any open/close by (re)ensuring the trap
-  const obs=new MutationObserver(()=>{ ensureTrap(); });
+  const obs=new MutationObserver((recs)=>{ recs.forEach(r=>trackOpen(r.target)); ensureTrap(); });
   window.addEventListener('load', ()=>{
     obs.observe(document.body, {subtree:true, attributes:true, attributeFilter:['class']});
     // also seed once in case something is already open
@@ -12103,7 +12137,9 @@ async function boot(){
     if(session){ currentUser=session.user; }
   } catch(e){}
   // Lien de réinitialisation du mot de passe : formulaire avant tout le reste
-  if(window._rcRecovery){
+  if(window._rcAuthError && !window._rcRecovery){
+    showAuthLinkError();
+  } else if(window._rcRecovery){
     showRecovery();
   } else {
   // Check if viewing a public profile
@@ -12222,7 +12258,7 @@ async function openImport(){
   if(!catalogData || !catalogData.length){
     document.getElementById('imp-list').innerHTML='<div style="text-align:center;color:var(--text-dim);padding:30px">'+impL('Chargement du catalogue…','Loading catalog…')+'</div>';
     const { data } = await sbClient.from('catalog').select('*').order('sort_order').order('year');
-    catalogData = data || [];
+    catalogData = rcLocalizeCatalog(data);
   }
   impLoad(); impRender();
 }
@@ -12323,7 +12359,7 @@ function impSuggest(title, query){
   const merch = /figur|action figure|plush|peluche|guide|poster|affiche|tasse|mug|pins?\b|magnet|bottle|gourde|t ?shirt|tee|funko|keychain|porte cle|stylo|pen\b|penna|phone ?ring|selfie|sticker|vinyl|blu ?ray|dvd|book|livre|comic|magazine|bobble|pixel pal|papercraft|paper craft/.test(t);
   const consoleWord = /console|bundle|\bpack\b|slim|\bfat\b|\b(1004|2004|3004)\b/.test(t) && !/duo pack|triple pack|pack platin|gift package/.test(t);
   const scored = (catalogData||[]).map(c=>{
-    const name = impNorm(c.name), pl = impNorm(c.platform), rg = impNorm(c.region), e = impNorm(c.edition), cat = c.category||'';
+    const name = impNorm(c.name_fr!=null?c.name_fr:c.name), pl = impNorm(c.platform), rg = impNorm(c.region), e = impNorm(c.edition), cat = c.category||'';
     const hay = name+' '+pl+' '+rg+' '+e+' '+impNorm(cat);
     const isGame = cat==='Game', isConsole = cat==='Console/Pack';
     let base = 0;
